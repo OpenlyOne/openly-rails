@@ -53,5 +53,10 @@ group :development do
   gem 'guard-rspec', '~> 4.7', require: false
 end
 
+group :test do
+  # Track code coverage with Codecov
+  gem 'codecov', '~> 0.1', :require => false
+end
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
