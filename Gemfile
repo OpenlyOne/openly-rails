@@ -40,6 +40,8 @@ group :development, :test do
   gem 'pry-byebug', '~> 3.4'
   # Use Rspec for testing
   gem 'rspec-rails', '~> 3.5'
+  # We will use bullet to avoid N+1 queries
+  gem 'bullet', '~> 5.6'
 end
 
 group :development do
