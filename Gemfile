@@ -34,8 +34,10 @@ gem 'jbuilder', '~> 2.5'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  # We will use pry rails as our console
+  gem 'pry-rails', '~> 0.3'
+  # and also as our debugger
+  gem 'pry-byebug', '~> 3.4'
   # Use Rspec for testing
   gem 'rspec-rails', '~> 3.5'
 end
