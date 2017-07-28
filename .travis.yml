@@ -1,0 +1,25 @@
+language: ruby
+rvm:
+  - 2.4.1
+
+# Use caching
+cache:
+  bundler: true
+
+# Use PostgreSQL as database
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database upshift_test;' -U postgres
+
+script:
+  - bundle exec rspec spec/
+
+bundler_args: --without development production
+
+# whitelist
+branches:
+  only:
+    - master
+    - development
