@@ -20,9 +20,30 @@ html {
 
 // 2. Navbar
 
-// inherit color from navbar
 nav .brand-logo {
+
+  // inherit color from navbar
   color: inherit;
+
+  // prevent wrapping of text
+  white-space: nowrap;
+
+  // fit logo to navbar height
+  img {
+    @media #{$small-and-down} {
+      height: 42px;
+    }
+
+    @media #{$medium-and-up} {
+      height: 50px;
+    }
+
+    display: inline-block;
+    margin-right: 10px;
+    margin-top: 7px;
+    vertical-align: top;
+    width: auto;
+  }
 }
 
 
