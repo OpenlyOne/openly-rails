@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Define helpers needed in layout files
 module LayoutHelper
   # Return a string containing controller and action name, formatted as

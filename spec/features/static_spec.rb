@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 feature 'Static Pages' do
   scenario 'Visiting the home page' do
     visit '/'

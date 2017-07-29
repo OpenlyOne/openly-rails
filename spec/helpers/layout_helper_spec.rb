@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe LayoutHelper, type: :helper do
   describe '#controller_action_identifier' do
     before do

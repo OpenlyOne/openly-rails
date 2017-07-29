@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Start coverage analysis
 if ENV['CI'] == 'true' || ENV['COVERAGE'] == 'true'
   require 'simplecov'
