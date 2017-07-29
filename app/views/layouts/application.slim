@@ -7,6 +7,6 @@ html
     == stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
     == javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
 
-  body class=controller_action_identifier
+  body class=[controller_action_identifier, color_scheme]
     == render 'navbar'
     == yield

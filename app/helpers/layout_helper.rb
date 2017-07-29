@@ -7,4 +7,10 @@ module LayoutHelper
   def controller_action_identifier
     "c-#{controller_name} a-#{action_name}"
   end
+
+  # Pick random color scheme
+  def color_scheme
+    scheme = Color.schemes.sample
+    "color-scheme primary-#{scheme[:base]} primary-#{scheme[:text]}-text"
+  end
 end
