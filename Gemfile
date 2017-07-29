@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 git_source(:github) do |repo_name|
@@ -13,11 +15,14 @@ gem 'pg', '~> 0.21'
 gem 'puma', '~> 3.7'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
+# Autoprefix CSS rules using values from Can I Use
+gem 'autoprefixer-rails', '~> 7.1'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
-
+# Use slim templating
+gem 'slim', '~> 3.0'
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'
 # Turbolinks makes navigating your web application faster. Read more:
@@ -25,6 +30,10 @@ gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
+# Material Design
+gem 'materialize-sass', '~> 0.100'
+# MaterializeCSS requires JQuery
+gem 'jquery-rails', '~> 4.3'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -58,6 +67,8 @@ end
 group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
+  # Behavior-Driven-Development
+  gem 'capybara', '~> 2.14'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Typical Rails app
 guard :rspec, cmd: 'bundle exec rspec' do
   watch('spec/spec_helper.rb')                        { 'spec' }
