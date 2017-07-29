@@ -1,3 +1,31 @@
-// Place all the styles related to the static controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+.c-static.a-index {
+
+  // Set the height of body to 100% so that our #hero banner automatically fills
+  // the full viewport height
+  height: 100%;
+  margin: 0;
+
+  // Full height banner on top
+  .full-height-banner {
+
+    // Scale background image tile according to screen width
+    // Make banner full-height (minus height of navbar)
+    @media #{$small-and-down} {
+      background-size: 50%;
+      min-height: calc(100% - #{$navbar-height-mobile});
+    }
+
+    @media #{$medium-and-up} {
+      background-size: 33%;
+      min-height: calc(100% - #{$navbar-height});
+    }
+
+    @media #{$large-and-up} {
+      background-size: 20%;
+    }
+
+    background-image: image-url('static/banner.svg');
+    background-position: center center;
+    background-repeat: repeat;
+  }
+}
