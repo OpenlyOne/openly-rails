@@ -6,26 +6,35 @@
   margin: 0;
 
   // Full height banner on top
-  .full-height-banner {
+  .hero {
+
+    // Background pattern
+    background-image: image-url('static/banner.svg');
+    background-position: center center;
+    background-repeat: repeat;
 
     // Scale background image tile according to screen width
-    // Make banner full-height (minus height of navbar)
-    @media #{$small-and-down} {
-      background-size: 50%;
-      min-height: calc(100% - #{$navbar-height-mobile});
-    }
+    background-size: 50%;
 
     @media #{$medium-and-up} {
       background-size: 33%;
-      min-height: calc(100% - #{$navbar-height});
     }
 
     @media #{$large-and-up} {
       background-size: 20%;
     }
 
-    background-image: image-url('static/banner.svg');
-    background-position: center center;
-    background-repeat: repeat;
+    // Vertical padding
+    padding: 50px 0;
+
+    // Fill viewport height (minus navbar)
+    &.full-height {
+      min-height: calc(100% - #{$navbar-height-mobile});
+
+      @media #{$medium-and-up} {
+        min-height: calc(100% - #{$navbar-height});
+      }
+
+    }
   }
 }
