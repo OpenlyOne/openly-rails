@@ -58,6 +58,8 @@ end
 group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
+  # Behavior-Driven-Development
+  gem 'capybara', '~> 2.14'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
