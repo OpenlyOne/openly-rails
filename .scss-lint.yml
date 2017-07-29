@@ -1,4 +1,11 @@
 linters:
+  ElsePlacement:
+    enabled: true
+    style: new_line
+  NestingDepth:
+    enabled: true
+    max_depth: 3
+    ignore_parent_selectors: false
   StringQuotes:
     enabled: true
     style: single_quotes
