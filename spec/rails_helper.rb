@@ -1,6 +1,8 @@
 # Start coverage analysis
-require 'simplecov'
-SimpleCov.start 'rails'
+if ENV['CI'] == 'true' || ENV['COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.start 'rails'
+end
 
 # Report coverage to codecov during CI
 if ENV['CI'] == 'true'
