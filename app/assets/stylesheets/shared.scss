@@ -4,6 +4,7 @@
 // 1. Document
 // 2. Navbar
 // 3. Spacing
+// 4. Toasts
 /////
 
 // The basic unit of Material Design
@@ -56,4 +57,13 @@ nav .brand-logo {
     display: block;
     height: $factor * $base-unit;
   }
+}
+
+// 4. Toasts
+
+// Static toasts (added by HTML document rather than JS) and toasts skipping
+// the in-animation should be shown at top
+.toast.static,
+.toast.no-in-animation {
+  top: 0;
 }

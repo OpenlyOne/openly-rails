@@ -12,3 +12,9 @@ html
   body class=[controller_action_identifier, color_scheme]
     = render 'navbar'
     = yield
+
+    / Show notices and alerts as toasts
+    #toast-container
+      = render(partial: 'toast',
+               collection: [notice, alert].select(&:present?),
+               as: :content)
