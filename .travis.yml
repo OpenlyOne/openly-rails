@@ -23,3 +23,8 @@ branches:
   only:
     - master
     - development
+
+# environment variables
+env:
+  global:
+    - CI=true
