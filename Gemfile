@@ -34,10 +34,10 @@ gem 'jbuilder', '~> 2.5'
 gem 'materialize-sass', '~> 0.100'
 # MaterializeCSS requires JQuery
 gem 'jquery-rails', '~> 4.3'
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
 # Use figaro for managing ENV variables
 gem 'figaro', '~> 1.1'
+# Use Devise for authentication
+gem 'devise', '~> 4.3'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
