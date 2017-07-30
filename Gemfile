@@ -36,6 +36,8 @@ gem 'materialize-sass', '~> 0.100'
 gem 'jquery-rails', '~> 4.3'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+# Use figaro for managing ENV variables
+gem 'figaro', '~> 1.1'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -62,6 +64,13 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
   # Automatically run tests when files update
   gem 'guard-rspec', '~> 4.7', require: false
+  # Capistrano for deployment
+  gem 'capistrano',             '~> 3.9', require: false
+  gem 'capistrano-bundler',     '~> 1.2', require: false
+  gem 'capistrano-figaro-yml',  '~> 1.0', require: false
+  gem 'capistrano-rails',       '~> 1.3', require: false
+  gem 'capistrano-rvm',         '~> 0.1', require: false
+  gem 'capistrano3-puma',       '~> 3.1', require: false
 end
 
 group :test do
