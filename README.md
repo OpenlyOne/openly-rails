@@ -1,24 +1,8 @@
-# README
+# Upshift One
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+[![GitHub version](https://badge.fury.io/gh/UpshiftOne%2Fupshift.svg)](https://badge.fury.io/gh/UpshiftOne%2Fupshift)
+[![Build Status](https://travis-ci.org/UpshiftOne/upshift.svg?branch=master)](https://travis-ci.org/UpshiftOne/upshift)
+[![codecov](https://codecov.io/gh/UpshiftOne/upshift/branch/master/graph/badge.svg)](https://codecov.io/gh/UpshiftOne/upshift)
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Upshift is a collaboration platform for individuals and teams with bold
+ambitions.
