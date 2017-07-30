@@ -1,0 +1,14 @@
+doctype html
+html
+  head
+    title Create Change Together - Upshift One
+    == csrf_meta_tags
+
+    == stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
+    == javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+
+    meta name='viewport' content='width=device-width, initial-scale=1.0'
+
+  body class=[controller_action_identifier, color_scheme]
+    == render 'navbar'
+    == yield

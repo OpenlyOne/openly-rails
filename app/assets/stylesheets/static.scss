@@ -1,0 +1,40 @@
+.c-static.a-index {
+
+  // Set the height of body to 100% so that our #hero banner automatically fills
+  // the full viewport height
+  height: 100%;
+  margin: 0;
+
+  // Full height banner on top
+  .hero {
+
+    // Background pattern
+    background-image: image-url('static/banner.svg');
+    background-position: center center;
+    background-repeat: repeat;
+
+    // Scale background image tile according to screen width
+    background-size: 50%;
+
+    @media #{$medium-and-up} {
+      background-size: 33%;
+    }
+
+    @media #{$large-and-up} {
+      background-size: 20%;
+    }
+
+    // Vertical padding
+    padding: 50px 0;
+
+    // Fill viewport height (minus navbar)
+    &.full-height {
+      min-height: calc(100% - #{$navbar-height-mobile});
+
+      @media #{$medium-and-up} {
+        min-height: calc(100% - #{$navbar-height});
+      }
+
+    }
+  }
+}

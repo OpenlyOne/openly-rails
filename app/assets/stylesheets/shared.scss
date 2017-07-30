@@ -1,0 +1,59 @@
+/////
+// CSS styles meant to be shared across the entire application
+//
+// 1. Document
+// 2. Navbar
+// 3. Spacing
+/////
+
+// The basic unit of Material Design
+$base-unit: 16px;
+
+// 1. Document
+
+// Set html document to full height of viewport
+html {
+  height: 100%;
+  margin: 0;
+}
+
+
+// 2. Navbar
+
+nav .brand-logo {
+
+  // inherit color from navbar
+  color: inherit;
+
+  // prevent wrapping of text
+  white-space: nowrap;
+
+  // fit logo to navbar height
+  img {
+    @media #{$small-and-down} {
+      height: 42px;
+    }
+
+    @media #{$medium-and-up} {
+      height: 50px;
+    }
+
+    display: inline-block;
+    margin-right: 10px;
+    margin-top: 7px;
+    vertical-align: top;
+    width: auto;
+  }
+}
+
+
+// 3. Spacing
+
+// Add a set amount of vertical spacing between elements
+// Usage: div.spacing with h16, h32, ..., h64, h128
+@each $factor in 1, 2, 3, 4, 8 {
+  div.spacing.h#{$factor * $base-unit} {
+    display: block;
+    height: $factor * $base-unit;
+  }
+}
