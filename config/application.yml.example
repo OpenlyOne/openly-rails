@@ -11,6 +11,7 @@
 #   stripe_publishable_key: pk_live_9lcthxpSIHbGwmdO941O1XVU
 
 production:
+  DEPLOY_USER: <username of user for deployment>
   SECRET_KEY_BASE: <generate with 'rake secret'>
   UPSHIFT_DATABASE_NAME: <your postgres database>
   UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
