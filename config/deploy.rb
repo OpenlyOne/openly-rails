@@ -40,7 +40,8 @@ set :puma_init_active_record, true
 
 ## Linked Files & Directories (Default None):
 # set :linked_files, %w{config/database.yml}
-# set :linked_dirs,
+set :linked_dirs,
+    %w[public/.well-known]
 #    %w[bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system]
 
 namespace :puma do
