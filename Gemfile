@@ -51,6 +51,8 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.6'
+  # Use FactoryGirl for generating factories
+  gem 'factory_girl_rails', '~> 4.8'
 end
 
 group :development do
