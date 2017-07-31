@@ -53,6 +53,8 @@ group :development, :test do
   gem 'bullet', '~> 5.6'
   # Use FactoryGirl for generating factories
   gem 'factory_girl_rails', '~> 4.8'
+  # Quickly generate fake names, urls, etc
+  gem 'faker', '~> 1.8'
 end
 
 group :development do
