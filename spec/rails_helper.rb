@@ -90,6 +90,10 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
+  # Include Devise test helpers:
+  # https://github.com/plataformatec/devise#integration-tests
+  config.include Devise::Test::IntegrationHelpers, type: :feature
+
   # add this line at the bottom of the config section
   # it saves us time when using FactoryGirl methods.
   config.include FactoryGirl::Syntax::Methods
