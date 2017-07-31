@@ -80,6 +80,10 @@ group :test do
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
   gem 'capybara', '~> 2.14'
+  # Additional RSpec matchers
+  gem 'shoulda-matchers', '~> 3.1',
+      git: 'https://github.com/thoughtbot/shoulda-matchers.git',
+      branch: 'rails-5'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
