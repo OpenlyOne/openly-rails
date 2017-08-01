@@ -6,7 +6,7 @@ feature 'Session' do
     account = create(:account)
 
     # when I visit the login page
-    visit '/accounts/sign_in'
+    visit '/login'
     # and submit my email and password
     fill_in 'Email', with: account.email
     fill_in 'Password', with: account.password
@@ -22,7 +22,7 @@ feature 'Session' do
     sign_in account, scope: :account
 
     # when I visit the logout page
-    visit '/accounts/sign_out'
+    visit '/logout'
 
     # then I should be signed out
     expect(page).to have_text 'Signed out successfully'

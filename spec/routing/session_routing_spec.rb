@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 RSpec.describe 'routes for sessions', type: :routing do
-  it 'has a login route' do
-    expect(new_account_session_path).to eq '/accounts/sign_in'
-    expect(get: '/accounts/sign_in').to route_to 'devise/sessions#new'
+  it 'has a new route' do
+    expect(new_session_path).to eq '/login'
+    expect(get: '/login').to route_to 'devise/sessions#new'
   end
 
-  it 'has a create route' do
-    expect(account_session_path).to eq '/accounts/sign_in'
-    expect(post: '/accounts/sign_in').to route_to 'devise/sessions#create'
+  it 'has a create route ' do
+    expect(session_path).to eq '/login'
+    expect(get: '/login').to route_to 'devise/sessions#new'
   end
 
   it 'has a destroy route' do
-    expect(destroy_account_session_path).to eq '/accounts/sign_out'
-    expect(get: '/accounts/sign_out').to route_to 'devise/sessions#destroy'
+    expect(destroy_session_path).to eq '/logout'
+    expect(get: '/logout').to route_to 'devise/sessions#destroy'
   end
 end
