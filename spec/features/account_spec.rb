@@ -3,7 +3,7 @@
 feature 'Account' do
   scenario 'User can create an account' do
     # given I am on the sign up page
-    visit '/accounts/sign_up'
+    visit '/join'
 
     # when I enter my email address and password
     account = build(:account)
@@ -26,7 +26,7 @@ feature 'Account' do
     sign_in account, scope: :account
 
     # when I go to the edit account page
-    visit 'accounts/edit'
+    visit '/account'
     # and update my password
     fill_in 'Password', with: 'newpassword'
     fill_in 'Password confirmation', with: 'newpassword'
@@ -46,7 +46,7 @@ feature 'Account' do
     sign_in account, scope: :account
 
     # when I go to the edit account page
-    visit 'accounts/edit'
+    visit '/account'
     # and click cancel my account
     click_on 'Cancel my account'
 
