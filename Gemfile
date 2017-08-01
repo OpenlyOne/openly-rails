@@ -51,6 +51,10 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.6'
+  # Use FactoryGirl for generating factories
+  gem 'factory_girl_rails', '~> 4.8'
+  # Quickly generate fake names, urls, etc
+  gem 'faker', '~> 1.8'
 end
 
 group :development do
@@ -78,6 +82,12 @@ group :test do
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
   gem 'capybara', '~> 2.14'
+  # Additional RSpec matchers
+  gem 'shoulda-matchers', '~> 3.1',
+      git: 'https://github.com/thoughtbot/shoulda-matchers.git',
+      branch: 'rails-5'
+  # Cleans the test database after every test
+  gem 'database_cleaner', '~> 1.6'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
