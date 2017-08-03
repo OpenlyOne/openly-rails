@@ -1,0 +1,15 @@
+// For styling all types of errors
+
+.validation-errors {
+  // Validation errors should be red
+  color: color('red', 'darken-3');
+
+  // Add vertical spacing
+  margin-bottom: 32px;
+
+  // Adjust error text so that icon and error are aligned
+  .error .error-text {
+    line-height: 24px;
+    vertical-align: top;
+  }
+}

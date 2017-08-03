@@ -1,11 +1,21 @@
 // MaterializeCSS
 @import 'materialize/components/color';
-$primary-color: color('red', 'base');
+$primary-color: color('shades', 'black');
 $secondary-color: $primary-color;
 $input-focus-color: color('grey', 'darken-4');
+// Set tabs to inherit colors from parent element
+$tabs-bg-color: transparent;
+$tabs-underline-color: currentColor;
+// Set label and placeholder text color
+$input-border-color: color('grey', 'base');
+$placeholder-text-color: $input-border-color;
 @import 'materialize';
-@import 'fix_materialize';
 
-@import 'shared';
-@import 'color_scheme';
-@import 'static';
+// Load variables
+@import 'variables';
+// Define mixins
+@import 'mixins/all';
+// Styles meant to be shared between views
+@import 'shared/all';
+// Styles for specific controllers
+@import 'controllers/all';

@@ -1,0 +1,8 @@
+// Styling for tabs
+
+// Static tabs (not dynamic, consisting of real links, no animation) should use
+// border to indicate active element
+.tabs.static > .tab > .active {
+  border-bottom: 2px solid;
+  border-color: currentColor;
+}

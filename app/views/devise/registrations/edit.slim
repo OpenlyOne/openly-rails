@@ -1,0 +1,54 @@
+.page-heading.primary-color.primary-color-text
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 Account
+
+.container
+
+  .row
+    = form_for(resource,
+               as: resource_name,
+               url: account_path,
+               html: {class: 'col s12 l6'}) do |f|
+
+      - if resource.errors.any?
+        .validation-errors
+          = render partial: "error", collection: resource.errors.full_messages, as: :error
+
+      .row
+        .input-field.col.s12
+          = f.email_field :email, readonly: true
+          = f.label :email, 'Email (cannot be changed)'
+        - if devise_mapping.confirmable? && resource.pending_reconfirmation?
+          div
+            | Currently waiting confirmation for:
+            =< resource.unconfirmed_email
+      .row
+        .input-field.col.s12
+          = f.password_field :current_password
+          = f.label :current_password
+      .row
+        .input-field.col.s12
+          = f.password_field :password, placeholder: 'Leave blank to ignore'
+          = f.label :password, "Password (minimum #{@minimum_password_length} characters)"
+      .row
+        .input-field.col.s12
+          = f.password_field :password_confirmation
+          = f.label :password_confirmation
+
+      .row
+        .col.s12
+          button action='submit' class="btn-large primary-color primary-color-text"
+            | Save
+
+  h3 Delete Account
+  .row
+    .col.s12.l6
+      = button_to('Delete my account',
+                account_path,
+                data: { confirm: 'Are you sure?' },
+                method: :delete,
+                class: 'btn primary-color primary-color-text')
+
+  .spacing.v48px

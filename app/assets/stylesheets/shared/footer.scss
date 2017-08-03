@@ -1,0 +1,28 @@
+// Styling for footer
+
+footer {
+
+  a {
+    // transition background color
+    transition: background-color .3s;
+
+    // add hover effect
+    &:hover {
+      background-color: $shadow;
+    }
+  }
+
+  // style items inside footer
+  a,
+  span {
+    color: inherit;
+    display: block;
+    font-size: 14px;
+    height: 48px;
+    line-height: 48px;
+  }
+
+  .heading {
+    font-weight: 500;
+  }
+}
