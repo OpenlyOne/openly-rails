@@ -6,7 +6,17 @@ html {
   margin: 0;
 }
 
-// Body color should be a slight gray
 body {
+  // Body color should be a slight gray
   background-color: color('gray', 'lighten-4');
+
+  // Flex body so that we can have a sticky footer
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  // Main should grow so that footer is sticky
+  > main {
+    flex: 1 0 auto;
+  }
 }

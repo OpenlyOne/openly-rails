@@ -2,10 +2,13 @@
 
 .c-static.a-index {
 
-  // Set the height of body to 100% so that our #hero banner automatically fills
-  // the full viewport height
+  // Set the height of body and main to 100% so that our #hero banner
+  // automatically fills the full viewport height
   height: 100%;
-  margin: 0;
+
+  > main {
+    height: 100%;
+  }
 
   // Full height banner on top
   .hero {
@@ -38,5 +41,11 @@
       }
 
     }
+  }
+
+  // Disable the default footer because it is not positioned correctly
+  // We are instead adding our own under the <main> element
+  > footer {
+    display: none;
   }
 }

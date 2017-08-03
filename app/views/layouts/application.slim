@@ -10,11 +10,14 @@ html
     meta name='viewport' content='width=device-width, initial-scale=1.0'
 
   body class=[controller_action_identifier, color_scheme]
-    = render 'navbar'
-    = yield
+    main
+      = render 'navbar'
+      = yield
 
-    / Show notices and alerts as toasts
-    #toast-container
-      = render(partial: 'toast',
-               collection: [notice, alert].select(&:present?),
-               as: :content)
+      / Show notices and alerts as toasts
+      #toast-container
+        = render(partial: 'toast',
+                 collection: [notice, alert].select(&:present?),
+                 as: :content)
+
+    = render 'footer'
