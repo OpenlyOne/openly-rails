@@ -7,6 +7,10 @@ RSpec.describe Account, type: :model do
     is_expected.to be_valid
   end
 
+  describe 'attributes' do
+    it { is_expected.to have_readonly_attribute(:email) }
+  end
+
   describe 'validations' do
     it { is_expected.to validate_confirmation_of(:password) }
     it { is_expected.to validate_length_of(:password).is_at_least(8) }

@@ -18,8 +18,8 @@
 
       .row
         .input-field.col.s12
-          = f.email_field :email
-          = f.label :email
+          = f.email_field :email, readonly: true
+          = f.label :email, 'Email (cannot be changed)'
         - if devise_mapping.confirmable? && resource.pending_reconfirmation?
           div
             | Currently waiting confirmation for:
