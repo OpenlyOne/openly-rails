@@ -13,4 +13,21 @@ module LayoutHelper
     scheme = Color.schemes.sample
     "color-scheme primary-#{scheme[:base]} primary-#{scheme[:text]}-text"
   end
+
+  # Links in navigation
+  # rubocop:disable Metrics/MethodLength
+  def navigation_links
+    if account_signed_in?
+      [
+        { text: 'Account',  path: edit_account_path },
+        { text: 'Logout',   path: destroy_session_path }
+      ]
+    else
+      [
+        { text: 'Join',   path: new_registration_path },
+        { text: 'Login',  path: new_session_path }
+      ]
+    end
+  end
+  # rubocop:enable Metrics/MethodLength
 end

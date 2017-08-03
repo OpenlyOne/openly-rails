@@ -30,4 +30,13 @@ nav {
       width: auto;
     }
   }
+
+  ul a {
+
+    // Links should inherit color from nav
+    color: inherit;
+
+    // Links should have a padding of base unit
+    padding: 0 $base-unit;
+  }
 }
