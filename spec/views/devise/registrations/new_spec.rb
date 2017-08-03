@@ -13,6 +13,6 @@ RSpec.describe 'devise/registrations/new', type: :view do
 
   it 'links to log in page' do
     render
-    expect(rendered).to have_link('Log in', href: new_session_path)
+    expect(rendered).to have_link('Login', href: new_session_path)
   end
 end

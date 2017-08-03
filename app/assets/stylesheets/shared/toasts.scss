@@ -1,0 +1,8 @@
+// Styles for toasts
+
+// Static toasts (added by HTML document rather than JS) and toasts skipping
+// the in-animation should be shown at top
+.toast.static,
+.toast.no-in-animation {
+  top: 0;
+}

@@ -1,0 +1,13 @@
+// Styling for forms
+
+// Input elements
+.input-field input + label {
+  transform: translateY(-14px) scale(.8);
+  transform-origin: 0 0;
+}
+
+// Placeholders
+::placeholder {
+  font-size: .8rem;
+  font-style: italic;
+}

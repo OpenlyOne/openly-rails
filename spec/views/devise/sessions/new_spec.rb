@@ -13,6 +13,6 @@ RSpec.describe 'devise/sessions/new', type: :view do
 
   it 'links to sign up page' do
     render
-    expect(rendered).to have_link('Sign up', href: new_registration_path)
+    expect(rendered).to have_link('Join', href: new_registration_path)
   end
 end
