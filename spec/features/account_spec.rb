@@ -35,7 +35,10 @@ feature 'Account' do
     fill_in 'Password confirmation', with: 'newpassword'
     click_on 'Save'
 
-    # then I should see a success message
+    # then I should be (remain) on the account page
+    expect(page).to have_current_path '/account'
+
+    # and see a success message
     expect(page).to have_text 'updated successfully'
 
     # and my password should be updated in the database

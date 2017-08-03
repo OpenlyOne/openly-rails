@@ -17,6 +17,8 @@ Rails.application.routes.draw do
              only: %i[edit update destroy],
              path_names: { edit: '' },
              controller: 'devise/registrations'
+    # Stay on /account page after user updates their account
+    get '/account', to: 'devise/registrations#edit', as: :account_root
   end
 
   # Routes for sessions

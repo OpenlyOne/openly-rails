@@ -26,4 +26,8 @@ RSpec.describe 'routes for accounts', type: :routing do
     expect(account_path).to eq '/account'
     expect(delete: '/account').to route_to 'devise/registrations#destroy'
   end
+
+  it 'has a root route' do
+    expect(account_root_path).to eq '/account'
+  end
 end
