@@ -1,0 +1,42 @@
+// Styles for the navigation bar
+
+nav {
+
+  // add seam
+  @include seam(bottom);
+
+  .brand-logo {
+
+    // inherit color from navbar
+    color: inherit;
+
+    // prevent wrapping of text
+    white-space: nowrap;
+
+    // fit logo to navbar height
+    img {
+      @media #{$small-and-down} {
+        height: 42px;
+      }
+
+      @media #{$medium-and-up} {
+        height: 50px;
+      }
+
+      display: inline-block;
+      margin-right: 10px;
+      margin-top: 7px;
+      vertical-align: top;
+      width: auto;
+    }
+  }
+
+  ul a {
+
+    // Links should inherit color from nav
+    color: inherit;
+
+    // Links should have a padding of base unit
+    padding: 0 $base-unit;
+  }
+}

@@ -1,0 +1,35 @@
+// Styles for all types of spacings, paddings, and margins
+
+// Add a set amount of vertical spacing between elements
+// Usage: div.spacing with h16, h32, ..., h64, h128
+@each $factor in 1, 2, 3, 4, 8 {
+  div.spacing.v#{$factor * $base-unit} {
+    display: block;
+    height: $factor * $base-unit;
+  }
+}
+
+// Remove all paddings
+.no-padding {
+  // scss-lint:disable ImportantRule
+  padding: 0 !important;
+}
+
+// Remove all margins
+.no-margin {
+  // scss-lint:disable ImportantRule
+  margin: 0 !important;
+}
+
+// Remove padding/margin only for specific direction
+@each $direction in 'top', 'right', 'left', 'bottom' {
+  .no-padding-#{$direction} {
+    // scss-lint:disable ImportantRule
+    padding-#{$direction}: 0 !important;
+  }
+
+  .no-margin-#{$direction} {
+    // scss-lint:disable ImportantRule
+    margin-#{$direction}: 0 !important;
+  }
+}
