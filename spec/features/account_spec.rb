@@ -7,10 +7,12 @@ feature 'Account' do
 
     # when I enter my email address and password
     account = build(:account)
-    fill_in 'Email', with: account.email
-    fill_in 'Password', with: account.password
-    fill_in 'Password confirmation', with: account.password
-    click_on 'Sign up'
+    within 'form' do
+      fill_in 'Email', with: account.email
+      fill_in 'Password', with: account.password, match: :first
+      fill_in 'Password confirmation', with: account.password
+      click_on 'Join'
+    end
 
     # then I should see a success message
     expect(page).to have_text 'signed up successfully'
@@ -28,10 +30,10 @@ feature 'Account' do
     # when I go to the edit account page
     visit '/account'
     # and update my password
-    fill_in 'Password', with: 'newpassword'
-    fill_in 'Password confirmation', with: 'newpassword'
     fill_in 'Current password', with: account.password
-    click_on 'Update'
+    fill_in 'Password', with: 'newpassword', match: :first
+    fill_in 'Password confirmation', with: 'newpassword'
+    click_on 'Save'
 
     # then I should see a success message
     expect(page).to have_text 'updated successfully'
@@ -48,7 +50,7 @@ feature 'Account' do
     # when I go to the edit account page
     visit '/account'
     # and click cancel my account
-    click_on 'Cancel my account'
+    click_on 'Delete my account'
 
     # then I should see a success message
     expect(page).to have_text 'successfully cancelled'

@@ -1,7 +1,31 @@
-// add support for gray and blue gray
+// Set up colors to be used in application
+
+// Use Americanized spelling for colors (gray instead of grey)
+.gray {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .grey;
+}
+
+.blue-gray {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .blue-grey;
+}
+
+.gray-text {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .grey-text;
+}
+
+.blue-gray-text {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .blue-grey-text;
+}
+
+// Also support gray and blue-gray in $colors variable
 $colors: map-merge($colors, ('gray': map-get($colors, 'grey')));
 $colors: map-merge($colors, ('blue-gray': map-get($colors, 'blue-grey')));
 
+// Generate our color schemes
 @mixin define-classes-based-on-color-scheme($color) {
   // primary-color: applies main color to an element as background-color
   .primary-color {
@@ -46,4 +70,29 @@ $colors: map-merge($colors, ('blue-gray': map-get($colors, 'blue-grey')));
 // scss-lint:disable MergeableSelector
 .color-scheme.primary-white-text .brand-logo > img {
   filter: invert(1);
+}
+
+// TABS: Inherit color
+.tab {
+
+  // Reduce opacity because we cannot reduce color alpha as in
+  // original implementation
+  a,
+  &.disabled a,
+  &.disabled a:hover {
+    opacity: .7;
+  }
+
+  a {
+    // scss-lint:disable ImportantRule
+    color: inherit !important;
+
+    // add transition to opacity (instead of color)
+    transition: opacity .28s ease;
+
+    &:hover,
+    &.active {
+      opacity: 1;
+    }
+  }
 }

@@ -1,27 +1,45 @@
-h2 Sign up
-= form_for(resource, as: resource_name, url: registration_path) do |f|
-  = devise_error_messages!
+.page-heading.primary-color.primary-color-text.no-padding-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 Join Upshift One
+        h2 Create change together.
+        div.tabs.static.tabs-fixed-width
+          div.tab
+            = link_to 'Join', new_registration_path, class: 'active'
+          div.tab
+            = link_to 'Login', new_session_path
 
-  .field
-    = f.label :email
-    br
-    = f.email_field :email, autofocus: true
+.container
+  .row
+    = form_for(resource,
+               as: resource_name,
+               url: registration_path,
+               html: {class: 'col s12 l6'}) do |f|
+      - if resource.errors.any?
+        .validation-errors
+          = render partial: "error", collection: resource.errors.full_messages, as: :error
 
-  .field
-    = f.label :password
-    - if @minimum_password_length
-      br
-      em
-        => @minimum_password_length
-        | characters minimum
-    = f.password_field :password, autocomplete: 'off'
+      .row
+        .input-field.col.s12
+          = f.email_field :email
+          = f.label :email
+      .row
+        .input-field.col.s12
+          = f.password_field :password
+          = f.label :password, "Password (minimum #{@minimum_password_length} characters)"
+      .row
+        .input-field.col.s12
+          = f.password_field :password_confirmation
+          = f.label :password_confirmation
 
-  .field
-    = f.label :password_confirmation
-    = f.password_field :password_confirmation, autocomplete: 'off'
+      .row
+        .col.s12
+          button action='submit' class="btn-large primary-color primary-color-text"
+            | Join
 
+    .col.l5.xl4.push-l1.push-xl2.hide-on-med-and-down
+      = render 'card'
 
-  .actions
-    = f.submit "Sign up"
-
-= render "devise/shared/links"
+.hide-on-large-only
+  = render 'card'

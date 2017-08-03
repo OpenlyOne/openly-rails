@@ -1,0 +1,24 @@
+// Styles for the page heading (div right beneath the navbar)
+
+.page-heading {
+
+  // add seam
+  @include seam(bottom);
+
+  // create space between page heading and content
+  margin-bottom: 50px;
+
+  // add vertical spacing within title
+  padding: 32px 0;
+
+  // Heading should not have any margins
+  h1,
+  h2 {
+    margin: 0;
+  }
+
+  // Tabs should add some vertical spacing
+  .tabs {
+    margin-top: 16px;
+  }
+}

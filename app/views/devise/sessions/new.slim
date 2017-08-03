@@ -1,22 +1,35 @@
-h2 Log in
+.page-heading.primary-color.primary-color-text.no-padding-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 Welcome back
+        div.tabs.static.tabs-fixed-width
+          div.tab
+            = link_to 'Join', new_registration_path
+          div.tab
+            = link_to 'Login', new_session_path, class: 'active'
 
-= form_for(resource, as: resource_name, url: session_path) do |f|
-  .field
-    = f.label :email
-    br
-    = f.email_field :email, autofocus: true
+.container
+  .row
+    = form_for(resource,
+               as: resource_name,
+               url: session_path,
+               html: {class: 'col s12 l6'}) do |f|
+      .row
+        .input-field.col.s12
+          = f.email_field :email
+          = f.label :email
+      .row
+        .input-field.col.s12
+          = f.password_field :password
+          = f.label :password
 
-  .field
-    = f.label :password
-    br
-    = f.password_field :password
+      - if devise_mapping.rememberable?
+        .field
+          = f.check_box :remember_me
+          = f.label :remember_me
 
-  - if devise_mapping.rememberable?
-    .field
-      = f.check_box :remember_me
-      = f.label :remember_me
-
-  .actions
-    = f.submit "Log in"
-
-= render "devise/shared/links"
+      .row
+        .col.s12
+          button action='submit' class="btn-large primary-color primary-color-text"
+            | Log in

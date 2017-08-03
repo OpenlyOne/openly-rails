@@ -1,0 +1,7 @@
+// Add a seam to an element
+
+$shadow: rgba(0, 0, 0, .12);
+
+@mixin seam($position) {
+  border-#{$position}: 1px solid $shadow;
+}
