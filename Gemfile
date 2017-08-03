@@ -38,6 +38,8 @@ gem 'jquery-rails', '~> 4.3'
 gem 'figaro', '~> 1.1'
 # Use Devise for authentication
 gem 'devise', '~> 4.3'
+# Nokogiri for parsing fields with errors
+gem 'nokogiri', '~> 1.8'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
