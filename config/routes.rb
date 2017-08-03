@@ -4,11 +4,13 @@ Rails.application.routes.draw do
   devise_for :accounts, skip: %i[registrations sessions]
 
   # Routes for registration
-  devise_scope :account do
-    get   '/join' => 'devise/registrations#new',
-          :as     => :new_registration
-    post  '/join' => 'devise/registrations#create',
-          :as     => :registration
+  if Settings.enable_account_registration
+    devise_scope :account do
+      get   '/join' => 'devise/registrations#new',
+            :as     => :new_registration
+      post  '/join' => 'devise/registrations#create',
+            :as     => :registration
+    end
   end
 
   # Routes for account management

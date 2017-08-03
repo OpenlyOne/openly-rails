@@ -40,6 +40,8 @@ gem 'figaro', '~> 1.1'
 gem 'devise', '~> 4.3'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8'
+# For simplified Rails configuration
+gem 'config', '~> 1.4'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

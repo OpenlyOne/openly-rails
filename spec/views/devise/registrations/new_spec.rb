@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
+require 'support/helpers/settings_helper.rb'
+RSpec.configure do |c|
+  c.extend SettingsHelper
+end
+
 RSpec.describe 'devise/registrations/new', type: :view do
+  enable_account_registration
+
   before do
     without_partial_double_verification do
       allow(view).to receive(:resource).and_return Account.new

@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'support/helpers/settings_helper.rb'
+RSpec.configure do |c|
+  c.extend SettingsHelper
+end
+
 RSpec.describe LayoutHelper, type: :helper do
   describe '#controller_action_identifier' do
     before do
@@ -52,8 +57,20 @@ RSpec.describe LayoutHelper, type: :helper do
     context 'when user is signed out' do
       let(:login_status) { false }
 
-      it 'includes a link to join' do
-        expect(included_paths).to include new_registration_path
+      context 'when registration is enabled' do
+        enable_account_registration
+
+        it 'includes a link to join' do
+          expect(included_paths).to include new_registration_path
+        end
+      end
+
+      context 'when registration is disabled' do
+        disable_account_registration
+
+        it 'does not raise an error' do
+          expect { included_paths }.not_to raise_error
+        end
       end
 
       it 'includes a link to login' do
