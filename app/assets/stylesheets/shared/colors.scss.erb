@@ -26,11 +26,17 @@ $colors: map-merge($colors, ('gray': map-get($colors, 'grey')));
 $colors: map-merge($colors, ('blue-gray': map-get($colors, 'blue-grey')));
 
 // Generate our color schemes
-@mixin define-classes-based-on-color-scheme($color) {
+@mixin define-classes-based-on-color-scheme($color, $color-darken) {
   // primary-color: applies main color to an element as background-color
   .primary-color {
     // scss-lint:disable ImportantRule
     background-color: $color !important;
+  }
+  // primary-color: applies darkened main color to an element as
+  // background-color
+  .primary-color-darken {
+    // scss-lint:disable ImportantRule
+    background-color: $color-darken !important;
   }
 }
 
@@ -42,18 +48,19 @@ $colors: map-merge($colors, ('blue-gray': map-get($colors, 'blue-grey')));
   }
 }
 
-// set up color schemes (we will map base colors only)
+// set up color schemes (we will create one for each scheme defined in
+// app/models/color.rb)
 .color-scheme {
 
-  @each $color-name, $color in $colors {
-    @each $color-type, $color-value in $color {
-      @if $color-type == 'base' {
-        &.primary-#{$color-name} {
-          @include define-classes-based-on-color-scheme($color-value);
-        }
-      }
-    }
+  <% Color.schemes.each do |scheme| %>
+  &.primary-<%= scheme[:base] %> {
+    @include define-classes-based-on-color-scheme(
+      color('<%= scheme[:base] %>', 'base'),
+      color('<%= scheme[:base] %>', 'darken-1')
+    );
   }
+
+  <% end %>
 
   // map black text
   &.primary-black-text {
