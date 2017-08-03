@@ -3,11 +3,14 @@
     .row.no-margin-bottom
       .col.s12
         h1 Welcome back
-        div.tabs.static.tabs-fixed-width
-          div.tab
-            = link_to 'Join', new_registration_path
-          div.tab
-            = link_to 'Login', new_session_path, class: 'active'
+        - if Rails.application.routes.url_helpers.respond_to?(:new_registration_path)
+          div.tabs.static.tabs-fixed-width
+            div.tab
+                = link_to 'Join', new_registration_path
+            div.tab
+              = link_to 'Login', new_session_path, class: 'active'
+        - else
+          .spacing.v32px
 
 .container
   .row

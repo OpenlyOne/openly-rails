@@ -1,28 +1,37 @@
 # frozen_string_literal: true
 
+require 'support/helpers/settings_helper.rb'
+RSpec.configure do |c|
+  c.extend SettingsHelper
+end
+
 feature 'Account' do
-  scenario 'User can create an account' do
-    # given I am on the homepage
-    visit '/'
+  context 'When registrations are enabled' do
+    enable_account_registration
 
-    # when I click 'Join'
-    within 'nav' do
-      click_on 'Join'
-    end
-    # and enter my email address and password
-    account = build(:account)
-    within 'form' do
-      fill_in 'Email', with: account.email
-      fill_in 'Password', with: account.password, match: :first
-      fill_in 'Password confirmation', with: account.password
-      click_on 'Join'
-    end
+    scenario 'User can create an account' do
+      # given I am on the homepage
+      visit '/'
 
-    # then I should see a success message
-    expect(page).to have_text 'signed up successfully'
-    # and there should be an account in the database
-    expect(Account.count).to equal 1
-    expect(Account).to exist(email: account.email)
+      # when I click 'Join'
+      within 'nav' do
+        click_on 'Join'
+      end
+      # and enter my email address and password
+      account = build(:account)
+      within 'form' do
+        fill_in 'Email', with: account.email
+        fill_in 'Password', with: account.password, match: :first
+        fill_in 'Password confirmation', with: account.password
+        click_on 'Join'
+      end
+
+      # then I should see a success message
+      expect(page).to have_text 'signed up successfully'
+      # and there should be an account in the database
+      expect(Account.count).to equal 1
+      expect(Account).to exist(email: account.email)
+    end
   end
 
   scenario 'User can change password' do
