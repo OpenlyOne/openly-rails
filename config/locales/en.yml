@@ -1,7 +1,9 @@
 en:
   activerecord:
+    attributes:
+      account/user:
+        name: "Name"
     errors:
-      models:
-        account:
-          blank: "is required"
-          confirmation: "did not match"
+      messages:
+        blank: "is required"
+        confirmation: "did not match"
