@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 # config valid only for current version of Capistrano
 lock '3.9.0'
 
@@ -74,9 +76,20 @@ namespace :deploy do
     end
   end
 
+  desc 'Generate static 500.html page'
+  task :generate_500_html do
+    on roles(:web) do |host|
+      public_500_html = File.join(release_path, 'public/500.html')
+      execute :curl,
+              '-k',
+              "https://#{host.hostname}/500", "> #{public_500_html}"
+    end
+  end
+
   before :starting,     :check_revision
   after  :finishing,    :compile_assets
   after  :finishing,    :cleanup
+  after  :published,    :generate_500_html
 end
 
 # ps aux | grep puma    # Get puma pid
