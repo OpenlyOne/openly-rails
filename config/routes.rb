@@ -40,5 +40,8 @@ Rails.application.routes.draw do
           :as       => :destroy_session
   end
 
+  # Routes for users
+  resources :users, only: [:show]
+
   root 'static#index'
 end
