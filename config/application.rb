@@ -28,6 +28,9 @@ module Upshift
     # config/initializers -- all .rb files in that directory are automatically
     # loaded.
 
+    # Use dynamic error pages
+    config.exceptions_app = routes
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end

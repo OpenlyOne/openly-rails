@@ -1,0 +1,21 @@
+// Styling for ErrorsController
+
+.not-found,
+.unacceptable,
+.internal-server-error {
+
+  .icon {
+    height: 100px;
+    width: 100px;
+
+    @media #{$medium-and-up} {
+      height: 150px;
+      width: 150px;
+    }
+
+    @media #{$large-and-up} {
+      height: 200px;
+      width: 200px;
+    }
+  }
+}

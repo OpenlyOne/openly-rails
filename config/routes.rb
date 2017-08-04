@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 Rails.application.routes.draw do
+  # Error routing
+  match '/404', to: 'errors#not_found', via: :all
+  match '/422', to: 'errors#unacceptable', via: :all
+  match '/500', to: 'errors#internal_server_error', via: :all
+
   devise_for :accounts, skip: %i[registrations sessions]
 
   # Routes for registration
