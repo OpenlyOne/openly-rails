@@ -18,5 +18,29 @@ class Handle < ApplicationRecord
   validates :profile_id, uniqueness: { scope: :profile_type }
   # Profile type must be user
   validates :profile_type, inclusion: { in: %w[User] }
-  validates :identifier, presence: true, uniqueness: { case_sensitive: true }
+  # Identifier must be present
+  validates :identifier, presence: true
+  # Conduct validations only if identifier is present
+  with_options if: :identifier? do
+    validates :identifier, length: { in: 3..26 }
+    validates :identifier,
+              format: {
+                with:     /\A[a-zA-Z0-9_]+\z/,
+                message:  'must contain only letters, numbers, and underscores'
+              }
+    validates :identifier,
+              format: {
+                with:     /\A[a-zA-Z0-9]/,
+                message:  'must begin with a letter or number'
+              }
+    validates :identifier,
+              format: {
+                with:     /[a-zA-Z0-9]\z/,
+                message:  'must end with a letter or number'
+              }
+  end
+  # Validate uniqueness unless identifier has errors
+  validates :identifier,
+            uniqueness: { case_sensitive: true },
+            unless: proc { |handle| handle.errors[:identifier].any? }
 end

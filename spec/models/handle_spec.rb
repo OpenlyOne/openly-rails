@@ -27,7 +27,30 @@ RSpec.describe Handle, type: :model do
     it do
       is_expected.to validate_inclusion_of(:profile_type).in_array %w[User]
     end
-    it { is_expected.to validate_presence_of :identifier }
-    it { is_expected.to validate_uniqueness_of(:identifier).case_insensitive }
+
+    context 'when validating identifier' do
+      it { is_expected.to validate_presence_of :identifier }
+      it { is_expected.to validate_uniqueness_of(:identifier).case_insensitive }
+      it do
+        is_expected.to(
+          validate_length_of(:identifier).is_at_least(3).is_at_most(26)
+        )
+      end
+
+      it 'special characters are invalid' do
+        handle.identifier = 'a*<>$@/r?!'
+        is_expected.to be_invalid
+      end
+
+      it 'an underscore at the beginning is invalid' do
+        handle.identifier = '_' + handle.identifier
+        is_expected.to be_invalid
+      end
+
+      it 'an underscore at the end is invalid' do
+        handle.identifier += '_'
+        is_expected.to be_invalid
+      end
+    end
   end
 end
