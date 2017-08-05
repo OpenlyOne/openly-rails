@@ -26,7 +26,7 @@ feature 'Session' do
   scenario 'User can log out' do
     # given I am a signed-in user
     account = create(:account)
-    sign_in account, scope: :account
+    sign_in_as account
     # and I am on the homepage
     visit '/'
 

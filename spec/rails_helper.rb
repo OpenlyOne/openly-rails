@@ -40,6 +40,7 @@ require 'database_cleaner'
 #
 # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
+require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
 
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
@@ -90,9 +91,8 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  # Include Devise test helpers:
-  # https://github.com/plataformatec/devise#integration-tests
-  config.include Devise::Test::IntegrationHelpers, type: :feature
+  # Include Feature test helpers
+  config.include FeaturesHelper, type: :feature
 
   # add this line at the bottom of the config section
   # it saves us time when using FactoryGirl methods.
