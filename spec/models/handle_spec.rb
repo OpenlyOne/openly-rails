@@ -14,6 +14,7 @@ RSpec.describe Handle, type: :model do
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:profile_id) }
     it { is_expected.to have_readonly_attribute(:profile_type) }
+    it { is_expected.to have_readonly_attribute(:identifier) }
   end
 
   describe 'validations' do

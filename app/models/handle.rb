@@ -10,6 +10,8 @@ class Handle < ApplicationRecord
   # Attributes
   # Do not allow profile change
   attr_readonly :profile_id, :profile_type
+  # Do not allow identifier change
+  attr_readonly :identifier
 
   # Validations
   # Profile id must be unique within each type
