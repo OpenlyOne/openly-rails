@@ -15,6 +15,7 @@ RSpec.describe User, type: :model do
   end
 
   describe 'attributes' do
+    it { is_expected.to accept_nested_attributes_for(:handle) }
     it { is_expected.to have_readonly_attribute(:account_id) }
   end
 
@@ -24,5 +25,19 @@ RSpec.describe User, type: :model do
     end
     it { is_expected.to validate_presence_of(:handle).on(:create) }
     it { is_expected.to validate_presence_of(:name) }
+  end
+
+  describe '#username' do
+    it 'returns the identifier of the handle' do
+      expect(user.username).to eq user.handle.identifier
+    end
+
+    context 'when handle is nil' do
+      before { user.handle = nil }
+
+      it 'returns nil' do
+        expect(user.username).to eq nil
+      end
+    end
   end
 end

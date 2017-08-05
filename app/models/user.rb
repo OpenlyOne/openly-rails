@@ -9,10 +9,15 @@ class User < ApplicationRecord
   has_one :handle, as: :profile, dependent: :destroy, inverse_of: :profile
 
   # Attributes
+  accepts_nested_attributes_for :handle
   # Do not allow account change
   attr_readonly :account_id
 
   # Validations
   validates :handle, presence: true, on: :create
   validates :name, presence: true
+
+  def username
+    try(:handle).try(:identifier)
+  end
 end

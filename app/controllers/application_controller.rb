@@ -13,15 +13,22 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  # rubocop:disable Metrics/MethodLength
   def configure_permitted_parameters
     # Specify permitted parameters for sign up. This is necessary since we want
     # to allow nested attributes for user.
     # See: https://github.com/plataformatec/devise#strong-parameters
     devise_parameter_sanitizer.permit(:sign_up) do |account_params|
       account_params.permit(
-        { user_attributes: [:name] },
+        {
+          user_attributes: [
+            :name,
+            { handle_attributes: [:identifier] }
+          ]
+        },
         :email, :password, :password_confirmation
       )
     end
   end
+  # rubocop:enable Metrics/MethodLength
 end

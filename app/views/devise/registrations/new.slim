@@ -21,6 +21,13 @@
           = render partial: "error", collection: resource.errors.full_messages, as: :error
 
       = f.fields_for :user, resource.user || User.new do |ff|
+
+        = ff.fields_for :handle, (resource.user.try(:handle) || Handle.new) do |fff|
+          .row
+            .input-field.col.s12
+              = fff.text_field :identifier
+              = fff.label :identifier, 'Username'
+
         .row
           .input-field.col.s12
             = ff.text_field :name

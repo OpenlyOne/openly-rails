@@ -20,6 +20,7 @@ feature 'Account' do
       # and enter my email address and password
       account = build(:account)
       within 'form' do
+        fill_in 'Username', with: account.user.username
         fill_in 'Name', with: account.user.name
         fill_in 'Email', with: account.email
         fill_in 'Password', with: account.password, match: :first
