@@ -27,6 +27,20 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_presence_of(:name) }
   end
 
+  describe '#to_param' do
+    it 'returns the handle (username)' do
+      expect(user.to_param).to eq user.handle.identifier
+    end
+
+    context 'when handle is nil' do
+      before { user.handle = nil }
+
+      it 'returns nil' do
+        expect(user.to_param).to eq nil
+      end
+    end
+  end
+
   describe '#username' do
     it 'returns the identifier of the handle' do
       expect(user.username).to eq user.handle.identifier

@@ -2,13 +2,13 @@
   .container
     .row.no-margin-bottom
       .col.s12
-        h1 = @user.name
+        h1 = @profile.name
 
-.profile-banner style="background-image: url(#{image_path('users/banner.jpg')});"
+.profile-banner style="background-image: url(#{image_path('profiles/banner.jpg')});"
 
 .container
   .profile-picture
-    = image_tag 'users/picture.jpg', class: 'responsive-img z-depth-1'
+    = image_tag 'profiles/picture.jpg', class: 'responsive-img z-depth-1'
 
 / .container
 /   .row

@@ -6,7 +6,7 @@ feature 'User' do
     user = create(:user)
 
     # when I visit the user profile
-    visit "/users/#{user.id}"
+    visit "/#{user.username}"
 
     # then I should see the user's name
     expect(page).to have_text user.name

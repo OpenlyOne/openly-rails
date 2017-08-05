@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
   # override sign in redirect (Devise)
   def after_sign_in_path_for(resource)
-    resource.user
+    profile_path resource.user
   end
 
   protected

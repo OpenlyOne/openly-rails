@@ -45,12 +45,12 @@ RSpec.describe 'routes for accounts', type: :routing do
 
     it 'does not have a new route' do
       expect { new_registration_path }.to raise_error NameError
-      expect(get: '/join').not_to be_routable
+      expect(get: '/join').not_to route_to 'devise/registrations#new'
     end
 
     it 'does not have a create route' do
       expect { registration_path }.to raise_error NameError
-      expect(post: '/join').not_to be_routable
+      expect(post: '/join').not_to route_to 'devise/registrations#create'
     end
   end
 end

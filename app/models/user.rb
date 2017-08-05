@@ -17,6 +17,12 @@ class User < ApplicationRecord
   validates :handle, presence: true, on: :create
   validates :name, presence: true
 
+  # Use username when generating routes
+  def to_param
+    username
+  end
+
+  # Get handle of user (username)
   def username
     try(:handle).try(:identifier)
   end

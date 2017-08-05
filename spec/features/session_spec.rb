@@ -20,7 +20,7 @@ feature 'Session' do
     expect(page).to have_text 'Signed in successfully'
 
     # and I should be on my profile page
-    expect(page).to have_current_path "/users/#{account.user.id}"
+    expect(page).to have_current_path "/#{account.user.username}"
   end
 
   scenario 'User can log out' do
