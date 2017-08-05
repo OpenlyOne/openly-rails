@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe User, type: :model do
-  subject(:account) { build(:user) }
+  subject(:user) { build(:user) }
 
   it 'has a valid factory' do
     is_expected.to be_valid
