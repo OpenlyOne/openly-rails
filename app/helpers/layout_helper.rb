@@ -20,7 +20,7 @@ module LayoutHelper
   def navigation_links
     if account_signed_in?
       links = [
-        { text: 'Profile',  path: user_path(current_account.user) },
+        { text: 'Profile',  path: profile_path(current_account.user) },
         { text: 'Account',  path: edit_account_path },
         { text: 'Logout',   path: destroy_session_path }
       ]

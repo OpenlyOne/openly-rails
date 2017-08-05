@@ -40,8 +40,8 @@ Rails.application.routes.draw do
           :as       => :destroy_session
   end
 
-  # Routes for users
-  resources :users, only: [:show]
+  # Routes for user profiles (must be last)
+  get '/:handle' => 'profiles#show', as: :profile
 
   root 'static#index'
 end

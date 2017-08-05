@@ -48,7 +48,7 @@ RSpec.describe LayoutHelper, type: :helper do
       before { allow(helper).to receive(:current_account).and_return(account) }
 
       it 'includes a link to profile' do
-        expect(included_paths).to include user_path(account.user)
+        expect(included_paths).to include profile_path(account.user)
       end
 
       it 'includes a link to account' do

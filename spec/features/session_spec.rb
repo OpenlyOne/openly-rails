@@ -20,13 +20,13 @@ feature 'Session' do
     expect(page).to have_text 'Signed in successfully'
 
     # and I should be on my profile page
-    expect(page).to have_current_path "/users/#{account.user.id}"
+    expect(page).to have_current_path "/#{account.user.username}"
   end
 
   scenario 'User can log out' do
     # given I am a signed-in user
     account = create(:account)
-    sign_in account, scope: :account
+    sign_in_as account
     # and I am on the homepage
     visit '/'
 
