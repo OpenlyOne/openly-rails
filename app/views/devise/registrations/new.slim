@@ -20,6 +20,12 @@
         .validation-errors
           = render partial: "error", collection: resource.errors.full_messages, as: :error
 
+      = f.fields_for :user, resource.user || User.new do |ff|
+        .row
+          .input-field.col.s12
+            = ff.text_field :name
+            = ff.label :name
+
       .row
         .input-field.col.s12
           = f.email_field :email

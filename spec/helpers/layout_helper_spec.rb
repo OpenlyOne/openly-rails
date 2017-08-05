@@ -44,6 +44,12 @@ RSpec.describe LayoutHelper, type: :helper do
 
     context 'when user is signed in' do
       let(:login_status) { true }
+      let(:account) { create(:account) }
+      before { allow(helper).to receive(:current_account).and_return(account) }
+
+      it 'includes a link to profile' do
+        expect(included_paths).to include user_path(account.user)
+      end
 
       it 'includes a link to account' do
         expect(included_paths).to include edit_account_path
