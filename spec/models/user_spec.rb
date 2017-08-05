@@ -11,6 +11,10 @@ RSpec.describe User, type: :model do
     it { is_expected.to belong_to(:account) }
   end
 
+  describe 'attributes' do
+    it { is_expected.to have_readonly_attribute(:account_id) }
+  end
+
   describe 'validations' do
     it do
       is_expected.to validate_presence_of(:account).with_message 'must exist'
