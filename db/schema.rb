@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170805044035) do
+ActiveRecord::Schema.define(version: 20170807063042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,6 +32,15 @@ ActiveRecord::Schema.define(version: 20170805044035) do
     t.datetime "updated_at", null: false
     t.index ["identifier"], name: "index_handles_on_identifier", unique: true
     t.index ["profile_type", "profile_id"], name: "index_handles_on_profile_type_and_profile_id", unique: true
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "owner_type"
+    t.bigint "owner_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_projects_on_owner_type_and_owner_id"
   end
 
   create_table "users", force: :cascade do |t|

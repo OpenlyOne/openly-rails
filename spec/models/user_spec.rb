@@ -21,6 +21,9 @@ RSpec.describe User, type: :model do
     it do
       is_expected.to have_one(:handle).dependent(:destroy).inverse_of :profile
     end
+    it do
+      is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
+    end
   end
 
   describe 'attributes' do
