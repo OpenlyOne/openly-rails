@@ -1,0 +1,5 @@
+// Add a seam to an element
+
+@mixin seam($position) {
+  border-#{$position}: 1px solid $shadow;
+}

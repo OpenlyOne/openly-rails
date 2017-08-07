@@ -2,3 +2,8 @@ AllCops:
   Exclude:
     - "bin/**/*"
     - "db/schema.rb"
+
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - spec/**/*

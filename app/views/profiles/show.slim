@@ -1,0 +1,21 @@
+.page-heading.primary-color.primary-color-text.no-margin-bottom.z-depth-1
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 = @profile.name
+
+.profile-banner style="background-image: url(#{image_path('profiles/banner.jpg')});"
+
+.container
+  .profile-picture
+    = image_tag 'profiles/picture.jpg', class: 'responsive-img z-depth-1'
+
+/ .container
+/   .row
+/     .col.s12
+/       div.flow-text
+/         = simple_format '250 char. bio can go here'
+/
+/   .row
+/     .col.s12
+/       h3 Projects

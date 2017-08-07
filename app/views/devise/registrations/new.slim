@@ -1,0 +1,58 @@
+.page-heading.primary-color.primary-color-text.no-padding-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 Join Upshift One
+        h2 Create change together.
+        div.tabs.static.tabs-fixed-width
+          div.tab
+            = link_to 'Join', new_registration_path, class: 'active'
+          div.tab
+            = link_to 'Login', new_session_path
+
+.container
+  .row
+    = form_for(resource,
+               as: resource_name,
+               url: registration_path,
+               html: {class: 'col s12 l6'}) do |f|
+      - if resource.errors.any?
+        .validation-errors
+          = render partial: "error", collection: resource.errors.full_messages, as: :error
+
+      = f.fields_for :user, resource.user || User.new do |ff|
+
+        = ff.fields_for :handle, (resource.user.try(:handle) || Handle.new) do |fff|
+          .row
+            .input-field.col.s12
+              = fff.text_field :identifier
+              = fff.label :identifier, 'Username (3 - 26 characters)'
+
+        .row
+          .input-field.col.s12
+            = ff.text_field :name
+            = ff.label :name
+
+      .row
+        .input-field.col.s12
+          = f.email_field :email
+          = f.label :email
+      .row
+        .input-field.col.s12
+          = f.password_field :password
+          = f.label :password, "Password (minimum #{@minimum_password_length} characters)"
+      .row
+        .input-field.col.s12
+          = f.password_field :password_confirmation
+          = f.label :password_confirmation
+
+      .row
+        .col.s12
+          button action='submit' class="btn-large primary-color primary-color-text"
+            | Join
+
+    .col.l5.xl4.push-l1.push-xl2.hide-on-med-and-down
+      = render 'card'
+
+.hide-on-large-only
+  = render 'card'

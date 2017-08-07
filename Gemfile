@@ -34,10 +34,14 @@ gem 'jbuilder', '~> 2.5'
 gem 'materialize-sass', '~> 0.100'
 # MaterializeCSS requires JQuery
 gem 'jquery-rails', '~> 4.3'
-# Use ActiveModel has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
 # Use figaro for managing ENV variables
 gem 'figaro', '~> 1.1'
+# Use Devise for authentication
+gem 'devise', '~> 4.3'
+# Nokogiri for parsing fields with errors
+gem 'nokogiri', '~> 1.8'
+# For simplified Rails configuration
+gem 'config', '~> 1.4'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -51,6 +55,10 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.6'
+  # Use FactoryGirl for generating factories
+  gem 'factory_girl_rails', '~> 4.8'
+  # Quickly generate fake names, urls, etc
+  gem 'faker', '~> 1.8'
 end
 
 group :development do
@@ -78,6 +86,12 @@ group :test do
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
   gem 'capybara', '~> 2.14'
+  # Additional RSpec matchers
+  gem 'shoulda-matchers', '~> 3.1',
+      git: 'https://github.com/thoughtbot/shoulda-matchers.git',
+      branch: 'rails-5'
+  # Cleans the test database after every test
+  gem 'database_cleaner', '~> 1.6'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
