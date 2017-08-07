@@ -1,0 +1,28 @@
+// Styles for text, headings
+
+// Set heading sizes in a relative manner so that the increase in font-size from
+// one heading to the next is constant.
+// The argument passed should be the size factor for h1, such as 3 or 4.
+@mixin set-heading-sizes($size-for-h1) {
+
+  // the increase in font size from one heading to another
+  $step-size: ($size-for-h1 - 1rem) / 5;
+
+  @each $heading in 1, 2, 3, 4, 5, 6 {
+    h#{$heading} {
+      font-size: 1rem + $step-size * (6 - $heading);
+    }
+  }
+}
+
+@media #{$small-and-down} {
+  @include set-heading-sizes(3);
+}
+
+@media #{$medium-and-up} {
+  @include set-heading-sizes(3.5);
+}
+
+@media #{$large-and-up} {
+  @include set-heading-sizes(4);
+}
