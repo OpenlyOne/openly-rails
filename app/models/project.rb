@@ -12,4 +12,9 @@ class Project < ApplicationRecord
   # Owner type must be user
   validates :owner_type, inclusion: { in: %w[User] }
   validates :title, presence: true, length: { maximum: 50 }
+
+  # Trim whitespaces around title
+  def title=(title)
+    super(title.try(:strip))
+  end
 end

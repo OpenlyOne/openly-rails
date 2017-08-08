@@ -26,4 +26,16 @@ RSpec.describe Project, type: :model do
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
   end
+
+  describe '#title=' do
+    it 'strips whitespace' do
+      project.title = '   lots of whitespace     '
+      expect(project.title).to eq 'lots of whitespace'
+    end
+
+    it 'leaves nil unchanged' do
+      project.title = nil
+      expect(project.title).to eq nil
+    end
+  end
 end
