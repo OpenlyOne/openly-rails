@@ -18,9 +18,27 @@ feature 'Session' do
 
     # then I should be signed in
     expect(page).to have_text 'Signed in successfully'
-
     # and I should be on my profile page
     expect(page).to have_current_path "/#{account.user.username}"
+  end
+
+  scenario 'User is redirected back after being prompted for authentication' do
+    # given I have an account but I am not logged in
+    account = create :account
+
+    # when I visit my account settings
+    visit edit_account_path
+    # and I am prompted to login
+    expect(page).to have_current_path new_session_path
+    # and I log in
+    fill_in 'Email', with: account.email
+    fill_in 'Password', with: account.password
+    click_on 'Log in'
+
+    # then I should be signed in
+    expect(page).to have_text 'Signed in successfully'
+    # and I should be back to the account page
+    expect(page).to have_current_path edit_account_path
   end
 
   scenario 'User can log out' do

@@ -40,6 +40,9 @@ Rails.application.routes.draw do
           :as       => :destroy_session
   end
 
+  # Redirect to login path when user is unauthenticated
+  get '/login' => 'devise/sessions#new', :as => :new_account_session
+
   # Routes for user profiles (must be last)
   get '/:handle' => 'profiles#show', as: :profile
 
