@@ -15,4 +15,8 @@ RSpec.describe 'routes for sessions', type: :routing do
     expect(destroy_session_path).to eq '/logout'
     expect(get: '/logout').to route_to 'devise/sessions#destroy'
   end
+
+  it 'has a new_account_session_path for Devise' do
+    expect(new_account_session_path).to eq new_session_path
+  end
 end
