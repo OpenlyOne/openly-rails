@@ -43,6 +43,10 @@ Rails.application.routes.draw do
   # Redirect to login path when user is unauthenticated
   get '/login' => 'devise/sessions#new', :as => :new_account_session
 
+  # Routes for creating new projects
+  get   '/projects/new' => 'projects#new',    as: :new_project
+  post  '/projects/new' => 'projects#create', as: :projects
+
   # Routes for user profiles (must be last)
   resources :profiles, path: '/', only: :show, param: :handle do
     # Routes for existing projects (must be last)

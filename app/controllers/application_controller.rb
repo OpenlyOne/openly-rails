@@ -11,6 +11,11 @@ class ApplicationController < ActionController::Base
     stored_location_for(resource) || url_for(resource.user)
   end
 
+  # Get the current user
+  def current_user
+    current_account.try(:user)
+  end
+
   protected
 
   # rubocop:disable Metrics/MethodLength
