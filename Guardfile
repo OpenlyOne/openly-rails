@@ -10,7 +10,7 @@ guard :rspec, cmd: 'bundle exec rspec' do
     "spec/#{m[1]}_spec.rb"
   end
   watch(%r{^app/(.*)(\.erb|\.haml|\.slim)$}) do |m|
-    "spec/#{m[1]}#{m[2]}_spec.rb"
+    "spec/#{m[1]}_spec.rb"
   end
   watch(%r{^lib/(.+)\.rb$}) do |m|
     "spec/lib/#{m[1]}_spec.rb"
