@@ -1,0 +1,34 @@
+= form_for [@project.owner, @project], url: url do |f|
+  .page-heading.primary-color.primary-color-text.no-padding-bottom.no-margin-bottom.z-depth-1
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h1
+            = f.text_field :title, placeholder: 'Project Title', class: 'inherit'
+          div.tabs.static.disabled
+            div.tab
+              a.active Overview
+
+  .project-banner style="background-image: url(#{image_path('projects/banner.jpg')});"
+
+  .spacing.v48px
+
+  .container
+    - if @project.errors.any?
+      .row
+        .col.s12
+          .validation-errors
+            = render partial: "error", collection: @project.errors.full_messages, as: :error
+
+    .row
+      .col.s12.l6
+        .input-field.group
+          .mock-input.disabled
+            = "/#{@project.owner.to_param}/"
+          = f.text_field :slug, placeholder: 'Leave blank to auto-generate'
+          = f.label :slug, 'Project URL (letters, numbers, and dashes)'
+
+    .row
+      .col.s12
+        button action='submit' class="btn-large primary-color primary-color-text"
+          = button
