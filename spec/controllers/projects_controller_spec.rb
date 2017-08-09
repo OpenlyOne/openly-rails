@@ -110,4 +110,32 @@ RSpec.describe ProjectsController, type: :controller do
       is_expected.to set_flash[:notice].to 'Project successfully updated.'
     end
   end
+
+  describe 'DELETE #destroy' do
+    let(:params)      { default_params }
+    let(:run_request) { delete :destroy, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+    end
+
+    it 'destroys the project' do
+      expect_any_instance_of(Project).to receive(:destroy)
+      run_request
+    end
+
+    it 'redirects to profile' do
+      run_request
+      expect(response).to redirect_to profile_path(project.owner)
+    end
+
+    it 'sets flash message' do
+      run_request
+      is_expected.to set_flash[:notice].to 'Project successfully deleted.'
+    end
+  end
 end

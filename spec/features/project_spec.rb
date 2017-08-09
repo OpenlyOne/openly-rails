@@ -56,4 +56,25 @@ feature 'Project' do
     # and see the new project's title
     expect(page).to have_text 'My New Project Title'
   end
+
+  scenario 'User can delete project' do
+    # given there is a project
+    project = create(:project)
+    # and I am signed in as its owner
+    sign_in_as project.owner.account
+
+    # when I visit my project
+    visit "/#{project.owner.to_param}/#{project.to_param}"
+    # and click on edit
+    find('a#edit_project').click
+    # and click on delete
+    click_on 'Delete Project'
+
+    # then I should be back on my profile page
+    expect(page).to have_current_path profile_path(project.owner)
+    # and it should tell me that it was deleted sucessfully
+    expect(page).to have_text 'Project successfully deleted.'
+    # and it should no longer be in the database
+    expect(Project).not_to exist(slug: project.slug)
+  end
 end
