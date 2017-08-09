@@ -27,10 +27,15 @@ feature 'Project' do
     # given there is a project
     project = create(:project)
 
-    # when I visit the project
-    visit "/#{project.owner.handle.identifier}/#{project.slug}"
+    # when I visit the project's owner
+    visit "/#{project.owner.to_param}"
+    # and click on the project title
+    click_on project.title
 
-    # then I should see the project's title
+    # then I should be on the project's page
+    expect(page)
+      .to have_current_path profile_project_path(project.owner, project)
+    # and I should see the project's title
     expect(page).to have_text project.title
   end
 

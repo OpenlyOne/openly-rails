@@ -1,0 +1,20 @@
+// Styling for cards
+
+.card {
+
+  display: block;
+
+  // Enable full-size background image
+  .card-image {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 12 * $base-unit;
+  }
+
+  // Add padding to card title (to match card content)
+  .card-title {
+    @include seam('top');
+    padding: 12px 24px;
+  }
+}
