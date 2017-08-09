@@ -38,6 +38,8 @@ gem 'jquery-rails', '~> 4.3'
 gem 'figaro', '~> 1.1'
 # Use Devise for authentication
 gem 'devise', '~> 4.3'
+# Use CanCanCan for authorization (permission management)
+gem 'cancancan', '~> 2.0'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8'
 # For simplified Rails configuration
