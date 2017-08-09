@@ -8,6 +8,10 @@ class Project < ApplicationRecord
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
 
+  # Callbacks
+  # Auto-generate slug from title
+  before_validation :generate_slug_from_title, if: :title?, unless: :slug?
+
   # Validations
   # Owner type must be user
   validates :owner_type, inclusion: { in: %w[User] }
@@ -44,5 +48,18 @@ class Project < ApplicationRecord
   # Trim whitespaces around title
   def title=(title)
     super(title.try(:strip))
+  end
+
+  private
+
+  # Generate the project slug from the title by replacing whitespace with
+  # dashes and removing all non-alphanumeric characters
+  def generate_slug_from_title
+    self.slug =
+      title
+      .gsub(/[^0-9a-z\s]/i, '') # replace all non-alphanumeric characters
+      .strip                    # trim whitespaces
+      .tr(' ', '-')             # replace whitespaces with dashes
+      .downcase                 # all lowercase
   end
 end
