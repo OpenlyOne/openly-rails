@@ -32,4 +32,19 @@ RSpec.describe Ability, type: :model do
       it_should_behave_like 'not having authorization', actions
     end
   end
+
+  context 'Projects' do
+    actions = %i[edit update]
+    let(:object) { build_stubbed(:project) }
+
+    context 'when user is owner' do
+      before { object.owner = user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not owner' do
+      before { object.owner = build_stubbed(:user) }
+      it_should_behave_like 'not having authorization', actions
+    end
+  end
 end

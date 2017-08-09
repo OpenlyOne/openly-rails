@@ -33,4 +33,27 @@ feature 'Project' do
     # then I should see the project's title
     expect(page).to have_text project.title
   end
+
+  scenario 'User can edit project' do
+    # given there is a project
+    project = create(:project)
+    # and I am signed in as its owner
+    sign_in_as project.owner.account
+
+    # when I visit my project
+    visit "/#{project.owner.to_param}/#{project.to_param}"
+    # and click on edit
+    find('a#edit_project').click
+    # and fill in a new title
+    fill_in 'project_title',  with: 'My New Project Title'
+    fill_in 'Project URL',    with: 'new-slug'
+    # and save
+    click_on 'Save'
+
+    # then I should be back on project_path
+    expect(page)
+      .to have_current_path "/#{project.owner.to_param}/new-slug"
+    # and see the new project's title
+    expect(page).to have_text 'My New Project Title'
+  end
 end
