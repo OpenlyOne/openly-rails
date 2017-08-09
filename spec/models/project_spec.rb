@@ -75,6 +75,25 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '.find' do
+    let!(:project) { create(:project) }
+    subject(:method) { Project.find(project.owner.to_param, project.slug) }
+
+    it 'finds project by profile handle and slug' do
+      is_expected.to eq project
+    end
+
+    context 'when profile does not exist' do
+      before { project.owner.handle.destroy }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
+    end
+
+    context 'when project does not exist' do
+      before { project.destroy }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
+    end
+  end
+
   describe '#title=' do
     it 'strips whitespace' do
       project.title = '   lots of whitespace     '
@@ -84,6 +103,22 @@ RSpec.describe Project, type: :model do
     it 'leaves nil unchanged' do
       project.title = nil
       expect(project.title).to eq nil
+    end
+  end
+
+  describe '#to_param' do
+    subject(:project) { build_stubbed(:project) }
+
+    it 'returns the slug' do
+      expect(project.to_param).to eq project.slug
+    end
+
+    context 'if slug is changed' do
+      before { project.slug = 'new-slug' }
+
+      it 'returns the slug before change' do
+        expect(project.to_param).to eq project.slug_was
+      end
     end
   end
 

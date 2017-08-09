@@ -45,9 +45,19 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
 
+  # Find a project by profile handle and project slug
+  def self.find(profile_handle, project_slug)
+    Profile.find(profile_handle).projects.find_by_slug! project_slug
+  end
+
   # Trim whitespaces around title
   def title=(title)
     super(title.try(:strip))
+  end
+
+  # Use slug when generating routes
+  def to_param
+    slug_was
   end
 
   private
