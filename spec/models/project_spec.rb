@@ -25,6 +25,32 @@ RSpec.describe Project, type: :model do
     end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
+
+    context 'when validating slug' do
+      it do
+        is_expected
+          .to validate_uniqueness_of(:slug)
+          .case_insensitive
+          .scoped_to(:owner_type, :owner_id)
+      end
+      it { is_expected.to validate_presence_of(:slug) }
+      it { is_expected.to validate_length_of(:slug).is_at_most(50) }
+
+      it 'special characters are invalid' do
+        project.slug = 'a*<>$@/r?!'
+        is_expected.to be_invalid
+      end
+
+      it 'a dash at the beginning is invalid' do
+        project.slug = '-' + project.slug
+        is_expected.to be_invalid
+      end
+
+      it 'a dash at the end is invalid' do
+        project.slug += '-'
+        is_expected.to be_invalid
+      end
+    end
   end
 
   describe '#title=' do
