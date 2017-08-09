@@ -4,8 +4,8 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
-  before_action :set_project, only: %i[show edit update]
-  before_action :authorize_action, only: %i[edit update]
+  before_action :set_project, only: %i[show edit update destroy]
+  before_action :authorize_action, only: %i[edit update destroy]
 
   def new; end
 
@@ -31,6 +31,11 @@ class ProjectsController < ApplicationController
     else
       render :edit
     end
+  end
+
+  def destroy
+    @project.destroy
+    redirect_to [@project.owner], notice: 'Project successfully deleted.'
   end
 
   private

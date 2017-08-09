@@ -34,4 +34,9 @@ RSpec.describe 'projects/edit', type: :view do
     render
     expect(rendered).to have_css "button[action='submit']", text: 'Save'
   end
+
+  it 'has a button to delete the project' do
+    render
+    expect(rendered).to have_css "input[type='submit'][value='Delete Project']"
+  end
 end

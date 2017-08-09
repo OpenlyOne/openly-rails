@@ -50,7 +50,7 @@ Rails.application.routes.draw do
   # Routes for user profiles (must be last)
   resources :profiles, path: '/', only: :show, param: :handle do
     # Routes for existing projects (must be last)
-    resources :projects, path: '/', only: %i[show edit update], param: :slug
+    resources :projects, path: '/', except: %i[index new create], param: :slug
   end
 
   root 'static#index'

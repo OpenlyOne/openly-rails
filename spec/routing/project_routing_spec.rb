@@ -34,4 +34,10 @@ RSpec.describe 'routes for projects', type: :routing do
       route_to('projects#update', profile_handle: 'handle', slug: 'slug')
     )
   end
+
+  it 'has a destroy route' do
+    expect(delete: '/handle/slug').to(
+      route_to('projects#destroy', profile_handle: 'handle', slug: 'slug')
+    )
+  end
 end

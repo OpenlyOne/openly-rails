@@ -11,7 +11,7 @@ class Ability
     can :manage, User, id: user.id
 
     # Users can edit the projects of profiles that they can manage
-    can %i[edit update], Project do |project|
+    can %i[edit update destroy], Project do |project|
       can? :manaage, project.owner
     end
     # Define abilities for the passed in user here. For example:

@@ -3,3 +3,17 @@
            url: nil, \
            button: 'Save' \
          }
+
+.spacing.v16px
+
+.container
+  h3 Delete Project
+  .row
+    .col.s12.l6
+      = button_to('Delete Project',
+                url_for([@project.owner, @project]),
+                data: { confirm: 'Are you sure?' },
+                method: :delete,
+                class: 'btn primary-color primary-color-text')
+
+.spacing.v48px

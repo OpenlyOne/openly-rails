@@ -34,7 +34,7 @@ RSpec.describe Ability, type: :model do
   end
 
   context 'Projects' do
-    actions = %i[edit update]
+    actions = %i[edit update destroy]
     let(:object) { build_stubbed(:project) }
 
     context 'when user is owner' do
