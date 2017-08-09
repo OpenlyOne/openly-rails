@@ -4,5 +4,6 @@
 class ProfilesController < ApplicationController
   def show
     @profile = Profile.find params[:handle]
+    @projects = @profile.projects.order id: :desc
   end
 end
