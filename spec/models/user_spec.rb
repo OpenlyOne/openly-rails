@@ -7,6 +7,15 @@ RSpec.describe User, type: :model do
     is_expected.to be_valid
   end
 
+  describe 'route keys' do
+    it 'should have singural route key: profile' do
+      expect(user.model_name.singular_route_key).to eq 'profile'
+    end
+    it 'should have route key: profiles' do
+      expect(user.model_name.route_key).to eq 'profiles'
+    end
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
     it do

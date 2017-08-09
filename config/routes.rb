@@ -44,7 +44,7 @@ Rails.application.routes.draw do
   get '/login' => 'devise/sessions#new', :as => :new_account_session
 
   # Routes for user profiles (must be last)
-  get '/:handle' => 'profiles#show', as: :profile
+  resources :profiles, path: '/', only: :show, param: :handle
 
   root 'static#index'
 end
