@@ -44,7 +44,10 @@ Rails.application.routes.draw do
   get '/login' => 'devise/sessions#new', :as => :new_account_session
 
   # Routes for user profiles (must be last)
-  resources :profiles, path: '/', only: :show, param: :handle
+  resources :profiles, path: '/', only: :show, param: :handle do
+    # Routes for existing projects (must be last)
+    resources :projects, path: '/', only: %i[show], param: :slug
+  end
 
   root 'static#index'
 end
