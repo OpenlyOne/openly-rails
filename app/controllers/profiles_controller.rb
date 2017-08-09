@@ -3,6 +3,6 @@
 # Controller for profiles, such as users
 class ProfilesController < ApplicationController
   def show
-    @profile = Handle.find_by_identifier!(params[:handle]).profile
+    @profile = Profile.find params[:handle]
   end
 end
