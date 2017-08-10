@@ -14,3 +14,7 @@ linters:
   LeadingZero:
     enabled: true
     style: exclude_zero
+  PropertyCount:
+    enabled: trues
+    include_nested: false
+    max_properties: 10
