@@ -71,6 +71,13 @@ RSpec.configure do |config|
     end
   end
 
+  # Enable partial rendering from application folder
+  # Fixes https://github.com/rspec/rspec-rails/issues/396
+  # Solution: https://github.com/verypossible/raygun-rails-template/pull/14
+  config.before(:example, type: :view) do
+    view.lookup_context.view_paths.unshift 'app/views/application'
+  end
+
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and
   # `post` in specs under `spec/controllers`.
@@ -90,6 +97,9 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # Include Devise test helpers
+  config.include Devise::Test::ControllerHelpers, type: :controller
 
   # Include Feature test helpers
   config.include FeaturesHelper, type: :feature
