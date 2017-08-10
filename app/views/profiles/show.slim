@@ -15,7 +15,11 @@
 /     .col.s12
 /       div.flow-text
 /         = simple_format '250 char. bio can go here'
-/
-/   .row
-/     .col.s12
-/       h3 Projects
+
+- if @projects.present?
+  .container
+    .row
+      .col.s12
+        h3 Projects
+    .row
+      = render @projects

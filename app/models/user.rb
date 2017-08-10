@@ -22,6 +22,7 @@ class User < ApplicationRecord
   # Associations
   belongs_to :account
   has_one :handle, as: :profile, dependent: :destroy, inverse_of: :profile
+  has_many :projects, as: :owner, dependent: :destroy, inverse_of: :owner
 
   # Attributes
   accepts_nested_attributes_for :handle

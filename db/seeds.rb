@@ -7,10 +7,15 @@
 require 'faker'
 require 'factory_girl_rails'
 
-5.times.with_index do |i|
-  FactoryGirl.create(
-    :account,
-    email: "user#{i + 1}@upshift.one",
-    password: 'password'
-  )
+# Create three users
+%w[alice bob carla].each do |username|
+  account = Account.new email: "#{username}@upshift.one", password: 'password'
+  account.build_user name: username.capitalize
+  account.user.build_handle identifier: username
+  account.save
+
+  # Create three projects per user
+  3.times.with_index do |i|
+    FactoryGirl.create :project, owner: account.user, slug: "project-#{i + 1}"
+  end
 end

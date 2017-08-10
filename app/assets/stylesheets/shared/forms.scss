@@ -6,6 +6,23 @@
   transform-origin: 0 0;
 }
 
+// scss-lint:disable QualifyingElement
+input[type='text'] {
+
+  // Input elements that inherit styling from their parent
+  &.inherit {
+    // scss-lint:disable ImportantRule
+    border-color: currentColor !important;
+    box-shadow: none !important;
+    font-size: inherit;
+    height: auto;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+  }
+}
+// scss-lint:enable QualifyingElement
+
 // Placeholders
 ::placeholder {
   color: currentColor;
@@ -13,3 +30,33 @@
   font-style: italic;
   opacity: .5;
 }
+
+// Multiple input fields in a single line (used for prefix/suffix)
+.input-field.group {
+  display: flex;
+  flex-direction: row;
+}
+
+// scss-lint:disable PropertyCount
+.mock-input {
+  background-color: transparent;
+  border: 0;
+  border-bottom: $input-border;
+  border-radius: 0;
+  box-shadow: none;
+  box-sizing: content-box;
+  font-size: $input-font-size;
+  height: $input-height;
+  line-height: $input-height;
+  margin: $input-margin;
+  outline: none;
+  padding: $input-padding;
+  transition: $input-transition;
+
+  // Disabled input style
+  &.disabled {
+    border-bottom: $input-disabled-border;
+    color: $input-disabled-color;
+  }
+}
+// scss-lint:enable PropertyCount
