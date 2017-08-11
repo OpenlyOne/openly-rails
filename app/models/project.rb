@@ -3,6 +3,7 @@
 # Handles projects that belong to a profile (owner)
 class Project < ApplicationRecord
   belongs_to :owner, polymorphic: true
+  include VersionControl
 
   # Attributes
   # Do not allow owner change
@@ -64,7 +65,7 @@ class Project < ApplicationRecord
 
   # Use slug when generating routes
   def to_param
-    slug_was
+    slug_in_database
   end
 
   private
@@ -78,5 +79,15 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # Get the file path for the project's git repository
+  def repository_file_path
+    Rails.root.join(
+      Settings.file_storage,
+      'projects',
+      owner.to_param,
+      "#{to_param}.git"
+    ).to_s
   end
 end

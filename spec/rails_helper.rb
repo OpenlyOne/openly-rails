@@ -40,6 +40,7 @@ require 'database_cleaner'
 #
 # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
+require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
 
 # Checks for pending migration and applies them before tests are run.
