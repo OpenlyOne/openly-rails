@@ -9,11 +9,21 @@ module VersionControl
     after_create do
       begin
         create_repository
+        files.create('Overview',
+                     'Welcome to my new project!',
+                     'Initial Contribution',
+                     owner)
       rescue
         # Do not persist object if any errors occur while creating repository
         raise ActiveRecord::Rollback
       end
     end
+  end
+
+  # Return an instance of FileCollection
+  def files
+    return nil if repository.nil?
+    @file_collection ||= VersionControl::FileCollection.new repository
   end
 
   # Return the project's Git repository
