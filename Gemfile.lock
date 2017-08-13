@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/libgit2/rugged.git
+  revision: 88104e8f64c9bbc3c2804726d1f0a29d1c9f3bf9
+  submodules: true
+  specs:
+    rugged (0.26.0)
+
+GIT
   remote: https://github.com/thoughtbot/shoulda-matchers.git
   revision: e58e6890ce36c766ef26814613700e1fc8337dfd
   branch: rails-5
@@ -345,6 +352,7 @@ DEPENDENCIES
   puma (= 3.8.1)
   rails (~> 5.1.2)
   rspec-rails (~> 3.5)
+  rugged (~> 0.26)!
   sass-rails (~> 5.0)
   shoulda-matchers (~> 3.1)!
   slim (~> 3.0)

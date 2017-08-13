@@ -137,5 +137,24 @@ RSpec.describe ProjectsController, type: :controller do
       run_request
       is_expected.to set_flash[:notice].to 'Project successfully deleted.'
     end
+
+    context 'when destruction of project fails' do
+      before do
+        allow_any_instance_of(Project).to receive(:destroy).and_return false
+      end
+
+      it 'redirects to project' do
+        run_request
+        expect(response)
+          .to redirect_to profile_project_path project.owner, project
+      end
+
+      it 'sets flash message' do
+        run_request
+        is_expected.to set_flash[:alert].to(
+          'An unexpected error occured while deleting the project.'
+        )
+      end
+    end
   end
 end

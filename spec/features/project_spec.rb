@@ -21,6 +21,8 @@ feature 'Project' do
       .to have_current_path "/#{account.user.to_param}/my-awesome-new-project"
     # and see the new project's title
     expect(page).to have_text 'My Awesome New Project!'
+    # and see the first commit
+    expect(page).to have_text 'Welcome to my new project!'
   end
 
   scenario 'User can view project' do
@@ -60,6 +62,8 @@ feature 'Project' do
       .to have_current_path "/#{project.owner.to_param}/new-slug"
     # and see the new project's title
     expect(page).to have_text 'My New Project Title'
+    # and see the first commit
+    expect(page).to have_text 'Welcome to my new project!'
   end
 
   scenario 'User can delete project' do
@@ -81,5 +85,7 @@ feature 'Project' do
     expect(page).to have_text 'Project successfully deleted.'
     # and it should no longer be in the database
     expect(Project).not_to exist(slug: project.slug)
+    # and the repository should be deleted
+    expect(VersionControl::Repository.find(project.repository.path)).to be nil
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/having_version_control.rb'
+
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
@@ -9,6 +11,9 @@ RSpec.describe Project, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:owner) }
+    it_should_behave_like 'having version control' do
+      subject(:object) { build(:project) }
+    end
   end
 
   describe 'attributes' do
@@ -153,6 +158,22 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
+    end
+  end
+
+  describe '#repository_file_path' do
+    subject(:repo_path) { project.send(:repository_file_path) }
+    let(:project)       { build_stubbed(:project) }
+
+    it do
+      is_expected.to eq(
+        Rails.root.join(
+          Settings.file_storage,
+          'projects',
+          project.owner.to_param,
+          "#{project.to_param}.git"
+        ).to_s
+      )
     end
   end
 end
