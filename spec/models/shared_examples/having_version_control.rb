@@ -71,6 +71,31 @@ RSpec.shared_examples 'having version control' do
         end
       end
     end
+
+    context 'after destroy' do
+      subject(:method)      { object.destroy }
+      let(:repository_path) { object.send :repository_file_path }
+      before                { object.save }
+
+      it { is_expected.to be_truthy }
+
+      it 'deletes the files at repository_file_path' do
+        method
+        expect(File).not_to exist repository_path
+      end
+
+      context 'when an error occurs' do
+        before do
+          allow(object)
+            .to receive(:destroy_repository)
+            .and_raise 'error'
+        end
+        it { is_expected.to be_falsey }
+        it 'does not save the object to the database' do
+          expect { method }.not_to change object.class, :count
+        end
+      end
+    end
   end
 
   describe '#files' do

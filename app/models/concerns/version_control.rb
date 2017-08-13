@@ -4,6 +4,7 @@
 module VersionControl
   extend ActiveSupport::Concern
 
+  # rubocop:disable Metrics/BlockLength
   included do
     # Safely create repository after creating object
     after_create do
@@ -39,7 +40,18 @@ module VersionControl
         raise ActiveRecord::Rollback
       end
     end
+
+    # Also delete repository when parent is deleted
+    after_destroy do
+      begin
+        destroy_repository
+      rescue
+        # Do not persist object if any errors occur while destroying repository
+        raise ActiveRecord::Rollback
+      end
+    end
   end
+  # rubocop:enable Metrics/BlockLength
 
   # Return an instance of FileCollection
   def files
@@ -62,5 +74,11 @@ module VersionControl
   # Rename a Git repository
   def rename_repository(old_path, new_path)
     @repository = VersionControl::Repository.find(old_path).rename(new_path)
+  end
+
+  # Destroy a Git repository
+  def destroy_repository
+    FileUtils.rm_rf repository_file_path
+    @repository = nil
   end
 end

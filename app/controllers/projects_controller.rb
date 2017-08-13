@@ -35,8 +35,13 @@ class ProjectsController < ApplicationController
   end
 
   def destroy
-    @project.destroy
-    redirect_to [@project.owner], notice: 'Project successfully deleted.'
+    if @project.destroy
+      redirect_to [@project.owner], notice: 'Project successfully deleted.'
+    else
+      redirect_to [@project.owner, @project],
+                  alert: 'An unexpected error occured while deleting the ' \
+                         'project.'
+    end
   end
 
   private

@@ -85,5 +85,7 @@ feature 'Project' do
     expect(page).to have_text 'Project successfully deleted.'
     # and it should no longer be in the database
     expect(Project).not_to exist(slug: project.slug)
+    # and the repository should be deleted
+    expect(VersionControl::Repository.find(project.repository.path)).to be nil
   end
 end
