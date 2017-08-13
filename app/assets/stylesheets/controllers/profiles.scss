@@ -1,40 +1,14 @@
 // Styling for ProfilesController
 
 .c-profiles {
-
-  // The user's profile banner
-  .profile-banner {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    display: block;
-    height: 200px;
-
-    position: relative;
-    z-index: -1;
-  }
-
   .profile-picture {
     display: block;
     margin-bottom: -50px;
     position: relative;
     top: -50px;
     width: 100px;
-  }
 
-  @media #{$medium-and-up} {
-    .profile-banner {
-      height: 250px;
-    }
-  }
-
-  @media #{$large-and-up} {
-    .profile-banner {
-      height: 300px;
-    }
-
-    .profile-picture {
+    @media #{$large-and-up} {
       margin-bottom: -75px;
       top: -75px;
       width: 150px;

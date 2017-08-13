@@ -6,3 +6,9 @@
   border-bottom: 2px solid;
   border-color: currentColor;
 }
+
+// Remove pointer events from disabled tab bars
+.tabs.disabled {
+  opacity: .2;
+  pointer-events: none;
+}

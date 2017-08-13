@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+
 RSpec.describe ProfilesController, type: :controller do
+  let!(:handle)         { create(:handle) }
+  let(:default_params)  do
+    {
+      handle: handle.identifier
+    }
+  end
+
   describe 'GET #show' do
-    context 'when handle exists' do
-      let!(:handle) { create(:handle) }
+    let(:params)      { default_params }
+    let(:run_request) { get :show, params: params }
 
-      it 'returns http success' do
-        get :show, params: { handle: handle.identifier }
-        expect(response).to have_http_status(:success)
-      end
-    end
+    include_examples 'raise 404 if non-existent', Handle
 
-    context 'when handle does not exist' do
-      let!(:handle) { build(:handle) }
-
-      it 'raises record not found error' do
-        expect do
-          get :show, params: { handle: handle.identifier }
-        end.to raise_error ActiveRecord::RecordNotFound
-      end
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
     end
   end
 end

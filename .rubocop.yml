@@ -1,4 +1,6 @@
 AllCops:
+  # Make version explicit for Hound
+  TargetRubyVersion: 2.4.1
   Exclude:
     - "bin/**/*"
     - "db/schema.rb"

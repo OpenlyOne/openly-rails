@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.3 (August 13, 2017)
+
+**New Features**:
+- Projects (with Version Control)
+
+**Minor Changes**:
+- Add favicon (Fixes #11)
+- Redirect to login page when authentication is required (#24)
+
 ## v0.2 (August 7, 2017)
 
 **New Features**:
@@ -10,7 +19,7 @@
 
 **Minor Changes**:
 - Remove JavaScript from application
-- Add dynamic error pages ([Issue](https://github.com/UpshiftOne/upshift/issues/12))
+- Add dynamic error pages (Fixes #12)
 - Responsive font-size for headings
 
 ## v0.1.1 (July 30, 2017)

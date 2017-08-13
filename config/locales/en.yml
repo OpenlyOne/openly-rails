@@ -5,7 +5,14 @@ en:
         name: "Name"
       user/handle:
         identifier: "Username"
+      project:
+        slug: 'Project URL'
     errors:
       messages:
         blank: "is required"
         confirmation: "did not match"
+  unauthorized:
+    manage:
+      all: "You are not authorized to %{action} this %{subject}."
+    destroy:
+      all: "You are not authorized to delete this %{subject}."

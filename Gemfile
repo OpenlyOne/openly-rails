@@ -38,11 +38,15 @@ gem 'jquery-rails', '~> 4.3'
 gem 'figaro', '~> 1.1'
 # Use Devise for authentication
 gem 'devise', '~> 4.3'
+# Use CanCanCan for authorization (permission management)
+gem 'cancancan', '~> 2.0'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8'
 # For simplified Rails configuration
 gem 'config', '~> 1.4'
-
+# Rugged for Git integration
+gem 'rugged', '~> 0.26',
+    git: 'https://github.com/libgit2/rugged.git', submodules: true
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
@@ -79,6 +83,8 @@ group :development do
   gem 'capistrano-rails',       '~> 1.3', require: false
   gem 'capistrano-rvm',         '~> 0.1', require: false
   gem 'capistrano3-puma',       '~> 3.1', require: false
+  # Generate favicons
+  gem 'rails_real_favicon'
 end
 
 group :test do

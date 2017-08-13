@@ -47,8 +47,12 @@ RSpec.describe LayoutHelper, type: :helper do
       let(:account) { create(:account) }
       before { allow(helper).to receive(:current_account).and_return(account) }
 
+      it 'includes a link to create a new project' do
+        expect(included_paths).to include new_project_path
+      end
+
       it 'includes a link to profile' do
-        expect(included_paths).to include profile_path(account.user)
+        expect(included_paths).to include url_for(account.user)
       end
 
       it 'includes a link to account' do

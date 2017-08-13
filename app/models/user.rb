@@ -4,9 +4,25 @@
 # to other users, such as the user's name (as opposed to an account's email and
 # password, for example)
 class User < ApplicationRecord
+  # Change the route key, so that the url_for helper automatically generates
+  # the right route
+  # See: https://stackoverflow.com/a/13131811/6451879
+  # TODO: Use STI for User (table: Profiles)
+  # TODO: See: https://gist.github.com/sj26/5843855
+  model_name.class_eval do
+    def route_key
+      singular_route_key.pluralize
+    end
+
+    def singular_route_key
+      'profile'
+    end
+  end
+
   # Associations
   belongs_to :account
   has_one :handle, as: :profile, dependent: :destroy, inverse_of: :profile
+  has_many :projects, as: :owner, dependent: :destroy, inverse_of: :owner
 
   # Attributes
   accepts_nested_attributes_for :handle
