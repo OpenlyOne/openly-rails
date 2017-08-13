@@ -46,8 +46,15 @@ class Project < ApplicationRecord
             unless: proc { |project| project.errors[:slug].any? }
 
   # Find a project by profile handle and project slug
-  def self.find(profile_handle, project_slug)
-    Profile.find(profile_handle).projects.find_by_slug! project_slug
+  # Also allows finding by ID, so that #reload still works
+  def self.find(id_or_profile_handle, project_slug = nil)
+    if project_slug.nil?
+      # find by ID
+      find_by_id! id_or_profile_handle
+    else
+      # find by handle and slug
+      Profile.find(id_or_profile_handle).projects.find_by_slug! project_slug
+    end
   end
 
   # Trim whitespaces around title

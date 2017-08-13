@@ -92,6 +92,14 @@ RSpec.describe Project, type: :model do
       before { project.destroy }
       it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
     end
+
+    context 'when project slug is not passed' do
+      subject(:method) { Project.find(project.id) }
+
+      it 'finds project by ID' do
+        is_expected.to eq project
+      end
+    end
   end
 
   describe '#title=' do
