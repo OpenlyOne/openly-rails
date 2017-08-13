@@ -7,12 +7,16 @@
 require 'faker'
 require 'factory_girl_rails'
 
+# Clear the contents of the file storage
+FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
+
 # Create three users
 %w[alice bob carla].each do |username|
   account = Account.new email: "#{username}@upshift.one", password: 'password'
   account.build_user name: username.capitalize
   account.user.build_handle identifier: username
   account.save
+  account.reload # reload account to ensure that they were persisted
 
   # Create three projects per user
   3.times.with_index do |i|
