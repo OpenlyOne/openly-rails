@@ -5,6 +5,10 @@
 # config valid only for current version of Capistrano
 lock '3.9.0'
 
+# Load default settings
+require 'config'
+Config.load_and_set_settings(Config.setting_files('config', fetch(:env)))
+
 server 'upshift.one', port: 22, roles: %i[web app db], primary: true
 
 set :repo_url,        'git@github.com:UpshiftOne/upshift.git'
@@ -43,7 +47,7 @@ set :puma_init_active_record, true
 ## Linked Files & Directories (Default None):
 # set :linked_files, %w{config/database.yml}
 set :linked_dirs,
-    %w[public/.well-known]
+    %W[public/.well-known #{Settings.file_storage}]
 #    %w[bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system]
 
 namespace :puma do
