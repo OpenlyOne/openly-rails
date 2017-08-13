@@ -13,6 +13,7 @@ require 'factory_girl_rails'
   account.build_user name: username.capitalize
   account.user.build_handle identifier: username
   account.save
+  account.reload # reload account to ensure that they were persisted
 
   # Create three projects per user
   3.times.with_index do |i|
