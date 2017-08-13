@@ -71,6 +71,32 @@ RSpec.describe VersionControl::Repository, type: :model do
     end
   end
 
+  describe '#rename(new_path)' do
+    subject(:method)  { repository.rename new_path }
+    let(:repository)  { build :vc_repository }
+    let!(:old_path)   { repository.path }
+    let!(:new_path)   { repository.path[0..-2] + '.new.git/' }
+
+    it 'moves the repository to the new path' do
+      method
+      expect(VersionControl::Repository.find(old_path)).to be nil
+      expect(VersionControl::Repository.find(new_path)).not_to be nil
+    end
+
+    it 'updates its reference to rugged_repository' do
+      expect(Rugged::Repository).to receive(:new).and_call_original
+      method
+      expect(repository.path).to eq new_path
+    end
+
+    context 'when repository is not bare' do
+      let(:repository) { build :vc_repository, bare: nil }
+      it 'raises an error' do
+        expect { method }.to raise_error 'Cannot rename non-bare repositories'
+      end
+    end
+  end
+
   describe '#commit' do
     subject(:method)  { repository.commit message, author }
     let(:author)      { build :user }

@@ -60,6 +60,18 @@ module VersionControl
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Rename the repository (move the directory & files)
+    def rename(new_path)
+      # TODO: Support renaming non-bare repositories
+      raise 'Cannot rename non-bare repositories' unless bare?
+
+      # Move the files
+      FileUtils.mv path, new_path
+
+      # Update the rugged repository
+      @rugged_repository = Rugged::Repository.new new_path
+    end
+
     # Reset the index/stage to the last commit on master
     def reset_index!
       index.clear

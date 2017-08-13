@@ -62,6 +62,8 @@ feature 'Project' do
       .to have_current_path "/#{project.owner.to_param}/new-slug"
     # and see the new project's title
     expect(page).to have_text 'My New Project Title'
+    # and see the first commit
+    expect(page).to have_text 'Welcome to my new project!'
   end
 
   scenario 'User can delete project' do
