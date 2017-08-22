@@ -1,0 +1,11 @@
+.container
+  .row.no-margin-bottom
+    .col.s12
+      h2 = @file.name
+  .divider
+  .row
+    .col.s12
+      - if @file.content.present?
+        = simple_format @file.content
+      - else
+        p: em This file is empty.
