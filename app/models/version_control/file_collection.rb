@@ -64,8 +64,10 @@ module VersionControl
 
       # initialize files
       @repository.branches['master'].target.tree.each do |file|
-        @files.push(
-          File.new(collection: self, name: file[:name], oid: file[:oid])
+        @files << VersionControl::File.new(
+          collection: self,
+          name:       file[:name],
+          oid:        file[:oid].to_s
         )
       end
 
