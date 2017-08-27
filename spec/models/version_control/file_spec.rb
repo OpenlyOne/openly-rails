@@ -23,33 +23,43 @@ RSpec.describe VersionControl::File, type: :model do
       it { is_expected.to validate_presence_of(:revision_summary).on(:destroy) }
     end
 
-    context 'on :create' do
-      it { is_expected.to validate_presence_of(:revision_author).on(:create) }
-      it { is_expected.to validate_presence_of(:revision_summary).on(:create) }
+    context 'on :save' do
+      it { is_expected.to validate_presence_of(:revision_author).on(:save) }
+      it { is_expected.to validate_presence_of(:revision_summary).on(:save) }
       context 'when validating name' do
-        it { is_expected.to validate_presence_of(:name).on(:create) }
+        it { is_expected.to validate_presence_of(:name).on(:save) }
 
         it 'identical names are invalid' do
           existing_file = create :vc_file, collection: file.collection
           file.name = existing_file.name
-          expect(file).to be_invalid(:create)
+          expect(file).to be_invalid(:save)
         end
 
         it 'different cases of the same name are invalid' do
           existing_file = create :vc_file, collection: file.collection
           file.name = existing_file.name.upcase
-          expect(file).to be_invalid(:create)
+          expect(file).to be_invalid(:save)
         end
 
         it 'identical names in different repositories are valid' do
           existing_file = create :vc_file
           file.name = existing_file.name
-          expect(file).to be_valid(:create)
+          expect(file).to be_valid(:save)
         end
 
         it 'forward-slash is invalid' do
           file.name = 'my/new/name'
-          expect(file).to be_invalid(:create)
+          expect(file).to be_invalid(:save)
+        end
+
+        context 'when name has not changed' do
+          before { file.save }
+          it 'does not mark file as invalid' do
+            file.content += 'abc'
+            file.revision_summary = 'Update file content'
+            file.revision_author  = file.revision_author_was
+            expect(file).to be_valid(:save)
+          end
         end
       end
     end
@@ -70,67 +80,17 @@ RSpec.describe VersionControl::File, type: :model do
     end
 
     it { is_expected.to be_a VersionControl::File }
-    it { is_expected.to be_persisted }
 
-    it 'drop previously staged files (reset to last commit)' do
-      # make sure we have a previous commit
-      repository.commit 'initial commit', build_stubbed(:user)
-
-      # stage three files
-      3.times.with_index do |i|
-        blob_oid = repository.write("file content #{i}", :blob)
-        repository.index.add path: "File#{i}", oid: blob_oid, mode: 0o100644
-      end
-
-      # run method
+    it 'calls .new on VersionControl::File' do
+      expect(VersionControl::File)
+        .to receive(:new).with(params).and_call_original
       method
-
-      # Confirm that previous staged files are not included in commit
-      tree = repository.branches['master'].target.tree
-      expect(tree.count).to eq 1
-      tree.each do |file|
-        expect(file[:name]).not_to match(/File[123]/)
-      end
     end
 
-    it 'adds a new file to version control' do
-      expect { method }.to(
-        change { file_collection.reload!.count }.from(0).to(1)
-      )
-    end
-
-    it 'saves the name' do
+    it 'calls #save on VersionControl::File instance' do
+      expect_any_instance_of(VersionControl::File)
+        .to receive(:save)
       method
-      expect(file_collection.reload!).to exist params[:name]
-    end
-
-    it 'saves the content' do
-      method
-      expect(file_collection.reload!.find(params[:name]).content)
-        .to eq params[:content]
-    end
-
-    it 'resets revision author and revision summary' do
-      file = method
-      expect(file.revision_author).to be nil
-      expect(file.revision_summary).to be nil
-      expect(file.revision_author_was).not_to be nil
-      expect(file.revision_summary_was).not_to be nil
-    end
-
-    it 'resets dirty tracking' do
-      file = method
-      expect(file.changes.keys).to eq %w[revision_author revision_summary]
-      expect(file.previous_changes).not_to be_none
-    end
-
-    context 'when file is invalid' do
-      before do
-        allow_any_instance_of(VersionControl::File)
-          .to receive(:valid?)
-          .and_return false
-      end
-      it { is_expected.to be false }
     end
   end
 
@@ -286,6 +246,142 @@ RSpec.describe VersionControl::File, type: :model do
     context 'when persisted is set true on initialization' do
       subject(:file) { VersionControl::File.new persisted: true }
       it { is_expected.to be_persisted }
+    end
+  end
+
+  describe '#save' do
+    subject(:method)      { file.save }
+    let(:file)            { build :vc_file }
+    let(:file_collection) { file.collection }
+    let(:repository)      { file.repository }
+    it                    { is_expected.to be_truthy }
+
+    it 'returns the oid of the commit' do
+      oid = Faker::Crypto.sha1
+      allow(repository).to receive(:commit).and_return oid
+      expect(method).to eq oid
+    end
+
+    it 'marks file as persisted' do
+      method
+      expect(file).to be_persisted
+    end
+
+    it 'resets dirty tracking' do
+      method
+      expect(file.changes.keys).to eq %w[revision_author revision_summary]
+      expect(file.previous_changes).not_to be_none
+    end
+
+    it 'resets revision author and revision summary' do
+      method
+      expect(file.revision_author).to be nil
+      expect(file.revision_summary).to be nil
+      expect(file.revision_author_was).not_to be nil
+      expect(file.revision_summary_was).not_to be nil
+    end
+
+    it 'drop previously staged files (reset to last commit)' do
+      # make sure we have a previous commit
+      repository.commit 'initial commit', build_stubbed(:user)
+
+      # stage three files
+      3.times.with_index do |i|
+        blob_oid = repository.write("file content #{i}", :blob)
+        repository.index.add path: "File#{i}", oid: blob_oid, mode: 0o100644
+      end
+
+      # run method
+      method
+
+      # Confirm that previous staged files are not included in commit
+      tree = repository.branches['master'].target.tree
+      expect(tree.count).to eq 1
+      tree.each do |file|
+        expect(file[:name]).not_to match(/File[123]/)
+      end
+    end
+
+    context 'when file is invalid' do
+      before  { allow(file).to receive(:valid?).with(:save).and_return false }
+      it      { is_expected.to be false }
+    end
+
+    context 'when .commit returns false' do
+      before  { allow(repository).to receive(:commit).and_return false }
+      it      { is_expected.to be false }
+
+      it 'does not mark file as persisted' do
+        method
+        expect(file).not_to be_persisted
+      end
+
+      it 'does not reset dirty tracking' do
+        method
+        expect(file).to be_changed
+        expect(file.previous_changes).to be_none
+      end
+    end
+
+    context 'when file is new' do
+      it 'adds a new file to version control' do
+        expect { method }.to(
+          change { file_collection.reload!.count }.from(0).to(1)
+        )
+      end
+
+      it 'saves the name' do
+        method
+        expect(file_collection.reload!).to exist file.name
+      end
+
+      it 'saves the content' do
+        method
+        expect(file_collection.reload!.find(file.name).content)
+          .to eq file.content
+      end
+    end
+
+    context 'when file is persisted' do
+      let!(:file) { create :vc_file }
+      before do
+        file.name     = 'README.txt'
+        file.content  = 'Interesting things to read...!'
+        file.revision_author  = attributes_for(:vc_file)[:revision_author]
+        file.revision_summary = attributes_for(:vc_file)[:revision_summary]
+      end
+
+      it 'does not add a new file to version control' do
+        expect { method }.not_to(change { file_collection.reload!.count })
+      end
+
+      it 'can update the name' do
+        method
+        expect(file_collection.reload!).to exist file.name
+      end
+
+      it 'can update the content' do
+        method
+        expect(file_collection.reload!.find(file.name).content)
+          .to eq file.content
+      end
+    end
+  end
+
+  describe '#save!' do
+    let(:file)        { build :vc_file }
+    subject(:method)  { file.save! }
+
+    it 'calls #save on VersionControl::File instance' do
+      expect(file).to receive(:save).and_call_original
+      method
+    end
+
+    context 'when #save is falsey' do
+      before { allow(file).to receive(:save).and_return false }
+      it 'raises ActiveRecord::RecordInvalid error' do
+        expect { method }.to raise_error ActiveRecord::RecordInvalid
+      end
     end
   end
 

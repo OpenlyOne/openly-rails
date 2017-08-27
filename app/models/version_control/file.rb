@@ -2,13 +2,14 @@
 
 module VersionControl
   # A single version controlled file
+  # rubocop:disable Metrics/ClassLength
   class File
     include ActiveModel::Dirty
     include ActiveModel::Validations
 
     # Define attributes to be dirty-tracked
     def self.dirty_tracked_attributes
-      %i[name content revision_author revision_summary]
+      %i[name content revision_summary revision_author]
     end
 
     # Define attributes to be read and set
@@ -28,31 +29,27 @@ module VersionControl
     delegate :repository, to: :collection
 
     # Validations
-    validates :revision_author,   presence: true, on: %i[create destroy]
-    validates :revision_summary,  presence: true, on: %i[create destroy]
-    validates :name,              presence: true, on: :create
+    validates :revision_author,   presence: true, on: %i[save destroy]
+    validates :revision_summary,  presence: true, on: %i[save destroy]
+    validates :name,              presence: true, on: :save
     validates :name,
               format: {
                 without: %r{/},
                 message: 'must not contain forward slashes (/)'
               },
-              on: :create
-    validate :name_must_be_case_insensitively_unique, on: :create
+              on: :save,
+              if: 'name_changed?'
+    validate :name_must_be_case_insensitively_unique,
+             on: :save,
+             if: 'name_changed?'
 
     # Initialize a new file and commit to repository
     # Return reference to new file
     def self.create(params)
       file = new params
 
-      # validate the file
-      return false if file.invalid?
-
       # save the file
-      file.write_content_to_repository
-      file.send :commit do |f|
-        f.repository.index.add path: f.name, oid: f.oid, mode: 0o100644
-      end
-      file.instance_variable_set :@persisted, true
+      file.save
 
       # return the file instance
       file
@@ -120,6 +117,36 @@ module VersionControl
       @persisted
     end
 
+    # Save a new revision of the file
+    def save
+      # validate the file
+      return false if invalid?(:save)
+
+      # Write the file
+      write_content_to_repository if content_changed?
+
+      # Commit the change(s)
+      commit_oid = commit do |file|
+        # remove old file version if this file is already under VC
+        file.repository.index.remove file.name_was if file.persisted?
+        # add the file with its new name and content
+        file.repository.index.add path: file.name, oid: file.oid, mode: 0o100644
+      end
+
+      # mark file as persisted & reset dirty tracking if commit succeeded
+      @persisted = true if commit_oid
+
+      commit_oid
+    end
+
+    # Attempt to save a new revision of the file
+    # Raise error if unsuccessful
+    def save!
+      return_value = save
+      raise ActiveRecord::RecordInvalid unless return_value
+      return_value
+    end
+
     # Write the content to a new blob in repository
     def write_content_to_repository
       @oid = repository.write content, :blob
@@ -138,7 +165,7 @@ module VersionControl
       # make a commit
       commit_id = repository.commit revision_summary, revision_author
 
-      # clear revision author & summary
+      # reset dirty tracking and clear revision author & summary
       if commit_id
         changes_applied
         self.revision_author = nil
@@ -158,4 +185,5 @@ module VersionControl
     end
     # rubocop:enable Style/GuardClause
   end
+  # rubocop:enable Metrics/ClassLength
 end

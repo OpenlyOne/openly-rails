@@ -51,11 +51,12 @@ RSpec.describe VersionControl::FileCollection, type: :model do
   end
 
   describe '#exists?' do
-    subject(:method)  { file_collection.exists? name }
+    subject(:method)  { file_collection.reload!.exists? name }
     let(:name)        { file.name }
     let!(:file)       { create :vc_file, collection: file_collection }
     it                { is_expected.to be true }
     it 'ignores case' do
+      file_collection.reload!
       expect(file_collection).to exist file.name.upcase
       expect(file_collection).to exist file.name.downcase
     end
@@ -67,7 +68,7 @@ RSpec.describe VersionControl::FileCollection, type: :model do
   end
 
   describe '#find' do
-    subject(:method)  { file_collection.find name }
+    subject(:method)  { file_collection.reload!.find name }
     let(:name)        { file.name }
     let!(:file)       { create :vc_file, collection: file_collection }
 
@@ -80,6 +81,7 @@ RSpec.describe VersionControl::FileCollection, type: :model do
     end
 
     it 'ignores case' do
+      file_collection.reload!
       expect(file_collection.find(file.name.upcase).oid).to eq file.oid
       expect(file_collection.find(file.name.downcase).oid).to eq file.oid
     end
@@ -106,7 +108,7 @@ RSpec.describe VersionControl::FileCollection, type: :model do
 
     it 'initializes VersionControl::File objects' do
       create :vc_file, collection: file_collection
-      expect(subject.entries.first).to be_a VersionControl::File
+      expect(subject.reload!.entries.first).to be_a VersionControl::File
     end
 
     it 'consists of files from last commit on master branch' do
@@ -121,7 +123,7 @@ RSpec.describe VersionControl::FileCollection, type: :model do
       # Confirm three files in collection
       3.times.with_index do |i|
         expect(
-          subject.any? do |file|
+          subject.reload!.any? do |file|
             file.name == "file#{i}" && file.content == "content#{i}"
           end
         ).to be true
