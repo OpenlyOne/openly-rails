@@ -12,4 +12,33 @@ RSpec.describe 'routes for projects', type: :routing do
         name: 'name.txt'
       )
   end
+
+  it 'has an edit route for content' do
+    expect(edit_profile_project_file_path('handle', 'slug', 'name.txt'))
+      .to eq '/handle/slug/files/name.txt/edit'
+    expect(get: '/handle/slug/files/name.txt/edit')
+      .to route_to(
+        'files#edit_content',
+        profile_handle: 'handle',
+        project_slug: 'slug',
+        name: 'name.txt'
+      )
+  end
+
+  it 'has an update route for content' do
+    expect(patch: '/handle/slug/files/name.txt/edit')
+      .to route_to(
+        'files#update_content',
+        profile_handle: 'handle',
+        project_slug: 'slug',
+        name: 'name.txt'
+      )
+    expect(put: '/handle/slug/files/name.txt/edit')
+      .to route_to(
+        'files#update_content',
+        profile_handle: 'handle',
+        project_slug: 'slug',
+        name: 'name.txt'
+      )
+  end
 end

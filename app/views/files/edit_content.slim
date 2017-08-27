@@ -1,0 +1,6 @@
+= render partial: 'form', locals: { \
+    url: edit_profile_project_file_path(@project.owner, @project, @file),
+    method: :patch,
+    edit_content: true,
+    button: 'Save',
+  }

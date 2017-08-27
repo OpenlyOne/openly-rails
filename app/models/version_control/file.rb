@@ -7,6 +7,19 @@ module VersionControl
     include ActiveModel::Dirty
     include ActiveModel::Validations
 
+    # Change the route key, so that the url_for helper automatically generates
+    # the right route
+    # See: https://stackoverflow.com/a/13131811/6451879
+    model_name.class_eval do
+      def route_key
+        singular_route_key.pluralize
+      end
+
+      def singular_route_key
+        'file'
+      end
+    end
+
     # Define attributes to be dirty-tracked
     def self.dirty_tracked_attributes
       %i[name content revision_summary revision_author]
@@ -154,6 +167,19 @@ module VersionControl
         send "#{attribute}=", params[attribute] if params[attribute]
       end
       save
+    end
+
+    # Required for working with form_for
+    def to_key; end
+
+    # The model name to use when generating routes
+    def to_model
+      self
+    end
+
+    # Use file name when generating routes
+    def to_param
+      name_was
     end
 
     # Write the content to a new blob in repository

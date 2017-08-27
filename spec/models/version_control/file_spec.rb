@@ -119,6 +119,15 @@ RSpec.describe VersionControl::File, type: :model do
     it_should_behave_like 'having a dirty-tracked attribute', :revision_summary
   end
 
+  describe 'route keys' do
+    it 'should have singular route key: file' do
+      expect(file.model_name.singular_route_key).to eq 'file'
+    end
+    it 'should have route key: files' do
+      expect(file.model_name.route_key).to eq 'files'
+    end
+  end
+
   describe '#content' do
     subject(:method)  { file.content }
     let(:file)        { create :vc_file }
@@ -427,6 +436,32 @@ RSpec.describe VersionControl::File, type: :model do
       it 'calls #save on VersionControl::File instance' do
         expect(file).to receive(:save).and_call_original
         method
+      end
+    end
+  end
+
+  describe '#to_key' do
+    it { expect { subject.to_key }.not_to raise_error }
+  end
+
+  describe '#to_model' do
+    subject(:method) { file.to_model }
+    it { is_expected.to eq file }
+  end
+
+  describe '#to_param' do
+    subject(:file) { create :vc_file }
+
+    it 'returns the name' do
+      expect(file.to_param).to eq file.name
+    end
+
+    context 'if name is changed' do
+      let!(:name_before_change)  { file.name }
+
+      it 'returns the name before change' do
+        file.name = 'new-file-name'
+        expect(file.to_param).to eq name_before_change
       end
     end
   end

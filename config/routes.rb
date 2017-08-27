@@ -54,7 +54,12 @@ Rails.application.routes.draw do
               path: '/', except: %i[index new create], param: :slug do
       # Routes for project files
       resources :files,
-                only: :show, param: :name, constraints: { name: %r{[^/]+} }
+                only: :show, param: :name,
+                constraints: { name: %r{[^/]+} } do
+                  get   'edit'  => 'files#edit_content',    on: :member
+                  patch 'edit'  => 'files#update_content',  on: :member
+                  put   'edit'  => 'files#update_content',  on: :member
+                end
     end
   end
 

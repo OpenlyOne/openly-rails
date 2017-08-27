@@ -14,6 +14,11 @@ class Ability
     can %i[edit update destroy], Project do |project|
       can? :manage, project.owner
     end
+
+    can %i[edit_content update_content],
+        VersionControl::File do |_file, project|
+      can? :edit, project
+    end
     # Define abilities for the passed in user here. For example:
     #
     #   user ||= User.new # guest user (not logged in)

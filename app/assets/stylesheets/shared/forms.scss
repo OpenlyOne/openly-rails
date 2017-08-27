@@ -1,9 +1,20 @@
 // Styling for forms
 
 // Input elements
-.input-field input + label {
-  transform: translateY(-14px) scale(.8);
-  transform-origin: 0 0;
+.input-field {
+  input,
+  textarea {
+    + label {
+      transform: translateY(-14px) scale(.8);
+      transform-origin: 0 0;
+    }
+  }
+
+  // Multiple input fields in a single line (used for prefix/suffix)
+  &.group {
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 // scss-lint:disable QualifyingElement
@@ -34,12 +45,6 @@ input[type='text'] {
   opacity: .5;
 }
 
-// Multiple input fields in a single line (used for prefix/suffix)
-.input-field.group {
-  display: flex;
-  flex-direction: row;
-}
-
 // scss-lint:disable PropertyCount
 .mock-input {
   background-color: transparent;
@@ -63,3 +68,10 @@ input[type='text'] {
   }
 }
 // scss-lint:enable PropertyCount
+
+// Adapt materialize textarea to work decently well without JS
+.materialize-textarea.noscript {
+  height: auto;
+  overflow-y: scroll;
+  resize: vertical;
+}
