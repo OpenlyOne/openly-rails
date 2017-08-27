@@ -22,6 +22,7 @@ FactoryGirl.define do
       )
       file.instance_variable_set :@oid, file.collection.find(file.name).oid
       file.instance_variable_set :@persisted, true
+      file.send :changes_applied
     end
 
     initialize_with do

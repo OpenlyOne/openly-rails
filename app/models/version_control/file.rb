@@ -28,8 +28,8 @@ module VersionControl
     delegate :repository, to: :collection
 
     # Validations
-    validates :revision_author,   presence: true, on: :create
-    validates :revision_summary,  presence: true, on: :create
+    validates :revision_author,   presence: true, on: %i[create destroy]
+    validates :revision_summary,  presence: true, on: %i[create destroy]
     validates :name,              presence: true, on: :create
     validates :name,
               format: {
@@ -90,6 +90,29 @@ module VersionControl
     # Return the file's content
     def content
       @content ||= repository.lookup(oid).content
+    end
+
+    # Destroy the file
+    def destroy
+      # do not destroy unless the file is persisted
+      raise ActiveRecord::Rollback unless persisted?
+
+      # reset all values other than revision author and summary
+      restore_name!
+      restore_content!
+
+      # validate that revision is valid
+      return false unless valid?(:destroy)
+
+      # Commit the change(s)
+      commit_oid = commit do |file|
+        file.repository.index.remove file.name_was
+      end
+
+      # file is no longer persisted
+      @persisted = false if commit_oid
+
+      commit_oid
     end
 
     # Return true if the file is persisted

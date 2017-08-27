@@ -18,6 +18,11 @@ RSpec.describe VersionControl::File, type: :model do
   end
 
   describe 'validations' do
+    context 'on :destroy' do
+      it { is_expected.to validate_presence_of(:revision_author).on(:destroy) }
+      it { is_expected.to validate_presence_of(:revision_summary).on(:destroy) }
+    end
+
     context 'on :create' do
       it { is_expected.to validate_presence_of(:revision_author).on(:create) }
       it { is_expected.to validate_presence_of(:revision_summary).on(:create) }
@@ -158,6 +163,120 @@ RSpec.describe VersionControl::File, type: :model do
     subject(:method)  { file.content }
     let(:file)        { create :vc_file }
     it                { is_expected.to eq file.content }
+  end
+
+  describe '#destroy' do
+    subject(:method)      { file.destroy }
+    let!(:file)           { create :vc_file }
+    let(:repository)      { file.repository }
+    let(:file_collection) { file.collection }
+    it                    { is_expected.to be_truthy }
+    before do
+      file.revision_author  = attributes_for(:vc_file)[:revision_author]
+      file.revision_summary = attributes_for(:vc_file)[:revision_summary]
+    end
+
+    it 'returns the oid of the commit' do
+      oid = Faker::Crypto.sha1
+      allow(repository).to receive(:commit).and_return oid
+      expect(method).to eq oid
+    end
+
+    it 'resets dirty tracking' do
+      method
+      expect(file.changes.keys).to eq %w[revision_author revision_summary]
+      expect(file.previous_changes).not_to be_none
+    end
+
+    it 'resets revision author and revision summary' do
+      method
+      expect(file.revision_author).to be nil
+      expect(file.revision_summary).to be nil
+      expect(file.revision_author_was).not_to be nil
+      expect(file.revision_summary_was).not_to be nil
+    end
+
+    it 'drop previously staged files (reset to last commit)' do
+      # make sure we have a previous commit
+      repository.commit 'initial commit', build_stubbed(:user)
+
+      # stage three files
+      3.times.with_index do |i|
+        blob_oid = repository.write("file content #{i}", :blob)
+        repository.index.add path: "File#{i}", oid: blob_oid, mode: 0o100644
+      end
+
+      # run method
+      method
+
+      # Confirm that previous staged files are not included in commit
+      tree = repository.branches['master'].target.tree
+      expect(tree.count).to eq 0
+    end
+
+    it 'removes a file from version control' do
+      expect { method }.to(
+        change { file_collection.reload!.count }.from(1).to(0)
+      )
+    end
+
+    it 'sets persisted to false' do
+      method
+      expect(file).not_to be_persisted
+    end
+
+    context 'when file is not persisted' do
+      before { file.instance_variable_set :@persisted, false }
+
+      it 'prints out warning' do
+        expect { method }.to raise_error ActiveRecord::Rollback
+      end
+
+      it 'does not commit the change' do
+        expect(file.repository).not_to receive(:commit)
+      end
+    end
+
+    context 'when file name is changed' do
+      let!(:original_file_name) { file.name }
+      let!(:new_file_name)      { 'new-file-name' }
+      before do
+        create :vc_file, collection: file_collection, name: new_file_name
+        file.name = new_file_name
+      end
+      it 'removes the file by its original name' do
+        method
+        file_collection.reload!
+        expect(file_collection).not_to exist original_file_name
+        expect(file_collection).to exist new_file_name
+      end
+    end
+
+    context 'when file is not in version control' do
+      let(:file)  { create :vc_file }
+      before do
+        file.name = 'new-name'
+        file.send :changes_applied
+      end
+      it { expect { method }.to raise_error Rugged::IndexError }
+    end
+
+    context 'when file is invalid' do
+      before do
+        allow(file).to receive(:valid?).with(:destroy).and_return false
+      end
+      it { is_expected.to be false }
+    end
+
+    context 'when .commit returns false' do
+      before  { allow(repository).to receive(:commit).and_return false }
+      it      { is_expected.to be false }
+
+      it 'does not mark file as not-persisted' do
+        method
+        expect(file).to be_persisted
+      end
+    end
   end
 
   describe '#persisted?' do
