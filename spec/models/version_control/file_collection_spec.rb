@@ -112,6 +112,11 @@ RSpec.describe VersionControl::FileCollection, type: :model do
       is_expected.to be_a VersionControl::File
     end
 
+    it 'ignores case' do
+      expect(file_collection.find(file.name.upcase).oid).to eq file.oid
+      expect(file_collection.find(file.name.downcase).oid).to eq file.oid
+    end
+
     it 'returns the right file' do
       found_file = method
       expect(found_file.name).to    eq file.name

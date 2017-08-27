@@ -47,10 +47,10 @@ module VersionControl
       true
     end
 
-    # Search collection for file with name.
+    # Search collection for file with name (case insensitive)
     # Raise ActiveRecord error if not findable.
     def find(name)
-      file = find_by { |f| f.name == name }
+      file = find_by { |f| f.name.casecmp(name).zero? }
       raise ActiveRecord::RecordNotFound if file.nil?
       file
     end
