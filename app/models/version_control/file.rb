@@ -3,6 +3,8 @@
 module VersionControl
   # A single version controlled file
   class File
+    include ActiveModel::Validations
+
     attr_reader :oid, :name, :collection
 
     def initialize(params = {})
