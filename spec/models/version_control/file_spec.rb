@@ -63,6 +63,7 @@ RSpec.describe VersionControl::File, type: :model do
     end
 
     it { is_expected.to be_a VersionControl::File }
+    it { is_expected.to be_persisted }
 
     it 'drop previously staged files (reset to last commit)' do
       # make sure we have a previous commit
@@ -122,6 +123,16 @@ RSpec.describe VersionControl::File, type: :model do
     subject(:method)  { file.content }
     let(:file)        { create :vc_file }
     it                { is_expected.to eq file.content }
+  end
+
+  describe '#persisted?' do
+    subject(:file) { VersionControl::File.new }
+    it { is_expected.not_to be_persisted }
+
+    context 'when persisted is set true on initialization' do
+      subject(:file) { VersionControl::File.new persisted: true }
+      it { is_expected.to be_persisted }
+    end
   end
 
   describe '#write_content_to_repository' do

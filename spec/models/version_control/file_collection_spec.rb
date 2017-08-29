@@ -75,6 +75,10 @@ RSpec.describe VersionControl::FileCollection, type: :model do
       is_expected.to be_a VersionControl::File
     end
 
+    it 'marks file as persisted' do
+      is_expected.to be_persisted
+    end
+
     it 'ignores case' do
       expect(file_collection.find(file.name.upcase).oid).to eq file.oid
       expect(file_collection.find(file.name.downcase).oid).to eq file.oid
@@ -122,6 +126,11 @@ RSpec.describe VersionControl::FileCollection, type: :model do
           end
         ).to be true
       end
+    end
+
+    it 'marks files as persisted' do
+      create_list :vc_file, 5, collection: file_collection
+      expect(subject.all?(&:persisted?)).to be true
     end
 
     context 'when no commit exists' do

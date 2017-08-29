@@ -53,6 +53,7 @@ module VersionControl
     end
 
     # Reload files from last commit on master
+    # rubocop:disable Metrics/MethodLength
     def reload!
       @files = []
 
@@ -62,6 +63,7 @@ module VersionControl
       # initialize files
       @repository.branches['master'].target.tree.each do |file|
         @files << VersionControl::File.new(
+          persisted:  true,
           collection: self,
           name:       file[:name],
           oid:        file[:oid].to_s
@@ -70,5 +72,6 @@ module VersionControl
 
       self
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

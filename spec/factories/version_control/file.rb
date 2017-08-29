@@ -10,6 +10,7 @@ FactoryGirl.define do
     oid               { Faker::Crypto.sha1 }
     revision_author   { build :user }
     revision_summary  { Faker::Simpsons.quote }
+    persisted         { false }
 
     # persist the file to the repository and assign oid
     before(:create) do |file|
@@ -20,6 +21,7 @@ FactoryGirl.define do
         revision_author: file.revision_author
       )
       file.instance_variable_set :@oid, file.collection.find(file.name).oid
+      file.instance_variable_set :@persisted, true
     end
 
     initialize_with do
@@ -29,7 +31,8 @@ FactoryGirl.define do
         oid: oid,
         content: content,
         revision_summary: revision_summary,
-        revision_author: revision_author
+        revision_author: revision_author,
+        persisted: persisted
       )
     end
   end

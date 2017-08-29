@@ -36,6 +36,7 @@ module VersionControl
       file.send :commit do |f|
         f.repository.index.add path: f.name, oid: f.oid, mode: 0o100644
       end
+      file.instance_variable_set :@persisted, true
 
       # return the file instance
       file
@@ -48,11 +49,17 @@ module VersionControl
       @content            = params[:content]
       @revision_summary   = params[:revision_summary]
       @revision_author    = params[:revision_author]
+      @persisted          = params[:persisted] || false
     end
 
     # Return the file's content
     def content
       @content ||= repository.lookup(oid).content
+    end
+
+    # Return true if the file is persisted
+    def persisted?
+      @persisted
     end
 
     # Write the content to a new blob in repository
