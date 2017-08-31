@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/having_dirty_tracked_attribute.rb'
+
 RSpec.describe VersionControl::File, type: :model do
   subject(:file) { build :vc_file }
 
@@ -107,6 +109,14 @@ RSpec.describe VersionControl::File, type: :model do
       file = method
       expect(file.revision_author).to be nil
       expect(file.revision_summary).to be nil
+      expect(file.revision_author_was).not_to be nil
+      expect(file.revision_summary_was).not_to be nil
+    end
+
+    it 'resets dirty tracking' do
+      file = method
+      expect(file.changes.keys).to eq %w[revision_author revision_summary]
+      expect(file.previous_changes).not_to be_none
     end
 
     context 'when file is invalid' do
@@ -117,6 +127,31 @@ RSpec.describe VersionControl::File, type: :model do
       end
       it { is_expected.to be false }
     end
+  end
+
+  describe 'dirty tracking' do
+    subject(:file)  { build :vc_file, revision_author: user, persisted: true }
+    let(:user)      { build_stubbed :user }
+
+    context 'when initializing new record' do
+      subject(:file)  { build :vc_file }
+      it              { is_expected.to be_changed }
+    end
+
+    context 'when initializing persisted record' do
+      subject(:file)  { build :vc_file, persisted: true }
+      it              { is_expected.not_to be_changed }
+    end
+
+    context 'when an attribute is changed' do
+      before  { file.name = 'new value' }
+      it      { is_expected.to be_changed }
+    end
+
+    it_should_behave_like 'having a dirty-tracked attribute', :name
+    it_should_behave_like 'having a dirty-tracked attribute', :content
+    it_should_behave_like 'having a dirty-tracked attribute', :revision_author
+    it_should_behave_like 'having a dirty-tracked attribute', :revision_summary
   end
 
   describe '#content' do

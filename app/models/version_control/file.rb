@@ -3,11 +3,27 @@
 module VersionControl
   # A single version controlled file
   class File
+    include ActiveModel::Dirty
     include ActiveModel::Validations
 
-    attr_accessor :name, :collection, :content,
-                  :revision_summary, :revision_author
-    attr_reader   :oid
+    # Define attributes to be dirty-tracked
+    def self.dirty_tracked_attributes
+      %i[name content revision_author revision_summary]
+    end
+
+    # Define attributes to be read and set
+    def self.accessor_attributes
+      %i[collection]
+    end
+
+    # Define attributes to be read only
+    def self.reader_attributes
+      %i[oid]
+    end
+
+    define_attribute_methods(*dirty_tracked_attributes)
+    attr_accessor(*accessor_attributes)
+    attr_reader(*(reader_attributes + dirty_tracked_attributes))
 
     delegate :repository, to: :collection
 
@@ -42,14 +58,33 @@ module VersionControl
       file
     end
 
+    # rubocop:disable Metrics/AbcSize
     def initialize(params = {})
-      @oid                = params[:oid]
-      @name               = params[:name]
-      @collection         = params[:collection]
-      @content            = params[:content]
-      @revision_summary   = params[:revision_summary]
-      @revision_author    = params[:revision_author]
-      @persisted          = params[:persisted] || false
+      (self.class.dirty_tracked_attributes +
+       self.class.accessor_attributes).each do |attribute|
+        send "#{attribute}=", params[attribute]
+      end
+      self.class.reader_attributes.each do |reader_attribute|
+        instance_variable_set "@#{reader_attribute}", params[reader_attribute]
+      end
+      @persisted = params[:persisted] || false
+
+      # if file is persisted: do not mark values set by initialization as dirty
+      clear_changes_information if persisted?
+    end
+    # rubocop:enable Metrics/AbcSize
+
+    # Dirty-tracked attribute setters
+    dirty_tracked_attributes.each do |dirty_tracked_attribute|
+      define_method "#{dirty_tracked_attribute}=" do |value|
+        # attr_will_change unless value does not change
+        unless value == instance_variable_get("@#{dirty_tracked_attribute}")
+          send "#{dirty_tracked_attribute}_will_change!"
+        end
+
+        # set new value
+        instance_variable_set "@#{dirty_tracked_attribute}", value
+      end
     end
 
     # Return the file's content
@@ -82,6 +117,7 @@ module VersionControl
 
       # clear revision author & summary
       if commit_id
+        changes_applied
         self.revision_author = nil
         self.revision_summary = nil
       end
