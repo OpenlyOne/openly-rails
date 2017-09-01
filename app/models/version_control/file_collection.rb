@@ -47,6 +47,11 @@ module VersionControl
       true
     end
 
+    # Check for the existence of a file by name (case insensitive)
+    def exists?(name)
+      any? { |f| f.name.casecmp(name).zero? }
+    end
+
     # Search collection for file with name (case insensitive)
     # Raise ActiveRecord error if not findable.
     def find(name)
