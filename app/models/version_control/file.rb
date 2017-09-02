@@ -5,7 +5,7 @@ module VersionControl
   class File
     attr_reader :oid, :name, :collection
 
-    def initialize(params)
+    def initialize(params = {})
       @oid        = params[:oid]
       @name       = params[:name]
       @collection = params[:collection]

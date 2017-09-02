@@ -103,6 +103,22 @@ RSpec.describe VersionControl::FileCollection, type: :model do
     end
   end
 
+  describe '#exists?' do
+    subject(:method)  { file_collection.exists? name }
+    let(:name)        { file.name }
+    let!(:file)       { create :vc_file, collection: file_collection }
+    it                { is_expected.to be true }
+    it 'ignores case' do
+      expect(file_collection).to exist file.name.upcase
+      expect(file_collection).to exist file.name.downcase
+    end
+
+    context 'when file does not exist' do
+      let(:name)  { "#{file.name}abc" }
+      it          { is_expected.to be false }
+    end
+  end
+
   describe '#find' do
     subject(:method)  { file_collection.find name }
     let(:name)        { file.name }
@@ -110,6 +126,11 @@ RSpec.describe VersionControl::FileCollection, type: :model do
 
     it 'returns an instance of File' do
       is_expected.to be_a VersionControl::File
+    end
+
+    it 'ignores case' do
+      expect(file_collection.find(file.name.upcase).oid).to eq file.oid
+      expect(file_collection.find(file.name.downcase).oid).to eq file.oid
     end
 
     it 'returns the right file' do

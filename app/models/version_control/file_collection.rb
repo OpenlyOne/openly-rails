@@ -47,10 +47,15 @@ module VersionControl
       true
     end
 
-    # Search collection for file with name.
+    # Check for the existence of a file by name (case insensitive)
+    def exists?(name)
+      any? { |f| f.name.casecmp(name).zero? }
+    end
+
+    # Search collection for file with name (case insensitive)
     # Raise ActiveRecord error if not findable.
     def find(name)
-      file = find_by { |f| f.name == name }
+      file = find_by { |f| f.name.casecmp(name).zero? }
       raise ActiveRecord::RecordNotFound if file.nil?
       file
     end
@@ -64,8 +69,10 @@ module VersionControl
 
       # initialize files
       @repository.branches['master'].target.tree.each do |file|
-        @files.push(
-          File.new(collection: self, name: file[:name], oid: file[:oid])
+        @files << VersionControl::File.new(
+          collection: self,
+          name:       file[:name],
+          oid:        file[:oid].to_s
         )
       end
 
