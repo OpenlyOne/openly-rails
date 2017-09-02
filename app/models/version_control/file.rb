@@ -147,6 +147,15 @@ module VersionControl
       return_value
     end
 
+    # Update attributes and attempt to save a new revision of file
+    def update(params = {})
+      (self.class.dirty_tracked_attributes +
+       self.class.accessor_attributes).each do |attribute|
+        send "#{attribute}=", params[attribute] if params[attribute]
+      end
+      save
+    end
+
     # Write the content to a new blob in repository
     def write_content_to_repository
       @oid = repository.write content, :blob

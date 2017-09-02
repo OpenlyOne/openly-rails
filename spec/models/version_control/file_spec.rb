@@ -385,6 +385,44 @@ RSpec.describe VersionControl::File, type: :model do
     end
   end
 
+  describe '#update' do
+    subject(:method)  { file.update(params) }
+    let(:file)        { create :vc_file }
+    let(:collection)  { file.collection.reload! }
+    let(:params) do
+      {
+        name: 'file1',
+        content: 'My new file! :)',
+        revision_summary: 'Create file1',
+        revision_author: build_stubbed(:user)
+      }
+    end
+
+    it 'sets content to new value' do
+      method
+      expect(collection.first.content).to eq params[:content]
+    end
+
+    it 'sets name to new value' do
+      method
+      expect(collection.first.name).to eq params[:name]
+    end
+
+    it 'calls #save on VersionControl::File instance' do
+      expect(file).to receive(:save).and_call_original
+      method
+    end
+
+    context 'when params are not passed' do
+      subject(:method) { file.update }
+
+      it 'calls #save on VersionControl::File instance' do
+        expect(file).to receive(:save).and_call_original
+        method
+      end
+    end
+  end
+
   describe '#write_content_to_repository' do
     subject(:method)  { file.write_content_to_repository }
     let(:file)        { build :vc_file }
