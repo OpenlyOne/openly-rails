@@ -5,8 +5,7 @@ module VersionControl
   class FileCollection
     include Enumerable
 
-    # Delegate lookup, so that File can look up its contents
-    delegate :lookup, to: :@repository
+    attr_reader :repository
 
     # Alias #find to #find_by so that we can override find
     alias find_by find
@@ -28,23 +27,16 @@ module VersionControl
       @files.each(&block)
     end
 
-    # Create a new file
-    # Return true on success
-    # Return false on error
-    def create(name, content, message, author)
-      # Write the file
-      blob_oid = @repository.write content, :blob
+    # Create a new file and return it
+    def create(params)
+      # Create new file
+      file = VersionControl::File.create params.merge(collection: self)
 
-      # Stage the file
-      @repository.reset_index!
-      @repository.index.add path: name, oid: blob_oid, mode: 0o100644
-
-      # Commit to master
-      return false unless @repository.commit message, author
-
-      # Reload self
+      # Reload files in collection
       reload!
-      true
+
+      # Return reference to new file
+      file
     end
 
     # Check for the existence of a file by name (case insensitive)
@@ -61,6 +53,7 @@ module VersionControl
     end
 
     # Reload files from last commit on master
+    # rubocop:disable Metrics/MethodLength
     def reload!
       @files = []
 
@@ -70,6 +63,7 @@ module VersionControl
       # initialize files
       @repository.branches['master'].target.tree.each do |file|
         @files << VersionControl::File.new(
+          persisted:  true,
           collection: self,
           name:       file[:name],
           oid:        file[:oid].to_s
@@ -78,5 +72,6 @@ module VersionControl
 
       self
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

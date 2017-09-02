@@ -169,10 +169,7 @@ RSpec.describe VersionControl::Repository, type: :model do
     let(:file_collection) { VersionControl::FileCollection.new repository }
     before do
       # create a commit
-      file_collection.create 'README.md',
-                             'This is my readme',
-                             'commit msg',
-                             author
+      create :vc_file, collection: file_collection
     end
 
     it 'sets stage to last commit on master' do

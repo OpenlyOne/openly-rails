@@ -10,10 +10,12 @@ module VersionControl
     after_create do
       begin
         create_repository
-        files.create('Overview',
-                     'Welcome to my new project!',
-                     'Initial Contribution',
-                     owner)
+        files.create(
+          name:             'Overview',
+          content:          'Welcome to my new project!',
+          revision_summary: 'Initial Contribution',
+          revision_author:  owner
+        )
       rescue
         # Do not persist object if any errors occur while creating repository
         raise ActiveRecord::Rollback

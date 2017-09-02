@@ -2,29 +2,24 @@
 
 FactoryGirl.define do
   factory :vc_file, class: VersionControl::File do
-    skip_create
+    name              { Faker::File.unique.file_name('', nil, nil, '') }
+    collection        { build :vc_file_collection }
+    content           { Faker::Lorem.paragraphs.join('\n\n') }
+    oid               { Faker::Crypto.sha1 }
+    revision_author   { build :user }
+    revision_summary  { Faker::Simpsons.quote }
+    persisted         { false }
 
-    transient do
-      content     { Faker::Lorem.paragraphs.join('\n\n') }
-      message     { Faker::Simpsons.quote }
-      author      { build :user }
-    end
-
-    name          { Faker::File.unique.file_name('', nil, nil, '') }
-    collection    { build :vc_file_collection }
-    oid           { Faker::Crypto.sha1 }
-
-    # persist the file to the repository and assign oid
-    before(:create) do |file, transient|
-      file.collection.create(
-        file.name,
-        transient.content,
-        transient.message,
-        transient.author
+    initialize_with do
+      new(
+        name: name,
+        collection: collection,
+        oid: oid,
+        content: content,
+        revision_summary: revision_summary,
+        revision_author: revision_author,
+        persisted: persisted
       )
-      file.instance_variable_set :@oid, file.collection.find(file.name).oid
     end
-
-    initialize_with { new name: name, collection: collection, oid: oid }
   end
 end
