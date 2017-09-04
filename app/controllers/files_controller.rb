@@ -3,7 +3,7 @@
 # Controller for project files
 class FilesController < ApplicationController
   before_action :authenticate_account!, except: :show
-  before_action :set_file, only: %i[show edit_content update_content]
+  before_action :set_file
   before_action :authorize_action, except: :show
 
   def show; end
@@ -16,6 +16,17 @@ class FilesController < ApplicationController
                   notice: 'File successfully updated.'
     else
       render :edit_content
+    end
+  end
+
+  def edit_name; end
+
+  def update_name
+    if @file.update(file_params(:name))
+      redirect_to [@project.owner, @project, @file],
+                  notice: 'File successfully updated.'
+    else
+      render :edit_name
     end
   end
 

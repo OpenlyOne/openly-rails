@@ -56,9 +56,12 @@ Rails.application.routes.draw do
       resources :files,
                 only: :show, param: :name,
                 constraints: { name: %r{[^/]+} } do
-                  get   'edit'  => 'files#edit_content',    on: :member
-                  patch 'edit'  => 'files#update_content',  on: :member
-                  put   'edit'  => 'files#update_content',  on: :member
+                  get   'edit'    => 'files#edit_content',    on: :member
+                  patch 'edit'    => 'files#update_content',  on: :member
+                  put   'edit'    => 'files#update_content',  on: :member
+                  get   'rename'  => 'files#edit_name',       on: :member
+                  patch 'rename'  => 'files#update_name',     on: :member
+                  put   'rename'  => 'files#update_name',     on: :member
                 end
     end
   end
