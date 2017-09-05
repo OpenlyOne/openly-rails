@@ -1,11 +1,5 @@
-.page-heading.primary-color.primary-color-text.no-padding-bottom.no-margin-bottom.z-depth-1
-  .container
-    .row.no-margin-bottom
-      .col.s12
-        h1 = @project.title
-        div.tabs.static
-          div.tab
-            = link_to 'Overview', [@project.owner, @project], class: 'active'
+= render partial: 'projects/head', object: @project, as: :project,
+         locals: { active_tab: :overview }
 
 .project-banner style="background-image: url(#{image_path('projects/banner.jpg')});"
 

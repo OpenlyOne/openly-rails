@@ -1,13 +1,19 @@
 = form_for [@project.owner, @project], url: url do |f|
-  .page-heading.primary-color.primary-color-text.no-padding-bottom.no-margin-bottom.z-depth-1
-    .container
-      .row.no-margin-bottom
-        .col.s12
-          h1
-            = f.text_field :title, placeholder: 'Project Title', class: 'inherit'
-          div.tabs.static.disabled
-            div.tab
-              a.active Overview
+
+  / show input field instead of title
+  - content_for :project_title do
+    = f.text_field :title, placeholder: 'Project Title', class: 'inherit'
+  end
+
+  / only show Overview tab if this is a new record
+  - if @project.new_record?
+    - content_for :project_tabs do
+      div.tab
+        a.active Overview
+    end
+
+  = render partial: 'projects/head', object: @project, as: :project,
+           locals: { active_tab: :overview }
 
   .project-banner style="background-image: url(#{image_path('projects/banner.jpg')});"
 
