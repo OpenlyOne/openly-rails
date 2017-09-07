@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe 'routes for projects', type: :routing do
+  it 'has an index route' do
+    expect(profile_project_files_path('handle', 'slug'))
+      .to eq '/handle/slug/files'
+    expect(get: '/handle/slug/files')
+      .to route_to(
+        'files#index',
+        profile_handle: 'handle',
+        project_slug: 'slug'
+      )
+  end
+
   it 'has a show route' do
     expect(profile_project_file_path('handle', 'slug', 'name.txt'))
       .to eq '/handle/slug/files/name.txt'

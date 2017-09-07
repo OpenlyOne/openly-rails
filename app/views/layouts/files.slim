@@ -1,4 +1,5 @@
-= render partial: 'projects/head', object: @project, as: :project
+= render partial: 'projects/head', object: @project, as: :project,
+         locals: { active_tab: action_name == 'index' ? :files : nil }
 
 = yield
 

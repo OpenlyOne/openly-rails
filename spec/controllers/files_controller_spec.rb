@@ -15,6 +15,19 @@ RSpec.describe FilesController, type: :controller do
     }
   end
 
+  describe 'GET #index' do
+    let(:params)      { default_params.except :name }
+    let(:run_request) { get :index, params: params }
+
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+  end
+
   describe 'GET #show' do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }

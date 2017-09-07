@@ -1,0 +1,9 @@
+.container
+  .row.no-margin-bottom
+    .col.s12
+      h2 Files
+  .divider
+
+  = render partial: 'file', collection: @files, locals: { project: @project }
+
+.spacing.v32px
