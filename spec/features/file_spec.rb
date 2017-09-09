@@ -104,4 +104,35 @@ feature 'File' do
     # and see the new file content
     expect(page).to have_text 'My New File'
   end
+
+  scenario 'User can delete file' do
+    # given there is a project
+    project = create(:project)
+    # with a file
+    file = create(:vc_file, collection: project.files)
+    # and I am signed in as its owner
+    sign_in_as project.owner.account
+
+    # when I visit the project
+    visit profile_project_path(project.owner, project)
+    # and click on files
+    click_on 'Files'
+    # and click on edit the file
+    within find('h5', text: file.name).find(:xpath, '../..') do
+      click_on 'Delete'
+    end
+    # and fill in a summary of changes
+    fill_in 'Summary of changes', with: 'Remove file'
+    # and save
+    click_on 'Delete'
+
+    # then I should be back on the page for files
+    expect(page).to have_current_path(
+      profile_project_files_path(project.owner, project)
+    )
+    # and no longer see the file name listed
+    expect(page).not_to have_text file.name
+    # and see a notice that the file was deleted
+    expect(page).to have_text 'File successfully deleted.'
+  end
 end

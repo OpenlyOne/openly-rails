@@ -17,6 +17,12 @@ module FileHelper
         link: rename_profile_project_file_path(project.owner, project, file)
       )
     end
+    if can? :delete, file, project
+      authorized_actions.push(
+        name: :delete,
+        link: delete_profile_project_file_path(project.owner, project, file)
+      )
+    end
     authorized_actions
   end
   # rubocop:enable Metrics/MethodLength

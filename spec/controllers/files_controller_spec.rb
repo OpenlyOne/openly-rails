@@ -181,4 +181,86 @@ RSpec.describe FilesController, type: :controller do
       is_expected.to set_flash[:notice].to 'File successfully updated.'
     end
   end
+
+  describe 'GET #delete' do
+    let(:params)      { default_params }
+    let(:run_request) { get :delete, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'raise 404 if non-existent', nil do
+      before { allow(file).to receive(:name).and_return 'test' }
+    end
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_file_path(project.owner, project, file)
+      end
+    end
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    let(:add_params) do
+      {
+        version_control_file: {
+          revision_summary: 'summary'
+        }
+      }
+    end
+    let(:params)      { default_params.merge(add_params) }
+    let(:run_request) { delete :destroy, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'raise 404 if non-existent', nil do
+      before { allow(file).to receive(:name).and_return 'test' }
+    end
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_file_path(project.owner, project, file)
+      end
+    end
+
+    it 'destroys the file' do
+      expect_any_instance_of(VersionControl::File).to receive(:destroy)
+      run_request
+    end
+
+    it 'redirects to files' do
+      run_request
+      expect(response)
+        .to redirect_to profile_project_files_path(project.owner, project)
+    end
+
+    it 'sets flash message' do
+      run_request
+      is_expected.to set_flash[:notice].to 'File successfully deleted.'
+    end
+
+    context 'when destruction of file fails' do
+      before do
+        allow_any_instance_of(VersionControl::File)
+          .to receive(:destroy)
+          .and_return false
+      end
+
+      it 'does not redirect' do
+        run_request
+        expect(response).not_to have_http_status :redirect
+      end
+
+      it 'does not set flash message' do
+        run_request
+        is_expected.not_to set_flash
+      end
+    end
+  end
 end

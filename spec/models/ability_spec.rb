@@ -49,7 +49,8 @@ RSpec.describe Ability, type: :model do
   end
 
   context 'Project files' do
-    actions = %i[edit_content update_content edit_name update_name]
+    actions = %i[edit_content update_content edit_name update_name delete
+                 destroy]
     let(:object)  { [build(:vc_file), project] }
     let(:project) { build_stubbed :project }
     before do

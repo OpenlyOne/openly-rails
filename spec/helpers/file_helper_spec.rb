@@ -40,5 +40,18 @@ RSpec.describe FileHelper, type: :helper do
       end
       it { is_expected.to match [name: :rename, link: link] }
     end
+
+    context 'when user can delete file' do
+      let(:link) do
+        delete_profile_project_file_path project.owner, project, file
+      end
+      before do
+        without_partial_double_verification do
+          allow(self).to receive(:can?).with(:delete, file, project)
+                                       .and_return true
+        end
+      end
+      it { is_expected.to match [name: :delete, link: link] }
+    end
   end
 end

@@ -39,6 +39,19 @@ class FilesController < ApplicationController
     end
   end
 
+  def delete; end
+
+  def destroy
+    @file.revision_author   = current_user
+    @file.revision_summary  = params[:version_control_file][:revision_summary]
+    if @file.destroy
+      redirect_to profile_project_files_path(@project.owner, @project),
+                  notice: 'File successfully deleted.'
+    else
+      render :delete
+    end
+  end
+
   private
 
   rescue_from CanCan::AccessDenied do |exception|
