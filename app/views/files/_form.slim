@@ -26,7 +26,7 @@
         .spacing.v32px
         .input-field.col.s12
           = f.text_area :content, \
-                        rows: @file.content.lines.count + 5, \
+                        rows: @file.content.to_s.lines.count + 5, \
                         class: 'materialize-textarea noscript'
           = f.label :content
       - else

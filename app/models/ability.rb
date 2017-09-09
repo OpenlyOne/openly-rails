@@ -15,8 +15,8 @@ class Ability
       can? :manage, project.owner
     end
 
-    can %i[edit_content update_content edit_name update_name delete destroy],
-        VersionControl::File do |_file, project|
+    can %i[new create edit_content update_content edit_name update_name delete
+           destroy], VersionControl::File do |_file, project|
       can? :edit, project
     end
     # Define abilities for the passed in user here. For example:

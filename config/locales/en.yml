@@ -24,6 +24,12 @@ en:
       version_control/file: 'You are not authorized to %{action} this file.'
     destroy:
       all: "You are not authorized to delete this %{subject}."
+    new:
+      all: "You are not authorized to add a new %{subject}."
+      version_control/file: 'You are not authorized to add a new file.'
+    create:
+      all: "You are not authorized to create a new %{subject}."
+      version_control/file: 'You are not authorized to create a new file.'
     edit_content:
       version_control/file: 'You are not authorized to edit this file.'
     update_content:

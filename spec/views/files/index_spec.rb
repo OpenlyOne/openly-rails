@@ -53,4 +53,16 @@ RSpec.describe 'files/index', type: :view do
       end
     end
   end
+
+  context 'when user can create file' do
+    let(:new_file_path) do
+      new_profile_project_file_path(project.owner, project)
+    end
+    before { assign(:user_can_add_file, true) }
+
+    it 'renders link to new file path' do
+      render
+      expect(rendered).to have_link href: new_file_path
+    end
+  end
 end

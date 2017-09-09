@@ -25,6 +25,39 @@ RSpec.describe VersionControl::FileCollection, type: :model do
     end
   end
 
+  describe '#build' do
+    subject(:method)      { file_collection.build arguments }
+    let(:file_collection) { build :vc_file_collection }
+    let(:arguments) do
+      {
+        name: 'file1',
+        content: 'Content of the new file',
+        revision_summary: 'Create new file: file1',
+        revision_author: build_stubbed(:user)
+      }
+    end
+
+    it { is_expected.to be_a VersionControl::File }
+
+    it 'calls .new on VersionControl::File' do
+      expect(VersionControl::File)
+        .to receive(:new).with arguments.merge(collection: file_collection)
+      method
+    end
+
+    context 'when no arguments are passed' do
+      subject(:method) { file_collection.build }
+
+      it { is_expected.to be_a VersionControl::File }
+
+      it 'calls .new on VersionControl::File' do
+        expect(VersionControl::File)
+          .to receive(:new).with collection: file_collection
+        method
+      end
+    end
+  end
+
   describe '#create' do
     subject(:method)      { file_collection.create arguments }
     let(:file_collection) { build :vc_file_collection }

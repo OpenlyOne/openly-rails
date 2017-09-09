@@ -4,7 +4,8 @@
 class FilesController < ApplicationController
   before_action :authenticate_account!, except: %i[index show]
   before_action :set_project
-  before_action :set_file, except: :index
+  before_action :build_file, only: %i[new create]
+  before_action :set_file, except: %i[index new create]
   before_action :authorize_action, except: %i[index show]
 
   def index
@@ -13,6 +14,18 @@ class FilesController < ApplicationController
     @files = @project
              .files
              .sort_by { |f| [f.name == 'Overview' ? 0 : 1, f.name.downcase] }
+    @user_can_add_file = can? :new, @project.files.build, @project
+  end
+
+  def new; end
+
+  def create
+    if @file.update(file_params(%i[content name]))
+      redirect_to [@project.owner, @project, @file],
+                  notice: 'File successfully created.'
+    else
+      render :new
+    end
   end
 
   def show; end
@@ -65,6 +78,10 @@ class FilesController < ApplicationController
 
   def set_project
     @project = Project.find(params[:profile_handle], params[:project_slug])
+  end
+
+  def build_file
+    @file = @project.files.build
   end
 
   def set_file

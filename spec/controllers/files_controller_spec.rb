@@ -28,6 +28,73 @@ RSpec.describe FilesController, type: :controller do
     end
   end
 
+  describe 'GET #new' do
+    let(:params)      { default_params.except :name }
+    let(:run_request) { get :new, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_files_path(project.owner, project)
+      end
+    end
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+  end
+
+  describe 'POST #create' do
+    let(:add_params) do
+      {
+        version_control_file: {
+          name: 'name',
+          content: 'content',
+          revision_summary: 'summary'
+        }
+      }
+    end
+    let(:params)      { default_params.except(:name).merge(add_params) }
+    let(:run_request) { post :create, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_files_path(project.owner, project)
+      end
+    end
+
+    it 'saves the file' do
+      expect_any_instance_of(VersionControl::File)
+        .to receive(:update)
+        .with(
+          hash_including(:content, :name, :revision_summary, :revision_author)
+        )
+        .and_call_original
+      expect_any_instance_of(VersionControl::File).to receive(:save)
+      run_request
+    end
+
+    it 'redirects to file' do
+      run_request
+      expect(response).to redirect_to(
+        profile_project_file_path(project.owner, project, 'name')
+      )
+    end
+
+    it 'sets flash message' do
+      run_request
+      is_expected.to set_flash[:notice].to 'File successfully created.'
+    end
+  end
+
   describe 'GET #show' do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }

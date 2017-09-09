@@ -22,6 +22,35 @@ feature 'File' do
     end
   end
 
+  scenario 'User can create file' do
+    # given there is a project
+    project = create(:project)
+    # and I am signed in as its owner
+    sign_in_as project.owner.account
+
+    # when I visit the project's files
+    visit profile_project_files_path(project.owner, project)
+    # and click on add
+    find('a#new-project-file').click
+    # and fill in name, content, and revision summary
+    fill_in 'File Name',          with: 'My New File'
+    fill_in 'Content',            with: 'Lorem ipsum'
+    fill_in 'Summary of changes', with: 'Update file name'
+    # and create the file
+    click_on 'Create'
+
+    # then I should be on the file page
+    expect(page).to have_current_path(
+      profile_project_file_path(project.owner, project, 'My New File')
+    )
+    # and see the new file's name
+    expect(page).to have_text 'My New File'
+    # and see the content
+    expect(page).to have_text 'Lorem ipsum'
+    # and there should be one more file in the project repository
+    expect { project.files.reload! }.to change project.files, :count
+  end
+
   scenario 'User can view file' do
     # given there is a project
     project = create(:project)

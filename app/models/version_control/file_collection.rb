@@ -27,6 +27,10 @@ module VersionControl
       @files.each(&block)
     end
 
+    def build(params = {})
+      VersionControl::File.new params.merge(collection: self)
+    end
+
     # Create a new file and return it
     def create(params)
       # Create new file

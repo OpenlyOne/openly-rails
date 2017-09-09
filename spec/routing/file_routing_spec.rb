@@ -12,6 +12,26 @@ RSpec.describe 'routes for projects', type: :routing do
       )
   end
 
+  it 'has a new route' do
+    expect(new_profile_project_file_path('handle', 'slug'))
+      .to eq '/handle/slug/files/new'
+    expect(get: '/handle/slug/files/new')
+      .to route_to(
+        'files#new',
+        profile_handle: 'handle',
+        project_slug: 'slug'
+      )
+  end
+
+  it 'has a create route' do
+    expect(post: '/handle/slug/files')
+      .to route_to(
+        'files#create',
+        profile_handle: 'handle',
+        project_slug: 'slug'
+      )
+  end
+
   it 'has a show route' do
     expect(profile_project_file_path('handle', 'slug', 'name.txt'))
       .to eq '/handle/slug/files/name.txt'
