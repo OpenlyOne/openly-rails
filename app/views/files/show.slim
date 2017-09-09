@@ -1,7 +1,10 @@
 .container
   .row.no-margin-bottom
     .col.s12
-      h2 = @file.name
+      h2.no-margin-bottom = @file.name
+      p = render partial: 'file_action',
+                 collection: authorized_actions_for_project_file(@file, @project),
+                 spacer_template: 'middot'
   .divider
   .row
     .col.s12
