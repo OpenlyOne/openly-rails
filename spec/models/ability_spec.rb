@@ -65,6 +65,14 @@ RSpec.describe Ability, type: :model do
           .and_return true
       end
       it_should_behave_like 'having authorization', actions
+
+      context "when file name is 'Overview'" do
+        before { object[0] = create :vc_file, name: 'Overview' }
+        it_should_behave_like 'having authorization',
+                              %i[edit_content update_content]
+        it_should_behave_like 'not having authorization',
+                              %i[edit_name update_name delete destroy]
+      end
     end
 
     context 'when user cannot edit project' do

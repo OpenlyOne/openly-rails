@@ -6,7 +6,7 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe FilesController, type: :controller do
   let!(:project)        { create(:project) }
-  let!(:file)           { project.files.find 'Overview' }
+  let!(:file)           { create(:vc_file, collection: project.files) }
   let(:default_params)  do
     {
       profile_handle: project.owner,
