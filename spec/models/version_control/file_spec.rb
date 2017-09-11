@@ -52,6 +52,28 @@ RSpec.describe VersionControl::File, type: :model do
           expect(file).to be_invalid(:save)
         end
 
+        context 'show route must not be a conflicting route' do
+          it "'new' is invalid" do
+            file.name = 'new'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.html' is invalid" do
+            file.name = 'new.html'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.json' is invalid" do
+            file.name = 'new.json'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.anything' is invalid" do
+            file.name = 'new.anything'
+            expect(file).to be_invalid(:save)
+          end
+        end
+
         context 'when name has not changed' do
           before { file.save }
           it 'does not mark file as invalid' do

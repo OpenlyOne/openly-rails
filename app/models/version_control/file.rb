@@ -55,6 +55,10 @@ module VersionControl
     validate :name_must_be_case_insensitively_unique,
              on: :save,
              if: 'name_changed?'
+    validate :show_route_must_not_conflict_with_other_routes,
+             on: :save,
+             if: 'name_changed?',
+             unless: proc { |file| file.errors[:name].any? }
 
     # Initialize a new file and commit to repository
     # Return reference to new file
@@ -219,6 +223,16 @@ module VersionControl
       end
     end
     # rubocop:enable Style/GuardClause
+
+    # Validate that the new show route does not conflict with any other routes.
+    # For example, with the /new(.format) route.
+    def show_route_must_not_conflict_with_other_routes
+      show_url = Rails.application.routes.url_helpers
+                      .profile_project_file_path('user_handle', 'project', name)
+      route = Rails.application.routes.recognize_path show_url
+      return if route[:controller] == 'files' && route[:action] == 'show'
+      errors.add :name, 'is not available'
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end
