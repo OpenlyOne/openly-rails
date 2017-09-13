@@ -1,0 +1,8 @@
+.file-wrapper
+  = link_to [project.owner, project, file] do
+    h5 = file.name
+  p = truncate(file.content, length: 240)
+  p = render partial: 'file_action',
+             collection: authorized_actions_for_project_file(file, project),
+             spacer_template: 'middot'
+.divider

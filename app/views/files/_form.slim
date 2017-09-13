@@ -1,0 +1,48 @@
+- edit_name     ||= false
+- edit_content  ||= false
+
+= form_for [@project.owner, @project, @file], url: url, method: method do |f|
+
+  .container
+    - if @file.errors.any?
+      .row.no-margin-bottom
+        .col.s12
+          .spacing.v32px
+          .validation-errors.no-margin-bottom
+            = render partial: "error", collection: @file.errors.full_messages, as: :error
+
+    .row.no-margin-bottom
+      .col.s12
+        h2.file-name
+          - if edit_name
+            = f.text_field :name, placeholder: 'File Name', class: 'inherit'
+          - else
+            span.gray-text = @file.name
+
+    .divider
+
+    .row
+      - if edit_content
+        .spacing.v32px
+        .input-field.col.s12
+          = f.text_area :content, \
+                        rows: @file.content.to_s.lines.count + 5, \
+                        class: 'materialize-textarea noscript'
+          = f.label :content
+      - else
+        .col.s12
+          .file-content.gray-text
+            = simple_format @file.content
+
+    .row
+      .input-field.col.s12
+        = f.text_field :revision_summary, \
+                       placeholder: 'Summarize the changes you made to the file. ' \
+                                    'This will help others understand what was ' \
+                                    'changed and why.'
+        = f.label :revision_summary, 'Summary of changes'
+
+    .row
+      .col.s12
+        button action='submit' class="btn-large primary-color primary-color-text"
+          = button

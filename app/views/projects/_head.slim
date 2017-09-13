@@ -1,0 +1,24 @@
+- active_tab ||= nil
+
+.page-heading.primary-color.primary-color-text.no-padding-bottom.no-margin-bottom.z-depth-1
+  .container
+    .row.no-margin-bottom
+      .col.s12
+
+        h1
+          - if content_for? :project_title
+            = yield :project_title
+          - else
+            = project.title
+
+        div.tabs.static
+          - if content_for? :project_tabs
+            = yield :project_tabs
+          - else
+            div.tab
+              = link_to 'Overview', [project.owner, project],
+                class: ('active' if active_tab == :overview)
+            div.tab
+              = link_to 'Files',
+                profile_project_files_path(project.owner, project),
+                class: ('active' if active_tab == :files)

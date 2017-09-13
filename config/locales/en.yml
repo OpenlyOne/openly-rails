@@ -1,5 +1,11 @@
 en:
+  shared: &shared
+    errors:
+      messages:
+        blank: "is required"
+        confirmation: "did not match"
   activerecord:
+    <<: *shared
     attributes:
       account/user:
         name: "Name"
@@ -7,12 +13,28 @@ en:
         identifier: "Username"
       project:
         slug: 'Project URL'
-    errors:
-      messages:
-        blank: "is required"
-        confirmation: "did not match"
+  activemodel:
+    <<: *shared
+    attributes:
+      version_control/file:
+        revision_summary: 'Summary of changes'
   unauthorized:
     manage:
       all: "You are not authorized to %{action} this %{subject}."
+      version_control/file: 'You are not authorized to %{action} this file.'
     destroy:
       all: "You are not authorized to delete this %{subject}."
+    new:
+      all: "You are not authorized to add a new %{subject}."
+      version_control/file: 'You are not authorized to add a new file.'
+    create:
+      all: "You are not authorized to create a new %{subject}."
+      version_control/file: 'You are not authorized to create a new file.'
+    edit_content:
+      version_control/file: 'You are not authorized to edit this file.'
+    update_content:
+      version_control/file: 'You are not authorized to edit this file.'
+    edit_name:
+      version_control/file: 'You are not authorized to rename this file.'
+    update_name:
+      version_control/file: 'You are not authorized to rename this file.'

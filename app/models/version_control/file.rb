@@ -7,6 +7,19 @@ module VersionControl
     include ActiveModel::Dirty
     include ActiveModel::Validations
 
+    # Change the route key, so that the url_for helper automatically generates
+    # the right route
+    # See: https://stackoverflow.com/a/13131811/6451879
+    model_name.class_eval do
+      def route_key
+        singular_route_key.pluralize
+      end
+
+      def singular_route_key
+        'file'
+      end
+    end
+
     # Define attributes to be dirty-tracked
     def self.dirty_tracked_attributes
       %i[name content revision_summary revision_author]
@@ -29,9 +42,7 @@ module VersionControl
     delegate :repository, to: :collection
 
     # Validations
-    validates :revision_author,   presence: true, on: %i[save destroy]
-    validates :revision_summary,  presence: true, on: %i[save destroy]
-    validates :name,              presence: true, on: :save
+    validates :name, presence: true, on: :save
     validates :name,
               format: {
                 without: %r{/},
@@ -42,6 +53,14 @@ module VersionControl
     validate :name_must_be_case_insensitively_unique,
              on: :save,
              if: 'name_changed?'
+    validate :show_route_must_not_conflict_with_other_routes,
+             on: :save,
+             if: 'name_changed?',
+             unless: proc { |file| file.errors[:name].any? }
+    validate :must_change_content_or_name, on: :save, if: 'persisted?'
+    # These validations should be last to ensure a logical order of errors
+    validates :revision_author,   presence: true, on: %i[save destroy]
+    validates :revision_summary,  presence: true, on: %i[save destroy]
 
     # Initialize a new file and commit to repository
     # Return reference to new file
@@ -75,7 +94,7 @@ module VersionControl
     dirty_tracked_attributes.each do |dirty_tracked_attribute|
       define_method "#{dirty_tracked_attribute}=" do |value|
         # attr_will_change unless value does not change
-        unless value == instance_variable_get("@#{dirty_tracked_attribute}")
+        unless value == send(dirty_tracked_attribute.to_sym)
           send "#{dirty_tracked_attribute}_will_change!"
         end
 
@@ -156,6 +175,19 @@ module VersionControl
       save
     end
 
+    # Required for working with form_for
+    def to_key; end
+
+    # The model name to use when generating routes
+    def to_model
+      self
+    end
+
+    # Use file name when generating routes
+    def to_param
+      name_was
+    end
+
     # Write the content to a new blob in repository
     def write_content_to_repository
       @oid = repository.write content, :blob
@@ -193,6 +225,30 @@ module VersionControl
       end
     end
     # rubocop:enable Style/GuardClause
+
+    # Validate that content OR name is changed
+    # rubocop:disable Style/GuardClause
+    def must_change_content_or_name
+      if content_changed? && name_changed?
+        errors.add :base,
+                   'You cannot update file content and name at the same time'
+      end
+
+      unless content_changed? || name_changed?
+        errors.add :base, 'You must make at least one change to the file'
+      end
+    end
+    # rubocop:enable Style/GuardClause
+
+    # Validate that the new show route does not conflict with any other routes.
+    # For example, with the /new(.format) route.
+    def show_route_must_not_conflict_with_other_routes
+      show_url = Rails.application.routes.url_helpers
+                      .profile_project_file_path('user_handle', 'project', name)
+      route = Rails.application.routes.recognize_path show_url
+      return if route[:controller] == 'files' && route[:action] == 'show'
+      errors.add :name, 'is not available'
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end

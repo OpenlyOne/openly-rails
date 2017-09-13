@@ -52,6 +52,28 @@ RSpec.describe VersionControl::File, type: :model do
           expect(file).to be_invalid(:save)
         end
 
+        context 'show route must not be a conflicting route' do
+          it "'new' is invalid" do
+            file.name = 'new'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.html' is invalid" do
+            file.name = 'new.html'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.json' is invalid" do
+            file.name = 'new.json'
+            expect(file).to be_invalid(:save)
+          end
+
+          it "'new.anything' is invalid" do
+            file.name = 'new.anything'
+            expect(file).to be_invalid(:save)
+          end
+        end
+
         context 'when name has not changed' do
           before { file.save }
           it 'does not mark file as invalid' do
@@ -60,6 +82,30 @@ RSpec.describe VersionControl::File, type: :model do
             file.revision_author  = file.revision_author_was
             expect(file).to be_valid(:save)
           end
+        end
+      end
+
+      context 'when file is persisted' do
+        before { file.save }
+
+        it 'must not change both name and content' do
+          file.revision_author = build_stubbed :user
+          file.revision_summary = 'change both name and content'
+          file.name = 'new name'
+          file.content = 'new content'
+          expect(file).not_to be_valid(:save)
+          expect(file.errors[:base]).to include(
+            'You cannot update file content and name at the same time'
+          )
+        end
+
+        it 'must not change neither name nor content' do
+          file.revision_author = build_stubbed :user
+          file.revision_summary = 'change both name and content'
+          expect(file).not_to be_valid(:save)
+          expect(file.errors[:base]).to include(
+            'You must make at least one change to the file'
+          )
         end
       end
     end
@@ -117,6 +163,15 @@ RSpec.describe VersionControl::File, type: :model do
     it_should_behave_like 'having a dirty-tracked attribute', :content
     it_should_behave_like 'having a dirty-tracked attribute', :revision_author
     it_should_behave_like 'having a dirty-tracked attribute', :revision_summary
+  end
+
+  describe 'route keys' do
+    it 'should have singular route key: file' do
+      expect(file.model_name.singular_route_key).to eq 'file'
+    end
+    it 'should have route key: files' do
+      expect(file.model_name.route_key).to eq 'files'
+    end
   end
 
   describe '#content' do
@@ -353,8 +408,6 @@ RSpec.describe VersionControl::File, type: :model do
     context 'when file is persisted' do
       let!(:file) { create :vc_file }
       before do
-        file.name     = 'README.txt'
-        file.content  = 'Interesting things to read...!'
         file.revision_author  = attributes_for(:vc_file)[:revision_author]
         file.revision_summary = attributes_for(:vc_file)[:revision_summary]
       end
@@ -364,11 +417,13 @@ RSpec.describe VersionControl::File, type: :model do
       end
 
       it 'can update the name' do
+        file.name = 'README.txt'
         method
         expect(file_collection.reload!).to exist file.name
       end
 
       it 'can update the content' do
+        file.content = 'Interesting things to read...!'
         method
         expect(file_collection.reload!.find(file.name).content)
           .to eq file.content
@@ -397,21 +452,23 @@ RSpec.describe VersionControl::File, type: :model do
     subject(:method)  { file.update(params) }
     let(:file)        { create :vc_file }
     let(:collection)  { file.collection.reload! }
+    let(:new_name)    { 'file1' }
+    let(:new_content) { 'My new file! :)' }
     let(:params) do
       {
-        name: 'file1',
-        content: 'My new file! :)',
         revision_summary: 'Create file1',
         revision_author: build_stubbed(:user)
       }
     end
 
     it 'sets content to new value' do
+      params[:content] = new_content
       method
-      expect(collection.first.content).to eq params[:content]
+      expect(collection.first.content).to eq new_content
     end
 
     it 'sets name to new value' do
+      params[:name] = new_name
       method
       expect(collection.first.name).to eq params[:name]
     end
@@ -427,6 +484,32 @@ RSpec.describe VersionControl::File, type: :model do
       it 'calls #save on VersionControl::File instance' do
         expect(file).to receive(:save).and_call_original
         method
+      end
+    end
+  end
+
+  describe '#to_key' do
+    it { expect { subject.to_key }.not_to raise_error }
+  end
+
+  describe '#to_model' do
+    subject(:method) { file.to_model }
+    it { is_expected.to eq file }
+  end
+
+  describe '#to_param' do
+    subject(:file) { create :vc_file }
+
+    it 'returns the name' do
+      expect(file.to_param).to eq file.name
+    end
+
+    context 'if name is changed' do
+      let!(:name_before_change)  { file.name }
+
+      it 'returns the name before change' do
+        file.name = 'new-file-name'
+        expect(file.to_param).to eq name_before_change
       end
     end
   end
