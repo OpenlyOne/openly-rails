@@ -42,9 +42,7 @@ module VersionControl
     delegate :repository, to: :collection
 
     # Validations
-    validates :revision_author,   presence: true, on: %i[save destroy]
-    validates :revision_summary,  presence: true, on: %i[save destroy]
-    validates :name,              presence: true, on: :save
+    validates :name, presence: true, on: :save
     validates :name,
               format: {
                 without: %r{/},
@@ -60,6 +58,9 @@ module VersionControl
              if: 'name_changed?',
              unless: proc { |file| file.errors[:name].any? }
     validate :must_change_content_or_name, on: :save, if: 'persisted?'
+    # These validations should be last to ensure a logical order of errors
+    validates :revision_author,   presence: true, on: %i[save destroy]
+    validates :revision_summary,  presence: true, on: %i[save destroy]
 
     # Initialize a new file and commit to repository
     # Return reference to new file
