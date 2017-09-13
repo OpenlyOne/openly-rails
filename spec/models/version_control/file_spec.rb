@@ -84,6 +84,30 @@ RSpec.describe VersionControl::File, type: :model do
           end
         end
       end
+
+      context 'when file is persisted' do
+        before { file.save }
+
+        it 'must not change both name and content' do
+          file.revision_author = build_stubbed :user
+          file.revision_summary = 'change both name and content'
+          file.name = 'new name'
+          file.content = 'new content'
+          expect(file).not_to be_valid(:save)
+          expect(file.errors[:base]).to include(
+            'You cannot update file content and name at the same time'
+          )
+        end
+
+        it 'must not change neither name nor content' do
+          file.revision_author = build_stubbed :user
+          file.revision_summary = 'change both name and content'
+          expect(file).not_to be_valid(:save)
+          expect(file.errors[:base]).to include(
+            'You must make at least one change to the file'
+          )
+        end
+      end
     end
   end
 
@@ -384,8 +408,6 @@ RSpec.describe VersionControl::File, type: :model do
     context 'when file is persisted' do
       let!(:file) { create :vc_file }
       before do
-        file.name     = 'README.txt'
-        file.content  = 'Interesting things to read...!'
         file.revision_author  = attributes_for(:vc_file)[:revision_author]
         file.revision_summary = attributes_for(:vc_file)[:revision_summary]
       end
@@ -395,11 +417,13 @@ RSpec.describe VersionControl::File, type: :model do
       end
 
       it 'can update the name' do
+        file.name = 'README.txt'
         method
         expect(file_collection.reload!).to exist file.name
       end
 
       it 'can update the content' do
+        file.content = 'Interesting things to read...!'
         method
         expect(file_collection.reload!.find(file.name).content)
           .to eq file.content
@@ -428,21 +452,23 @@ RSpec.describe VersionControl::File, type: :model do
     subject(:method)  { file.update(params) }
     let(:file)        { create :vc_file }
     let(:collection)  { file.collection.reload! }
+    let(:new_name)    { 'file1' }
+    let(:new_content) { 'My new file! :)' }
     let(:params) do
       {
-        name: 'file1',
-        content: 'My new file! :)',
         revision_summary: 'Create file1',
         revision_author: build_stubbed(:user)
       }
     end
 
     it 'sets content to new value' do
+      params[:content] = new_content
       method
-      expect(collection.first.content).to eq params[:content]
+      expect(collection.first.content).to eq new_content
     end
 
     it 'sets name to new value' do
+      params[:name] = new_name
       method
       expect(collection.first.name).to eq params[:name]
     end

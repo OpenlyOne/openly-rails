@@ -59,6 +59,7 @@ module VersionControl
              on: :save,
              if: 'name_changed?',
              unless: proc { |file| file.errors[:name].any? }
+    validate :must_change_content_or_name, on: :save, if: 'persisted?'
 
     # Initialize a new file and commit to repository
     # Return reference to new file
@@ -92,7 +93,7 @@ module VersionControl
     dirty_tracked_attributes.each do |dirty_tracked_attribute|
       define_method "#{dirty_tracked_attribute}=" do |value|
         # attr_will_change unless value does not change
-        unless value == instance_variable_get("@#{dirty_tracked_attribute}")
+        unless value == send(dirty_tracked_attribute.to_sym)
           send "#{dirty_tracked_attribute}_will_change!"
         end
 
@@ -220,6 +221,20 @@ module VersionControl
     def name_must_be_case_insensitively_unique
       if collection.reload!.exists?(name)
         errors.add :name, 'has already been taken'
+      end
+    end
+    # rubocop:enable Style/GuardClause
+
+    # Validate that content OR name is changed
+    # rubocop:disable Style/GuardClause
+    def must_change_content_or_name
+      if content_changed? && name_changed?
+        errors.add :base,
+                   'You cannot update file content and name at the same time'
+      end
+
+      unless content_changed? || name_changed?
+        errors.add :base, 'You must make at least one change to the file'
       end
     end
     # rubocop:enable Style/GuardClause
