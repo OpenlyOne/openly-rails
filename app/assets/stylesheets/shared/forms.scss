@@ -12,13 +12,16 @@ input[type='text'] {
   // Input elements that inherit styling from their parent
   &.inherit {
     // scss-lint:disable ImportantRule
-    border-color: currentColor !important;
     box-shadow: none !important;
     font-size: inherit;
     height: auto;
     line-height: inherit;
     margin: 0;
     padding: 0;
+
+    &:not(.invalid) {
+      border-color: currentColor !important;
+    }
   }
 }
 // scss-lint:enable QualifyingElement
