@@ -123,6 +123,14 @@ RSpec.describe VersionControl::File, type: :model do
     subject(:method)  { file.content }
     let(:file)        { create :vc_file }
     it                { is_expected.to eq file.content }
+
+    context 'when file content is nil and oid is nil' do
+      before do
+        file.instance_variable_set :@content, nil
+        file.instance_variable_set :@oid, nil
+      end
+      it { is_expected.to eq nil }
+    end
   end
 
   describe '#destroy' do

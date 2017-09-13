@@ -86,7 +86,7 @@ module VersionControl
 
     # Return the file's content
     def content
-      @content ||= repository.lookup(oid).content
+      @content ||= (repository.lookup(oid).content if oid)
     end
 
     # Destroy the file
