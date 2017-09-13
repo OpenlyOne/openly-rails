@@ -16,6 +16,9 @@ RSpec.shared_examples 'an authorized action' do
     it { expect(response).to have_http_status :redirect }
     it 'alerts user that they are unauthorized' do
       is_expected.to set_flash[:alert].to(/not authorized/)
+      # Flash message should not contain underscores or forward slashes.
+      # Set a custom message in config/locales/en.yml
+      is_expected.not_to set_flash[:alert].to %r{[_/]}
     end
     it 'redirects user' do
       expect(response).to redirect_to redirect_location

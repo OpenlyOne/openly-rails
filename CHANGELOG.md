@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.4 (September 13, 2017)
+
+**New Features**:
+- Project file management
+
+**Fixes**:
+- Form elements with inherited styling will correctly show up as invalid if an
+error occurs on the input element's attribute
+
+
 ## v0.3 (August 13, 2017)
 
 **New Features**:

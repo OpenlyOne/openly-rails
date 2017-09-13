@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :set_default_request_format
 
   # override sign in redirect (Devise)
   def after_sign_in_path_for(resource)
@@ -36,4 +37,11 @@ class ApplicationController < ActionController::Base
     end
   end
   # rubocop:enable Metrics/MethodLength
+
+  # Override the request format to prevent Rails from implying the format from
+  # the URL. This is necessary because file names can end in .json or. xml or
+  # other endings that are normally parsed by Rails.
+  def set_default_request_format
+    request.format = :html unless params[:format]
+  end
 end

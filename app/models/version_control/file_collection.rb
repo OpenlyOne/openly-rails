@@ -5,8 +5,7 @@ module VersionControl
   class FileCollection
     include Enumerable
 
-    # Delegate lookup, so that File can look up its contents
-    delegate :lookup, to: :@repository
+    attr_reader :repository
 
     # Alias #find to #find_by so that we can override find
     alias find_by find
@@ -28,34 +27,37 @@ module VersionControl
       @files.each(&block)
     end
 
-    # Create a new file
-    # Return true on success
-    # Return false on error
-    def create(name, content, message, author)
-      # Write the file
-      blob_oid = @repository.write content, :blob
-
-      # Stage the file
-      @repository.reset_index!
-      @repository.index.add path: name, oid: blob_oid, mode: 0o100644
-
-      # Commit to master
-      return false unless @repository.commit message, author
-
-      # Reload self
-      reload!
-      true
+    def build(params = {})
+      VersionControl::File.new params.merge(collection: self)
     end
 
-    # Search collection for file with name.
+    # Create a new file and return it
+    def create(params)
+      # Create new file
+      file = VersionControl::File.create params.merge(collection: self)
+
+      # Reload files in collection
+      reload!
+
+      # Return reference to new file
+      file
+    end
+
+    # Check for the existence of a file by name (case insensitive)
+    def exists?(name)
+      any? { |f| f.name.casecmp(name).zero? }
+    end
+
+    # Search collection for file with name (case insensitive)
     # Raise ActiveRecord error if not findable.
     def find(name)
-      file = find_by { |f| f.name == name }
+      file = find_by { |f| f.name.casecmp(name).zero? }
       raise ActiveRecord::RecordNotFound if file.nil?
       file
     end
 
     # Reload files from last commit on master
+    # rubocop:disable Metrics/MethodLength
     def reload!
       @files = []
 
@@ -64,12 +66,16 @@ module VersionControl
 
       # initialize files
       @repository.branches['master'].target.tree.each do |file|
-        @files.push(
-          File.new(collection: self, name: file[:name], oid: file[:oid])
+        @files << VersionControl::File.new(
+          persisted:  true,
+          collection: self,
+          name:       file[:name],
+          oid:        file[:oid].to_s
         )
       end
 
       self
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
