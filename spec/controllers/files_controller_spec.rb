@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
@@ -70,6 +71,11 @@ RSpec.describe FilesController, type: :controller do
         profile_project_files_path(project.owner, project)
       end
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_file_path(project.owner, project, 'name')
+      end
+    end
 
     it 'saves the file' do
       expect_any_instance_of(VersionControl::File)
@@ -80,18 +86,6 @@ RSpec.describe FilesController, type: :controller do
         .and_call_original
       expect_any_instance_of(VersionControl::File).to receive(:save)
       run_request
-    end
-
-    it 'redirects to file' do
-      run_request
-      expect(response).to redirect_to(
-        profile_project_file_path(project.owner, project, 'name')
-      )
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'File successfully created.'
     end
   end
 
@@ -158,6 +152,12 @@ RSpec.describe FilesController, type: :controller do
         profile_project_file_path(project.owner, project, file)
       end
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_file_path(project.owner, project, file)
+      end
+      let(:inflected_action_name) { 'updated' }
+    end
 
     it 'updates the file' do
       expect_any_instance_of(VersionControl::File)
@@ -165,17 +165,6 @@ RSpec.describe FilesController, type: :controller do
         .with(hash_including(:content, :revision_summary, :revision_author))
         .with(hash_excluding(:name))
       run_request
-    end
-
-    it 'redirects to file' do
-      run_request
-      expect(response)
-        .to redirect_to profile_project_file_path(project.owner, project, file)
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'File successfully updated.'
     end
   end
 
@@ -227,6 +216,12 @@ RSpec.describe FilesController, type: :controller do
         profile_project_file_path(project.owner, project, file)
       end
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_file_path(project.owner, project, 'name')
+      end
+      let(:inflected_action_name) { 'updated' }
+    end
 
     it 'updates the file' do
       expect_any_instance_of(VersionControl::File)
@@ -234,18 +229,6 @@ RSpec.describe FilesController, type: :controller do
         .with(hash_including(:name, :revision_summary, :revision_author))
         .with(hash_excluding(:content))
       run_request
-    end
-
-    it 'redirects to file' do
-      run_request
-      expect(response).to redirect_to profile_project_file_path(
-        project.owner, project, new_file_name
-      )
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'File successfully updated.'
     end
   end
 
@@ -295,21 +278,15 @@ RSpec.describe FilesController, type: :controller do
         profile_project_file_path(project.owner, project, file)
       end
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_files_path(project.owner, project)
+      end
+    end
 
     it 'destroys the file' do
       expect_any_instance_of(VersionControl::File).to receive(:destroy)
       run_request
-    end
-
-    it 'redirects to files' do
-      run_request
-      expect(response)
-        .to redirect_to profile_project_files_path(project.owner, project)
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'File successfully deleted.'
     end
 
     context 'when destruction of file fails' do
