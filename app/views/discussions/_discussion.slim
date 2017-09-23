@@ -1,0 +1,9 @@
+.spacing.v16px
+= link_to profile_project_discussion_path(@project.owner, @project, 'suggestions', discussion) do
+  h5.no-margin = discussion.title
+p.no-margin
+  span initiated by
+  =< image_tag 'profiles/picture.jpg', class: 'responsive-img inherit', size: '18x18'
+  span =< discussion.initiator.name
+.spacing.v16px
+.divider

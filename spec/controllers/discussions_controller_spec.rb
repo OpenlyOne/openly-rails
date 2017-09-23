@@ -16,6 +16,19 @@ RSpec.describe DiscussionsController, type: :controller do
     }
   end
 
+  describe 'GET #index' do
+    let(:params)      { default_params.except :id }
+    let(:run_request) { get :index, params: params }
+
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+  end
+
   describe 'GET #new' do
     let(:params)      { default_params.except :id }
     let(:run_request) { get :new, params: params }

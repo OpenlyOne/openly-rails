@@ -22,3 +22,7 @@
               = link_to 'Files',
                 profile_project_files_path(project.owner, project),
                 class: ('active' if active_tab == :files)
+            div.tab
+              = link_to 'Suggestions',
+                profile_project_discussions_path(project.owner, project, 'suggestions'),
+                class: ('active' if active_tab == :suggestions)

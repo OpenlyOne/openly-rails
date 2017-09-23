@@ -1,0 +1,18 @@
+.page-subheading.gray.lighten-3.no-margin-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h2 Suggestions
+    - if @user_can_add_discussion
+      = link_to new_profile_project_discussion_path(@project.owner, @project, @discussion_type.pluralize),
+                id:     "new-project-#{@discussion_type}",
+                class:  'btn-floating btn-large primary-color primary-color-text right',
+                title:  "Add #{@discussion_type.titleize}" do
+        svg viewBox="0 0 24 24"
+          path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+
+.spacing.v16px
+.container
+  = render partial: 'discussion', collection: @discussions
+
+.spacing.v32px

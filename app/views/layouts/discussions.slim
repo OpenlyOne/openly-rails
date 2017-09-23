@@ -1,5 +1,5 @@
 = render partial: 'projects/head', object: @project, as: :project,
-         locals: { active_tab: nil }
+         locals: { active_tab: action_name == 'index' ? @discussion_type.pluralize.to_sym : nil }
 
 = yield
 

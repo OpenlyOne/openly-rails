@@ -2,10 +2,16 @@
 
 # Controller for discussions (suggestions, issues, questions)
 class DiscussionsController < ApplicationController
-  before_action :authenticate_account!
+  before_action :authenticate_account!, except: %i[index]
   before_action :set_project
   before_action :set_discussion_type
   before_action :build_discussion, only: %i[new create]
+
+  def index
+    @discussions = @project.send(@discussion_type.pluralize.to_sym)
+                           .includes(:initiator).all
+    @user_can_add_discussion = current_user.present?
+  end
 
   def new; end
 

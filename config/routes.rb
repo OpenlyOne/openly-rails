@@ -67,7 +67,7 @@ Rails.application.routes.draw do
                 end
       # Route for discussions
       resources :discussions,
-                path: '/:type', only: %i[new create],
+                path: '/:type', only: %i[index new create show],
                 constraints: { type: /suggestions/ }
     end
   end
