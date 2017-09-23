@@ -65,6 +65,10 @@ Rails.application.routes.draw do
                   get     'delete'  => 'files#delete',          on: :member
                   delete  'delete'  => 'files#destroy',         on: :member
                 end
+      # Route for discussions
+      resources :discussions,
+                path: '/:type', only: %i[new create],
+                constraints: { type: /suggestions/ }
     end
   end
 
