@@ -16,16 +16,19 @@ RSpec.describe Project, type: :model do
     end
     it do
       is_expected.to(
-        have_many(:suggestions)
-          .class_name('Discussions::Suggestion')
-          .dependent(:destroy)
+        have_many(:suggestions).class_name('Discussions::Suggestion')
+                               .dependent(:destroy)
       )
     end
     it do
       is_expected.to(
-        have_many(:issues)
-          .class_name('Discussions::Issue')
-          .dependent(:destroy)
+        have_many(:issues).class_name('Discussions::Issue').dependent(:destroy)
+      )
+    end
+    it do
+      is_expected.to(
+        have_many(:questions).class_name('Discussions::Question')
+                             .dependent(:destroy)
       )
     end
   end

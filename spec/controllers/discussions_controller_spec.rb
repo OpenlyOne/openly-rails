@@ -98,4 +98,9 @@ RSpec.describe DiscussionsController, type: :controller do
     let(:discussion) { create(:discussions_issue) }
     include_examples 'use DiscussionsController', Discussions::Issue
   end
+
+  context "when type is 'questions'" do
+    let(:discussion) { create(:discussions_question) }
+    include_examples 'use DiscussionsController', Discussions::Question
+  end
 end

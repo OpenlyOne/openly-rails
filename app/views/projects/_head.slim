@@ -30,3 +30,7 @@
               = link_to 'Issues',
                 profile_project_discussions_path(project.owner, project, 'issues'),
                 class: ('active' if active_tab == :issues)
+            div.tab
+              = link_to 'Questions',
+                profile_project_discussions_path(project.owner, project, 'questions'),
+                class: ('active' if active_tab == :questions)

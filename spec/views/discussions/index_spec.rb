@@ -67,4 +67,11 @@ RSpec.describe 'discussions/index', type: :view do
     end
     include_examples 'rendering discussions/index'
   end
+
+  context 'when @discussions is Discussions::Question' do
+    let(:discussions) do
+      create_list(:discussions_question, 5, project: project)
+    end
+    include_examples 'rendering discussions/index'
+  end
 end

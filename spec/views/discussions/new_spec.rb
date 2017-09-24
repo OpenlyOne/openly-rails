@@ -49,4 +49,9 @@ RSpec.describe 'discussions/new', type: :view do
     let(:discussion) { build(:discussions_issue) }
     include_examples 'rendering discussions/new'
   end
+
+  context 'when @discussion is Discussions::Question' do
+    let(:discussion) { build(:discussions_question) }
+    include_examples 'rendering discussions/new'
+  end
 end

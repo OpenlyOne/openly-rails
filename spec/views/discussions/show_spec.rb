@@ -21,12 +21,17 @@ RSpec.describe 'discussions/show', type: :view do
   let(:project) { discussion.project }
 
   context 'when @discussion is Discussions::Suggestion' do
-    let(:discussion) { create(:discussions_suggestion) }
+    let(:discussion) { build_stubbed(:discussions_suggestion) }
     include_examples 'rendering discussions/show'
   end
 
   context 'when @discussion is Discussions::Issue' do
-    let(:discussion) { create(:discussions_issue) }
+    let(:discussion) { build_stubbed(:discussions_issue) }
+    include_examples 'rendering discussions/show'
+  end
+
+  context 'when @discussion is Discussions::Question' do
+    let(:discussion) { build_stubbed(:discussions_question) }
     include_examples 'rendering discussions/show'
   end
 end
