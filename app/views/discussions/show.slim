@@ -3,8 +3,5 @@
     .row.no-margin-bottom
       .col.s12
         h2 = @discussion.title
-        p.no-margin-bottom
-          span = action_verb_for_initiated_by(@discussion)
-          =< image_tag 'profiles/picture.jpg', class: 'responsive-img inherit', size: '18x18'
-          span =< @discussion.initiator.name
+        = render partial: 'meta', locals: {discussion: @discussion, is_slim: false}
         .spacing.v16px

@@ -31,6 +31,12 @@ RSpec.shared_examples 'rendering discussions/new' do
     )
   end
 
+  it 'renders the initiator' do
+    render
+    expect(rendered)
+      .to have_text "#{custom_initiated_verb} by #{discussion.initiator.name}"
+  end
+
   it 'has a button to create the discussion' do
     render
     expect(rendered).to have_css "button[action='submit']", text: 'Create'
@@ -42,16 +48,19 @@ RSpec.describe 'discussions/new', type: :view do
 
   context 'when @discussion is Discussions::Suggestion' do
     let(:discussion) { build(:discussions_suggestion) }
+    let(:custom_initiated_verb) { 'suggested' }
     include_examples 'rendering discussions/new'
   end
 
   context 'when @discussion is Discussions::Issue' do
     let(:discussion) { build(:discussions_issue) }
+    let(:custom_initiated_verb) { 'raised' }
     include_examples 'rendering discussions/new'
   end
 
   context 'when @discussion is Discussions::Question' do
     let(:discussion) { build(:discussions_question) }
+    let(:custom_initiated_verb) { 'asked' }
     include_examples 'rendering discussions/new'
   end
 end

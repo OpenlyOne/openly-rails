@@ -24,4 +24,23 @@ RSpec.describe DiscussionHelper, type: :helper do
       it { is_expected.to eq 'initiated by' }
     end
   end
+
+  describe '#color_scheme_for_discussion(discussion)' do
+    subject(:method) { color_scheme_for_discussion discussion }
+
+    context 'when discussion is Discussions::Suggestion' do
+      let(:discussion) { build :discussions_suggestion }
+      it { is_expected.to eq 'green white-text' }
+    end
+
+    context 'when discussion is Discussions::Issue' do
+      let(:discussion) { build :discussions_issue }
+      it { is_expected.to eq 'red white-text' }
+    end
+
+    context 'when discussion is Discussions::Question' do
+      let(:discussion) { build :discussions_question }
+      it { is_expected.to eq 'blue white-text' }
+    end
+  end
 end

@@ -6,10 +6,7 @@
         .col.s12
           h2
             = f.text_field :title, placeholder: 'Title', class: 'inherit'
-          p.no-margin-bottom
-            span initiated by
-            =< image_tag 'profiles/picture.jpg', class: 'responsive-img inherit', size: '18x18'
-            span =< @discussion.initiator.name
+          = render partial: 'meta', locals: {discussion: @discussion, is_slim: false}
           .spacing.v16px
 
   .container
