@@ -21,6 +21,13 @@ RSpec.describe Project, type: :model do
           .dependent(:destroy)
       )
     end
+    it do
+      is_expected.to(
+        have_many(:issues)
+          .class_name('Discussions::Issue')
+          .dependent(:destroy)
+      )
+    end
   end
 
   describe 'attributes' do

@@ -2,7 +2,7 @@
   .container
     .row.no-margin-bottom
       .col.s12
-        h2 Suggestions
+        h2 = @discussion_type.pluralize.titleize
     - if @user_can_add_discussion
       = link_to new_profile_project_discussion_path(@project.owner, @project, @discussion_type.pluralize),
                 id:     "new-project-#{@discussion_type}",

@@ -1,5 +1,7 @@
 .spacing.v16px
-= link_to profile_project_discussion_path(@project.owner, @project, 'suggestions', discussion) do
+= link_to profile_project_discussion_path(@project.owner, @project,
+                                          discussion.type_to_url_segment,
+                                          discussion) do
   h5.no-margin = discussion.title
 p.no-margin
   span initiated by

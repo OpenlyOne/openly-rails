@@ -8,6 +8,7 @@ class Project < ApplicationRecord
   belongs_to :owner, polymorphic: true
   has_many :suggestions, class_name: 'Discussions::Suggestion',
                          dependent: :destroy
+  has_many :issues, class_name: 'Discussions::Issue', dependent: :destroy
 
   # Attributes
   # Do not allow owner change

@@ -31,4 +31,8 @@ RSpec.shared_examples 'being a discussion' do |discussion_type|
       end
     end
   end
+
+  describe '#type_to_url_segment' do
+    it { expect(subject.type_to_url_segment).to eq url_type }
+  end
 end

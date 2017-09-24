@@ -1,20 +1,32 @@
 # frozen_string_literal: true
 
-RSpec.describe 'discussions/show', type: :view do
-  let(:suggestion) { create(:discussions_suggestion) }
-
+RSpec.shared_examples 'rendering discussions/show' do
   before do
-    assign(:project, suggestion.project)
-    assign(:discussion, suggestion)
+    assign(:project, project)
+    assign(:discussion, discussion)
   end
 
   it 'renders the title of the discussion' do
     render
-    expect(rendered).to have_text suggestion.title
+    expect(rendered).to have_text discussion.title
   end
 
   it 'renders the initiator of the discussion' do
     render
-    expect(rendered).to have_text suggestion.initiator.name
+    expect(rendered).to have_text discussion.initiator.name
+  end
+end
+
+RSpec.describe 'discussions/show', type: :view do
+  let(:project) { discussion.project }
+
+  context 'when @discussion is Discussions::Suggestion' do
+    let(:discussion) { create(:discussions_suggestion) }
+    include_examples 'rendering discussions/show'
+  end
+
+  context 'when @discussion is Discussions::Issue' do
+    let(:discussion) { create(:discussions_issue) }
+    include_examples 'rendering discussions/show'
   end
 end
