@@ -4,7 +4,7 @@
                                           discussion) do
   h5.no-margin = discussion.title
 p.no-margin
-  span initiated by
+  span = action_verb_for_initiated_by(discussion)
   =< image_tag 'profiles/picture.jpg', class: 'responsive-img inherit', size: '18x18'
   span =< discussion.initiator.name
 .spacing.v16px

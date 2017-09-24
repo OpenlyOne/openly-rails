@@ -22,7 +22,8 @@ RSpec.shared_examples 'rendering discussions/index' do
   it 'renders the initiator of each discussion' do
     render
     discussions.each do |discussion|
-      expect(rendered).to have_text discussion.initiator.name
+      expect(rendered)
+        .to have_text "#{custom_initiated_verb} by #{discussion.initiator.name}"
     end
   end
 
@@ -58,6 +59,7 @@ RSpec.describe 'discussions/index', type: :view do
     let(:discussions) do
       create_list(:discussions_suggestion, 5, project: project)
     end
+    let(:custom_initiated_verb) { 'suggested' }
     include_examples 'rendering discussions/index'
   end
 
@@ -65,6 +67,7 @@ RSpec.describe 'discussions/index', type: :view do
     let(:discussions) do
       create_list(:discussions_issue, 5, project: project)
     end
+    let(:custom_initiated_verb) { 'raised' }
     include_examples 'rendering discussions/index'
   end
 
@@ -72,6 +75,7 @@ RSpec.describe 'discussions/index', type: :view do
     let(:discussions) do
       create_list(:discussions_question, 5, project: project)
     end
+    let(:custom_initiated_verb) { 'asked' }
     include_examples 'rendering discussions/index'
   end
 end
