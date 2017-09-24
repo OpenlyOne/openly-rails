@@ -51,14 +51,38 @@ feature 'Discussions::Suggestion' do
     click_on 'Create'
 
     # then I should be on the suggestion page
-    # expect(page).to have_current_path(
-    #   profile_project_discussion_path(
-    #     project.owner, project, 'suggestions', 1
-    #   )
-    # )
+    expect(page).to have_current_path(
+      profile_project_discussion_path(
+        project.owner, project, 'suggestions', Discussions::Base.last
+      )
+    )
     # and see the new suggestion's title
-    # expect(page).to have_text 'Add information about frogs'
+    expect(page).to have_text 'Add information about frogs'
     # and there should be one suggestion in the database
     expect(project.suggestions.count).to eq 1
+  end
+
+  scenario 'User can view suggestion' do
+    # given I am signed in as a user
+    sign_in_as create(:account)
+    # and there is a project with a suggestion
+    suggestion  = create(:discussions_suggestion)
+    project     = suggestion.project
+
+    # when I visit the project
+    visit profile_project_path(project.owner, project)
+    # and click on suggestions
+    click_on 'Suggestions'
+    # and click on the suggestion
+    click_on suggestion.title
+
+    # then I should be on the suggestion's page
+    expect(page).to have_current_path(
+      profile_project_discussion_path(
+        project.owner, project, 'suggestions', suggestion
+      )
+    )
+    # and see the suggestion's title
+    expect(page).to have_text suggestion.title
   end
 end

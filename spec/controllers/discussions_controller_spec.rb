@@ -61,11 +61,8 @@ RSpec.describe DiscussionsController, type: :controller do
     include_examples 'raise 404 if non-existent', Project
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
-        new_profile_project_discussion_path(
-          project.owner,
-          project,
-          'suggestions'
-        )
+        profile_project_discussion_path(project.owner, project,
+                                        'suggestions', Discussions::Base.last)
       end
       let(:resource_name) { 'Suggestion' }
     end
@@ -73,6 +70,20 @@ RSpec.describe DiscussionsController, type: :controller do
     it 'saves the discussion' do
       expect_any_instance_of(Discussions::Suggestion).to receive(:save)
       run_request
+    end
+  end
+
+  describe 'GET #show' do
+    let(:params)      { default_params }
+    let(:run_request) { get :show, params: params }
+
+    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Project
+    include_examples 'raise 404 if non-existent', Discussions::Suggestion
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
     end
   end
 end
