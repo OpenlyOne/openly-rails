@@ -19,6 +19,13 @@ RSpec.shared_examples 'rendering discussions/index' do
     end
   end
 
+  it 'renders the scoped ID of each discussion' do
+    render
+    discussions.each do |discussion|
+      expect(rendered).to have_text "##{discussion.scoped_id}"
+    end
+  end
+
   it 'renders the initiator of each discussion' do
     render
     discussions.each do |discussion|

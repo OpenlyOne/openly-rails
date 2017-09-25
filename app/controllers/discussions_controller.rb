@@ -45,7 +45,7 @@ class DiscussionsController < ApplicationController
     @discussion =
       Object.const_get("Discussions::#{@discussion_type.titleize}").find_by!(
         project: @project,
-        id: params[:id]
+        scoped_id: params[:scoped_id]
       )
   end
 

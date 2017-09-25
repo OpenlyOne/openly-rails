@@ -6,7 +6,7 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
   describe 'GET #index' do
-    let(:params)      { default_params.except :id }
+    let(:params)      { default_params.except :scoped_id }
     let(:run_request) { get :index, params: params }
 
     include_examples 'raise 404 if non-existent', Handle
@@ -19,7 +19,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
   end
 
   describe 'GET #new' do
-    let(:params)      { default_params.except :id }
+    let(:params)      { default_params.except :scoped_id }
     let(:run_request) { get :new, params: params }
     before            { sign_in project.owner.account }
 
@@ -41,7 +41,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
         }
       }
     end
-    let(:params)      { default_params.except(:id).merge(add_params) }
+    let(:params)      { default_params.except(:scoped_id).merge(add_params) }
     let(:run_request) { post :create, params: params }
     before            { sign_in project.owner.account }
 
@@ -85,7 +85,7 @@ RSpec.describe DiscussionsController, type: :controller do
       profile_handle: project.owner,
       project_slug:   project.slug,
       type:           discussion_type,
-      id:             discussion.id
+      scoped_id:      discussion.scoped_id
     }
   end
 

@@ -11,6 +11,11 @@ RSpec.shared_examples 'rendering discussions/show' do
     expect(rendered).to have_text discussion.title
   end
 
+  it 'renders the scoped ID' do
+    render
+    expect(rendered).to have_text "##{discussion.scoped_id}"
+  end
+
   it 'renders the initiator of the discussion' do
     render
     expect(rendered)

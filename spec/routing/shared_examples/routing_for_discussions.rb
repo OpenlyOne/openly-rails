@@ -46,7 +46,7 @@ RSpec.shared_examples 'routing for discussions' do |discussion_type|
         profile_handle: 'handle',
         project_slug: 'slug',
         type: discussion_type,
-        id: '1'
+        scoped_id: '1'
       )
   end
 end
