@@ -70,6 +70,8 @@ Rails.application.routes.draw do
                 path: '/:type', only: %i[index new create show],
                 param: :scoped_id,
                 constraints: { type: /suggestions|issues|questions/ }
+      get ':type/:scoped_id' => 'discussions#show',
+          constraints: { type: /discussions/ }
     end
   end
 
