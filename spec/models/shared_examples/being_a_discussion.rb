@@ -36,7 +36,7 @@ RSpec.shared_examples 'being a discussion' do |discussion_type|
 
   describe 'associations' do
     it { is_expected.to belong_to(:initiator) }
-    it { is_expected.to belong_to(:project) }
+    it { is_expected.to belong_to(:project).counter_cache(true) }
     it do
       is_expected.to(
         have_one(:initial_reply).class_name('Reply')
