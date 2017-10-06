@@ -13,7 +13,8 @@ class DiscussionsController < ApplicationController
 
   def index
     @discussions = @project.send(@discussion_type.pluralize.to_sym)
-                           .includes(:initiator, :initial_reply).all
+                           .includes(:initiator, :initial_reply)
+                           .order(id: :desc).all
     @user_can_add_discussion = current_user.present?
   end
 
