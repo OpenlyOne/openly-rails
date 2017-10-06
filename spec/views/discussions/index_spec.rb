@@ -19,6 +19,14 @@ RSpec.shared_examples 'rendering discussions/index' do
     end
   end
 
+  it 'renders the content of the initial reply of each discussion' do
+    render
+    discussions.each do |discussion|
+      expect(rendered)
+        .to have_text truncate(discussion.initial_reply.content, omission: '')
+    end
+  end
+
   it 'renders the scoped ID of each discussion' do
     render
     discussions.each do |discussion|

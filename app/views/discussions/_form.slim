@@ -18,6 +18,18 @@
             = render partial: "error", collection: @discussion.errors.full_messages, as: :error
 
     .spacing.v32px
+    - content_for :reply_content do
+      = f.fields_for :initial_reply, @discussion.initial_reply || @discussion.build_initial_reply do |ff|
+        .spacing.v16px
+        .row
+          .input-field.col.s12
+            = ff.text_area :content,
+                            rows: 7,
+                            class: 'materialize-textarea noscript'
+            = ff.label :content
+    = render @discussion.initial_reply
+
+
     .row
       .col.s12
         button action='submit' class="btn-large primary-color primary-color-text"

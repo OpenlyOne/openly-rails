@@ -49,6 +49,8 @@ RSpec.shared_examples 'implementing discussion features' do |discussion_type|
     find("a#new-project-#{discussion_type.singularize}").click
     # and fill in the title
     fill_in 'Title', with: 'Add information about frogs'
+    # and fill in the content
+    fill_in 'Content', with: 'Additional details'
     # and create the discussion
     click_on 'Create'
 
@@ -60,6 +62,8 @@ RSpec.shared_examples 'implementing discussion features' do |discussion_type|
     )
     # and see the new discussion's title
     expect(page).to have_text 'Add information about frogs'
+    # and see the new discussion's content
+    expect(page).to have_text 'Additional details'
     # and there should be one discussion in the database
     expect(project.send(discussion_type.to_sym).count).to eq 1
   end

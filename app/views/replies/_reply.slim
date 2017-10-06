@@ -1,0 +1,19 @@
+.row.reply-wrapper
+  .col.s12
+    .reply.white.z-depth-1
+      .author-wrapper
+        .single-line
+          = link_to profile_path(reply.author), class: 'left link user-image z-depth-1 gray' do
+            = image_tag 'profiles/picture.jpg', class: 'responsive-img inherit'
+          end
+
+          = link_to reply.author.name,
+                    profile_path(reply.author),
+                    title: reply.author.name,
+                    class: 'link name-badge truncate z-depth-1 red darken-2 white-text text-basic'
+
+      .content
+        - if content_for? :reply_content
+          = yield :reply_content
+        - else
+          = simple_format reply.content

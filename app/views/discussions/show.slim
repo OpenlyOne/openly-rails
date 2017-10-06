@@ -7,3 +7,6 @@
           small.gray-text< = "##{@discussion.scoped_id}"
         = render partial: 'meta', locals: {discussion: @discussion, is_slim: false}
         .spacing.v16px
+
+.container
+  = render @discussion.initial_reply

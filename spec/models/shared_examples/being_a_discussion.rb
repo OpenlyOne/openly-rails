@@ -37,6 +37,25 @@ RSpec.shared_examples 'being a discussion' do |discussion_type|
   describe 'associations' do
     it { is_expected.to belong_to(:initiator) }
     it { is_expected.to belong_to(:project) }
+    it do
+      is_expected.to(
+        have_one(:initial_reply).class_name('Reply')
+                                .dependent(:destroy)
+                                .inverse_of(:discussion)
+                                .with_foreign_key(:discussion_id)
+      )
+    end
+    it do
+      is_expected.to(
+        have_many(:replies).dependent(:destroy)
+                           .inverse_of(:discussion)
+                           .with_foreign_key(:discussion_id)
+      )
+    end
+  end
+
+  describe 'attributes' do
+    it { is_expected.to accept_nested_attributes_for(:initial_reply) }
   end
 
   describe 'validations' do
@@ -63,6 +82,7 @@ RSpec.shared_examples 'being a discussion' do |discussion_type|
         end
       end
     end
+    it { is_expected.to validate_presence_of(:initial_reply) }
   end
 
   describe '#to_param' do

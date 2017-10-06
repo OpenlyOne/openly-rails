@@ -31,6 +31,14 @@ RSpec.shared_examples 'rendering discussions/new' do
     )
   end
 
+  it 'has an input field for content' do
+    render
+    expect(rendered).to have_css(
+      "textarea#discussions_#{discussion.type_to_url_segment.singularize}" \
+      '_initial_reply_attributes_content'
+    )
+  end
+
   it 'renders the initiator' do
     render
     expect(rendered)

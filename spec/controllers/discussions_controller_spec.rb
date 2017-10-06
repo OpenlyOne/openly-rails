@@ -37,7 +37,10 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     let(:add_params) do
       {
         "discussions_#{discussion_type.singularize}": {
-          title: 'name'
+          title: 'name',
+          initial_reply_attributes: {
+            content: 'content'
+          }
         }
       }
     end

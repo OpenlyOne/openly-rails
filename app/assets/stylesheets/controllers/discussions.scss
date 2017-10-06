@@ -1,0 +1,57 @@
+.reply-wrapper {
+  margin-bottom: 32px;
+  margin-left: 30px;
+  padding-left: 30px;
+  position: relative;
+  z-index: 20;
+
+  .author-wrapper {
+    margin-bottom: -20px;
+    padding-right: 40px;
+    width: 100%;
+
+    > div {
+      display: inline-block;
+      margin-bottom: -10px;
+      margin-right: -30px;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+    .user-image {
+      border-radius: 5px;
+      height: 60px;
+      left: -30px;
+      margin-bottom: -17.5px;
+      margin-right: -30px;
+      position: relative;
+      top: -16.25px;
+      width: 60px;
+      z-index: 5;
+
+      // scss-lint:disable NestingDepth, SelectorDepth
+      img {
+        border-radius: inherit;
+        width: 100%;
+      }
+      // scss-lint:enable NestingDepth, SelectorDepth
+    }
+
+    .name-badge {
+      border-bottom-right-radius: 5px;
+      border-top-right-radius: 5px;
+      display: inline-block;
+      height: 22.5px;
+      line-height: 22.5px;
+      padding: 0 10px;
+      position: relative;
+      top: -11.25px;
+    }
+
+  }
+
+  .content {
+    background-color: color('white', 'base');
+    padding: 0 30px 10px 50px;
+  }
+}

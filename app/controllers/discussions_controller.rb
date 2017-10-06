@@ -13,7 +13,7 @@ class DiscussionsController < ApplicationController
 
   def index
     @discussions = @project.send(@discussion_type.pluralize.to_sym)
-                           .includes(:initiator).all
+                           .includes(:initiator, :initial_reply).all
     @user_can_add_discussion = current_user.present?
   end
 
@@ -42,6 +42,7 @@ class DiscussionsController < ApplicationController
         initiator: current_user,
         project: @project
       )
+    @discussion.build_initial_reply(author: current_user)
   end
 
   # redirect to the path with the correct type
@@ -68,6 +69,7 @@ class DiscussionsController < ApplicationController
   end
 
   def discussion_params
-    params.require("discussions_#{@discussion_type}").permit(:title)
+    params.require("discussions_#{@discussion_type}")
+          .permit(:title, initial_reply_attributes: [:content])
   end
 end
