@@ -17,9 +17,31 @@ FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
   account.user.build_handle identifier: username
   account.save
   account.reload # reload account to ensure that they were persisted
+end
 
-  # Create three projects per user
+# Create three projects per user
+User.find_each do |user|
   3.times.with_index do |i|
-    FactoryGirl.create :project, owner: account.user, slug: "project-#{i + 1}"
+    FactoryGirl.create :project, owner: user, slug: "project-#{i + 1}"
+  end
+end
+
+# Create a few files per project
+Project.find_each do |project|
+  rand(1..5).times do
+    FactoryGirl.create :vc_file, collection: project.files
+  end
+end
+
+# Create a few discussions per project
+Project.find_each do |project|
+  rand(0..4).times do
+    FactoryGirl.create :discussions_suggestion, project: project
+  end
+  rand(0..4).times do
+    FactoryGirl.create :discussions_issue, project: project
+  end
+  rand(0..4).times do
+    FactoryGirl.create :discussions_question, project: project
   end
 end
