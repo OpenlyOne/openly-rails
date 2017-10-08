@@ -4,6 +4,7 @@ RSpec.shared_examples 'rendering discussions/show' do
   before do
     assign(:project, project)
     assign(:discussion, discussion)
+    assign(:replies, replies)
   end
 
   it 'renders the title of the discussion' do
@@ -26,10 +27,19 @@ RSpec.shared_examples 'rendering discussions/show' do
     expect(rendered)
       .to have_text "#{custom_initiated_verb} by #{discussion.initiator.name}"
   end
+
+  it 'renders the replies' do
+    render
+    replies.each do |reply|
+      expect(rendered).to have_text reply.author.name
+      expect(rendered).to have_text reply.content
+    end
+  end
 end
 
 RSpec.describe 'discussions/show', type: :view do
   let(:project) { discussion.project }
+  let(:replies) { build_stubbed_list(:reply, 3, discussion: discussion) }
 
   context 'when @discussion is Discussions::Suggestion' do
     let(:discussion) { build_stubbed(:discussions_suggestion) }
