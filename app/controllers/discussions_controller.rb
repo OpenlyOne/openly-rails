@@ -33,7 +33,9 @@ class DiscussionsController < ApplicationController
     end
   end
 
-  def show; end
+  def show
+    @replies = @discussion.replies.includes(author: [:handle])
+  end
 
   private
 
