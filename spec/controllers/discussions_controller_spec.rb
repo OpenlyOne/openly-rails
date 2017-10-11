@@ -74,7 +74,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     include_examples 'raise 404 if non-existent', discussion_class
 
     correct_type = discussion_class.to_s.split('::').last.downcase.pluralize
-    context "when params[:type] is #{correct_type} (type match)" do
+    context "when params[:discussion_type] is #{correct_type} (type match)" do
       it 'returns http success' do
         run_request
         expect(response).to have_http_status :success
@@ -84,8 +84,8 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     mismatched_types =
       %w[discussions suggestions issues questions] - [correct_type]
     mismatched_types.each do |type|
-      context "when params[:type] is '#{type}' (type mismatch)" do
-        before { params[:type] = type }
+      context "when params[:discussion_type] is '#{type}' (type mismatch)" do
+        before { params[:discussion_type] = type }
 
         it 'redirects to the correct path' do
           run_request
@@ -105,10 +105,10 @@ RSpec.describe DiscussionsController, type: :controller do
   let(:discussion_type) { discussion.type_to_url_segment }
   let(:default_params)  do
     {
-      profile_handle: project.owner,
-      project_slug:   project.slug,
-      type:           discussion_type,
-      scoped_id:      discussion.scoped_id
+      profile_handle:   project.owner,
+      project_slug:     project.slug,
+      discussion_type:  discussion_type,
+      scoped_id:        discussion.scoped_id
     }
   end
 

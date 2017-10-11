@@ -9,7 +9,7 @@ RSpec.shared_examples 'routing for discussions' do |discussion_type|
         'discussions#index',
         profile_handle: 'handle',
         project_slug: 'slug',
-        type: discussion_type
+        discussion_type: discussion_type
       )
   end
 
@@ -22,7 +22,7 @@ RSpec.shared_examples 'routing for discussions' do |discussion_type|
         'discussions#new',
         profile_handle: 'handle',
         project_slug: 'slug',
-        type: discussion_type
+        discussion_type: discussion_type
       )
   end
 
@@ -32,7 +32,7 @@ RSpec.shared_examples 'routing for discussions' do |discussion_type|
         'discussions#create',
         profile_handle: 'handle',
         project_slug: 'slug',
-        type: discussion_type
+        discussion_type: discussion_type
       )
   end
 
@@ -45,7 +45,7 @@ RSpec.shared_examples 'routing for discussions' do |discussion_type|
         'discussions#show',
         profile_handle: 'handle',
         project_slug: 'slug',
-        type: discussion_type,
+        discussion_type: discussion_type,
         scoped_id: '1'
       )
   end

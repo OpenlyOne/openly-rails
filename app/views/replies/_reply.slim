@@ -17,3 +17,5 @@
           = yield :reply_content
         - else
           = simple_format reply.content
+
+        = yield :reply_action if content_for? :reply_action
