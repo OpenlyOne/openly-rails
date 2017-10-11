@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'rendering discussions/show' do
+RSpec.describe 'replies/show', type: :view do
+  let(:project)     { discussion.project }
+  let(:discussion)  { build_stubbed(:discussions_suggestion) }
+  let(:replies)     { build_stubbed_list(:reply, 3, discussion: discussion) }
+  let(:reply)       { build_stubbed(:reply, discussion: discussion) }
+
   before do
     assign(:project, project)
     assign(:discussion, discussion)
@@ -26,7 +31,7 @@ RSpec.shared_examples 'rendering discussions/show' do
   it 'renders the initiator of the discussion' do
     render
     expect(rendered)
-      .to have_text "#{custom_initiated_verb} by #{discussion.initiator.name}"
+      .to have_text "suggested by #{discussion.initiator.name}"
   end
 
   it 'renders the replies' do
@@ -60,29 +65,5 @@ RSpec.shared_examples 'rendering discussions/show' do
   it 'has an input field for content' do
     render
     expect(rendered).to have_css('textarea#reply_content')
-  end
-end
-
-RSpec.describe 'discussions/show', type: :view do
-  let(:project) { discussion.project }
-  let(:replies) { build_stubbed_list(:reply, 3, discussion: discussion) }
-  let(:reply)   { build_stubbed(:reply, discussion: discussion) }
-
-  context 'when @discussion is Discussions::Suggestion' do
-    let(:discussion) { build_stubbed(:discussions_suggestion) }
-    let(:custom_initiated_verb) { 'suggested' }
-    include_examples 'rendering discussions/show'
-  end
-
-  context 'when @discussion is Discussions::Issue' do
-    let(:discussion) { build_stubbed(:discussions_issue) }
-    let(:custom_initiated_verb) { 'raised' }
-    include_examples 'rendering discussions/show'
-  end
-
-  context 'when @discussion is Discussions::Question' do
-    let(:discussion) { build_stubbed(:discussions_question) }
-    let(:custom_initiated_verb) { 'asked' }
-    include_examples 'rendering discussions/show'
   end
 end

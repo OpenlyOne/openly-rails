@@ -9,7 +9,9 @@ class DiscussionsController < ApplicationController
   before_action :set_discussion, except: %i[index new create]
   before_action :redirect_to_path_with_matching_type,
                 only: %i[show],
-                if: -> { @discussion.type_to_url_segment != params[:type] }
+                if: lambda {
+                  @discussion.type_to_url_segment != params[:discussion_type]
+                }
 
   def index
     @discussions = @project.send(@discussion_type.pluralize.to_sym)
@@ -35,6 +37,7 @@ class DiscussionsController < ApplicationController
 
   def show
     @replies = @discussion.replies.includes(author: [:handle])
+    @reply = @discussion.replies.build(author: current_user) if current_user
   end
 
   private
@@ -50,12 +53,12 @@ class DiscussionsController < ApplicationController
 
   # redirect to the path with the correct type
   def redirect_to_path_with_matching_type
-    redirect_to(controller:     controller_name,
-                action:         action_name,
-                profile_handle: params[:profile_handle],
-                project_slug:   params[:project_slug],
-                type:           @discussion.type_to_url_segment,
-                scoped_id:      params[:scoped_id])
+    redirect_to(controller:       controller_name,
+                action:           action_name,
+                profile_handle:   params[:profile_handle],
+                project_slug:     params[:project_slug],
+                discussion_type:  @discussion.type_to_url_segment,
+                scoped_id:        params[:scoped_id])
   end
 
   def set_discussion
@@ -64,7 +67,7 @@ class DiscussionsController < ApplicationController
   end
 
   def set_discussion_type
-    @discussion_type = params[:type].to_s.singularize
+    @discussion_type = params[:discussion_type].to_s.singularize
   end
 
   def set_project
