@@ -4,6 +4,7 @@
 class ProfilesController < ApplicationController
   before_action :authenticate_account!, except: :show
   before_action :set_profile
+  before_action :set_color_scheme
   before_action :authorize_action, except: :show
 
   def show
@@ -33,6 +34,10 @@ class ProfilesController < ApplicationController
 
   def authorize_action
     authorize! params[:action].to_sym, @profile
+  end
+
+  def set_color_scheme
+    @color_scheme = @profile.color_scheme
   end
 
   def set_profile

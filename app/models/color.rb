@@ -61,20 +61,15 @@ class Color
         end
     end
 
-    # define available color schemes
+    # Define available color schemes
     def schemes
-      # [
-      #   { base: 'red',          text: 'white' },
-      #   { base: 'amber',        text: 'black' },
-      #   { base: 'yellow',       text: 'black' },
-      #   { base: 'light-green',  text: 'black' },
-      #   { base: 'light-blue',   text: 'white' },
-      #   { base: 'indigo',       text: 'white' },
-      #   { base: 'purple',       text: 'white' }
-      # ]
-      [
-        { base: 'blue', text: 'white' }
-      ]
+      ['red base',
+       'amber base',
+       'yellow base',
+       'light-green base',
+       'light-blue base',
+       'indigo base',
+       'purple base']
     end
 
     private

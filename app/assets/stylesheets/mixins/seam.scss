@@ -3,3 +3,9 @@
 @mixin seam($position) {
   border-#{$position}: 1px solid $shadow;
 }
+
+// Add a light seam to an element
+
+@mixin light-seam($position) {
+  border-#{$position}: 1px solid $light-shadow;
+}

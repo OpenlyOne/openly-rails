@@ -8,10 +8,12 @@ module LayoutHelper
     "c-#{controller_name} a-#{action_name}".tr('_', '-')
   end
 
-  # Pick random color scheme
-  def color_scheme
-    scheme = Color.schemes.sample
-    "color-scheme primary-#{scheme[:base]} primary-#{scheme[:text]}-text"
+  # Use the color scheme or pick a random one
+  def color_scheme(scheme)
+    scheme ||= Color.schemes.sample
+    'color-scheme ' \
+    "primary-#{scheme.split.first} primary-#{scheme.split.last} " \
+    "primary-#{Color.font_color_for(scheme)}"
   end
 
   # Used to achieve nested layouts without content_for. This helper relies on
