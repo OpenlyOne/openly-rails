@@ -1,0 +1,7 @@
+= render partial: 'form', locals: { \
+    url: profile_project_discussions_path(@project.owner, @project,
+                                          @discussion.type_to_url_segment,
+                                          @discussion),
+    method: :post,
+    button: 'Create',
+  }

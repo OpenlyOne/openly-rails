@@ -1,0 +1,42 @@
+// Styling for chips
+
+// SVG icon inside a chip
+.chip .icon {
+  display: inline-block;
+  height: inherit;
+  line-height: inherit;
+  margin-left: -12px;
+  margin-right: 8px;
+  padding: 4px;
+  vertical-align: top;
+
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+}
+
+// Border radius for image and icon in chip
+.chip .icon,
+.chip img {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: inherit;
+  border-top-right-radius: 0;
+}
+
+// Slim chips are 75% as high
+.chip.slim {
+  height: 24px;
+  line-height: 24px;
+
+  .icon svg {
+    height: 16px;
+    width: 16px;
+  }
+
+  img {
+    height: 100%;
+    width: auto;
+  }
+}

@@ -1,0 +1,12 @@
+.spacing.v16px
+= link_to profile_project_discussion_path(@project.owner, @project,
+                                          discussion.type_to_url_segment,
+                                          discussion) do
+  h5.no-margin
+    = discussion.title
+    small.gray-text< = "##{discussion.scoped_id}"
+
+= truncate(discussion.initial_reply.content, length: 240)
+= render partial: 'meta', locals: {discussion: discussion, is_slim: true}
+.spacing.v16px
+.divider

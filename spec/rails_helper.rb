@@ -62,11 +62,11 @@ RSpec.configure do |config|
   # enable Bullet for avoiding N+1 queries, unused eager loading, and lack of
   # counter cache
   if Bullet.enable?
-    config.before(:each) do
+    config.before(type: :feature) do
       Bullet.start_request
     end
 
-    config.after(:each) do
+    config.after(type: :feature) do
       Bullet.perform_out_of_channel_notifications if Bullet.notification?
       Bullet.end_request
     end
