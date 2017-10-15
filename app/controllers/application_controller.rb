@@ -40,8 +40,8 @@ class ApplicationController < ActionController::Base
 
   # Redirect to the specified redirect location and set flash success message
   # rubocop:disable Metrics/MethodLength
-  def redirect_with_success_to(redirect_location)
-    resource_name = controller_name.singularize.humanize
+  def redirect_with_success_to(redirect_location, options = {})
+    resource_name = options[:resource] || controller_name.singularize.humanize
     default_inflected_action_name =
       case request.params[:action].to_s
       when 'create'

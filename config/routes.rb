@@ -65,6 +65,18 @@ Rails.application.routes.draw do
                   get     'delete'  => 'files#delete',          on: :member
                   delete  'delete'  => 'files#destroy',         on: :member
                 end
+      # Route for discussions
+      resources :discussions,
+                path: '/:discussion_type', only: %i[index new create show],
+                param: :scoped_id,
+                constraints: {
+                  discussion_type: /suggestions|issues|questions/
+                } do
+        # Routes for replies
+        resources :replies, only: %i[index create]
+      end
+      get ':discussion_type/:scoped_id' => 'discussions#show',
+          constraints: { discussion_type: /discussions/ }
     end
   end
 
