@@ -47,7 +47,8 @@ RSpec.describe 'replies/show', type: :view do
       profile_project_discussion_replies_path(project.owner,
                                               project,
                                               discussion.type_to_url_segment,
-                                              discussion)
+                                              discussion,
+                                              anchor: 'reply')
     render
     expect(rendered).to have_css(
       'form'\
