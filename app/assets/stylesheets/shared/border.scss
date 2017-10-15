@@ -1,0 +1,7 @@
+// Remove border for specific direction
+@each $direction in 'top', 'right', 'left', 'bottom' {
+  .no-border-#{$direction} {
+    // scss-lint:disable ImportantRule
+    border-#{$direction}: 0 !important;
+  }
+}
