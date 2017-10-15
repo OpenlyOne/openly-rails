@@ -2,7 +2,9 @@
            url: profile_project_discussion_replies_path(project.owner,
                                                         project,
                                                         discussion.type_to_url_segment,
-                                                        discussion),
+                                                        discussion,
+                                                        anchor: 'reply'),
+           html: { id: 'reply' },
            method: :post do |f|
 
   - content_for :reply_content do
