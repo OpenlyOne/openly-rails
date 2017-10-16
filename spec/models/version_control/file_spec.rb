@@ -302,6 +302,29 @@ RSpec.describe VersionControl::File, type: :model do
     end
   end
 
+  describe 'last_contribution' do
+    subject(:method)  { file.last_contribution }
+    let(:file)        { create :vc_file }
+
+    it { is_expected.to be_a VersionControl::Contribution }
+    it 'has the oid of the last commit' do
+      last_commit_oid = file.update(content: 'new content',
+                                    revision_summary: 'Updated content',
+                                    revision_author: build_stubbed(:user))
+      expect(file.last_contribution.oid).to eq last_commit_oid
+    end
+
+    context 'when file is new' do
+      let(:file) { build :vc_file }
+      it { is_expected.to be nil }
+    end
+
+    context 'when file name contains spaces and special characters' do
+      let(:file) { create :vc_file, name: 'My && $$ awesome file' }
+      it { is_expected.to be_present }
+    end
+  end
+
   describe '#persisted?' do
     subject(:file) { VersionControl::File.new }
     it { is_expected.not_to be_persisted }
