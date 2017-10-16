@@ -84,10 +84,12 @@ feature 'File' do
     visit profile_project_path(project.owner, project)
     # and click on files
     click_on 'Files'
-    # and click on edit the file
+    # and click on the file
     within find('h5', text: file.name).find(:xpath, '../..') do
-      click_on 'Edit'
+      click_on file.name
     end
+    # and click on the edit button
+    click_on 'edit-file'
     # and fill in new content
     fill_in 'Content',            with: 'My new file content'
     # and fill in a summary of changes
@@ -115,10 +117,12 @@ feature 'File' do
     visit profile_project_path(project.owner, project)
     # and click on files
     click_on 'Files'
-    # and click on edit the file
+    # and click on the file
     within find('h5', text: file.name).find(:xpath, '../..') do
-      click_on 'Rename'
+      click_on file.name
     end
+    # and click on the rename button
+    click_on 'rename-file'
     # and fill in new content
     fill_in 'File Name',          with: 'My New File'
     # and fill in a summary of changes
@@ -146,10 +150,12 @@ feature 'File' do
     visit profile_project_path(project.owner, project)
     # and click on files
     click_on 'Files'
-    # and click on edit the file
+    # and click on the file
     within find('h5', text: file.name).find(:xpath, '../..') do
-      click_on 'Delete'
+      click_on file.name
     end
+    # and click on the delete button
+    click_on 'delete-file'
     # and fill in a summary of changes
     fill_in 'Summary of changes', with: 'Remove file'
     # and save

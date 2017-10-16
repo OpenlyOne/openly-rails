@@ -3,10 +3,13 @@
     .row.no-margin-bottom
       .col.s12
         h2.no-margin-bottom = @file.name
-        p.no-margin-bottom = render partial: 'file_action',
-                             collection: authorized_actions_for_project_file(@file, @project),
-                             spacer_template: 'middot'
+        = render partial: 'meta', locals: {file: @file, is_slim: false}
         .spacing.v16px
+
+.container
+  .action-bar.right
+    = render partial: 'file_action',
+             collection: authorized_actions_for_project_file(@file, @project)
 
 .spacing.v32px
 .container

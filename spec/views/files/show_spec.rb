@@ -17,6 +17,16 @@ RSpec.describe 'files/show', type: :view do
     expect(rendered).to have_text file.name
   end
 
+  it 'renders the last contribution summary' do
+    render
+    expect(rendered).to have_text file.last_contribution.message
+  end
+
+  it 'renders the last contributor' do
+    render
+    expect(rendered).to have_text file.last_contribution.author.name
+  end
+
   it 'renders the content of the file' do
     render
     expect(rendered).to have_text file.content
@@ -44,7 +54,7 @@ RSpec.describe 'files/show', type: :view do
     it 'renders authorized actions' do
       render
       authorized_actions.each do |action|
-        expect(rendered).to have_link action[:name], href: action[:link]
+        expect(rendered).to have_link href: action[:link]
       end
     end
   end
