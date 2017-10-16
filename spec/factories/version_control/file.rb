@@ -6,7 +6,7 @@ FactoryGirl.define do
     collection        { build :vc_file_collection }
     content           { Faker::Lorem.paragraphs.join("\n\n") }
     oid               { Faker::Crypto.sha1 }
-    revision_author   { build :user }
+    association :revision_author, factory: :user
     revision_summary  { Faker::Simpsons.quote }
     persisted         { false }
 

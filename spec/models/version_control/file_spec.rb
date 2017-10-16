@@ -195,7 +195,7 @@ RSpec.describe VersionControl::File, type: :model do
     let(:file_collection) { file.collection }
     it                    { is_expected.to be_truthy }
     before do
-      file.revision_author  = attributes_for(:vc_file)[:revision_author]
+      file.revision_author  = build_stubbed :user
       file.revision_summary = attributes_for(:vc_file)[:revision_summary]
     end
 
@@ -408,7 +408,7 @@ RSpec.describe VersionControl::File, type: :model do
     context 'when file is persisted' do
       let!(:file) { create :vc_file }
       before do
-        file.revision_author  = attributes_for(:vc_file)[:revision_author]
+        file.revision_author  = build_stubbed(:user)
         file.revision_summary = attributes_for(:vc_file)[:revision_summary]
       end
 
