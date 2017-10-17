@@ -5,10 +5,10 @@ FactoryGirl.define do
     skip_create
 
     transient do
-      name  { Faker::File.file_name('', nil, 'git', '') }
-      dir   { Rails.root.join('spec', 'tmp').to_s }
-      path  { "#{dir}/#{name}" }
-      bare  { :bare }
+      sequence(:name) { |n| Faker::File.file_name('', "repo-#{n}", 'git', '') }
+      dir             { Rails.root.join('spec', 'tmp').to_s }
+      path            { "#{dir}/#{name}" }
+      bare            { :bare }
     end
 
     initialize_with do
