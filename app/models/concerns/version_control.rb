@@ -16,6 +16,7 @@ module VersionControl
           revision_summary: 'Initial Contribution',
           revision_author:  owner
         )
+        reset_files_count!
       rescue
         # Do not persist object if any errors occur while creating repository
         raise ActiveRecord::Rollback
@@ -64,6 +65,11 @@ module VersionControl
   # Return the project's Git repository
   def repository
     @repository ||= VersionControl::Repository.find repository_file_path
+  end
+
+  # Reset the files count
+  def reset_files_count!
+    update_column(:files_count, files.reload!.count)
   end
 
   private

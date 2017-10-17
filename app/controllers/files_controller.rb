@@ -22,6 +22,7 @@ class FilesController < ApplicationController
 
   def create
     if @file.update(file_params(%i[content name]))
+      @project.reset_files_count!
       redirect_with_success_to [@project.owner, @project, @file]
     else
       render :new
@@ -56,6 +57,7 @@ class FilesController < ApplicationController
     @file.revision_author   = current_user
     @file.revision_summary  = params[:version_control_file][:revision_summary]
     if @file.destroy
+      @project.reset_files_count!
       redirect_with_success_to(
         profile_project_files_path(@project.owner, @project)
       )

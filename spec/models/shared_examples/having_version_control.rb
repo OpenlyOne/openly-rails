@@ -21,6 +21,11 @@ RSpec.shared_examples 'having version control' do
         expect(object.files.first.name).to eq 'Overview'
       end
 
+      it 'sets the files count' do
+        object.save
+        expect(object.files_count).to eq 1
+      end
+
       context 'when an error occurs' do
         before do
           allow(Rugged::Repository).to receive(:init_at).and_raise 'error'
@@ -144,6 +149,39 @@ RSpec.shared_examples 'having version control' do
     context 'when repository does not exist' do
       before  { FileUtils.rm_rf object.send(:repository_file_path) }
       it      { is_expected.to be nil }
+    end
+  end
+
+  describe '#reset_files_count!' do
+    before                    { object.save }
+    subject(:method)          { object.reset_files_count! }
+    let!(:initial_file_count) { object.files.count }
+
+    it 'sets files_count to 3' do
+      create_list :vc_file, 3, collection: object.files
+      object.files.reload!
+      method
+      expect(object.reload.files_count).to eq(initial_file_count + 3)
+    end
+
+    it 'sets files_count to 0' do
+      files = create_list :vc_file, 3, collection: object.files
+      files.each do |file|
+        file.revision_author = build_stubbed :user
+        file.revision_summary = 'Delete this file'
+        file.destroy
+      end
+      object.files.reload!
+      method
+      expect(object.reload.files_count).to eq(initial_file_count + 0)
+    end
+
+    it 'sets files_count to 5' do
+      create_list :vc_file, 3, collection: object.files
+      create_list :vc_file, 2, collection: object.files
+      object.files.reload!
+      method
+      expect(object.reload.files_count).to eq(initial_file_count + 5)
     end
   end
 end
