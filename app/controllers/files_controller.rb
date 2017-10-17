@@ -13,6 +13,7 @@ class FilesController < ApplicationController
     # Overview file first
     @files = @project
              .files
+             .preload_last_contribution
              .sort_by { |f| [f.name == 'Overview' ? 0 : 1, f.name.downcase] }
     @user_can_add_file = can? :new, @project.files.build, @project
   end

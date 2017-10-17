@@ -132,6 +132,33 @@ RSpec.describe VersionControl::FileCollection, type: :model do
     end
   end
 
+  describe '#preload_last_contribution' do
+    subject(:method) { file_collection.preload_last_contribution }
+    let(:file_collection) { create :vc_file_collection }
+    let!(:files) { create_list :vc_file, 5, collection: file_collection }
+    before { file_collection.reload! }
+
+    it 'assigns @author on last_contributon' do
+      method
+      file_collection.each do |file|
+        file_author = files.find { |f| f.name == file.name }.revision_author_was
+        expect(file.last_contribution.instance_variable_get(:@author))
+          .to eq(file_author)
+      end
+    end
+
+    it 'returns itself for chaining' do
+      is_expected.to be_a VersionControl::FileCollection
+    end
+
+    it 'does not cause a N+1 query' do
+      Bullet.start_request
+      method
+      Bullet.perform_out_of_channel_notifications if Bullet.notification?
+      Bullet.end_request
+    end
+  end
+
   describe '#reload!' do
     let(:author) { build(:user) }
 

@@ -56,6 +56,31 @@ module VersionControl
       file
     end
 
+    # Preload the last contribution for each file
+    # rubocop:disable Metrics/MethodLength
+    def preload_last_contribution
+      # collect usernames to preload
+      usernames =
+        @files.map do |file|
+          file.last_contribution.send(:author_username)
+        end
+
+      # preload users
+      handles = Handle.includes(:profile).where(identifier: usernames)
+
+      # set author instance variable
+      @files.each do |file|
+        author_handle = handles.find do |h|
+          h.identifier == file.last_contribution.send(:author_username)
+        end
+        file.last_contribution.instance_variable_set(:@author,
+                                                     author_handle.profile)
+      end
+
+      self
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # Reload files from last commit on master
     # rubocop:disable Metrics/MethodLength
     def reload!
