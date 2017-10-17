@@ -1,5 +1,13 @@
 // Styling for chips
 
+// Truncate chips to single line
+.chip {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 // SVG icon inside a chip
 .chip .icon {
   display: inline-block;
