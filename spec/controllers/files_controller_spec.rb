@@ -87,6 +87,12 @@ RSpec.describe FilesController, type: :controller do
       expect_any_instance_of(VersionControl::File).to receive(:save)
       run_request
     end
+
+    it 'increments the files count' do
+      file_count = project.files.reload!.count
+      run_request
+      expect(project.reload.files_count).to eq file_count + 1
+    end
   end
 
   describe 'GET #show' do
@@ -287,6 +293,12 @@ RSpec.describe FilesController, type: :controller do
     it 'destroys the file' do
       expect_any_instance_of(VersionControl::File).to receive(:destroy)
       run_request
+    end
+
+    it 'decrements the files count' do
+      file_count = project.files.reload!.count
+      run_request
+      expect(project.reload.files_count).to eq file_count - 1
     end
 
     context 'when destruction of file fails' do

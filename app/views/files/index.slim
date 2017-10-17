@@ -1,19 +1,16 @@
+.page-subheading.gray.lighten-3.no-margin-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h2 Files
+    - if @user_can_add_file
+      = link_to new_profile_project_file_path(@project.owner, @project),
+                id:     'new-project-file',
+                class:  'btn-floating btn-large primary-color primary-color-text right',
+                title:  'Add File' do
+        svg viewBox="0 0 24 24"
+          path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+
+.spacing.v16px
 .container
-  .row.no-margin-bottom
-    .col.s12
-      h2 Files
-  .divider
-
   = render partial: 'file', collection: @files, locals: { project: @project }
-
-.spacing.v32px
-
-- if @user_can_add_file
-
-  .fixed-action-btn
-    = link_to new_profile_project_file_path(@project.owner, @project),
-              id:     'new-project-file',
-              class:  'btn-floating btn-large primary-color primary-color-text',
-              title:  'Add File' do
-      svg viewBox="0 0 24 24"
-        path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"

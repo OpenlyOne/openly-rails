@@ -34,23 +34,17 @@ RSpec.describe 'files/index', type: :view do
     end
   end
 
-  context 'when user can perform authorized file actions' do
-    let(:authorized_actions) do
-      [{ name: 'Action1', link: 'href1' },
-       { name: 'Action2', link: 'href2' }]
+  it 'renders the last contribution summary of each file' do
+    render
+    files.each do |file|
+      expect(rendered).to have_text file.last_contribution.message
     end
-    before do
-      allow(view).to receive(:authorized_actions_for_project_file)
-        .and_return authorized_actions
-    end
+  end
 
-    it 'renders authorized actions for each file' do
-      render
-      files.each do |_file|
-        authorized_actions.each do |action|
-          expect(rendered).to have_link action[:name], href: action[:link]
-        end
-      end
+  it 'renders the last contributor of each file' do
+    render
+    files.each do |file|
+      expect(rendered).to have_text file.last_contribution.author.name
     end
   end
 
