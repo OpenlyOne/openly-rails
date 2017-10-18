@@ -17,7 +17,7 @@ class Handle < ApplicationRecord
   # Profile id must be unique within each type
   validates :profile_id, uniqueness: { scope: :profile_type }
   # Profile type must be user
-  validates :profile_type, inclusion: { in: %w[User] }
+  validates :profile_type, inclusion: { in: %w[Profiles::Base] }
   # Identifier must be present
   validates :identifier, presence: true
   # Conduct validations only if identifier is present

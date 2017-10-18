@@ -1,29 +1,18 @@
 # frozen_string_literal: true
 
-RSpec.describe User, type: :model do
+require 'models/shared_examples/being_a_profile.rb'
+
+RSpec.describe Profiles::User, type: :model do
   subject(:user) { build(:user) }
 
   it 'has a valid factory' do
     is_expected.to be_valid
   end
 
-  describe 'route keys' do
-    it 'should have singular route key: profile' do
-      expect(user.model_name.singular_route_key).to eq 'profile'
-    end
-    it 'should have route key: profiles' do
-      expect(user.model_name.route_key).to eq 'profiles'
-    end
-  end
+  it_should_behave_like 'being a profile'
 
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
-    it do
-      is_expected.to have_one(:handle).dependent(:destroy).inverse_of :profile
-    end
-    it do
-      is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
-    end
     it do
       is_expected.to(
         have_many(:discussions)
@@ -44,7 +33,6 @@ RSpec.describe User, type: :model do
   end
 
   describe 'attributes' do
-    it { is_expected.to accept_nested_attributes_for(:handle) }
     it { is_expected.to have_readonly_attribute(:account_id) }
   end
 
@@ -52,8 +40,6 @@ RSpec.describe User, type: :model do
     it do
       is_expected.to validate_presence_of(:account).with_message 'must exist'
     end
-    it { is_expected.to validate_presence_of(:handle).on(:create) }
-    it { is_expected.to validate_presence_of(:name) }
   end
 
   describe '#destroy' do
@@ -67,20 +53,6 @@ RSpec.describe User, type: :model do
       let(:user) { create(:user) }
       before { create_list(:reply, 3, author: user) }
       it { expect { subject.destroy }.not_to raise_error }
-    end
-  end
-
-  describe '#to_param' do
-    it 'returns the handle (username)' do
-      expect(user.to_param).to eq user.handle.identifier
-    end
-
-    context 'when handle is nil' do
-      before { user.handle = nil }
-
-      it 'returns nil' do
-        expect(user.to_param).to eq nil
-      end
     end
   end
 

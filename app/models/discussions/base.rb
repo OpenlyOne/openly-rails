@@ -12,7 +12,7 @@ module Discussions
     validates :title, presence: true, length: { maximum: 100 }
 
     # Associations
-    belongs_to :initiator, class_name: 'User'
+    belongs_to :initiator, class_name: 'Profiles::User'
     belongs_to :project, class_name: 'Project'
     # Association replies MUST precede initial_reply. If not, the destroy method
     # will fail as there will be one reply left in the DB.

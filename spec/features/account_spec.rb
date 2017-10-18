@@ -34,7 +34,7 @@ feature 'Account' do
       expect(Account.count).to equal 1
       expect(Account).to exist(email: account.email)
       # and there should be a user in the database
-      expect(User).to exist(account: Account.first)
+      expect(Profiles::User).to exist(account: Account.first)
     end
   end
 
@@ -98,6 +98,6 @@ feature 'Account' do
     expect(Account).not_to exist(account.id)
     expect(Account).not_to exist(email: account.email)
     # and so should the user
-    expect(User).not_to exist(account.user.id)
+    expect(Profiles::User).not_to exist(account.user.id)
   end
 end

@@ -4,7 +4,7 @@
 # questions
 class Reply < ApplicationRecord
   # Associations
-  belongs_to :author, class_name: 'User'
+  belongs_to :author, class_name: 'Profiles::User'
   belongs_to :discussion, class_name: 'Discussions::Base'
 
   # Validations

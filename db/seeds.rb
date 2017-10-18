@@ -20,7 +20,7 @@ FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
 end
 
 # Create three projects per user
-User.find_each do |user|
+Profiles::User.find_each do |user|
   3.times.with_index do |i|
     FactoryGirl.create :project, owner: user, slug: "project-#{i + 1}"
   end

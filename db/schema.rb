@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171017180646) do
+ActiveRecord::Schema.define(version: 20171018143015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,16 @@ ActiveRecord::Schema.define(version: 20171017180646) do
     t.index ["profile_type", "profile_id"], name: "index_handles_on_profile_type_and_profile_id", unique: true
   end
 
+  create_table "profiles", force: :cascade do |t|
+    t.bigint "account_id"
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "color_scheme", default: "indigo base", null: false
+    t.string "type", null: false
+    t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
+  end
+
   create_table "projects", force: :cascade do |t|
     t.string "title", null: false
     t.string "owner_type", null: false
@@ -72,17 +82,9 @@ ActiveRecord::Schema.define(version: 20171017180646) do
     t.index ["discussion_id"], name: "index_replies_on_discussion_id"
   end
 
-  create_table "users", force: :cascade do |t|
-    t.bigint "account_id"
-    t.string "name", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_users_on_account_id", unique: true
-  end
-
+  add_foreign_key "discussions", "profiles", column: "initiator_id"
   add_foreign_key "discussions", "projects"
-  add_foreign_key "discussions", "users", column: "initiator_id"
+  add_foreign_key "profiles", "accounts"
   add_foreign_key "replies", "discussions"
-  add_foreign_key "replies", "users", column: "author_id"
-  add_foreign_key "users", "accounts"
+  add_foreign_key "replies", "profiles", column: "author_id"
 end

@@ -21,7 +21,7 @@ class Project < ApplicationRecord
 
   # Validations
   # Owner type must be user
-  validates :owner_type, inclusion: { in: %w[User] }
+  validates :owner_type, inclusion: { in: %w[Profiles::Base] }
   validates :title, presence: true, length: { maximum: 50 }
   # Slug must be present
   validates :slug, presence: true

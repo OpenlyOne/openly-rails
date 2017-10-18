@@ -9,7 +9,7 @@ class Ability
     return unless user
 
     # Users can manage their own profiles
-    can :manage, User, id: user.id
+    can :manage, Profiles::User, id: user.id
 
     # Users can edit the projects of profiles that they can manage
     can %i[edit update destroy], Project do |project|

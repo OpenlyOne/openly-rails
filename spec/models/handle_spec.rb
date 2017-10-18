@@ -21,11 +21,39 @@ RSpec.describe Handle, type: :model do
     it do
       is_expected.to validate_presence_of(:profile).with_message 'must exist'
     end
-    it do
-      is_expected.to validate_uniqueness_of(:profile_id).scoped_to :profile_type
+    # Test does not work with polymorphic associations, use custom test below
+    # instead
+    # it do
+    #   is_expected
+    #    .to validate_uniqueness_of(:profile_id).scoped_to :profile_type
+    # end
+    context 'uniqueness of profile id scoped to profile type' do
+      subject(:second_handle) { build :handle, profile: first_handle.profile }
+      let!(:first_handle)     { create :handle }
+
+      context 'when profile_type is different' do
+        before do
+          second_handle.profile_type = 'Handle'
+          second_handle.valid?
+        end
+        it 'does not add a :profile_id error' do
+          expect(second_handle.errors[:profile_id])
+            .not_to include 'has already been taken'
+        end
+      end
+
+      context 'when profile_type is identical' do
+        before { second_handle.valid? }
+        it 'adds a :profile_id error' do
+          expect(second_handle.errors[:profile_id])
+            .to include 'has already been taken'
+        end
+      end
     end
+
     it do
-      is_expected.to validate_inclusion_of(:profile_type).in_array %w[User]
+      is_expected
+        .to validate_inclusion_of(:profile_type).in_array %w[Profiles::Base]
     end
 
     context 'when validating identifier' do

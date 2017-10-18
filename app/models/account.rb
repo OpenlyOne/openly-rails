@@ -4,7 +4,7 @@
 # Is never exposed to anyone but the account owner
 class Account < ApplicationRecord
   # Associations
-  has_one :user, dependent: :destroy
+  has_one :user, class_name: 'Profiles::User', dependent: :destroy
 
   # Devise
   devise :database_authenticatable, :registerable
