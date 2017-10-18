@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.5 (October 17, 2017)
+
+**New Features**:
+- Discussions (Suggestions, issues, questions) and replies
+- Makeover for project files: Design, add meta information (last contribution)
+  and show file count in project head
+
+**Fixes**:
+- Remove top border from card title of card on the join page
+- Specify width and height of logo in HTML (in addition to CSS)
+- Remove margin between banner and text on the project's Overview page
+
+
 ## v0.4 (September 13, 2017)
 
 **New Features**:
