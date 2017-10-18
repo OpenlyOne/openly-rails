@@ -19,6 +19,25 @@
               = link_to 'Overview', [project.owner, project],
                 class: ('active' if active_tab == :overview)
             div.tab
-              = link_to 'Files',
-                profile_project_files_path(project.owner, project),
-                class: ('active' if active_tab == :files)
+              = link_to profile_project_files_path(project.owner, project),
+                        class: ('active' if active_tab == :files) do
+                | Files
+                span.badge.primary-color-darken.primary-color-text = project.files_count
+            div.tab
+              = link_to profile_project_discussions_path(project.owner, project, 'suggestions'),
+                        class: ('active' if active_tab == :suggestions) do
+                | Suggestions
+                - if project.suggestions_count > 0
+                  span.badge.primary-color-darken.primary-color-text = project.suggestions_count
+            div.tab
+              = link_to profile_project_discussions_path(project.owner, project, 'issues'),
+                        class: ('active' if active_tab == :issues) do
+                | Issues
+                - if project.issues_count > 0
+                  span.badge.primary-color-darken.primary-color-text = project.issues_count
+            div.tab
+              = link_to profile_project_discussions_path(project.owner, project, 'questions'),
+                        class: ('active' if active_tab == :questions) do
+                | Questions
+                - if project.questions_count > 0
+                  span.badge.primary-color-darken.primary-color-text = project.questions_count

@@ -14,6 +14,23 @@ RSpec.describe Project, type: :model do
     it_should_behave_like 'having version control' do
       subject(:object) { build(:project) }
     end
+    it do
+      is_expected.to(
+        have_many(:suggestions).class_name('Discussions::Suggestion')
+                               .dependent(:destroy)
+      )
+    end
+    it do
+      is_expected.to(
+        have_many(:issues).class_name('Discussions::Issue').dependent(:destroy)
+      )
+    end
+    it do
+      is_expected.to(
+        have_many(:questions).class_name('Discussions::Question')
+                             .dependent(:destroy)
+      )
+    end
   end
 
   describe 'attributes' do

@@ -11,6 +11,8 @@ en:
         name: "Name"
       user/handle:
         identifier: "Username"
+      discussions/base/initial_reply:
+        content: "Content"
       project:
         slug: 'Project URL'
   activemodel:
@@ -38,3 +40,7 @@ en:
       version_control/file: 'You are not authorized to rename this file.'
     update_name:
       version_control/file: 'You are not authorized to rename this file.'
+  actioncontroller:
+    actions:
+      update_name: 'updated'
+      update_content: 'updated'

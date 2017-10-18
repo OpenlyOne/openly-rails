@@ -13,6 +13,7 @@ class FilesController < ApplicationController
     # Overview file first
     @files = @project
              .files
+             .preload_last_contribution
              .sort_by { |f| [f.name == 'Overview' ? 0 : 1, f.name.downcase] }
     @user_can_add_file = can? :new, @project.files.build, @project
   end
@@ -21,8 +22,8 @@ class FilesController < ApplicationController
 
   def create
     if @file.update(file_params(%i[content name]))
-      redirect_to [@project.owner, @project, @file],
-                  notice: 'File successfully created.'
+      @project.reset_files_count!
+      redirect_with_success_to [@project.owner, @project, @file]
     else
       render :new
     end
@@ -34,8 +35,7 @@ class FilesController < ApplicationController
 
   def update_content
     if @file.update(file_params(:content))
-      redirect_to [@project.owner, @project, @file],
-                  notice: 'File successfully updated.'
+      redirect_with_success_to [@project.owner, @project, @file]
     else
       render :edit_content
     end
@@ -45,8 +45,7 @@ class FilesController < ApplicationController
 
   def update_name
     if @file.update(file_params(:name))
-      redirect_to [@project.owner, @project, @file],
-                  notice: 'File successfully updated.'
+      redirect_with_success_to [@project.owner, @project, @file]
     else
       render :edit_name
     end
@@ -58,8 +57,10 @@ class FilesController < ApplicationController
     @file.revision_author   = current_user
     @file.revision_summary  = params[:version_control_file][:revision_summary]
     if @file.destroy
-      redirect_to profile_project_files_path(@project.owner, @project),
-                  notice: 'File successfully deleted.'
+      @project.reset_files_count!
+      redirect_with_success_to(
+        profile_project_files_path(@project.owner, @project)
+      )
     else
       render :delete
     end

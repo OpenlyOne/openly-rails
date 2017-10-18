@@ -4,9 +4,9 @@ FactoryGirl.define do
   factory :vc_file, class: VersionControl::File do
     name              { Faker::File.unique.file_name('', nil, nil, '') }
     collection        { build :vc_file_collection }
-    content           { Faker::Lorem.paragraphs.join('\n\n') }
+    content           { Faker::Lorem.paragraphs.join("\n\n") }
     oid               { Faker::Crypto.sha1 }
-    revision_author   { build :user }
+    association :revision_author, factory: :user
     revision_summary  { Faker::Simpsons.quote }
     persisted         { false }
 

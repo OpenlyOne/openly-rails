@@ -25,7 +25,7 @@ RSpec.describe FileHelper, type: :helper do
                                        .and_return true
         end
       end
-      it { is_expected.to match [name: :edit, link: link] }
+      it { is_expected.to match [name: :edit, link: link, icon: anything] }
     end
 
     context 'when user can rename file' do
@@ -38,7 +38,7 @@ RSpec.describe FileHelper, type: :helper do
                                        .and_return true
         end
       end
-      it { is_expected.to match [name: :rename, link: link] }
+      it { is_expected.to match [name: :rename, link: link, icon: anything] }
     end
 
     context 'when user can delete file' do
@@ -51,7 +51,7 @@ RSpec.describe FileHelper, type: :helper do
                                        .and_return true
         end
       end
-      it { is_expected.to match [name: :delete, link: link] }
+      it { is_expected.to match [name: :delete, link: link, icon: anything] }
     end
   end
 end

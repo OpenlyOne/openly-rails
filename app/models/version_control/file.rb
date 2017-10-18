@@ -131,6 +131,12 @@ module VersionControl
       commit_oid
     end
 
+    # Return the last contribution made to this file
+    def last_contribution
+      @last_contribution ||=
+        (VersionControl::Contribution.new(last_commit) if last_commit)
+    end
+
     # Return true if the file is persisted
     def persisted?
       @persisted
@@ -214,6 +220,17 @@ module VersionControl
       end
 
       commit_id
+    end
+
+    # Return the last commit on the file(Rugged::Commit)
+    def last_commit
+      return nil unless repository.branches['master']
+      raw_commit =
+        `git \
+        --git-dir=#{Shellwords.escape(repository.path)} log --follow -1 \
+        -- #{Shellwords.escape(name_was)}`
+      return nil unless raw_commit.present?
+      repository.lookup(raw_commit.split(/\s/).second)
     end
 
     # Validate that the name is case sensitively unique within the version

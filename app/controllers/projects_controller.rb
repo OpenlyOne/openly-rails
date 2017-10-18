@@ -11,8 +11,7 @@ class ProjectsController < ApplicationController
 
   def create
     if @project.update(project_params)
-      redirect_to [@project.owner, @project],
-                  notice: 'Project successfully created.'
+      redirect_with_success_to [@project.owner, @project]
     else
       render :new
     end
@@ -27,8 +26,7 @@ class ProjectsController < ApplicationController
 
   def update
     if @project.update(project_params)
-      redirect_to [@project.owner, @project],
-                  notice: 'Project successfully updated.'
+      redirect_with_success_to [@project.owner, @project]
     else
       render :edit
     end
@@ -36,7 +34,7 @@ class ProjectsController < ApplicationController
 
   def destroy
     if @project.destroy
-      redirect_to [@project.owner], notice: 'Project successfully deleted.'
+      redirect_with_success_to [@project.owner]
     else
       redirect_to [@project.owner, @project],
                   alert: 'An unexpected error occured while deleting the ' \

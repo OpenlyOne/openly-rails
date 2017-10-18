@@ -38,6 +38,27 @@ class ApplicationController < ActionController::Base
   end
   # rubocop:enable Metrics/MethodLength
 
+  # Redirect to the specified redirect location and set flash success message
+  # rubocop:disable Metrics/MethodLength
+  def redirect_with_success_to(redirect_location, options = {})
+    resource_name = options[:resource] || controller_name.singularize.humanize
+    default_inflected_action_name =
+      case request.params[:action].to_s
+      when 'create'
+        'created'
+      when 'update'
+        'updated'
+      when 'destroy'
+        'deleted'
+      end
+    inflected_action_name = I18n.t action_name,
+                                   scope: %i[actioncontroller actions],
+                                   default: default_inflected_action_name
+    flash[:notice] = "#{resource_name} successfully #{inflected_action_name}."
+    redirect_to redirect_location
+  end
+  # rubocop:enable Metrics/MethodLength
+
   # Override the request format to prevent Rails from implying the format from
   # the URL. This is necessary because file names can end in .json or. xml or
   # other endings that are normally parsed by Rails.

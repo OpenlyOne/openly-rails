@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
@@ -32,21 +33,15 @@ RSpec.describe ProjectsController, type: :controller do
     before            { sign_in create(:account) }
 
     it_should_behave_like 'an authenticated action'
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_path(controller.current_user, 'slug')
+      end
+    end
 
     it 'saves the project' do
       expect_any_instance_of(Project).to receive(:save)
       run_request
-    end
-
-    it 'redirects to project' do
-      run_request
-      expect(response)
-        .to redirect_to profile_project_path(controller.current_user, 'slug')
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'Project successfully created.'
     end
   end
 
@@ -93,21 +88,15 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_path(project.owner, 'new-slug')
+      end
+    end
 
     it 'updates the project' do
       expect_any_instance_of(Project).to receive(:update)
       run_request
-    end
-
-    it 'redirects to project' do
-      run_request
-      expect(response)
-        .to redirect_to profile_project_path(project.owner, 'new-slug')
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'Project successfully updated.'
     end
   end
 
@@ -122,20 +111,13 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
     end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) { profile_path(project.owner) }
+    end
 
     it 'destroys the project' do
       expect_any_instance_of(Project).to receive(:destroy)
       run_request
-    end
-
-    it 'redirects to profile' do
-      run_request
-      expect(response).to redirect_to profile_path(project.owner)
-    end
-
-    it 'sets flash message' do
-      run_request
-      is_expected.to set_flash[:notice].to 'Project successfully deleted.'
     end
 
     context 'when destruction of project fails' do
