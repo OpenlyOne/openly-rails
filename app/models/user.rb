@@ -27,6 +27,9 @@ class User < ApplicationRecord
                          dependent: :destroy,
                          foreign_key: :initiator_id,
                          inverse_of: :initiator
+  has_many :replies, dependent: :destroy,
+                     foreign_key: :author_id,
+                     inverse_of: :author
 
   # Attributes
   accepts_nested_attributes_for :handle
