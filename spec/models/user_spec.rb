@@ -24,6 +24,15 @@ RSpec.describe User, type: :model do
     it do
       is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
     end
+    it do
+      is_expected.to(
+        have_many(:discussions)
+          .class_name('Discussions::Base')
+          .dependent(:destroy)
+          .with_foreign_key(:initiator_id)
+          .inverse_of(:initiator)
+      )
+    end
   end
 
   describe 'attributes' do
@@ -37,6 +46,15 @@ RSpec.describe User, type: :model do
     end
     it { is_expected.to validate_presence_of(:handle).on(:create) }
     it { is_expected.to validate_presence_of(:name) }
+  end
+
+  describe '#destroy' do
+    # verify that no ActiveRecord::InvalidForeignKey error is raised
+    context 'when discussions exist' do
+      let(:user) { create(:user) }
+      before { create_list(:discussions_suggestion, 3, initiator: user) }
+      it { expect { subject.destroy }.not_to raise_error }
+    end
   end
 
   describe '#to_param' do

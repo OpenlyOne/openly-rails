@@ -66,6 +66,11 @@ feature 'Account' do
   scenario 'User can delete account' do
     # given I am a signed-in user
     account = create(:account)
+    # and have lots of data (this is to test foreign key constraints)
+    projects = create_list(:project, 3, owner: account.user)
+    create_list(:discussions_suggestion, 3, project: projects.first,
+                                            initiator: account.user)
+    # sign in
     sign_in_as account
     # and I am on the homepage
     visit '/'
@@ -74,15 +79,24 @@ feature 'Account' do
     within 'nav' do
       click_on 'Account'
     end
+
+    # Disable Bullet because deleting will trigger an N+1 query
+    # TODO: Avoid the N+1 query by eager loading records to be deleted
+    #       (requires modifying the Devise controllers)
+    Bullet.enable = false
+
     # and click cancel my account
     click_on 'Delete my account'
+
+    # Re-enable Bullet
+    Bullet.enable = true
 
     # then I should see a success message
     expect(page).to have_text 'successfully cancelled'
     # and my account should be deleted from the database
-    expect(Account.count).to equal 0
+    expect(Account).not_to exist(account.id)
     expect(Account).not_to exist(email: account.email)
     # and so should the user
-    expect(User.count).to equal 0
+    expect(User).not_to exist(account.user.id)
   end
 end

@@ -23,6 +23,10 @@ class User < ApplicationRecord
   belongs_to :account
   has_one :handle, as: :profile, dependent: :destroy, inverse_of: :profile
   has_many :projects, as: :owner, dependent: :destroy, inverse_of: :owner
+  has_many :discussions, class_name: 'Discussions::Base',
+                         dependent: :destroy,
+                         foreign_key: :initiator_id,
+                         inverse_of: :initiator
 
   # Attributes
   accepts_nested_attributes_for :handle
