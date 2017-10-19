@@ -60,7 +60,11 @@ class Project < ApplicationRecord
       find_by_id! id_or_profile_handle
     else
       # find by handle and slug
-      Profile.find(id_or_profile_handle).projects.find_by_slug! project_slug
+      Profiles::Base
+        .includes(:handle)
+        .find_by!(handles: { identifier: id_or_profile_handle })
+        .projects
+        .find_by_slug!(project_slug)
     end
   end
 

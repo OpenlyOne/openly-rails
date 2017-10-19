@@ -22,7 +22,9 @@ module VersionControl
 
     # Return the author of the contribution
     def author
-      @author ||= Profile.find(author_username)
+      @author ||=
+        Profiles::User.includes(:handle)
+                      .find_by!(handles: { identifier: author_username })
     end
 
     private
