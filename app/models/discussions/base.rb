@@ -14,17 +14,20 @@ module Discussions
     # Associations
     belongs_to :initiator, class_name: 'User'
     belongs_to :project, class_name: 'Project'
+    # Association replies MUST precede initial_reply. If not, the destroy method
+    # will fail as there will be one reply left in the DB.
+    has_many :replies,
+             -> { order(:id).offset(1) },
+             class_name: 'Reply',
+             dependent: :destroy,
+             inverse_of: :discussion,
+             foreign_key: 'discussion_id'
     has_one :initial_reply,
             -> { order(:id).limit(1) },
             class_name: 'Reply',
             dependent: :destroy,
             inverse_of: :discussion,
             foreign_key: 'discussion_id'
-    has_many :replies,
-             -> { order(:id).offset(1) },
-             dependent: :destroy,
-             inverse_of: :discussion,
-             foreign_key: 'discussion_id'
 
     # Attributes
     accepts_nested_attributes_for :initial_reply
