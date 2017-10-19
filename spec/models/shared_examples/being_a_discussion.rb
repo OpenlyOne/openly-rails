@@ -85,6 +85,15 @@ RSpec.shared_examples 'being a discussion' do |discussion_type|
     it { is_expected.to validate_presence_of(:initial_reply) }
   end
 
+  describe '#destroy' do
+    # verify that no ActiveRecord::InvalidForeignKey error is raised
+    context 'when replies exist' do
+      before { subject.save }
+      before { create_list(:reply, 3, discussion: subject) }
+      it { expect { subject.destroy }.not_to raise_error }
+    end
+  end
+
   describe '#to_param' do
     before  { subject.save }
     it      { expect(subject.to_param).to eq 1 }
