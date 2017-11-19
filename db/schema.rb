@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171018143015) do
+ActiveRecord::Schema.define(version: 20171019034411) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,16 +37,6 @@ ActiveRecord::Schema.define(version: 20171018143015) do
     t.index ["scoped_id"], name: "index_discussions_on_scoped_id"
   end
 
-  create_table "handles", force: :cascade do |t|
-    t.citext "identifier", null: false
-    t.string "profile_type", null: false
-    t.bigint "profile_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["identifier"], name: "index_handles_on_identifier", unique: true
-    t.index ["profile_type", "profile_id"], name: "index_handles_on_profile_type_and_profile_id", unique: true
-  end
-
   create_table "profiles", force: :cascade do |t|
     t.bigint "account_id"
     t.string "name", null: false
@@ -54,7 +44,9 @@ ActiveRecord::Schema.define(version: 20171018143015) do
     t.datetime "updated_at", null: false
     t.string "color_scheme", default: "indigo base", null: false
     t.string "type", null: false
+    t.citext "handle", null: false
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
+    t.index ["handle"], name: "index_profiles_on_handle", unique: true
   end
 
   create_table "projects", force: :cascade do |t|

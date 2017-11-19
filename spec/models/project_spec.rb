@@ -145,7 +145,7 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when profile does not exist' do
-      before { project.owner.handle.destroy }
+      before { project.owner.destroy }
       it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
     end
 

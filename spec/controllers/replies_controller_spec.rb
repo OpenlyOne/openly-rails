@@ -45,7 +45,7 @@ RSpec.describe RepliesController, type: :controller do
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     include_examples 'raise 404 if non-existent', Discussions::Base
 

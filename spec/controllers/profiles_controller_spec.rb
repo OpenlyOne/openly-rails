@@ -3,10 +3,10 @@
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe ProfilesController, type: :controller do
-  let!(:handle)         { create(:handle) }
+  let!(:handle)         { create(:user).handle }
   let(:default_params)  do
     {
-      handle: handle.identifier
+      handle: handle
     }
   end
 
@@ -14,7 +14,7 @@ RSpec.describe ProfilesController, type: :controller do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }
 
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
 
     it 'returns http success' do
       run_request

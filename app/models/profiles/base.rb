@@ -19,19 +19,43 @@ module Profiles
     end
 
     # Associations
-    has_one :handle, as: :profile, dependent: :destroy, inverse_of: :profile
     has_many :projects, as: :owner, dependent: :destroy, inverse_of: :owner
 
     # Attributes
-    accepts_nested_attributes_for :handle
+    # Do not allow handle to change
+    attr_readonly :handle
 
     # Validations
-    validates :handle, presence: true, on: :create
     validates :name, presence: true
+    validates :handle, presence: true
+    # Conduct validations only if handle is present
+    with_options if: :handle? do
+      validates :handle, length: { in: 3..26 }
+      validates :handle,
+                format: {
+                  with:     /\A[a-zA-Z0-9_]+\z/,
+                  message:  'must contain only letters, numbers, and ' \
+                            'underscores'
+                }
+      validates :handle,
+                format: {
+                  with:     /\A[a-zA-Z0-9]/,
+                  message:  'must begin with a letter or number'
+                }
+      validates :handle,
+                format: {
+                  with:     /[a-zA-Z0-9]\z/,
+                  message:  'must end with a letter or number'
+                }
+    end
+    # Validate uniqueness unless handle has errors
+    validates :handle,
+              uniqueness: { case_sensitive: true },
+              unless: proc { |handle| handle.errors[:identifier].any? }
 
     # Use handle identifier as param in URLs
     def to_param
-      try(:handle).try(:identifier)
+      handle
     end
   end
 end

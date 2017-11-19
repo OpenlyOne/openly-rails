@@ -123,7 +123,7 @@ RSpec.describe VersionControl::Repository, type: :model do
               .gsub(/[\.,:;<>"\\']+$/, '') # remove trailing crud
               .gsub(/^[\.,:;<>"\\']+/, '') # remove leading crud
       expect(commit_content).to include clean_author_name
-      expect(commit_content).to include author.username
+      expect(commit_content).to include author.handle
     end
 
     it 'saves the message' do

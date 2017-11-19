@@ -12,25 +12,43 @@ RSpec.shared_examples 'being a profile' do
 
   describe 'associations' do
     it do
-      is_expected.to have_one(:handle).dependent(:destroy).inverse_of :profile
-    end
-    it do
       is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
     end
   end
 
   describe 'attributes' do
-    it { is_expected.to accept_nested_attributes_for(:handle) }
+    it { is_expected.to have_readonly_attribute(:handle) }
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:handle).on(:create) }
     it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.to validate_presence_of :handle }
+    it { is_expected.to validate_uniqueness_of(:handle).case_insensitive }
+    it do
+      is_expected
+        .to validate_length_of(:handle).is_at_least(3).is_at_most(26)
+    end
+    context 'when validating handle' do
+      it 'special characters are invalid' do
+        subject.handle = 'a*<>$@/r?!'
+        is_expected.to be_invalid
+      end
+
+      it 'an underscore at the beginning is invalid' do
+        subject.handle = '_' + subject.handle
+        is_expected.to be_invalid
+      end
+
+      it 'an underscore at the end is invalid' do
+        subject.handle += '_'
+        is_expected.to be_invalid
+      end
+    end
   end
 
   describe '#to_param' do
-    it 'returns the handle (identifier)' do
-      expect(subject.to_param).to eq subject.handle.identifier
+    it 'returns the handle' do
+      expect(subject.to_param).to eq subject.handle
     end
 
     context 'when handle is nil' do

@@ -24,10 +24,5 @@ module Profiles
     # Attributes
     # Do not allow account change
     attr_readonly :account_id
-
-    # Get handle of user (username)
-    def username
-      try(:handle).try(:identifier)
-    end
   end
 end
