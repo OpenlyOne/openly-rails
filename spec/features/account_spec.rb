@@ -20,7 +20,7 @@ feature 'Account' do
       # and enter my email address and password
       account = build(:account)
       within 'form' do
-        fill_in 'Username', with: account.user.username
+        fill_in 'Username', with: account.user.handle
         fill_in 'Name', with: account.user.name
         fill_in 'Email', with: account.email
         fill_in 'Password', with: account.password, match: :first
@@ -34,7 +34,7 @@ feature 'Account' do
       expect(Account.count).to equal 1
       expect(Account).to exist(email: account.email)
       # and there should be a user in the database
-      expect(User).to exist(account: Account.first)
+      expect(Profiles::User).to exist(account: Account.first)
     end
   end
 
@@ -98,6 +98,6 @@ feature 'Account' do
     expect(Account).not_to exist(account.id)
     expect(Account).not_to exist(email: account.email)
     # and so should the user
-    expect(User).not_to exist(account.user.id)
+    expect(Profiles::User).not_to exist(account.user.id)
   end
 end

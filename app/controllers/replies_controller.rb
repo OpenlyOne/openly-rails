@@ -26,7 +26,7 @@ class RepliesController < ApplicationController
                                         @discussion)
       )
     else
-      @replies = @discussion.replies.includes(author: [:handle])
+      @replies = @discussion.replies.includes(:author)
       render :show
     end
   end

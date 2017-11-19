@@ -9,7 +9,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     let(:params)      { default_params.except :scoped_id }
     let(:run_request) { get :index, params: params }
 
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
 
     it 'returns http success' do
@@ -24,7 +24,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
 
     it 'returns http success' do
@@ -49,7 +49,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
@@ -69,7 +69,7 @@ RSpec.shared_examples 'use DiscussionsController' do |discussion_class|
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }
 
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     include_examples 'raise 404 if non-existent', discussion_class
 

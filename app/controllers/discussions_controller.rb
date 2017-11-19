@@ -36,7 +36,7 @@ class DiscussionsController < ApplicationController
   end
 
   def show
-    @replies = @discussion.replies.includes(author: [:handle])
+    @replies = @discussion.replies.includes(:author)
     @reply = @discussion.replies.build(author: current_user) if current_user
   end
 

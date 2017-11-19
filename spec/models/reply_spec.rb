@@ -8,7 +8,7 @@ RSpec.describe Reply, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to belong_to(:author).class_name('User') }
+    it { is_expected.to belong_to(:author).class_name('Profiles::User') }
     it { is_expected.to belong_to(:discussion).class_name('Discussions::Base') }
   end
 

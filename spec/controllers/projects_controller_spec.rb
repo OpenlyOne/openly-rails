@@ -49,7 +49,7 @@ RSpec.describe ProjectsController, type: :controller do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }
 
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
 
     it 'returns http success' do
@@ -64,7 +64,7 @@ RSpec.describe ProjectsController, type: :controller do
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -83,7 +83,7 @@ RSpec.describe ProjectsController, type: :controller do
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -106,7 +106,7 @@ RSpec.describe ProjectsController, type: :controller do
     before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Handle
+    include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }

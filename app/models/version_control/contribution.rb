@@ -22,13 +22,14 @@ module VersionControl
 
     # Return the author of the contribution
     def author
-      @author ||= Profile.find(author_username)
+      @author ||=
+        Profiles::User.find_by(handle: author_handle)
     end
 
     private
 
-    # Return the username of the author (saved as email in Git)
-    def author_username
+    # Return the handle of the author (saved as email in Git)
+    def author_handle
       @rugged_commit.author[:email]
     end
   end

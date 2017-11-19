@@ -11,16 +11,15 @@ require 'factory_girl_rails'
 FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
 
 # Create three users
-%w[alice bob carla].each do |username|
-  account = Account.new email: "#{username}@upshift.one", password: 'password'
-  account.build_user name: username.capitalize
-  account.user.build_handle identifier: username
+%w[alice bob carla].each do |handle|
+  account = Account.new email: "#{handle}@upshift.one", password: 'password'
+  account.build_user name: handle.capitalize, handle: handle
   account.save
   account.reload # reload account to ensure that they were persisted
 end
 
 # Create three projects per user
-User.find_each do |user|
+Profiles::User.find_each do |user|
   3.times.with_index do |i|
     FactoryGirl.create :project, owner: user, slug: "project-#{i + 1}"
   end
