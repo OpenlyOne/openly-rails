@@ -172,36 +172,41 @@ RSpec.describe Project, type: :model do
     let(:id_of_folder)  { Settings.google_drive_test_folder }
     let(:project)       { create(:project) }
 
-    it 'creates a root folder' do
-      expect(project.root_folder).to be_persisted
+    it 'does not persist files' do
+      expect(FileItems::Base.all.count).to eq 0
+      expect(project.root_folder).not_to be_persisted
+    end
+
+    it 'builds a root folder' do
       expect(project.root_folder.parent).to eq nil
       expect(project.root_folder.google_drive_id).to eq id_of_folder
       expect(project.root_folder.name).to eq 'root'
     end
 
-    it 'creates 3 root-level files' do
+    it 'builds 3 root-level files' do
       files = project.root_folder.children
-      expect(files.count).to eq 3
+      expect(files.size).to eq 3
     end
 
-    it 'creates 2 files in sub-folder' do
+    it 'builds 2 files in sub-folder' do
       subfolder = project.root_folder.children.find do |f|
         f.model_name == 'FileItems::Folder'
       end
-      expect(subfolder.children.count).to eq 2
+      expect(subfolder.children.size).to eq 2
     end
 
-    it 'creates 1 file in sub-sub-folder' do
+    it 'builds 1 file in sub-sub-folder' do
       subfolder = project.root_folder.children.find do |f|
         f.model_name == 'FileItems::Folder'
       end
       subsubfolder =
         subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
-      expect(subsubfolder.children.count).to eq 1
+      expect(subsubfolder.children.size).to eq 1
     end
 
     context 'when root folder already exists' do
       before { create :file_items_folder, project: project, parent: nil }
+      before { project.reload }
 
       it 'raises an error' do
         expect { project.import_google_drive_folder(id_of_folder) }

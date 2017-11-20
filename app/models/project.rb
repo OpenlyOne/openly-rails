@@ -75,7 +75,7 @@ class Project < ApplicationRecord
     # Create the root folder
     root_folder = GoogleDrive.get_file(id_of_folder)
     root_folder =
-      create_root_folder(name: 'root', google_drive_id: root_folder.id)
+      build_root_folder(name: 'root', google_drive_id: root_folder.id)
 
     # Recursively add files
     recursively_import_google_drive_folder(root_folder)
@@ -107,7 +107,7 @@ class Project < ApplicationRecord
   # Retrieve a list of Google Drive files inside the FileItems::Folder instance
   def recursively_import_google_drive_folder(folder)
     GoogleDrive.list_files_in_folder(folder.google_drive_id).each do |file|
-      new_file = folder.children.create(
+      new_file = folder.children.build(
         google_drive_id: file.id,   name: file.name,
         mime_type: file.mime_type,  project: self
       )
