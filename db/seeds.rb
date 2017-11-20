@@ -25,13 +25,6 @@ Profiles::User.find_each do |user|
   end
 end
 
-# Create a few files per project
-Project.find_each do |project|
-  rand(1..5).times do
-    FactoryGirl.create :vc_file, collection: project.files
-  end
-end
-
 # Create a few discussions per project
 Project.find_each do |project|
   rand(0..4).times do

@@ -18,8 +18,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @user_can_edit_project  = can?(:edit, @project)
-    @overview               = @project.files.find 'Overview'
+    @user_can_edit_project = can?(:edit, @project)
   end
 
   def edit; end

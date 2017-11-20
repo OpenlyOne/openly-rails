@@ -1,7 +1,0 @@
-.spacing.v16px
-= link_to [project.owner, project, file] do
-  h5.no-margin = file.name
-= truncate(file.content, length: 240)
-= render partial: 'meta', locals: {file: file, is_slim: true}
-.spacing.v16px
-.divider

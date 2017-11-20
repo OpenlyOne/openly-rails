@@ -2,8 +2,6 @@
 
 # Handles projects that belong to a profile (owner)
 class Project < ApplicationRecord
-  include VersionControl
-
   # Associations
   belongs_to :owner, polymorphic: true
   has_many :suggestions, class_name: 'Discussions::Suggestion',
@@ -86,15 +84,5 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
-  end
-
-  # Get the file path for the project's git repository
-  def repository_file_path
-    Rails.root.join(
-      Settings.file_storage,
-      'projects',
-      owner.to_param,
-      "#{to_param}.git"
-    ).to_s
   end
 end
