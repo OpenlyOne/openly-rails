@@ -17,6 +17,9 @@ production:
   UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
   UPSHIFT_DATABASE_PASSWORD: <your postgres user's password>
 
+test:
+  MOCK_GOOGLE_DRIVE_REQUESTS: 'false' # set to 'true' to mock requests
+
 GOOGLE_DRIVE_CLIENT_ID: <client id from credentials.json>
 GOOGLE_DRIVE_CLIENT_SECRET: <client secret from credentials.json>
 GOOGLE_DRIVE_CREDENTIALS_PATH: '.credentials/google.yaml'

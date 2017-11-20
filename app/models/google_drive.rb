@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # Wrapper class for Google Drive API
+# This class is NOT covered by SimpleCov because we're mocking most of it in our
+# CI testing.
 class GoogleDrive
   class << self
     # Delegations

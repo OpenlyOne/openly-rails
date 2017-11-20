@@ -165,61 +165,46 @@ RSpec.describe Project, type: :model do
   end
 
   describe '#import_google_drive_folder(id_of_folder)' do
-    subject(:method)  { project.import_google_drive_folder(folder_id) }
-    let(:folder_id)   { 'any-id' }
-    let(:project)     { create :project }
-    let(:items)       { files + folders }
-    let(:files)       { build_list :google_drive_file, 10, type: 'document' }
-    let(:folders)     { [] }
-    let(:root_folder) { build :google_drive_file, type: 'folder' }
     before do
-      allow(GoogleDrive).to receive(:get_file).and_return(root_folder)
-      allow(GoogleDrive).to receive(:list_files_in_folder).and_return(items)
+      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
     end
+    before { project.import_google_drive_folder(id_of_folder) }
+    let(:id_of_folder)  { Settings.google_drive_test_folder }
+    let(:project)       { create(:project) }
 
     it 'creates a root folder' do
-      method
       expect(project.root_folder).to be_persisted
       expect(project.root_folder.parent).to eq nil
-      expect(project.root_folder.google_drive_id).to eq root_folder.id
+      expect(project.root_folder.google_drive_id).to eq id_of_folder
       expect(project.root_folder.name).to eq 'root'
     end
 
-    it 'creates a file record for every file' do
-      method
-      files.each do |file|
-        stored_file = FileItems::Base.find_by(google_drive_id: file.id)
-        expect(stored_file.project_id).to eq project.id
-        expect(stored_file.parent_id).to eq project.root_folder.id
-        expect(stored_file.name).to eq file.name
-        expect(stored_file.mime_type).to eq file.mime_type
-      end
+    it 'creates 3 root-level files' do
+      files = project.root_folder.children
+      expect(files.count).to eq 3
     end
 
-    context 'when folder contains sub-folders' do
-      let(:folders) { build_list :google_drive_file, 2, type: 'folder' }
-      let(:files_2) { build_list :google_drive_file, 5, type: 'document' }
-      let(:files_3) { build_list :google_drive_file, 5, type: 'document' }
-      before do
-        allow(GoogleDrive).to receive(:list_files_in_folder)
-          .and_return(items, files_2, files_3)
+    it 'creates 2 files in sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
       end
+      expect(subfolder.children.count).to eq 2
+    end
 
-      it 'recursively creates a file record for files in subfolders' do
-        method
-        folders = FileItems::Folder.where(parent: project.root_folder)
-        expect(folders.count).to eq 2
-        folders.each do |folder|
-          expect(folder.children.count).to eq 5
-        end
+    it 'creates 1 file in sub-sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
       end
+      subsubfolder =
+        subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
+      expect(subsubfolder.children.count).to eq 1
     end
 
     context 'when root folder already exists' do
       before { create :file_items_folder, project: project, parent: nil }
 
       it 'raises an error' do
-        expect { method }
+        expect { project.import_google_drive_folder(id_of_folder) }
           .to raise_error "Project #{project.id}: Root folder already exists"
       end
     end
