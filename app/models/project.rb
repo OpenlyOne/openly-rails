@@ -67,6 +67,20 @@ class Project < ApplicationRecord
     end
   end
 
+  # Import a Google Drive Folder
+  def import_google_drive_folder(id_of_folder)
+    # Raise error if files have already been imported
+    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
+
+    # Create the root folder
+    root_folder = GoogleDrive.get_file(id_of_folder)
+    root_folder =
+      create_root_folder(name: 'root', google_drive_id: root_folder.id)
+
+    # Recursively add files
+    recursively_import_google_drive_folder(root_folder)
+  end
+
   # Trim whitespaces around title
   def title=(title)
     super(title.try(:strip))
@@ -88,5 +102,18 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # Retrieve a list of Google Drive files inside the FileItems::Folder instance
+  def recursively_import_google_drive_folder(folder)
+    GoogleDrive.list_files_in_folder(folder.google_drive_id).each do |file|
+      new_file = folder.children.create(
+        google_drive_id: file.id,   name: file.name,
+        mime_type: file.mime_type,  project: self
+      )
+      if new_file.mime_type.include? 'google-apps.folder'
+        recursively_import_google_drive_folder(new_file)
+      end
+    end
   end
 end

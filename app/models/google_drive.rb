@@ -3,6 +3,9 @@
 # Wrapper class for Google Drive API
 class GoogleDrive
   class << self
+    # Delegations
+    delegate :get_file, to: :@drive_service
+
     # Initialize the Google::Apis::DriveV3::DriveService
     def initialize
       @drive_service = Google::Apis::DriveV3::DriveService.new

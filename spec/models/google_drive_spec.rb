@@ -5,6 +5,14 @@ require 'googleauth/stores/file_token_store'
 GoogleDrive.initialize
 
 RSpec.describe GoogleDrive, type: :model do
+  describe 'delegations' do
+    it 'delegates #get_file' do
+      expect_any_instance_of(Google::Apis::DriveV3::DriveService)
+        .to receive :get_file
+      GoogleDrive.get_file('any-id')
+    end
+  end
+
   describe '.list_files_in_folder(id_of_folder)' do
     subject(:method)    { GoogleDrive.list_files_in_folder(id_of_folder) }
     let(:id_of_folder)  { '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR' }
@@ -15,8 +23,8 @@ RSpec.describe GoogleDrive, type: :model do
       end
     end
 
-    it 'contains two files' do
-      expect(subject.count).to eq 2
+    it 'contains three files' do
+      expect(subject.count).to eq 3
     end
 
     it 'contains a Google Doc' do
