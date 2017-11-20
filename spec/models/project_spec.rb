@@ -11,6 +11,12 @@ RSpec.describe Project, type: :model do
     it { is_expected.to belong_to(:owner) }
     it do
       is_expected.to(
+        have_one(:root_folder).class_name('FileItems::Folder')
+                              .dependent(:destroy)
+      )
+    end
+    it do
+      is_expected.to(
         have_many(:suggestions).class_name('Discussions::Suggestion')
                                .dependent(:destroy)
       )
