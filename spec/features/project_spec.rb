@@ -11,10 +11,9 @@ feature 'Project' do
       click_on 'New Project'
     end
     # and fill in title and slug
-    fill_in 'project_title',  with: 'My Awesome New Project!'
-    fill_in 'Project URL',    with: 'my-awesome-new-project'
+    fill_in 'project_title', with: 'My Awesome New Project!'
     # and save
-    click_on 'Create Project'
+    click_on 'Create'
 
     # then I should be on the project page
     expect(page)

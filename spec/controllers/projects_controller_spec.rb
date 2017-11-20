@@ -28,14 +28,14 @@ RSpec.describe ProjectsController, type: :controller do
   end
 
   describe 'POST #create' do
-    let(:params)      { { project: { title: 'title', slug: 'slug' } } }
+    let(:params)      { { project: { title: 'title' } } }
     let(:run_request) { post :create, params: params }
     before            { sign_in create(:account) }
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
-        profile_project_path(controller.current_user, 'slug')
+        profile_project_path(controller.current_user, 'title')
       end
     end
 
