@@ -22,7 +22,7 @@ feature 'Project' do
     # and see the new project's title
     expect(page).to have_text 'My Awesome New Project!'
     # and see the first commit
-    expect(page).to have_text 'Welcome to my new project!'
+    expect(page).to have_text 'Project successfully created.'
   end
 
   scenario 'User can view project' do
@@ -63,7 +63,7 @@ feature 'Project' do
     # and see the new project's title
     expect(page).to have_text 'My New Project Title'
     # and see the first commit
-    expect(page).to have_text 'Welcome to my new project!'
+    expect(page).to have_text 'Project successfully updated.'
   end
 
   scenario 'User can delete project' do
@@ -85,7 +85,5 @@ feature 'Project' do
     expect(page).to have_text 'Project successfully deleted.'
     # and it should no longer be in the database
     expect(Project).not_to exist(slug: project.slug)
-    # and the repository should be deleted
-    expect(VersionControl::Repository.find(project.repository.path)).to be nil
   end
 end

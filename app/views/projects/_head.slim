@@ -19,11 +19,6 @@
               = link_to 'Overview', [project.owner, project],
                 class: ('active' if active_tab == :overview)
             div.tab
-              = link_to profile_project_files_path(project.owner, project),
-                        class: ('active' if active_tab == :files) do
-                | Files
-                span.badge.primary-color-darken.primary-color-text = project.files_count
-            div.tab
               = link_to profile_project_discussions_path(project.owner, project, 'suggestions'),
                         class: ('active' if active_tab == :suggestions) do
                 | Suggestions

@@ -2,11 +2,9 @@
 
 RSpec.describe 'projects/show', type: :view do
   let(:project) { create(:project) }
-  let(:file)    { project.files.find 'Overview' }
 
   before do
     assign(:project, project)
-    assign(:overview, file)
   end
 
   it 'renders the title of the project' do
@@ -27,12 +25,6 @@ RSpec.describe 'projects/show', type: :view do
     expect(rendered).not_to have_css(
       "a[href='#{edit_profile_project_path(project.owner, project)}']"
     )
-  end
-
-  it 'renders the contents of the Overview file' do
-    render
-    expect(rendered).to have_selector 'h3', text: 'Overview'
-    expect(rendered).to have_text file.content
   end
 
   context 'when current user can edit project' do

@@ -52,19 +52,6 @@ Rails.application.routes.draw do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
-      # Routes for project files
-      resources :files,
-                only: %i[index new create show], param: :name,
-                constraints: { name: %r{[^/]+} } do
-                  get     'edit'    => 'files#edit_content',    on: :member
-                  patch   'edit'    => 'files#update_content',  on: :member
-                  put     'edit'    => 'files#update_content',  on: :member
-                  get     'rename'  => 'files#edit_name',       on: :member
-                  patch   'rename'  => 'files#update_name',     on: :member
-                  put     'rename'  => 'files#update_name',     on: :member
-                  get     'delete'  => 'files#delete',          on: :member
-                  delete  'delete'  => 'files#destroy',         on: :member
-                end
       # Route for discussions
       resources :discussions,
                 path: '/:discussion_type', only: %i[index new create show],
