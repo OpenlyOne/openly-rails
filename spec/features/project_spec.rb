@@ -16,8 +16,9 @@ feature 'Project' do
     click_on 'Create'
 
     # then I should be on the project page
-    expect(page)
-      .to have_current_path "/#{account.user.to_param}/my-awesome-new-project"
+    expect(page).to have_current_path(
+      "/#{account.user.to_param}/my-awesome-new-project/setup"
+    )
     # and see the new project's title
     expect(page).to have_text 'My Awesome New Project!'
     # and see a success message

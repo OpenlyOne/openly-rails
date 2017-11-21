@@ -11,7 +11,9 @@ class ProjectsController < ApplicationController
 
   def create
     if @project.update(project_params)
-      redirect_with_success_to [@project.owner, @project]
+      redirect_with_success_to(
+        setup_profile_project_path(@project.owner, @project)
+      )
     else
       render :new
     end

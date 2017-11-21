@@ -35,7 +35,7 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
-        profile_project_path(controller.current_user, 'title')
+        setup_profile_project_path(controller.current_user, 'title')
       end
     end
 
