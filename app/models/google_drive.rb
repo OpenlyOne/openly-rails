@@ -6,7 +6,7 @@
 class GoogleDrive
   class << self
     # Delegations
-    delegate :get_file, to: :@drive_service
+    delegate :get_file, to: :drive_service
 
     # Initialize the Google::Apis::DriveV3::DriveService
     def initialize
@@ -25,10 +25,17 @@ class GoogleDrive
 
     # Get children (files) of folder with ID id_of_folder
     def list_files_in_folder(id_of_folder)
-      @drive_service.list_files(q: "'#{id_of_folder}' in parents").files
+      drive_service.list_files(q: "'#{id_of_folder}' in parents").files
     end
 
     private
+
+    # Return the instance of Google::Apis::DriveV3:;DriveService
+    # Initialize unless already initialized
+    def drive_service
+      initialize unless @drive_service
+      @drive_service
+    end
 
     # UserAuthorizer based on the application's id and secret and token store
     def authorizer

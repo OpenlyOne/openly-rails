@@ -1,8 +1,16 @@
 # frozen_string_literal: true
 
+RSpec.configure do |config|
+  config.before(:each) do
+    if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+      allow(GoogleDrive).to receive(:drive_service).and_return(nil)
+    end
+  end
+end
+
 include FactoryGirl::Syntax::Methods
 
-# Mock Google Drive  methods
+# Mock Google Drive methods
 module GoogleDriveHelper
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 
