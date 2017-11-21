@@ -8,4 +8,8 @@ RSpec.shared_examples 'being a file item' do
       # .optional <- TODO: Upgrade shoulda-matchers gem and enable optional
     }
   end
+
+  describe '#external_link' do
+    it { expect(subject).to respond_to :external_link }
+  end
 end

@@ -22,4 +22,22 @@ RSpec.describe FileItems::Folder, type: :model do
       )
     end
   end
+
+  describe '#external_link' do
+    subject(:method) { folder.external_link }
+
+    context "when google drive id is 'abc'" do
+      before { folder.google_drive_id = 'abc' }
+      it { is_expected.to eq 'https://drive.google.com/drive/folders/abc' }
+    end
+
+    context "when google drive id is '1234'" do
+      before { folder.google_drive_id = '1234' }
+      it { is_expected.to eq 'https://drive.google.com/drive/folders/1234' }
+    end
+    context 'when google drive id is nil' do
+      before { folder.google_drive_id = nil }
+      it { is_expected.to eq nil }
+    end
+  end
 end

@@ -40,4 +40,22 @@ RSpec.describe FileItems::Base, type: :model do
       it { is_expected.to be_a FileItems::Base }
     end
   end
+
+  describe '#external_link' do
+    subject(:method) { base.external_link }
+
+    context "when google drive id is 'abc'" do
+      before { base.google_drive_id = 'abc' }
+      it { is_expected.to eq 'https://drive.google.com/drive/file/d/abc' }
+    end
+
+    context "when google drive id is '1234'" do
+      before { base.google_drive_id = '1234' }
+      it { is_expected.to eq 'https://drive.google.com/drive/file/d/1234' }
+    end
+    context 'when google drive id is nil' do
+      before { base.google_drive_id = nil }
+      it { is_expected.to eq nil }
+    end
+  end
 end
