@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # Handles projects that belong to a profile (owner)
+# rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   # Associations
   belongs_to :owner, polymorphic: true
@@ -63,6 +64,7 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
   validate :link_to_google_drive_folder_is_valid,
+           :link_to_google_drive_is_accessible,
            if: proc { |project| project.import_google_drive_folder_on_save }
 
   # Find a project by profile handle and project slug
@@ -138,7 +140,20 @@ class Project < ApplicationRecord
   def link_to_google_drive_folder_is_valid
     return unless google_drive_folder_id.nil?
 
-    errors.add(:link_to_google_drive_folder, 'appears to be invalid')
+    errors.add(:link_to_google_drive_folder,
+               'appears not to be a valid Google Drive link')
+  end
+
+  # Validation: Is the link to the Google Drive folder accessible?
+  def link_to_google_drive_is_accessible
+    return if google_drive_folder_id.nil?
+    GoogleDrive.get_file(google_drive_folder_id)
+  rescue Google::Apis::ClientError => _e
+    errors.add(
+      :link_to_google_drive_folder,
+      'appears to be inaccessible. Have you shared the resource with '\
+      'track@flov.com?'
+    )
   end
 
   # Retrieve a list of Google Drive files inside the FileItems::Folder instance

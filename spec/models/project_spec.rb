@@ -64,6 +64,11 @@ RSpec.describe Project, type: :model do
 
       context 'when import_google_drive_folder_on_save is true' do
         before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
+        before do
           project.import_google_drive_folder_on_save = true
           project.link_to_google_drive_folder =
             Settings.google_drive_test_folder
@@ -76,6 +81,11 @@ RSpec.describe Project, type: :model do
       subject(:project) { build(:project) }
 
       context 'when import_google_drive_folder_on_save was true' do
+        before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
         before do
           allow(project).to receive(:import_google_drive_folder)
           project.import_google_drive_folder_on_save = true
@@ -167,21 +177,37 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when import_google_drive_folder_on_save = true' do
+      before do
+        if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+          mock_google_drive_requests
+        end
+      end
       before { project.import_google_drive_folder_on_save = true }
       before { project.link_to_google_drive_folder = link }
       before { project.valid? }
       context 'when link to google drive folder is valid' do
         let(:link) { Settings.google_drive_test_folder }
         it 'does not add an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .not_to include 'appears to be invalid'
+          expect(project.errors[:link_to_google_drive_folder].size)
+            .to eq 0
         end
       end
       context 'when link to google drive folder is invalid' do
         let(:link) { 'https://invalid-folder-link' }
         it 'adds an error' do
           expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears to be invalid'
+            .to include 'appears not to be a valid Google Drive link'
+        end
+      end
+      context 'when link to google drive folder is inaccessible' do
+        let(:link) do
+          'https://drive.google.com/drive/u/1/folders/' \
+          '0B4149cktxhmPV0pLQjRVRy1rTEk'
+        end
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears to be inaccessible. Have you shared the '\
+                        'resource with track@flov.com?'
         end
       end
     end

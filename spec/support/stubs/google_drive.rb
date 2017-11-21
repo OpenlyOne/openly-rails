@@ -8,6 +8,13 @@ module GoogleDriveHelper
 
   # mocks google drive requests
   def mock_google_drive_requests
+    # get_file: default
+    allow(GoogleDrive).to receive(:get_file)
+      .with(instance_of(String))
+      .and_raise(
+        Google::Apis::ClientError.exception('notFound: File not found')
+      )
+
     # get_file: root_folder
     allow(GoogleDrive).to receive(:get_file)
       .with('1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR')
