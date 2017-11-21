@@ -10,9 +10,20 @@
 #   stripe_api_key: sk_live_EeHnL644i6zo4Iyq4v1KdV9H
 #   stripe_publishable_key: pk_live_9lcthxpSIHbGwmdO941O1XVU
 
+GOOGLE_DRIVE_CLIENT_ID: <client id from credentials.json>
+GOOGLE_DRIVE_CLIENT_SECRET: <client secret from credentials.json>
+GOOGLE_DRIVE_CREDENTIALS_PATH: '.credentials/google.yaml'
+
 production:
   DEPLOY_USER: <username of user for deployment>
   SECRET_KEY_BASE: <generate with 'rake secret'>
   UPSHIFT_DATABASE_NAME: <your postgres database>
   UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
   UPSHIFT_DATABASE_PASSWORD: <your postgres user's password>
+
+test:
+  MOCK_GOOGLE_DRIVE_REQUESTS: 'false' # set to 'true' to mock requests
+  # You should have a separate path for test credentials (even though the
+  # contained credentials can be identical) because otherwise your tests and
+  # development environment will kick each other out
+  GOOGLE_DRIVE_CREDENTIALS_PATH: '.credentials/google-test.yaml'

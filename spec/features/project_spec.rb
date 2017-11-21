@@ -11,18 +11,45 @@ feature 'Project' do
       click_on 'New Project'
     end
     # and fill in title and slug
-    fill_in 'project_title',  with: 'My Awesome New Project!'
-    fill_in 'Project URL',    with: 'my-awesome-new-project'
+    fill_in 'project_title', with: 'My Awesome New Project!'
     # and save
-    click_on 'Create Project'
+    click_on 'Create'
 
     # then I should be on the project page
-    expect(page)
-      .to have_current_path "/#{account.user.to_param}/my-awesome-new-project"
+    expect(page).to have_current_path(
+      "/#{account.user.to_param}/my-awesome-new-project/setup"
+    )
     # and see the new project's title
     expect(page).to have_text 'My Awesome New Project!'
-    # and see the first commit
+    # and see a success message
     expect(page).to have_text 'Project successfully created.'
+  end
+
+  scenario 'User can set up project' do
+    mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+
+    # given there is a project
+    project = create(:project, title: 'My Awesome New Project!')
+
+    # and I am signed in as its owner
+    account = project.owner.account
+    sign_in_as account
+
+    # when I visit the project's initialization page
+    visit "/#{project.owner.to_param}/#{project.to_param}/setup"
+    # and fill in the Link to Google Drive Folder
+    fill_in 'project_link_to_google_drive_folder',
+            with: Settings.google_drive_test_folder
+    # and import
+    click_on 'Import'
+
+    # then I should be on the project's page
+    expect(page)
+      .to have_current_path "/#{account.user.to_param}/#{project.to_param}"
+    # and see the new project's title
+    expect(page).to have_text 'My Awesome New Project!'
+    # and see a success message
+    expect(page).to have_text 'Google Drive folder successfully imported.'
   end
 
   scenario 'User can view project' do

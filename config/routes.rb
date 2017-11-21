@@ -52,6 +52,8 @@ Rails.application.routes.draw do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
+      get  'setup'  => 'projects#setup',  on: :member
+      post 'import' => 'projects#import', on: :member
       # Route for discussions
       resources :discussions,
                 path: '/:discussion_type', only: %i[index new create show],

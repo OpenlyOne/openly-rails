@@ -11,6 +11,12 @@ RSpec.describe Project, type: :model do
     it { is_expected.to belong_to(:owner) }
     it do
       is_expected.to(
+        have_one(:root_folder).class_name('FileItems::Folder')
+                              .dependent(:destroy)
+      )
+    end
+    it do
+      is_expected.to(
         have_many(:suggestions).class_name('Discussions::Suggestion')
                                .dependent(:destroy)
       )
@@ -31,6 +37,7 @@ RSpec.describe Project, type: :model do
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:owner_id) }
     it { is_expected.to have_readonly_attribute(:owner_type) }
+    it { is_expected.to have_readonly_attribute(:owner_type) }
   end
 
   describe 'callbacks' do
@@ -48,6 +55,45 @@ RSpec.describe Project, type: :model do
       context 'when slug is set' do
         subject(:project) { build(:project, slug: 'project-slug') }
         it { is_expected.not_to receive(:generate_slug_from_title) }
+      end
+    end
+
+    context 'before save' do
+      subject(:project) { build(:project) }
+      after { project.save }
+
+      context 'when import_google_drive_folder_on_save is true' do
+        before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
+        before do
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+        end
+        it { is_expected.to receive(:import_google_drive_folder) }
+      end
+    end
+
+    context 'after save' do
+      subject(:project) { build(:project) }
+
+      context 'when import_google_drive_folder_on_save was true' do
+        before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
+        before do
+          allow(project).to receive(:import_google_drive_folder)
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+          project.save
+        end
+        it { expect(project.import_google_drive_folder_on_save).to be false }
       end
     end
   end
@@ -129,6 +175,43 @@ RSpec.describe Project, type: :model do
         is_expected.to be_invalid
       end
     end
+
+    context 'when import_google_drive_folder_on_save = true' do
+      before do
+        if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+          mock_google_drive_requests
+        end
+      end
+      before { project.import_google_drive_folder_on_save = true }
+      before { project.link_to_google_drive_folder = link }
+      before { project.valid? }
+      context 'when link to google drive folder is valid' do
+        let(:link) { Settings.google_drive_test_folder }
+        it 'does not add an error' do
+          expect(project.errors[:link_to_google_drive_folder].size)
+            .to eq 0
+        end
+      end
+      context 'when link to google drive folder is invalid' do
+        let(:link) { 'https://invalid-folder-link' }
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears not to be a valid Google Drive link'
+        end
+      end
+      context 'when link to google drive folder is inaccessible' do
+        let(:link) do
+          'https://drive.google.com/drive/u/1/folders/' \
+          '0B4149cktxhmPV0pLQjRVRy1rTEk'
+        end
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears to be inaccessible. Have you shared the '\
+                        'resource with '\
+                        "#{Settings.google_drive_tracking_account}?"
+        end
+      end
+    end
   end
 
   describe '.find' do
@@ -155,6 +238,81 @@ RSpec.describe Project, type: :model do
       it 'finds project by ID' do
         is_expected.to eq project
       end
+    end
+  end
+
+  describe '#import_google_drive_folder' do
+    before do
+      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+    end
+    before do
+      project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
+      project.send(:import_google_drive_folder)
+    end
+    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
+    let(:project)       { create(:project) }
+
+    it 'does not persist files' do
+      expect(FileItems::Base.all.count).to eq 0
+      expect(project.root_folder).not_to be_persisted
+    end
+
+    it 'builds a root folder' do
+      expect(project.root_folder.parent).to eq nil
+      expect(project.root_folder.google_drive_id).to eq id_of_folder
+      expect(project.root_folder.name).to eq 'root'
+    end
+
+    it 'builds 3 root-level files' do
+      files = project.root_folder.children
+      expect(files.size).to eq 3
+    end
+
+    it 'builds 2 files in sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
+      end
+      expect(subfolder.children.size).to eq 2
+    end
+
+    it 'builds 1 file in sub-sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
+      end
+      subsubfolder =
+        subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
+      expect(subsubfolder.children.size).to eq 1
+    end
+
+    context 'when root folder already exists' do
+      before { create :file_items_folder, project: project, parent: nil }
+      before { project.reload }
+
+      it 'raises an error' do
+        expect { project.send(:import_google_drive_folder) }
+          .to raise_error "Project #{project.id}: Root folder already exists"
+      end
+    end
+  end
+
+  describe '#link_to_google_drive_folder' do
+    subject(:method) { project.link_to_google_drive_folder }
+
+    context 'when a root folder exists' do
+      before do
+        create :file_items_folder, project: project, name: 'root',
+                                   google_drive_id: folder_id, parent: nil
+      end
+      let(:folder_id) { Settings.google_drive_test_folder_id }
+
+      it 'returns its link' do
+        is_expected.to eq 'https://drive.google.com/drive/folders/'\
+          "#{folder_id}"
+      end
+    end
+
+    context 'when root folder does not exist' do
+      it { is_expected.to be nil }
     end
   end
 

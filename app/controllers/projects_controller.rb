@@ -4,16 +4,36 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
-  before_action :set_project, only: %i[show edit update destroy]
-  before_action :authorize_action, only: %i[edit update destroy]
+  before_action :set_project, only: %i[setup import show edit update destroy]
+  before_action :authorize_action, only: %i[setup import edit update destroy]
 
   def new; end
 
   def create
     if @project.update(project_params)
-      redirect_with_success_to [@project.owner, @project]
+      redirect_with_success_to(
+        setup_profile_project_path(@project.owner, @project)
+      )
     else
       render :new
+    end
+  end
+
+  def setup
+    return unless @project.root_folder
+
+    # Redirect to project page if set up has been completed
+    redirect_to [@project.owner, @project],
+                notice: 'Project has already been set up.'
+  end
+
+  def import
+    @project.import_google_drive_folder_on_save = true
+    if @project.update(project_params)
+      redirect_with_success_to [@project.owner, @project],
+                               resource: 'Google Drive folder'
+    else
+      render :setup
     end
   end
 
@@ -60,6 +80,16 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:title, :slug)
+    attributes =
+      case action_name.to_sym
+      when :create
+        %w[title]
+      when :import
+        %w[link_to_google_drive_folder]
+      else
+        %w[title slug]
+      end
+
+    params.require(:project).permit(*attributes)
   end
 end

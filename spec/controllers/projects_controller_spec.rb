@@ -28,19 +28,94 @@ RSpec.describe ProjectsController, type: :controller do
   end
 
   describe 'POST #create' do
-    let(:params)      { { project: { title: 'title', slug: 'slug' } } }
+    let(:params)      { { project: { title: 'title' } } }
     let(:run_request) { post :create, params: params }
     before            { sign_in create(:account) }
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
-        profile_project_path(controller.current_user, 'slug')
+        setup_profile_project_path(controller.current_user, 'title')
       end
     end
 
     it 'saves the project' do
       expect_any_instance_of(Project).to receive(:save)
+      run_request
+    end
+  end
+
+  describe 'GET #setup' do
+    let(:params)      { default_params }
+    let(:run_request) { get :setup, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Profiles::Base
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+    end
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+
+    context 'when root folder exists' do
+      before { create :file_items_folder, project: project, parent: nil }
+      before { run_request }
+
+      it 'returns http redirect' do
+        expect(response).to have_http_status :redirect
+        expect(controller).to redirect_to(
+          profile_project_path(project.owner, project)
+        )
+      end
+
+      it 'sets flash notice' do
+        expect(@controller).to set_flash[:notice].to(
+          'Project has already been set up.'
+        )
+      end
+    end
+  end
+
+  describe 'POST #import' do
+    before do
+      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+    end
+    let(:add_params)  { { project: { link_to_google_drive_folder: gdfolder } } }
+    let(:gdfolder)    { Settings.google_drive_test_folder }
+    let(:params)      { default_params.merge(add_params) }
+    let(:run_request) { post :import, params: params }
+    before            { sign_in project.owner.account }
+
+    it_should_behave_like 'an authenticated action'
+    include_examples 'raise 404 if non-existent', Profiles::Base
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+    end
+    it_should_behave_like 'a redirect with success' do
+      let(:redirect_location) do
+        profile_project_path(project.owner, project)
+      end
+      let(:resource_name) do
+        'Google Drive folder'
+      end
+      let(:inflected_action_name) do
+        'imported'
+      end
+    end
+
+    it 'imports the folder' do
+      expect_any_instance_of(Project).to receive(:import_google_drive_folder)
+      run_request
+    end
+
+    it 'updates the project' do
+      expect_any_instance_of(Project).to receive(:update)
       run_request
     end
   end

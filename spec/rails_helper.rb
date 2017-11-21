@@ -3,7 +3,9 @@
 # Start coverage analysis
 if ENV['CI'] == 'true' || ENV['COVERAGE'] == 'true'
   require 'simplecov'
-  SimpleCov.start 'rails'
+  SimpleCov.start 'rails' do
+    add_filter 'app/models/google_drive.rb'
+  end
 end
 
 # Report coverage to codecov during CI
@@ -42,6 +44,7 @@ require 'database_cleaner'
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
+require Rails.root.join('spec', 'support', 'stubs', 'google_drive.rb')
 
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
@@ -58,6 +61,11 @@ RSpec.configure do |config|
 
   # Randomize order in which tests are run
   config.order = 'random'
+
+  # Do not run live Google Drive tests
+  if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+    config.filter_run_excluding live_google_drive_requests: true
+  end
 
   # enable Bullet for avoiding N+1 queries, unused eager loading, and lack of
   # counter cache
@@ -104,6 +112,9 @@ RSpec.configure do |config|
 
   # Include Feature test helpers
   config.include FeaturesHelper, type: :feature
+
+  # Include GoogleDriveHelper
+  config.include GoogleDriveHelper
 
   # add this line at the bottom of the config section
   # it saves us time when using FactoryGirl methods.
