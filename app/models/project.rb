@@ -152,7 +152,7 @@ class Project < ApplicationRecord
     errors.add(
       :link_to_google_drive_folder,
       'appears to be inaccessible. Have you shared the resource with '\
-      'track@flov.com?'
+      "#{Settings.google_drive_tracking_account}?"
     )
   end
 

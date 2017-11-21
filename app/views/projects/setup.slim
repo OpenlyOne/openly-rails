@@ -16,7 +16,7 @@
     .row
       .col.s12
         ol
-          h4: li Share your Google Drive folder with track@flov.com
+          h4: li = "Share your Google Drive folder with #{Settings.google_drive_tracking_account}"
           = image_tag 'projects/sharing-settings.jpg', class: 'img-responsive', alt: 'Sharing Settings'
           h4: li Copy and paste your Google Drive folder's URL below
           = image_tag 'projects/copy-link.jpg', class: 'img-responsive', alt: 'Sharing Settings'

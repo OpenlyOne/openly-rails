@@ -207,7 +207,8 @@ RSpec.describe Project, type: :model do
         it 'adds an error' do
           expect(project.errors[:link_to_google_drive_folder])
             .to include 'appears to be inaccessible. Have you shared the '\
-                        'resource with track@flov.com?'
+                        'resource with '\
+                        "#{Settings.google_drive_tracking_account}?"
         end
       end
     end
