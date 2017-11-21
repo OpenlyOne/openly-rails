@@ -37,6 +37,7 @@ RSpec.describe Project, type: :model do
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:owner_id) }
     it { is_expected.to have_readonly_attribute(:owner_type) }
+    it { is_expected.to have_readonly_attribute(:owner_type) }
   end
 
   describe 'callbacks' do
@@ -54,6 +55,35 @@ RSpec.describe Project, type: :model do
       context 'when slug is set' do
         subject(:project) { build(:project, slug: 'project-slug') }
         it { is_expected.not_to receive(:generate_slug_from_title) }
+      end
+    end
+
+    context 'before save' do
+      subject(:project) { build(:project) }
+      after { project.save }
+
+      context 'when import_google_drive_folder_on_save is true' do
+        before do
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+        end
+        it { is_expected.to receive(:import_google_drive_folder) }
+      end
+    end
+
+    context 'after save' do
+      subject(:project) { build(:project) }
+
+      context 'when import_google_drive_folder_on_save was true' do
+        before do
+          allow(project).to receive(:import_google_drive_folder)
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+          project.save
+        end
+        it { expect(project.import_google_drive_folder_on_save).to be false }
       end
     end
   end
@@ -135,6 +165,26 @@ RSpec.describe Project, type: :model do
         is_expected.to be_invalid
       end
     end
+
+    context 'when import_google_drive_folder_on_save = true' do
+      before { project.import_google_drive_folder_on_save = true }
+      before { project.link_to_google_drive_folder = link }
+      before { project.valid? }
+      context 'when link to google drive folder is valid' do
+        let(:link) { Settings.google_drive_test_folder }
+        it 'does not add an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .not_to include 'appears to be invalid'
+        end
+      end
+      context 'when link to google drive folder is invalid' do
+        let(:link) { 'https://invalid-folder-link' }
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears to be invalid'
+        end
+      end
+    end
   end
 
   describe '.find' do
@@ -164,12 +214,15 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '#import_google_drive_folder(id_of_folder)' do
+  describe '#import_google_drive_folder' do
     before do
       mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
     end
-    before { project.import_google_drive_folder(id_of_folder) }
-    let(:id_of_folder)  { Settings.google_drive_test_folder }
+    before do
+      project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
+      project.send(:import_google_drive_folder)
+    end
+    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
     let(:project)       { create(:project) }
 
     it 'does not persist files' do
@@ -209,9 +262,30 @@ RSpec.describe Project, type: :model do
       before { project.reload }
 
       it 'raises an error' do
-        expect { project.import_google_drive_folder(id_of_folder) }
+        expect { project.send(:import_google_drive_folder) }
           .to raise_error "Project #{project.id}: Root folder already exists"
       end
+    end
+  end
+
+  describe '#link_to_google_drive_folder' do
+    subject(:method) { project.link_to_google_drive_folder }
+
+    context 'when a root folder exists' do
+      before do
+        create :file_items_folder, project: project, name: 'root',
+                                   google_drive_id: folder_id, parent: nil
+      end
+      let(:folder_id) { Settings.google_drive_test_folder_id }
+
+      it 'returns its link' do
+        is_expected.to eq 'https://drive.google.com/drive/folders/'\
+          "#{folder_id}"
+      end
+    end
+
+    context 'when root folder does not exist' do
+      it { is_expected.to be nil }
     end
   end
 

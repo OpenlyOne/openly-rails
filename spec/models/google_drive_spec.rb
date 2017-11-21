@@ -7,7 +7,7 @@ RSpec.describe GoogleDrive, type: :model do
 
   describe '.get_file' do
     subject(:method)  { GoogleDrive.get_file(id_of_file) }
-    let(:id_of_file)  { Settings.google_drive_test_folder }
+    let(:id_of_file)  { Settings.google_drive_test_folder_id }
 
     it 'returns a file' do
       is_expected.to be_a Google::Apis::DriveV3::File
@@ -17,9 +17,40 @@ RSpec.describe GoogleDrive, type: :model do
     end
   end
 
+  describe '.link_to_id(link_to_file)' do
+    subject(:method) { GoogleDrive.link_to_id(link) }
+    context 'link 1' do
+      let(:link) do
+        'https://drive.google.com/drive/u/0/folders/' \
+        '12_INPj21eSprpRq7A9OUF0r1jHdpiA4R'
+      end
+      it { is_expected.to eq '12_INPj21eSprpRq7A9OUF0r1jHdpiA4R' }
+    end
+    context 'link 2' do
+      let(:link) do
+        'https://drive.google.com/drive/u/2/folders/' \
+        '0B2ioM1QJEE9kTDNrdUFfVG5XZDg'
+      end
+      it { is_expected.to eq '0B2ioM1QJEE9kTDNrdUFfVG5XZDg' }
+    end
+    context 'link 3' do
+      let(:link) do
+        'https://drive.google.com/drive/folders/' \
+        '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+      end
+      it { is_expected.to eq '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR' }
+    end
+    context 'not a link' do
+      let(:link) do
+        'https://drive.google.com/drive/fol/'
+      end
+      it { is_expected.to eq nil }
+    end
+  end
+
   describe '.list_files_in_folder(id_of_folder)' do
     subject(:method)    { GoogleDrive.list_files_in_folder(id_of_folder) }
-    let(:id_of_folder)  { Settings.google_drive_test_folder }
+    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
 
     it 'returns an array of files' do
       subject.each do |file|

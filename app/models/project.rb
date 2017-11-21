@@ -17,9 +17,18 @@ class Project < ApplicationRecord
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
 
+  # Accessors
+  attr_accessor :import_google_drive_folder_on_save
+
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
+  # Import Google Drive folder
+  before_save :import_google_drive_folder,
+              if: proc { |project| project.import_google_drive_folder_on_save },
+              unless: proc { |project| project.errors.any? }
+  # Reset value of import_google_drive_folder_on_save
+  after_save { self.import_google_drive_folder_on_save = false }
 
   # Validations
   # Owner type must be user
@@ -53,6 +62,8 @@ class Project < ApplicationRecord
               scope: %i[owner_type owner_id]
             },
             unless: proc { |project| project.errors[:slug].any? }
+  validate :link_to_google_drive_folder_is_valid,
+           if: proc { |project| project.import_google_drive_folder_on_save }
 
   # Find a project by profile handle and project slug
   # Also allows finding by ID, so that #reload still works
@@ -67,18 +78,18 @@ class Project < ApplicationRecord
     end
   end
 
-  # Import a Google Drive Folder
-  def import_google_drive_folder(id_of_folder)
-    # Raise error if files have already been imported
-    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
+  # The absolute link to the Google Drive root folder
+  def link_to_google_drive_folder
+    @link_to_google_drive_folder ||=
+      if google_drive_folder_id
+        "https://drive.google.com/drive/folders/#{google_drive_folder_id}"
+      end
+  end
 
-    # Create the root folder
-    root_folder = GoogleDrive.get_file(id_of_folder)
-    root_folder =
-      build_root_folder(name: 'root', google_drive_id: root_folder.id)
-
-    # Recursively add files
-    recursively_import_google_drive_folder(root_folder)
+  # The absolute link to the Google Drive root folder
+  def link_to_google_drive_folder=(link)
+    @link_to_google_drive_folder = link
+    @google_drive_folder_id = GoogleDrive.link_to_id(link)
   end
 
   # Trim whitespaces around title
@@ -102,6 +113,32 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # The ID of the Google Drive folder associated with this project
+  def google_drive_folder_id
+    @google_drive_folder_id ||= root_folder&.google_drive_id
+  end
+
+  # Import a Google Drive Folder
+  def import_google_drive_folder
+    # Raise error if files have already been imported
+    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
+
+    # Create the root folder
+    root_folder = GoogleDrive.get_file(google_drive_folder_id)
+    root_folder =
+      build_root_folder(name: 'root', google_drive_id: root_folder.id)
+
+    # Recursively add files
+    recursively_import_google_drive_folder(root_folder)
+  end
+
+  # Validation: Is the link to the Google Drive folder valid?
+  def link_to_google_drive_folder_is_valid
+    return unless google_drive_folder_id.nil?
+
+    errors.add(:link_to_google_drive_folder, 'appears to be invalid')
   end
 
   # Retrieve a list of Google Drive files inside the FileItems::Folder instance

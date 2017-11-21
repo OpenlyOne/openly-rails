@@ -15,32 +15,18 @@ en:
         content: "Content"
       project:
         slug: 'Project URL'
-  activemodel:
-    <<: *shared
-    attributes:
-      version_control/file:
-        revision_summary: 'Summary of changes'
+        link_to_google_drive_folder: 'Link to Google Drive folder'
   unauthorized:
     manage:
       all: "You are not authorized to %{action} this %{subject}."
-      version_control/file: 'You are not authorized to %{action} this file.'
     destroy:
       all: "You are not authorized to delete this %{subject}."
     new:
       all: "You are not authorized to add a new %{subject}."
-      version_control/file: 'You are not authorized to add a new file.'
     create:
       all: "You are not authorized to create a new %{subject}."
-      version_control/file: 'You are not authorized to create a new file.'
-    edit_content:
-      version_control/file: 'You are not authorized to edit this file.'
-    update_content:
-      version_control/file: 'You are not authorized to edit this file.'
-    edit_name:
-      version_control/file: 'You are not authorized to rename this file.'
-    update_name:
-      version_control/file: 'You are not authorized to rename this file.'
+    import:
+      project: "You are not authorized to import files for this %{subject}."
   actioncontroller:
     actions:
-      update_name: 'updated'
-      update_content: 'updated'
+      import: 'imported'

@@ -11,7 +11,7 @@ class Ability
     can :manage, Profiles::User, id: user.id
 
     # Users can edit the projects of profiles that they can manage
-    can %i[edit update destroy], Project do |project|
+    can %i[setup import edit update destroy], Project do |project|
       can? :manage, project.owner
     end
 

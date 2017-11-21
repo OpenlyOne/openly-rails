@@ -16,6 +16,13 @@ class GoogleDrive
       @drive_service.authorization = authorizer.get_credentials('default')
     end
 
+    # Retrieve the ID from a given link
+    # Note: Tested for folders only
+    def link_to_id(link_to_file)
+      matches = link_to_file.match(%r{\/folders\/?(.+)})
+      matches ? matches[1] : nil
+    end
+
     # Get children (files) of folder with ID id_of_folder
     def list_files_in_folder(id_of_folder)
       @drive_service.list_files(q: "'#{id_of_folder}' in parents").files
