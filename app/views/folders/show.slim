@@ -1,3 +1,16 @@
+- if @folder.parent
+  nav.breadcrumbs.truncate.gray.lighten-2.black-text.z-depth-0
+    .container
+      .nav-wrapper
+        .col.s12
+          = link_to profile_project_root_folder_path(@project.owner, @project), class: "breadcrumb home" do
+            svg viewBox="0 0 24 24"
+              path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"
+          - collect_parents(@folder).drop(1).map do |folder|
+            svg.separator viewBox="0 0 24 24"
+              path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+            =<> link_to folder.name, profile_project_folder_path(@project.owner, @project, folder.google_drive_id), class: "breadcrumb#{folder == @folder ? ' active' : ''}"
+
 .spacing.v48px
 
 .container
