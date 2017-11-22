@@ -46,12 +46,12 @@ RSpec.describe FileItems::Base, type: :model do
 
     context "when google drive id is 'abc'" do
       before { base.google_drive_id = 'abc' }
-      it { is_expected.to eq 'https://drive.google.com/drive/file/d/abc' }
+      it { is_expected.to eq 'https://drive.google.com/file/d/abc' }
     end
 
     context "when google drive id is '1234'" do
       before { base.google_drive_id = '1234' }
-      it { is_expected.to eq 'https://drive.google.com/drive/file/d/1234' }
+      it { is_expected.to eq 'https://drive.google.com/file/d/1234' }
     end
     context 'when google drive id is nil' do
       before { base.google_drive_id = nil }

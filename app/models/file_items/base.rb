@@ -31,7 +31,7 @@ module FileItems
     # Return nil if google_drive_id is nil or unset.
     def external_link
       return nil unless google_drive_id
-      "https://drive.google.com/drive/file/d/#{google_drive_id}"
+      "https://drive.google.com/file/d/#{google_drive_id}"
     end
   end
 end
