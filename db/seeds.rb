@@ -24,16 +24,3 @@ Profiles::User.find_each do |user|
     FactoryGirl.create :project, owner: user, slug: "project-#{i + 1}"
   end
 end
-
-# Create a few discussions per project
-Project.find_each do |project|
-  rand(0..4).times do
-    FactoryGirl.create :discussions_suggestion, project: project
-  end
-  rand(0..4).times do
-    FactoryGirl.create :discussions_issue, project: project
-  end
-  rand(0..4).times do
-    FactoryGirl.create :discussions_question, project: project
-  end
-end

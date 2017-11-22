@@ -13,13 +13,6 @@ module Profiles
 
     # Associations
     belongs_to :account
-    has_many :discussions, class_name: 'Discussions::Base',
-                           dependent: :destroy,
-                           foreign_key: :initiator_id,
-                           inverse_of: :initiator
-    has_many :replies, dependent: :destroy,
-                       foreign_key: :author_id,
-                       inverse_of: :author
 
     # Attributes
     # Do not allow account change

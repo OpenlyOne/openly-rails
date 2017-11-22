@@ -57,18 +57,6 @@ Rails.application.routes.draw do
       # Route for folders
       get 'files' => 'folders#root', as: :root_folder
       resources :folders, param: :google_drive_id, only: :show
-      # Route for discussions
-      resources :discussions,
-                path: '/:discussion_type', only: %i[index new create show],
-                param: :scoped_id,
-                constraints: {
-                  discussion_type: /suggestions|issues|questions/
-                } do
-        # Routes for replies
-        resources :replies, only: %i[index create]
-      end
-      get ':discussion_type/:scoped_id' => 'discussions#show',
-          constraints: { discussion_type: /discussions/ }
     end
   end
 
