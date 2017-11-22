@@ -53,7 +53,7 @@ class GoogleDrive
     # FileTokenStore stores the access token in a file
     def token_store
       Google::Auth::Stores::FileTokenStore.new(
-        file: File.join(Dir.home, ENV['GOOGLE_DRIVE_CREDENTIALS_PATH'])
+        file: File.join(ENV['GOOGLE_DRIVE_CREDENTIALS_PATH'])
       )
     end
   end
