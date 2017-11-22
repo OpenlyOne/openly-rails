@@ -34,7 +34,7 @@ RSpec.describe Ability, type: :model do
   end
 
   context 'Projects' do
-    actions = %i[edit update destroy]
+    actions = %i[setup import edit update destroy]
     let(:object) { build_stubbed(:project) }
 
     context 'when user is owner' do
@@ -44,44 +44,6 @@ RSpec.describe Ability, type: :model do
 
     context 'when user is not owner' do
       before { object.owner = build_stubbed(:user) }
-      it_should_behave_like 'not having authorization', actions
-    end
-  end
-
-  context 'Project files' do
-    actions = %i[new create edit_content update_content edit_name update_name
-                 delete destroy]
-    let(:object)  { [build(:vc_file), project] }
-    let(:project) { build_stubbed :project }
-    before do
-      allow_any_instance_of(Ability).to receive(:can?).and_call_original
-    end
-
-    context 'when user can edit project' do
-      before do
-        allow_any_instance_of(Ability)
-          .to receive(:can?)
-          .with(:edit, project)
-          .and_return true
-      end
-      it_should_behave_like 'having authorization', actions
-
-      context "when file name is 'Overview'" do
-        before { object[0] = create :vc_file, name: 'Overview' }
-        it_should_behave_like 'having authorization',
-                              %i[edit_content update_content]
-        it_should_behave_like 'not having authorization',
-                              %i[edit_name update_name delete destroy]
-      end
-    end
-
-    context 'when user cannot edit project' do
-      before do
-        allow_any_instance_of(Ability)
-          .to receive(:can?)
-          .with(:edit, project)
-          .and_return false
-      end
       it_should_behave_like 'not having authorization', actions
     end
   end

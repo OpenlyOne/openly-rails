@@ -52,31 +52,11 @@ Rails.application.routes.draw do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
-      # Routes for project files
-      resources :files,
-                only: %i[index new create show], param: :name,
-                constraints: { name: %r{[^/]+} } do
-                  get     'edit'    => 'files#edit_content',    on: :member
-                  patch   'edit'    => 'files#update_content',  on: :member
-                  put     'edit'    => 'files#update_content',  on: :member
-                  get     'rename'  => 'files#edit_name',       on: :member
-                  patch   'rename'  => 'files#update_name',     on: :member
-                  put     'rename'  => 'files#update_name',     on: :member
-                  get     'delete'  => 'files#delete',          on: :member
-                  delete  'delete'  => 'files#destroy',         on: :member
-                end
-      # Route for discussions
-      resources :discussions,
-                path: '/:discussion_type', only: %i[index new create show],
-                param: :scoped_id,
-                constraints: {
-                  discussion_type: /suggestions|issues|questions/
-                } do
-        # Routes for replies
-        resources :replies, only: %i[index create]
-      end
-      get ':discussion_type/:scoped_id' => 'discussions#show',
-          constraints: { discussion_type: /discussions/ }
+      get  'setup'  => 'projects#setup',  on: :member
+      post 'import' => 'projects#import', on: :member
+      # Route for folders
+      get 'files' => 'folders#root', as: :root_folder
+      resources :folders, param: :google_drive_id, only: :show
     end
   end
 

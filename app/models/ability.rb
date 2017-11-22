@@ -4,26 +4,15 @@
 class Ability
   include CanCan::Ability
 
-  # rubocop:disable Metrics/MethodLength
   def initialize(user)
     return unless user
 
     # Users can manage their own profiles
-    can :manage, User, id: user.id
+    can :manage, Profiles::User, id: user.id
 
     # Users can edit the projects of profiles that they can manage
-    can %i[edit update destroy], Project do |project|
+    can %i[setup import edit update destroy], Project do |project|
       can? :manage, project.owner
-    end
-
-    can %i[new create edit_content update_content],
-        VersionControl::File do |_file, project|
-      can? :edit, project
-    end
-
-    can %i[edit_name update_name delete delete destroy],
-        VersionControl::File do |file, project|
-      can?(:edit, project) && (file.name_was != 'Overview')
     end
 
     # Define abilities for the passed in user here. For example:
@@ -53,5 +42,4 @@ class Ability
     # See the wiki for details:
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
   end
-  # rubocop:enable Metrics/MethodLength
 end

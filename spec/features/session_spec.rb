@@ -19,7 +19,7 @@ feature 'Session' do
     # then I should be signed in
     expect(page).to have_text 'Signed in successfully'
     # and I should be on my profile page
-    expect(page).to have_current_path "/#{account.user.username}"
+    expect(page).to have_current_path "/#{account.user.handle}"
   end
 
   scenario 'User is redirected back after being prompted for authentication' do

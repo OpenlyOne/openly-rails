@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/having_version_control.rb'
-
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
@@ -11,30 +9,17 @@ RSpec.describe Project, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:owner) }
-    it_should_behave_like 'having version control' do
-      subject(:object) { build(:project) }
-    end
     it do
       is_expected.to(
-        have_many(:suggestions).class_name('Discussions::Suggestion')
-                               .dependent(:destroy)
-      )
-    end
-    it do
-      is_expected.to(
-        have_many(:issues).class_name('Discussions::Issue').dependent(:destroy)
-      )
-    end
-    it do
-      is_expected.to(
-        have_many(:questions).class_name('Discussions::Question')
-                             .dependent(:destroy)
+        have_one(:root_folder).class_name('FileItems::Folder')
+                              .dependent(:destroy)
       )
     end
   end
 
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:owner_id) }
+    it { is_expected.to have_readonly_attribute(:owner_type) }
     it { is_expected.to have_readonly_attribute(:owner_type) }
   end
 
@@ -55,6 +40,45 @@ RSpec.describe Project, type: :model do
         it { is_expected.not_to receive(:generate_slug_from_title) }
       end
     end
+
+    context 'before save' do
+      subject(:project) { build(:project) }
+      after { project.save }
+
+      context 'when import_google_drive_folder_on_save is true' do
+        before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
+        before do
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+        end
+        it { is_expected.to receive(:import_google_drive_folder) }
+      end
+    end
+
+    context 'after save' do
+      subject(:project) { build(:project) }
+
+      context 'when import_google_drive_folder_on_save was true' do
+        before do
+          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+            mock_google_drive_requests
+          end
+        end
+        before do
+          allow(project).to receive(:import_google_drive_folder)
+          project.import_google_drive_folder_on_save = true
+          project.link_to_google_drive_folder =
+            Settings.google_drive_test_folder
+          project.save
+        end
+        it { expect(project.import_google_drive_folder_on_save).to be false }
+      end
+    end
   end
 
   describe 'validations' do
@@ -62,18 +86,57 @@ RSpec.describe Project, type: :model do
       is_expected.to validate_presence_of(:owner).with_message 'must exist'
     end
     it do
-      is_expected.to validate_inclusion_of(:owner_type).in_array %w[User]
+      is_expected
+        .to validate_inclusion_of(:owner_type).in_array %w[Profiles::Base]
     end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
 
     context 'when validating slug' do
-      it do
-        is_expected
-          .to validate_uniqueness_of(:slug)
-          .case_insensitive
-          .scoped_to(:owner_type, :owner_id)
+      # Test does not work with polymorphic associations, use custom test below
+      # instead
+      # it do
+      #   is_expected
+      #     .to validate_uniqueness_of(:slug)
+      #     .case_insensitive
+      #     .scoped_to(:owner_type, :owner_id)
+      # end
+      context 'uniqueness of slug scoped to owner type + ID' do
+        let!(:first_project)      { create :project, slug: slug, owner: owner }
+        let(:slug)  { 'my-slug' }
+        let(:owner) { create(:user) }
+
+        context 'when owner type is identical but ID is different' do
+          subject(:second_project)  { build :project, slug: slug }
+          before                    { second_project.valid? }
+          it 'does not add a :slug error' do
+            expect(second_project.errors[:slug])
+              .not_to include 'has already been taken'
+          end
+        end
+
+        context 'when owner ID is identical but type is different' do
+          subject(:second_project) { build :project, slug: slug, owner: owner }
+          before do
+            second_project.owner_type = 'Project'
+            second_project.valid?
+          end
+          it 'does not add a :slug error' do
+            expect(second_project.errors[:slug])
+              .not_to include 'has already been taken'
+          end
+        end
+
+        context 'when owner ID + type are identical' do
+          subject(:second_project)  { build :project, slug: slug, owner: owner }
+          before                    { second_project.valid? }
+          it 'adds a :slug error' do
+            expect(second_project.errors[:slug])
+              .to include 'has already been taken'
+          end
+        end
       end
+
       it do
         subject.title = nil # set title to nil to prevent slug auto-generation
         is_expected.to validate_presence_of(:slug)
@@ -95,6 +158,43 @@ RSpec.describe Project, type: :model do
         is_expected.to be_invalid
       end
     end
+
+    context 'when import_google_drive_folder_on_save = true' do
+      before do
+        if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+          mock_google_drive_requests
+        end
+      end
+      before { project.import_google_drive_folder_on_save = true }
+      before { project.link_to_google_drive_folder = link }
+      before { project.valid? }
+      context 'when link to google drive folder is valid' do
+        let(:link) { Settings.google_drive_test_folder }
+        it 'does not add an error' do
+          expect(project.errors[:link_to_google_drive_folder].size)
+            .to eq 0
+        end
+      end
+      context 'when link to google drive folder is invalid' do
+        let(:link) { 'https://invalid-folder-link' }
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears not to be a valid Google Drive link'
+        end
+      end
+      context 'when link to google drive folder is inaccessible' do
+        let(:link) do
+          'https://drive.google.com/drive/u/1/folders/' \
+          '0B4149cktxhmPV0pLQjRVRy1rTEk'
+        end
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears to be inaccessible. Have you shared the '\
+                        'resource with '\
+                        "#{Settings.google_drive_tracking_account}?"
+        end
+      end
+    end
   end
 
   describe '.find' do
@@ -106,7 +206,7 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when profile does not exist' do
-      before { project.owner.handle.destroy }
+      before { project.owner.destroy }
       it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
     end
 
@@ -121,6 +221,81 @@ RSpec.describe Project, type: :model do
       it 'finds project by ID' do
         is_expected.to eq project
       end
+    end
+  end
+
+  describe '#import_google_drive_folder' do
+    before do
+      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+    end
+    before do
+      project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
+      project.send(:import_google_drive_folder)
+    end
+    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
+    let(:project)       { create(:project) }
+
+    it 'does not persist files' do
+      expect(FileItems::Base.all.count).to eq 0
+      expect(project.root_folder).not_to be_persisted
+    end
+
+    it 'builds a root folder' do
+      expect(project.root_folder.parent).to eq nil
+      expect(project.root_folder.google_drive_id).to eq id_of_folder
+      expect(project.root_folder.name).to eq 'root'
+    end
+
+    it 'builds 3 root-level files' do
+      files = project.root_folder.children
+      expect(files.size).to eq 3
+    end
+
+    it 'builds 2 files in sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
+      end
+      expect(subfolder.children.size).to eq 2
+    end
+
+    it 'builds 1 file in sub-sub-folder' do
+      subfolder = project.root_folder.children.find do |f|
+        f.model_name == 'FileItems::Folder'
+      end
+      subsubfolder =
+        subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
+      expect(subsubfolder.children.size).to eq 1
+    end
+
+    context 'when root folder already exists' do
+      before { create :file_items_folder, project: project, parent: nil }
+      before { project.reload }
+
+      it 'raises an error' do
+        expect { project.send(:import_google_drive_folder) }
+          .to raise_error "Project #{project.id}: Root folder already exists"
+      end
+    end
+  end
+
+  describe '#link_to_google_drive_folder' do
+    subject(:method) { project.link_to_google_drive_folder }
+
+    context 'when a root folder exists' do
+      before do
+        create :file_items_folder, project: project, name: 'root',
+                                   google_drive_id: folder_id, parent: nil
+      end
+      let(:folder_id) { Settings.google_drive_test_folder_id }
+
+      it 'returns its link' do
+        is_expected.to eq 'https://drive.google.com/drive/folders/'\
+          "#{folder_id}"
+      end
+    end
+
+    context 'when root folder does not exist' do
+      it { is_expected.to be nil }
     end
   end
 
@@ -175,22 +350,6 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
-    end
-  end
-
-  describe '#repository_file_path' do
-    subject(:repo_path) { project.send(:repository_file_path) }
-    let(:project)       { build_stubbed(:project) }
-
-    it do
-      is_expected.to eq(
-        Rails.root.join(
-          Settings.file_storage,
-          'projects',
-          project.owner.to_param,
-          "#{project.to_param}.git"
-        ).to_s
-      )
     end
   end
 end

@@ -2,11 +2,9 @@
 
 RSpec.describe 'projects/show', type: :view do
   let(:project) { create(:project) }
-  let(:file)    { project.files.find 'Overview' }
 
   before do
     assign(:project, project)
-    assign(:overview, file)
   end
 
   it 'renders the title of the project' do
@@ -29,12 +27,6 @@ RSpec.describe 'projects/show', type: :view do
     )
   end
 
-  it 'renders the contents of the Overview file' do
-    render
-    expect(rendered).to have_selector 'h3', text: 'Overview'
-    expect(rendered).to have_text file.content
-  end
-
   context 'when current user can edit project' do
     before { assign(:user_can_edit_project, true) }
 
@@ -42,6 +34,26 @@ RSpec.describe 'projects/show', type: :view do
       render
       expect(rendered).to have_css(
         "a[href='#{edit_profile_project_path(project.owner, project)}']"
+      )
+    end
+  end
+
+  context 'when a root folder exists' do
+    before { create :file_items_folder, project: project, parent: nil }
+
+    it 'renders a link to the project files' do
+      render
+      expect(rendered).to have_link(
+        'Files',
+        href: profile_project_root_folder_path(project.owner, project.slug)
+      )
+    end
+
+    it 'renders a link to open that folder in Google Drive' do
+      render
+      expect(rendered).to have_link(
+        'Open in Drive',
+        href: project.root_folder.external_link
       )
     end
   end

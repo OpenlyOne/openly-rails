@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6 (November 21, 2017)
+
+**New Features**:
+- Import a Google Drive Folder
+- Browse folders and files imported from Google Drive
+
+**Removals**:
+- Version-Controlled Files (replaced with imported Google Drive files)
+- Discussions & Replies (yet to be replaced with Google Drive comment
+  integrations)
+
+
 ## v0.5 (October 17, 2017)
 
 **New Features**:

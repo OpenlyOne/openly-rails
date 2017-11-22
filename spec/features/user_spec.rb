@@ -8,7 +8,7 @@ feature 'User' do
     projects = create_list(:project, 3, owner: user)
 
     # when I visit the user profile
-    visit "/#{user.username}"
+    visit "/#{user.handle}"
 
     # then I should see the user's name
     expect(page).to have_text user.name

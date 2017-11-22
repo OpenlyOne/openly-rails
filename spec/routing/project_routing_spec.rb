@@ -11,6 +11,22 @@ RSpec.describe 'routes for projects', type: :routing do
     expect(post: '/projects/new').to route_to 'projects#create'
   end
 
+  it 'has a setup route' do
+    expect(setup_profile_project_path('handle', 'slug'))
+      .to eq '/handle/slug/setup'
+    expect(get: '/handle/slug/setup').to(
+      route_to('projects#setup', profile_handle: 'handle', slug: 'slug')
+    )
+  end
+
+  it 'has an import route' do
+    expect(import_profile_project_path('handle', 'slug'))
+      .to eq '/handle/slug/import'
+    expect(post: '/handle/slug/import').to(
+      route_to('projects#import', profile_handle: 'handle', slug: 'slug')
+    )
+  end
+
   it 'has a show route' do
     expect(profile_project_path('handle', 'slug')).to eq '/handle/slug'
     expect(get: '/handle/slug').to(

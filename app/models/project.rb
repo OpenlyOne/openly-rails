@@ -1,27 +1,35 @@
 # frozen_string_literal: true
 
 # Handles projects that belong to a profile (owner)
+# rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
-  include VersionControl
-
   # Associations
   belongs_to :owner, polymorphic: true
-  has_many :suggestions, class_name: 'Discussions::Suggestion',
-                         dependent: :destroy
-  has_many :issues, class_name: 'Discussions::Issue', dependent: :destroy
-  has_many :questions, class_name: 'Discussions::Question', dependent: :destroy
+  has_one :root_folder,
+          -> { where parent_id: nil },
+          class_name: 'FileItems::Folder',
+          dependent: :destroy
 
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
 
+  # Accessors
+  attr_accessor :import_google_drive_folder_on_save
+
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
+  # Import Google Drive folder
+  before_save :import_google_drive_folder,
+              if: proc { |project| project.import_google_drive_folder_on_save },
+              unless: proc { |project| project.errors.any? }
+  # Reset value of import_google_drive_folder_on_save
+  after_save { self.import_google_drive_folder_on_save = false }
 
   # Validations
   # Owner type must be user
-  validates :owner_type, inclusion: { in: %w[User] }
+  validates :owner_type, inclusion: { in: %w[Profiles::Base] }
   validates :title, presence: true, length: { maximum: 50 }
   # Slug must be present
   validates :slug, presence: true
@@ -51,6 +59,9 @@ class Project < ApplicationRecord
               scope: %i[owner_type owner_id]
             },
             unless: proc { |project| project.errors[:slug].any? }
+  validate :link_to_google_drive_folder_is_valid,
+           :link_to_google_drive_is_accessible,
+           if: proc { |project| project.import_google_drive_folder_on_save }
 
   # Find a project by profile handle and project slug
   # Also allows finding by ID, so that #reload still works
@@ -60,8 +71,23 @@ class Project < ApplicationRecord
       find_by_id! id_or_profile_handle
     else
       # find by handle and slug
-      Profile.find(id_or_profile_handle).projects.find_by_slug! project_slug
+      Profiles::Base.find_by!(handle: id_or_profile_handle)
+                    .projects.find_by_slug!(project_slug)
     end
+  end
+
+  # The absolute link to the Google Drive root folder
+  def link_to_google_drive_folder
+    @link_to_google_drive_folder ||=
+      if google_drive_folder_id
+        "https://drive.google.com/drive/folders/#{google_drive_folder_id}"
+      end
+  end
+
+  # The absolute link to the Google Drive root folder
+  def link_to_google_drive_folder=(link)
+    @link_to_google_drive_folder = link
+    @google_drive_folder_id = GoogleDrive.link_to_id(link)
   end
 
   # Trim whitespaces around title
@@ -87,13 +113,55 @@ class Project < ApplicationRecord
       .downcase                 # all lowercase
   end
 
-  # Get the file path for the project's git repository
-  def repository_file_path
-    Rails.root.join(
-      Settings.file_storage,
-      'projects',
-      owner.to_param,
-      "#{to_param}.git"
-    ).to_s
+  # The ID of the Google Drive folder associated with this project
+  def google_drive_folder_id
+    @google_drive_folder_id ||= root_folder&.google_drive_id
+  end
+
+  # Import a Google Drive Folder
+  def import_google_drive_folder
+    # Raise error if files have already been imported
+    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
+
+    # Create the root folder
+    root_folder = GoogleDrive.get_file(google_drive_folder_id)
+    root_folder =
+      build_root_folder(name: 'root', google_drive_id: root_folder.id)
+
+    # Recursively add files
+    recursively_import_google_drive_folder(root_folder)
+  end
+
+  # Validation: Is the link to the Google Drive folder valid?
+  def link_to_google_drive_folder_is_valid
+    return unless google_drive_folder_id.nil?
+
+    errors.add(:link_to_google_drive_folder,
+               'appears not to be a valid Google Drive link')
+  end
+
+  # Validation: Is the link to the Google Drive folder accessible?
+  def link_to_google_drive_is_accessible
+    return if google_drive_folder_id.nil?
+    GoogleDrive.get_file(google_drive_folder_id)
+  rescue Google::Apis::ClientError => _e
+    errors.add(
+      :link_to_google_drive_folder,
+      'appears to be inaccessible. Have you shared the resource with '\
+      "#{Settings.google_drive_tracking_account}?"
+    )
+  end
+
+  # Retrieve a list of Google Drive files inside the FileItems::Folder instance
+  def recursively_import_google_drive_folder(folder)
+    GoogleDrive.list_files_in_folder(folder.google_drive_id).each do |file|
+      new_file = folder.children.build(
+        google_drive_id: file.id,   name: file.name,
+        mime_type: file.mime_type,  project: self
+      )
+      if new_file.mime_type.include? 'google-apps.folder'
+        recursively_import_google_drive_folder(new_file)
+      end
+    end
   end
 end

@@ -20,7 +20,7 @@ feature 'Account' do
       # and enter my email address and password
       account = build(:account)
       within 'form' do
-        fill_in 'Username', with: account.user.username
+        fill_in 'Username', with: account.user.handle
         fill_in 'Name', with: account.user.name
         fill_in 'Email', with: account.email
         fill_in 'Password', with: account.password, match: :first
@@ -34,7 +34,7 @@ feature 'Account' do
       expect(Account.count).to equal 1
       expect(Account).to exist(email: account.email)
       # and there should be a user in the database
-      expect(User).to exist(account: Account.first)
+      expect(Profiles::User).to exist(account: Account.first)
     end
   end
 
@@ -66,6 +66,9 @@ feature 'Account' do
   scenario 'User can delete account' do
     # given I am a signed-in user
     account = create(:account)
+    # and have lots of data (this is to test foreign key constraints)
+    create_list(:project, 3, owner: account.user)
+    # sign in
     sign_in_as account
     # and I am on the homepage
     visit '/'
@@ -74,15 +77,24 @@ feature 'Account' do
     within 'nav' do
       click_on 'Account'
     end
+
+    # Disable Bullet because deleting will trigger an N+1 query
+    # TODO: Avoid the N+1 query by eager loading records to be deleted
+    #       (requires modifying the Devise controllers)
+    Bullet.enable = false
+
     # and click cancel my account
     click_on 'Delete my account'
+
+    # Re-enable Bullet
+    Bullet.enable = true
 
     # then I should see a success message
     expect(page).to have_text 'successfully cancelled'
     # and my account should be deleted from the database
-    expect(Account.count).to equal 0
+    expect(Account).not_to exist(account.id)
     expect(Account).not_to exist(email: account.email)
     # and so should the user
-    expect(User.count).to equal 0
+    expect(Profiles::User).not_to exist(account.user.id)
   end
 end
