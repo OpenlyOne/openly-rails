@@ -5,7 +5,7 @@ RSpec.describe 'folders/show', type: :view do
   let(:project)           { folder.project }
   let(:files_and_folders) { files + folders }
   let(:files) do
-    create_list(:file_items_file, 5, project: project, parent: folder)
+    create_list(:file_items_base, 5, project: project, parent: folder)
   end
   let(:folders) do
     create_list(:file_items_folder, 5, project: project, parent: folder)

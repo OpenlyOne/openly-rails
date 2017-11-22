@@ -6,7 +6,7 @@ feature 'Project' do
     project = create :project
     # with some files and folders
     root = create :file_items_folder, project: project, parent: nil
-    files = create_list :file_items_file, 5, project: project, parent: root
+    files = create_list :file_items_base, 5, project: project, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -28,10 +28,10 @@ feature 'Project' do
     project = create :project
     # with some files and folders
     root = create :file_items_folder, project: project, parent: nil
-    create_list :file_items_file, 5, project: project, parent: root
+    create_list :file_items_base, 5, project: project, parent: root
     subfolder = create :file_items_folder, project: project, parent: root
     subfiles =
-      create_list :file_items_file, 5, project: project, parent: subfolder
+      create_list :file_items_base, 5, project: project, parent: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"

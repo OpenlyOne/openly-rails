@@ -22,17 +22,32 @@ RSpec.describe FileItems::Base, type: :model do
 
     context 'when mime type is document' do
       let(:folder_type) { 'application/vnd.google-apps.document' }
-      it { is_expected.to be_a FileItems::File }
+      it { is_expected.to be_a FileItems::Document }
     end
 
-    context 'when mime type is spreasheet' do
-      let(:folder_type) { 'application/vnd.google-apps.spreasheet' }
-      it { is_expected.to be_a FileItems::File }
+    context 'when mime type is spreadsheet' do
+      let(:folder_type) { 'application/vnd.google-apps.spreadsheet' }
+      it { is_expected.to be_a FileItems::Spreadsheet }
+    end
+
+    context 'when mime type is presentation' do
+      let(:folder_type) { 'application/vnd.google-apps.presentation' }
+      it { is_expected.to be_a FileItems::Presentation }
+    end
+
+    context 'when mime type is drawing' do
+      let(:folder_type) { 'application/vnd.google-apps.drawing' }
+      it { is_expected.to be_a FileItems::Drawing }
+    end
+
+    context 'when mime type is form' do
+      let(:folder_type) { 'application/vnd.google-apps.form' }
+      it { is_expected.to be_a FileItems::Form }
     end
 
     context 'when mime type is anything else' do
       let(:folder_type) { 'some-imaginary-mime-type' }
-      it { is_expected.to be_a FileItems::File }
+      it { is_expected.to be_a FileItems::Base }
     end
 
     context 'when mime type is empty' do

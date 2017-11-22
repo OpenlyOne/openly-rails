@@ -13,13 +13,18 @@ module FileItems
 
     # Define mime types and their corresponding classes
     MIME_TYPES = {
-      'application/vnd.google-apps.folder': 'FileItems::Folder'
+      'application/vnd.google-apps.folder':       'FileItems::Folder',
+      'application/vnd.google-apps.document':     'FileItems::Document',
+      'application/vnd.google-apps.spreadsheet':  'FileItems::Spreadsheet',
+      'application/vnd.google-apps.presentation': 'FileItems::Presentation',
+      'application/vnd.google-apps.drawing':      'FileItems::Drawing',
+      'application/vnd.google-apps.form':         'FileItems::Form'
     }.freeze
 
     # Convert between mime types and classes
     class << self
       def find_sti_class(type_name)
-        MIME_TYPES[type_name.to_sym]&.constantize || FileItems::File
+        MIME_TYPES[type_name.to_sym]&.constantize || self
       end
 
       def sti_name
@@ -27,11 +32,16 @@ module FileItems
       end
     end
 
+    # The url template for generating the file's external link
+    def self.external_link_template
+      'https://drive.google.com/file/d/GID'
+    end
+
     # The link to the file in Google Drive.
     # Return nil if google_drive_id is nil or unset.
     def external_link
       return nil unless google_drive_id
-      "https://drive.google.com/file/d/#{google_drive_id}"
+      self.class.external_link_template.gsub('GID', google_drive_id)
     end
 
     # The path to the file item's icon
