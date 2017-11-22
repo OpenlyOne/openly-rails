@@ -67,10 +67,7 @@ feature 'Account' do
     # given I am a signed-in user
     account = create(:account)
     # and have lots of data (this is to test foreign key constraints)
-    projects = create_list(:project, 3, owner: account.user)
-    create_list(:discussions_suggestion, 3, project: projects.first,
-                                            initiator: account.user)
-    create_list(:reply, 3, author: account.user)
+    create_list(:project, 3, owner: account.user)
     # sign in
     sign_in_as account
     # and I am on the homepage
