@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171122062359) do
+ActiveRecord::Schema.define(version: 20171122180116) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,6 +32,8 @@ ActiveRecord::Schema.define(version: 20171122062359) do
     t.string "mime_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "version", default: 0, null: false
+    t.bigint "version_at_last_commit", default: 0, null: false
     t.index ["google_drive_id"], name: "index_file_items_on_google_drive_id"
     t.index ["parent_id"], name: "index_file_items_on_parent_id"
     t.index ["project_id"], name: "index_file_items_on_project_id"

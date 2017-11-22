@@ -1,0 +1,56 @@
+// Styling for ProfilesController
+
+.c-folders {
+
+  .file {
+    // scss-lint:disable NestingDepth
+
+    // bolden file name if file has been modified
+    &.modified .file-name {
+      font-weight: bold;
+    }
+
+    // specify positioning of indicators
+    .indicators {
+      top: -8px;
+      width: 120px;
+    }
+
+    // for docs, sheets, and such, use different height & width settings
+    &.document,
+    &.spreadsheet,
+    &.presentation,
+    &.drawing,
+    &.form {
+      .indicators {
+        top: 0;
+        width: 90px;
+      }
+    }
+
+    &.folder {
+      .indicators {
+        top: 4px;
+        width: 114px;
+      }
+    }
+
+  }
+
+  // contains the various file indicators (modification, etc...)
+  .indicators {
+
+    display: block;
+    height: 0;
+    margin: auto;
+    position: relative;
+    text-align: left;
+    z-index: 100;
+
+    svg {
+      border-radius: 100%;
+      margin-right: 5px;
+      padding: 4px;
+    }
+  }
+}

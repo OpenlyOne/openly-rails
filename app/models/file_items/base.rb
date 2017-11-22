@@ -51,5 +51,10 @@ module FileItems
       size = '128' # icon size in px
       "https://drive-thirdparty.googleusercontent.com/#{size}/type/#{mime_type}"
     end
+
+    # Whether or not the file has been modified
+    def modified?
+      version > version_at_last_commit
+    end
   end
 end
