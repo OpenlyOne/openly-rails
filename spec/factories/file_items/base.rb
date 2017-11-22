@@ -3,7 +3,7 @@
 FactoryGirl.define do
   factory :file_items_base, class: FileItems::Base do
     transient do
-      google_apps_type { %w[document spreadsheet folder].sample }
+      google_apps_type { %w[document spreadsheet presentation].sample }
     end
 
     project

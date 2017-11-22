@@ -8,11 +8,16 @@ module FileItems
                         dependent: :destroy,
                         inverse_of: :parent
 
-    # The link to the folder in Google Drive.
-    # Return nil if google_drive_id is nil or unset.
-    def external_link
-      return nil unless google_drive_id
-      "https://drive.google.com/drive/folders/#{google_drive_id}"
+    # The url template for generating the file's external link
+    def self.external_link_template
+      'https://drive.google.com/drive/folders/GID'
+    end
+
+    # The path to the file item's icon
+    # We customize the folder icon because Google's default folder icon looks
+    # sort of bland
+    def icon
+      'files/folder.png'
     end
   end
 end

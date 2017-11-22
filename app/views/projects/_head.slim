@@ -18,6 +18,10 @@
             div.tab
               = link_to 'Overview', [project.owner, project],
                 class: ('active' if active_tab == :overview)
+            - if project.root_folder
+              div.tab
+                = link_to 'Files', profile_project_root_folder_path(@project.owner, @project),
+                          class: ('active' if active_tab == :files)
             div.tab
               = link_to profile_project_discussions_path(project.owner, project, 'suggestions'),
                         class: ('active' if active_tab == :suggestions) do

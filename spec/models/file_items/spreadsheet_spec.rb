@@ -2,12 +2,8 @@
 
 require 'models/shared_examples/being_a_file_item.rb'
 
-RSpec.describe FileItems::File, type: :model do
-  subject(:file) { build(:file_items_file) }
-
-  it 'has a valid factory' do
-    is_expected.to be_valid
-  end
+RSpec.describe FileItems::Spreadsheet, type: :model do
+  subject(:file) { build(:file_items_spreadsheet) }
 
   it_should_behave_like 'being a file item'
 
@@ -16,16 +12,26 @@ RSpec.describe FileItems::File, type: :model do
 
     context "when google drive id is 'abc'" do
       before { file.google_drive_id = 'abc' }
-      it { is_expected.to eq 'https://drive.google.com/drive/file/d/abc' }
+      it { is_expected.to eq 'https://docs.google.com/spreadsheets/d/abc' }
     end
 
     context "when google drive id is '1234'" do
       before { file.google_drive_id = '1234' }
-      it { is_expected.to eq 'https://drive.google.com/drive/file/d/1234' }
+      it { is_expected.to eq 'https://docs.google.com/spreadsheets/d/1234' }
     end
+
     context 'when google drive id is nil' do
       before { file.google_drive_id = nil }
       it { is_expected.to eq nil }
     end
+  end
+
+  describe '#icon' do
+    it {
+      expect(subject.icon).to eq(
+        'https://drive-thirdparty.googleusercontent.com/128/type/' \
+        'application/vnd.google-apps.spreadsheet'
+      )
+    }
   end
 end

@@ -12,4 +12,8 @@ RSpec.shared_examples 'being a file item' do
   describe '#external_link' do
     it { expect(subject).to respond_to :external_link }
   end
+
+  describe '#icon' do
+    it { expect(subject).to respond_to :icon }
+  end
 end

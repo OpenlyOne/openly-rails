@@ -1,0 +1,41 @@
+.breadcrumbs {
+
+  // scroll breadcrumbs vertically
+  overflow-x: scroll;
+
+  svg {
+    vertical-align: text-bottom;
+
+    // the > separator between folder names
+    &.separator {
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+  // home-level (root) icon
+  .home {
+    margin-right: 5px;
+
+    svg {
+      height: 26px;
+      width: 26px;
+    }
+  }
+
+  .breadcrumb {
+    // scss-lint:disable ImportantRule
+    color: inherit !important;
+
+    // bolden the active folder
+    &.active {
+      font-weight: bold;
+    }
+
+    // hide the default folder separator
+    &::before {
+      display: none;
+    }
+  }
+
+}
