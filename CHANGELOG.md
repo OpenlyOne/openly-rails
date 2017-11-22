@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.1 (November 21, 2017)
+
+- Fix: Support absolute file paths for Google Drive credentials file
+
 ## v0.6 (November 21, 2017)
 
 **New Features**:
