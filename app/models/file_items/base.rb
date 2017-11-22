@@ -33,5 +33,13 @@ module FileItems
       return nil unless google_drive_id
       "https://drive.google.com/file/d/#{google_drive_id}"
     end
+
+    # The path to the file item's icon
+    def icon
+      return nil unless mime_type
+
+      size = '128' # icon size in px
+      "https://drive-thirdparty.googleusercontent.com/#{size}/type/#{mime_type}"
+    end
   end
 end

@@ -41,6 +41,14 @@ RSpec.describe 'projects/show', type: :view do
   context 'when a root folder exists' do
     before { create :file_items_folder, project: project, parent: nil }
 
+    it 'renders a link to the project files' do
+      render
+      expect(rendered).to have_link(
+        'Files',
+        href: profile_project_root_folder_path(project.owner, project.slug)
+      )
+    end
+
     it 'renders a link to open that folder in Google Drive' do
       render
       expect(rendered).to have_link(

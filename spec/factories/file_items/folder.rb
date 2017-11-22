@@ -7,5 +7,6 @@ FactoryGirl.define do
     transient do
       google_apps_type { 'folder' }
     end
+    name { Faker::File.unique.file_name('', nil, '', '') }
   end
 end

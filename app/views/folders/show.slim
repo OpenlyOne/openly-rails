@@ -1,0 +1,21 @@
+.spacing.v48px
+
+.container
+  .row
+    - @files.each_slice(2) do |slice|
+
+      - slice.each do |file|
+        .col.s6.m3.l2.center-align
+
+          - if file.is_a? FileItems::Folder
+            = link_to profile_project_folder_path(@project.owner, @project, file.google_drive_id)
+              = render partial: 'file', locals: { file: file }
+
+          - else
+            = link_to file.external_link, target: '_blank' do
+              = render partial: 'file', locals: { file: file }
+              - slice.each_slice(4) do |s|
+
+      div class=cycle('hide-on-med-and-up', 'hide-on-large-only', 'hide-on-med-only', 'hide-on-large-only', 'hide-on-med-and-up', '')
+        .clearfix
+        .spacing.v48px
