@@ -25,4 +25,13 @@ RSpec.describe FileItems::Presentation, type: :model do
       it { is_expected.to eq nil }
     end
   end
+
+  describe '#icon' do
+    it {
+      expect(subject.icon).to eq(
+        'https://drive-thirdparty.googleusercontent.com/128/type/' \
+        'application/vnd.google-apps.presentation'
+      )
+    }
+  end
 end

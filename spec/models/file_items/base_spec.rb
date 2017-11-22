@@ -73,4 +73,31 @@ RSpec.describe FileItems::Base, type: :model do
       it { is_expected.to eq nil }
     end
   end
+
+  describe '#icon' do
+    context 'when mime type is abc' do
+      before { subject.mime_type = 'abc' }
+      it {
+        expect(subject.icon).to eq(
+          'https://drive-thirdparty.googleusercontent.com/128/type/' \
+          'abc'
+        )
+      }
+    end
+
+    context 'when mime type is application/vnd.google-apps.12345' do
+      before { subject.mime_type = 'application/vnd.google-apps.12345' }
+      it {
+        expect(subject.icon).to eq(
+          'https://drive-thirdparty.googleusercontent.com/128/type/' \
+          'application/vnd.google-apps.12345'
+        )
+      }
+    end
+
+    context 'when mime_type is nil' do
+      before { subject.mime_type = nil }
+      it { expect(subject.icon).to eq nil }
+    end
+  end
 end

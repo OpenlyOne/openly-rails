@@ -12,5 +12,12 @@ module FileItems
     def self.external_link_template
       'https://drive.google.com/drive/folders/GID'
     end
+
+    # The path to the file item's icon
+    # We customize the folder icon because Google's default folder icon looks
+    # sort of bland
+    def icon
+      'files/folder.png'
+    end
   end
 end

@@ -27,7 +27,7 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders the icons of files and folders' do
     render
     files_and_folders.each do |file|
-      expect(rendered).to have_css "img[src='#{file.icon}']"
+      expect(rendered).to have_css "img[src='#{view.asset_path(file.icon)}']"
     end
   end
 

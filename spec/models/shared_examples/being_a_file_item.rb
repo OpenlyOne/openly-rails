@@ -14,39 +14,6 @@ RSpec.shared_examples 'being a file item' do
   end
 
   describe '#icon' do
-    context 'when file is a folder' do
-      before { subject.mime_type = 'application/vnd.google-apps.folder' }
-      it {
-        expect(subject.icon).to eq(
-          'https://drive-thirdparty.googleusercontent.com/128/type/' \
-          'application/vnd.google-apps.folder'
-        )
-      }
-    end
-
-    context 'when file is a document' do
-      before { subject.mime_type = 'application/vnd.google-apps.document' }
-      it {
-        expect(subject.icon).to eq(
-          'https://drive-thirdparty.googleusercontent.com/128/type/' \
-          'application/vnd.google-apps.document'
-        )
-      }
-    end
-
-    context 'when file is a spreadsheet' do
-      before { subject.mime_type = 'application/vnd.google-apps.spreadsheet' }
-      it {
-        expect(subject.icon).to eq(
-          'https://drive-thirdparty.googleusercontent.com/128/type/' \
-          'application/vnd.google-apps.spreadsheet'
-        )
-      }
-    end
-
-    context 'when mime_type is nil' do
-      before { subject.mime_type = nil }
-      it { expect(subject.icon).to eq nil }
-    end
+    it { expect(subject).to respond_to :icon }
   end
 end
