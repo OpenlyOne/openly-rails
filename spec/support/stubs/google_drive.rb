@@ -12,84 +12,98 @@ include FactoryGirl::Syntax::Methods
 
 # Mock Google Drive methods
 module GoogleDriveHelper
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
 
   # mocks google drive requests
   def mock_google_drive_requests
-    # get_file: default
-    allow(GoogleDrive).to receive(:get_file)
-      .with(instance_of(String))
-      .and_raise(
-        Google::Apis::ClientError.exception('notFound: File not found')
-      )
+    allow(GoogleDrive).to receive(:get_file) do |file_id|
+      GoogleDriveHelper.get_file(file_id)
+    end
 
-    # get_file: root_folder
-    allow(GoogleDrive).to receive(:get_file)
-      .with('1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR')
-      .and_return(GoogleDriveHelper.send(:file_root_folder))
-
-    # root folder
-    allow(GoogleDrive).to receive(:list_files_in_folder)
-      .with('1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR')
-      .and_return(GoogleDriveHelper.send(:root_folder))
-
-    # folder: interesting documents
-    allow(GoogleDrive).to receive(:list_files_in_folder)
-      .with('1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn')
-      .and_return(GoogleDriveHelper.send(:f_interesting_documents))
-
-    # folder: even more interesting documents
-    allow(GoogleDrive).to receive(:list_files_in_folder)
-      .with('151tFN9HxkCVwDQId9aFw3sPKZmt7eELi')
-      .and_return(GoogleDriveHelper.send(:f_even_more_interesting_documents))
+    allow(GoogleDrive).to receive(:list_files_in_folder) do |folder_id|
+      GoogleDriveHelper.list_files_in_folder(folder_id)
+    end
   end
 
   class << self
-    private
+    # Get a file by ID
+    def get_file(file_id)
+      file = GoogleDriveHelper.files.find { |f| f[:id] == file_id }
 
-    def file_root_folder
+      unless file
+        raise Google::Apis::ClientError.exception('notFound: File not found')
+      end
+
       build(:google_drive_file,
-            id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
-            type: 'folder',
-            name: 'Test for Upshift One')
+            id: file[:id],
+            type: file[:type],
+            name: file[:name])
     end
 
-    def root_folder
-      [
+    # List files in folder
+    def list_files_in_folder(folder_id)
+      files = GoogleDriveHelper.files.select { |f| f[:parent] == folder_id }
+
+      return [] unless files
+
+      files.map do |file|
         build(:google_drive_file,
-              id: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn',
-              type: 'folder',
-              name: 'Interesting Documents'),
-        build(:google_drive_file,
-              id: '1te4r398aV4rAYCtZaaTdKw_rMCQ4ExDHovQNVT54v2o',
-              type: 'spreadsheet',
-              name: 'A Spreadsheet'),
-        build(:google_drive_file,
-              id: '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY',
-              type: 'document',
-              name: 'A Google Doc')
-      ]
+              id: file[:id],
+              type: file[:type],
+              name: file[:name])
+      end
     end
 
-    def f_interesting_documents
+    def files
       [
-        build(:google_drive_file,
-              id: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi',
-              type: 'folder',
-              name: 'Even More Interesting Documents'),
-        build(:google_drive_file,
-              id: '1zhT2xUVU7CCiLHTgIwLpyu6RXwL5ilRlyxDHQBSM0f4',
-              type: 'presentation',
-              name: 'Funny Cat Pictures')
-      ]
-    end
+        # Root
+        {
+          id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
+          name: 'Test for Upshift One',
+          type: 'folder'
+        },
 
-    def f_even_more_interesting_documents
-      [
-        build(:google_drive_file,
-              id: '1eZB7MloaAVIc1NNT0fr1buESBwB7IX1mXucRSHWibK4',
-              type: 'drawing',
-              name: 'A Pretty Drawing')
+        # Test for Upshift
+        {
+          id: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn',
+          name: 'Interesting Documents',
+          type: 'folder',
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+        },
+        {
+          id: '1te4r398aV4rAYCtZaaTdKw_rMCQ4ExDHovQNVT54v2o',
+          name: 'A Spreadsheet',
+          type: 'spreadsheet',
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+        },
+        {
+          id: '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY',
+          name: 'A Google Doc',
+          type: 'document',
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+        },
+
+        # Interesting documents
+        {
+          id: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi',
+          name: 'Even More Interesting Documents',
+          type: 'folder',
+          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn'
+        },
+        {
+          id: '1zhT2xUVU7CCiLHTgIwLpyu6RXwL5ilRlyxDHQBSM0f4',
+          name: 'Funny Cat Pictures',
+          type: 'presentation',
+          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn'
+        },
+
+        # Even more interesting documents
+        {
+          id: '1eZB7MloaAVIc1NNT0fr1buESBwB7IX1mXucRSHWibK4',
+          name: 'A Pretty Drawing',
+          type: 'drawing',
+          parent: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi'
+        }
       ]
     end
   end

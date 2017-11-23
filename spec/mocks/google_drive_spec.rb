@@ -9,6 +9,14 @@ RSpec.describe GoogleDriveHelper, live_google_drive_requests: true do
       let(:file_id)   { Settings.google_drive_test_folder_id }
       it              { expect(orig.to_h).to eq(mock.to_h) }
     end
+
+    context 'doc: A Google Doc' do
+      let!(:orig)     { GoogleDrive.get_file(file_id) }
+      before          { mock_google_drive_requests }
+      let!(:mock)     { GoogleDrive.get_file(file_id) }
+      let(:file_id)   { '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY' }
+      it              { expect(orig.to_h).to eq(mock.to_h) }
+    end
   end
 
   describe 'list_files_in_folder' do
