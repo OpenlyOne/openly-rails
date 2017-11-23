@@ -3,6 +3,10 @@
 # Use Delayed Job for processing ActiveJobs
 Rails.application.config.active_job.queue_adapter = :delayed_job
 
+# Register plugin for storing model references in the database
+require "#{Rails.root}/app/jobs/plugins/model_reference_plugin.rb"
+Delayed::Worker.plugins << ModelReferencePlugin
+
 # Do not destroy failed jobs (so we can figure out what went wrong and re-run
 # them)
 Delayed::Worker.destroy_failed_jobs = false
