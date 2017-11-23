@@ -4,3 +4,5 @@ file_storage: 'spec/tmp'
 # https://drive.google.com/drive/u/0/folders/1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR
 google_drive_test_folder: 'https://drive.google.com/drive/u/0/folders/1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
 google_drive_test_folder_id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+# How long to keep channels open before they expire
+google_drive_channel_duration: <%= 1.minute %>

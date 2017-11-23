@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'projects/show', type: :view do
+  before { allow(NotificationChannelJob).to receive(:perform_later) }
   let(:project) { create(:project) }
 
   before do

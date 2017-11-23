@@ -15,6 +15,7 @@ RSpec.describe FolderImportJob, type: :job do
     before do
       mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
     end
+    before { allow(NotificationChannelJob).to receive(:perform_later) }
     subject(:method) do
       FolderImportJob.perform_later(reference: project, folder_id: folder.id)
     end

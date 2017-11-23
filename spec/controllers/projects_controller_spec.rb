@@ -6,6 +6,7 @@ require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe ProjectsController, type: :controller do
+  before { allow(NotificationChannelJob).to receive(:perform_later) }
   let!(:project)        { create(:project) }
   let(:default_params)  do
     {

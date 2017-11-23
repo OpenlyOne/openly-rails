@@ -4,3 +4,7 @@ enable_account_registration: true
 file_storage: 'system'
 # The account used to access, monitor, and manage files
 google_drive_tracking_account: <%= ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] || 'track@flov.com' %>
+# The url at which callbacks are received
+google_drive_webhook_url: 'https://proxy.upshift.one/callback'
+# How long to keep channels open before they expire
+google_drive_channel_duration: <%= 1.hour %>

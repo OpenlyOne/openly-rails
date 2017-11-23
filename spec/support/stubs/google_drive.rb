@@ -23,6 +23,10 @@ module GoogleDriveHelper
     allow(GoogleDrive).to receive(:list_files_in_folder) do |folder_id|
       GoogleDriveHelper.list_files_in_folder(folder_id)
     end
+
+    allow(GoogleDrive).to receive(:watch_file) do |channel_name, file_id|
+      GoogleDriveHelper.watch_file(channel_name, file_id)
+    end
   end
 
   class << self
@@ -54,13 +58,28 @@ module GoogleDriveHelper
       end
     end
 
+    # Create a notification channel for the file with the provided name
+    def watch_file(channel_name, file_id)
+      file = GoogleDriveHelper.files.find { |f| f[:id] == file_id }
+
+      unless file
+        return build(:google_drive_channel, id: channel_name, file_id: file_id)
+      end
+
+      build(:google_drive_channel,
+            id: channel_name,
+            resource_id: file[:resource_id],
+            file_id: file_id)
+    end
+
     def files
       [
         # Root
         {
           id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
           name: 'Test for Upshift One',
-          type: 'folder'
+          type: 'folder',
+          resource_id: 'YoTSmEXOGaaqvTjB6KJJ4aS2-XM'
         },
 
         # Test for Upshift

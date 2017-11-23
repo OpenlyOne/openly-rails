@@ -15,6 +15,7 @@ RSpec.describe Project, type: :model do
                               .dependent(:destroy)
       )
     end
+    it { is_expected.to have_many(:notification_channels).dependent(:destroy) }
   end
 
   describe 'attributes' do
@@ -276,6 +277,7 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when root folder already exists' do
+      before { allow(NotificationChannelJob).to receive(:perform_later) }
       before { create :file_items_folder, project: project, parent: nil }
       before { project.reload }
 
@@ -290,6 +292,7 @@ RSpec.describe Project, type: :model do
     subject(:method) { project.link_to_google_drive_folder }
 
     context 'when a root folder exists' do
+      before { allow(NotificationChannelJob).to receive(:perform_later) }
       before do
         create :file_items_folder, project: project, name: 'root',
                                    google_drive_id: folder_id, parent: nil
