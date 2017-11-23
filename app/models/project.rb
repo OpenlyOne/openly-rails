@@ -21,7 +21,7 @@ class Project < ApplicationRecord
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Import Google Drive folder
-  before_save :import_google_drive_folder,
+  around_save :import_google_drive_folder,
               if: proc { |project| project.import_google_drive_folder_on_save },
               unless: proc { |project| project.errors.any? }
   # Reset value of import_google_drive_folder_on_save
@@ -128,8 +128,11 @@ class Project < ApplicationRecord
     root_folder =
       build_root_folder(name: 'root', google_drive_id: root_folder.id)
 
-    # Recursively add files
-    recursively_import_google_drive_folder(root_folder)
+    # save (raise Rollback if not successful)
+    return false unless yield
+
+    # Start recursive FolderImportJob
+    FolderImportJob.perform_later(reference: self, folder_id: root_folder.id)
   end
 
   # Validation: Is the link to the Google Drive folder valid?
@@ -150,18 +153,5 @@ class Project < ApplicationRecord
       'appears to be inaccessible. Have you shared the resource with '\
       "#{Settings.google_drive_tracking_account}?"
     )
-  end
-
-  # Retrieve a list of Google Drive files inside the FileItems::Folder instance
-  def recursively_import_google_drive_folder(folder)
-    GoogleDrive.list_files_in_folder(folder.google_drive_id).each do |file|
-      new_file = folder.children.build(
-        google_drive_id: file.id,   name: file.name,
-        mime_type: file.mime_type,  project: self
-      )
-      if new_file.mime_type.include? 'google-apps.folder'
-        recursively_import_google_drive_folder(new_file)
-      end
-    end
   end
 end
