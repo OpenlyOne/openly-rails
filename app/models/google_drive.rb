@@ -13,7 +13,9 @@ class GoogleDrive
       @drive_service = Google::Apis::DriveV3::DriveService.new
       @drive_service.client_options.application_name =
         'Drive API Ruby Quickstart'
-      @drive_service.authorization = authorizer.get_credentials('default')
+      @drive_service.authorization = authorizer.get_credentials(
+        ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT']
+      )
     end
 
     # Retrieve the ID from a given link
