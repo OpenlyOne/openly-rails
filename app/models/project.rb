@@ -60,7 +60,7 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
   validate :link_to_google_drive_folder_is_valid,
-           :link_to_google_drive_is_accessible,
+           :link_to_google_drive_is_accessible_folder,
            if: proc { |project| project.import_google_drive_folder_on_save }
 
   # Find a project by profile handle and project slug
@@ -143,15 +143,26 @@ class Project < ApplicationRecord
                'appears not to be a valid Google Drive link')
   end
 
-  # Validation: Is the link to the Google Drive folder accessible?
-  def link_to_google_drive_is_accessible
+  # Validation: Is the link to the Google Drive folder accessible and a folder?
+  def link_to_google_drive_is_accessible_folder
     return if google_drive_folder_id.nil?
-    GoogleDrive.get_file(google_drive_folder_id)
+    file = GoogleDrive.get_file(google_drive_folder_id)
+
+    validate_folder_mime_type(file)
   rescue Google::Apis::ClientError => _e
     errors.add(
       :link_to_google_drive_folder,
       'appears to be inaccessible. Have you shared the resource with '\
       "#{Settings.google_drive_tracking_account}?"
+    )
+  end
+
+  # Validation: Is the file a folder?
+  def validate_folder_mime_type(folder)
+    return if folder.mime_type == FileItems::Folder.new.mime_type
+    errors.add(
+      :link_to_google_drive_folder,
+      'appears not to be a Google Drive folder'
     )
   end
 end

@@ -194,6 +194,16 @@ RSpec.describe Project, type: :model do
                         "#{Settings.google_drive_tracking_account}?"
         end
       end
+      context 'when link to google drive folder is not a folder' do
+        let(:link) do
+          'https://drive.google.com/drive/u/1/folders/' \
+          '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY'
+        end
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears not to be a Google Drive folder'
+        end
+      end
     end
   end
 
