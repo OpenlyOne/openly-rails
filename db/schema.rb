@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171123050923) do
+ActiveRecord::Schema.define(version: 20171122221645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,18 +57,6 @@ ActiveRecord::Schema.define(version: 20171123050923) do
     t.index ["project_id"], name: "index_file_items_on_project_id"
   end
 
-  create_table "notification_channels", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "file_item_id", null: false
-    t.integer "status", default: 0, null: false
-    t.datetime "expires_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["file_item_id"], name: "index_notification_channels_on_file_item_id"
-    t.index ["project_id"], name: "index_notification_channels_on_project_id"
-    t.index ["status"], name: "index_notification_channels_on_status"
-  end
-
   create_table "profiles", force: :cascade do |t|
     t.bigint "account_id"
     t.string "name", null: false
@@ -94,7 +82,5 @@ ActiveRecord::Schema.define(version: 20171123050923) do
 
   add_foreign_key "file_items", "file_items", column: "parent_id"
   add_foreign_key "file_items", "projects"
-  add_foreign_key "notification_channels", "file_items"
-  add_foreign_key "notification_channels", "projects"
   add_foreign_key "profiles", "accounts"
 end

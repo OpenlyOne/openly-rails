@@ -12,7 +12,6 @@ RSpec.describe FileItems::Base, type: :model do
   it_should_behave_like 'being a file item'
 
   context 'Single Table Inheritance Mime Types' do
-    before { allow(NotificationChannelJob).to receive(:perform_later) }
     subject(:first_item)  { FileItems::Base.first }
     before                { create :file_items_base, mime_type: folder_type }
 

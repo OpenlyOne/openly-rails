@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 feature 'Project' do
-  before { allow(NotificationChannelJob).to receive(:perform_later) }
-
   scenario 'User can view root-folder' do
     # given there is a project
     project = create :project

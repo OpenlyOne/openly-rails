@@ -9,7 +9,6 @@ class Project < ApplicationRecord
           -> { where parent_id: nil },
           class_name: 'FileItems::Folder',
           dependent: :destroy
-  has_many :notification_channels, dependent: :destroy
 
   # Attributes
   # Do not allow owner change

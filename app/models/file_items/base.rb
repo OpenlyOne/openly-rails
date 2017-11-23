@@ -8,15 +8,8 @@ module FileItems
     self.table_name = 'file_items'
     self.inheritance_column = 'mime_type'
 
-    # Association
     belongs_to :project
     belongs_to :parent, class_name: 'FileItems::Folder', optional: true
-    has_many :notification_channels,
-             foreign_key: 'file_item_id',
-             dependent: :destroy
-
-    # Callbacks
-    after_create :create_notification_channel
 
     # Define mime types and their corresponding classes
     MIME_TYPES = {
@@ -62,18 +55,6 @@ module FileItems
     # Whether or not the file has been modified
     def modified?
       version > version_at_last_commit
-    end
-
-    private
-
-    # Schedule a job for creating a notification channel for this file
-    def create_notification_channel
-      NotificationChannelJob.perform_later(
-        reference_type:   'project',
-        reference_id:     project_id,
-        file_id:          id,
-        google_drive_id:  google_drive_id
-      )
     end
   end
 end

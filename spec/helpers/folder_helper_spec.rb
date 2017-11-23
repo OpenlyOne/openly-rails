@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe FolderHelper, type: :helper do
-  before { allow(NotificationChannelJob).to receive(:perform_later) }
-
   describe '#collect_parents(folder)' do
     subject(:method) { collect_parents(folder) }
 

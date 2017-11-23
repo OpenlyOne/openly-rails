@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe 'folders/show', type: :view do
-  before { allow(NotificationChannelJob).to receive(:perform_later) }
   let(:folder)            { create(:file_items_folder, parent: nil) }
   let(:project)           { folder.project }
   let(:files_and_folders) { files + folders }

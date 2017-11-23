@@ -28,21 +28,6 @@ class GoogleDrive
       drive_service.list_files(q: "'#{id_of_folder}' in parents").files
     end
 
-    # Create a notification channel for a file with the provided name
-    # Note: The notification channel name MUST be unique
-    def watch_file(channel_name, id_of_file)
-      expires_at =
-        (Time.zone.now + Settings.google_drive_channel_duration)
-        .to_datetime.strftime('%Q').to_i
-      channel = Google::Apis::DriveV3::Channel.new(
-        address: Settings.google_drive_webhook_url,
-        id: channel_name,
-        expiration: expires_at,
-        type: 'web_hook'
-      )
-      drive_service.watch_file(id_of_file, channel)
-    end
-
     private
 
     # Return the instance of Google::Apis::DriveV3:;DriveService

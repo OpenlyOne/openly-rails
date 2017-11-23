@@ -3,7 +3,6 @@
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe FoldersController, type: :controller do
-  before { allow(NotificationChannelJob).to receive(:perform_later) }
   let!(:folder)         { create(:file_items_folder) }
   let(:project)         { folder.project }
   let(:default_params)  do
