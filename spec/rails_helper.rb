@@ -42,6 +42,7 @@ require 'database_cleaner'
 #
 # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
+require Rails.root.join('spec', 'support', 'delayed_job_activator.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
 require Rails.root.join('spec', 'support', 'stubs', 'google_drive.rb')
