@@ -29,7 +29,9 @@ class FolderImportJob < ApplicationJob
       name:             google_drive_file.name,
       mime_type:        google_drive_file.mime_type,
       parent_id:        parent_folder_id,
-      project_id:       project_id
+      project_id:       project_id,
+      version_at_last_commit:       google_drive_file.version,
+      modified_time_at_last_commit: google_drive_file.modified_time
     )
   end
 

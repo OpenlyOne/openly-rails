@@ -37,6 +37,7 @@ class GoogleDrive
           'changes/file_id, '                   + # the file's id
           'changes/file/version, '              + # the file's version
           'changes/file/name, '                 + # the file's name
+          'changes/file/modifiedTime, '         + # the file's modification time
           'changes/file/parents, '              + # the file's parents
           'changes/removed, changes/file/trashed' # file deleted?
       )
@@ -45,7 +46,15 @@ class GoogleDrive
 
     # Get children (files) of folder with ID id_of_folder
     def list_files_in_folder(id_of_folder)
-      drive_service.list_files(q: "'#{id_of_folder}' in parents").files
+      drive_service.list_files(
+        q: "'#{id_of_folder}' in parents",
+        fields:
+          'files/id, '           + # the file's id
+          'files/version, '      + # the file's version
+          'files/mimeType, '     + # the file's mime type
+          'files/name, '         + # the file's name
+          'files/modifiedTime'     # the file's modification time
+      ).files
     end
 
     private

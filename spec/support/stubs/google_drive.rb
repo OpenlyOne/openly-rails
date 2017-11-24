@@ -38,6 +38,7 @@ module GoogleDriveHelper
       end
 
       build(:google_drive_file,
+            :with_kind,
             id: file[:id],
             type: file[:type],
             name: file[:name])
@@ -85,7 +86,9 @@ module GoogleDriveHelper
         build(:google_drive_file,
               id: file[:id],
               type: file[:type],
-              name: file[:name])
+              name: file[:name],
+              version: file[:version],
+              modified_time: file[:modified_time].to_datetime)
       end
     end
 
@@ -96,7 +99,9 @@ module GoogleDriveHelper
         {
           id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
           name: 'Test for Upshift One',
-          type: 'folder'
+          type: 'folder',
+          version: 84,
+          modified_time: 'Fri, 24 Nov 2017 06:20:34.555521217 +0000'.to_time
         },
 
         # Test for Upshift
@@ -105,21 +110,24 @@ module GoogleDriveHelper
           name: 'Interesting Documents',
           type: 'folder',
           parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
-          version: 150
+          version: 4,
+          modified_time: 'Mon, 20 Nov 2017 04:13:47.406000000 +0000'.to_time
         },
         {
           id: '1te4r398aV4rAYCtZaaTdKw_rMCQ4ExDHovQNVT54v2o',
           name: 'A Spreadsheet',
           type: 'spreadsheet',
           parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
-          version: 808
+          version: 8,
+          modified_time: 'Sun, 19 Nov 2017 22:53:33.800000000 +0000'.to_time
         },
         {
           id: '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY',
           name: 'A Google Doc',
           type: 'document',
           parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
-          version: 900
+          version: 15,
+          modified_time: 'Sun, 19 Nov 2017 22:51:37.241000000 +0000'.to_time
         },
 
         # Interesting documents
@@ -127,13 +135,17 @@ module GoogleDriveHelper
           id: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi',
           name: 'Even More Interesting Documents',
           type: 'folder',
-          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn'
+          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn',
+          version: 3,
+          modified_time: 'Mon, 20 Nov 2017 04:32:55.707000000 +0000'.to_time
         },
         {
           id: '1zhT2xUVU7CCiLHTgIwLpyu6RXwL5ilRlyxDHQBSM0f4',
           name: 'Funny Cat Pictures',
           type: 'presentation',
-          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn'
+          parent: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn',
+          version: 6,
+          modified_time: 'Mon, 20 Nov 2017 04:15:27.329000000 +0000'.to_time
         },
 
         # Even more interesting documents
@@ -141,7 +153,9 @@ module GoogleDriveHelper
           id: '1eZB7MloaAVIc1NNT0fr1buESBwB7IX1mXucRSHWibK4',
           name: 'A Pretty Drawing',
           type: 'drawing',
-          parent: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi'
+          parent: '151tFN9HxkCVwDQId9aFw3sPKZmt7eELi',
+          version: 6,
+          modified_time: 'Mon, 20 Nov 2017 04:35:02.158000000 +0000'.to_time
         }
       ]
     end

@@ -43,8 +43,9 @@ module FileItems
       return unless change.file.present?
 
       where(google_drive_id: change.file_id).update_all(
+        version: change.file.version.to_i,
         name: change.file.name,
-        version: change.file.version.to_i
+        modified_time: change.file.modified_time
       )
     end
 
@@ -63,9 +64,10 @@ module FileItems
       "https://drive-thirdparty.googleusercontent.com/#{size}/type/#{mime_type}"
     end
 
-    # Whether or not the file has been modified
-    def modified?
-      version > version_at_last_commit
+    # Whether or not the file has been modified since the last commit
+    def modified_since_last_commit?
+      return false if modified_time.nil? || modified_time_at_last_commit.nil?
+      modified_time > modified_time_at_last_commit
     end
   end
 end

@@ -61,14 +61,20 @@ RSpec.describe FileItems::Base, type: :model do
     let(:change_item) { build :google_drive_change, id: file.google_drive_id }
     let(:file)        { create :file_items_base }
 
+    it 'updates the file version' do
+      subject
+      expect(file.reload.version).to eq change_item.file.version
+    end
+
     it 'updates the file name' do
       subject
       expect(file.reload.name).to eq change_item.file.name
     end
 
-    it 'updates the file version' do
+    it 'updates the file modified time' do
       subject
-      expect(file.reload.version).to eq change_item.file.version
+      expect(file.reload.modified_time.to_i)
+        .to eq change_item.file.modified_time.to_i
     end
 
     context 'when change is not of type: file' do

@@ -14,8 +14,9 @@ FactoryGirl.define do
     removed { false }
     file do
       Google::Apis::DriveV3::File.new(
-        name: name,
         version: version,
+        name: name,
+        modified_time: Time.zone.now.utc.to_datetime,
         trashed: false,
         parents: [parent]
       )

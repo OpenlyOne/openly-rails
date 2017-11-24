@@ -96,6 +96,10 @@ RSpec.describe GoogleDrive, type: :model do
         expect(fields).to include 'changes/file/name'
       end
 
+      it 'queries for file modified time' do
+        expect(fields).to include 'changes/file/modifiedTime'
+      end
+
       it 'queries for file parents' do
         expect(fields).to include 'changes/file/parents'
       end
@@ -156,6 +160,43 @@ RSpec.describe GoogleDrive, type: :model do
 
       expect(file.name).to eq 'A Spreadsheet'
       expect(file.mime_type).to eq 'application/vnd.google-apps.spreadsheet'
+    end
+
+    context 'query fields' do
+      before do
+        allow(GoogleDrive).to receive(:list_files_in_folder).and_call_original
+        allow(GoogleDrive).to receive(:drive_service).and_return(service)
+      end
+      let(:service) { Google::Apis::DriveV3::DriveService.new }
+      let(:fields)  { @fields.split(', ') }
+      before do
+        @fields = nil
+        allow_any_instance_of(Google::Apis::DriveV3::DriveService)
+          .to receive(:list_files) do |_instance, options|
+            @fields = options[:fields]
+          end.and_return(Google::Apis::DriveV3::FileList.new(files: []))
+        subject
+      end
+
+      it 'queries for file id' do
+        expect(fields).to include 'files/id'
+      end
+
+      it 'queries for file version' do
+        expect(fields).to include 'files/version'
+      end
+
+      it 'queries the file mime type' do
+        expect(fields).to include 'files/mimeType'
+      end
+
+      it 'queries for file name' do
+        expect(fields).to include 'files/name'
+      end
+
+      it 'queries for file modified time' do
+        expect(fields).to include 'files/modifiedTime'
+      end
     end
   end
 end

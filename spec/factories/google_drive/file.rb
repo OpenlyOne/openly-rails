@@ -7,8 +7,16 @@ FactoryGirl.define do
     end
 
     id { Faker::Crypto.unique.sha1 }
-    kind { 'drive#file' }
     mime_type { "application/vnd.google-apps.#{type}" }
     name { Faker::File.file_name('', nil, nil, '') }
+
+    trait :with_kind do
+      kind { 'drive#file' }
+    end
+
+    trait :with_version_and_time do
+      version { rand(0..1000) }
+      modified_time { Time.zone.now.utc.to_datetime }
+    end
   end
 end

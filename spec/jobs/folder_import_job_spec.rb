@@ -70,4 +70,50 @@ RSpec.describe FolderImportJob, type: :job do
       subject
     end
   end
+
+  describe '#create_file' do
+    subject(:method) do
+      FolderImportJob.new.send :create_file, file, parent.id, project.id
+    end
+    let(:file)        { build :google_drive_file, :with_version_and_time }
+    let(:project)     { create :project }
+    let(:parent)      { create :file_items_folder, project: project }
+    let(:saved_file)  { FileItems::Base.find_by(google_drive_id: file.id) }
+
+    it 'saves the google drive id' do
+      subject
+      expect(saved_file.google_drive_id).to eq file.id
+    end
+
+    it 'saves the file name' do
+      subject
+      expect(saved_file.name).to eq file.name
+    end
+
+    it 'saves the file mime type' do
+      subject
+      expect(saved_file.mime_type).to eq file.mime_type
+    end
+
+    it 'saves the parent ID' do
+      subject
+      expect(saved_file.parent_id).to eq parent.id
+    end
+
+    it 'saves the project ID' do
+      subject
+      expect(saved_file.project_id).to eq project.id
+    end
+
+    it 'saves the version as version_at_last_commit' do
+      subject
+      expect(saved_file.version_at_last_commit).to eq file.version
+    end
+
+    it 'saves the modified time as modified_time_at_last_commit' do
+      subject
+      expect(saved_file.modified_time_at_last_commit.to_i)
+        .to eq file.modified_time.to_i
+    end
+  end
 end

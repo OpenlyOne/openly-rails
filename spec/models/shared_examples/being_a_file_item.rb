@@ -17,20 +17,34 @@ RSpec.shared_examples 'being a file item' do
     it { expect(subject).to respond_to :icon }
   end
 
-  describe '#modified?' do
-    before { subject.version_at_last_commit = 9 }
+  describe '#modified_since_last_commit?' do
+    before { subject.modified_time_at_last_commit = time }
+    let!(:time) { Time.zone.now.utc }
 
-    context 'when version is 10' do
-      before  { subject.version = 10 }
-      it      { expect(subject).to be_modified }
+    context 'when modified_time > modified_time_at_last_commit' do
+      before  { subject.modified_time = time.tomorrow }
+      it      { expect(subject).to be_modified_since_last_commit }
     end
-    context 'when version is 9' do
-      before  { subject.version = 9 }
-      it      { expect(subject).not_to be_modified }
+    context 'when modified_time = modified_time_at_last_commit' do
+      before  { subject.modified_time = time }
+      it      { expect(subject).not_to be_modified_since_last_commit }
     end
-    context 'when version is 8' do
-      before  { subject.version = 8 }
-      it      { expect(subject).not_to be_modified }
+    context 'when modified_time < modified_time_at_last_commit' do
+      before  { subject.modified_time = time.yesterday }
+      it      { expect(subject).not_to be_modified_since_last_commit }
+    end
+    context 'when modified time is nil' do
+      before  { subject.modified_time = nil }
+      it      { is_expected.not_to be_modified_since_last_commit }
+    end
+    context 'when modified time at last commit is nil' do
+      before  { subject.modified_time_at_last_commit = nil }
+      it      { is_expected.not_to be_modified_since_last_commit }
+    end
+    context 'when modified time and modified time at last commit are nil' do
+      before  { subject.modified_time = nil }
+      before  { subject.modified_time_at_last_commit = nil }
+      it      { is_expected.not_to be_modified_since_last_commit }
     end
   end
 end

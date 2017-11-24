@@ -75,8 +75,12 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  context 'when file version differs from version_at_last_commit' do
-    before { files.first.version = 100 }
+  context 'when file has been modified' do
+    before do
+      allow(files.first)
+        .to receive(:modified_since_last_commit?).and_return(true)
+    end
+
     it 'adds a file modified indicator' do
       render
       expect(rendered).to have_css '.indicators svg.file-modified', count: 1
