@@ -11,9 +11,8 @@ end
 include FactoryGirl::Syntax::Methods
 
 # Mock Google Drive methods
+# rubocop:disable Metrics/ModuleLength
 module GoogleDriveHelper
-  # rubocop:disable Metrics/MethodLength
-
   # mocks google drive requests
   def mock_google_drive_requests
     allow(GoogleDrive).to receive(:get_file) do |file_id|
@@ -22,6 +21,10 @@ module GoogleDriveHelper
 
     allow(GoogleDrive).to receive(:list_files_in_folder) do |folder_id|
       GoogleDriveHelper.list_files_in_folder(folder_id)
+    end
+
+    allow(GoogleDrive).to receive(:list_changes) do |token, _page_size = nil|
+      GoogleDriveHelper.list_changes(token)
     end
   end
 
@@ -40,6 +43,38 @@ module GoogleDriveHelper
             name: file[:name])
     end
 
+    # List changes since token (imaginary data)
+    # rubocop:disable Metrics/MethodLength
+    def list_changes(token)
+      case token.to_i
+      when 999_999_999, 21
+        Google::Apis::DriveV3::ChangeList.new(
+          new_start_page_token: '100',
+          changes: []
+        )
+      when 1
+        folder_id = Settings.google_drive_test_folder_id
+        files = GoogleDriveHelper.files.select { |f| f[:parent] == folder_id }
+
+        changes =
+          files.map do |file|
+            build(
+              :google_drive_change,
+              id: file[:id],
+              name: file[:name],
+              parent: file[:parent],
+              version: file[:version]
+            )
+          end
+
+        Google::Apis::DriveV3::ChangeList.new(
+          next_page_token: '21',
+          changes: changes
+        )
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # List files in folder
     def list_files_in_folder(folder_id)
       files = GoogleDriveHelper.files.select { |f| f[:parent] == folder_id }
@@ -54,6 +89,7 @@ module GoogleDriveHelper
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def files
       [
         # Root
@@ -68,19 +104,22 @@ module GoogleDriveHelper
           id: '1tn7xT9i3EWHMLK7kAKHOXAM0MjYTWeMn',
           name: 'Interesting Documents',
           type: 'folder',
-          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
+          version: 150
         },
         {
           id: '1te4r398aV4rAYCtZaaTdKw_rMCQ4ExDHovQNVT54v2o',
           name: 'A Spreadsheet',
           type: 'spreadsheet',
-          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
+          version: 808
         },
         {
           id: '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY',
           name: 'A Google Doc',
           type: 'document',
-          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR'
+          parent: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
+          version: 900
         },
 
         # Interesting documents

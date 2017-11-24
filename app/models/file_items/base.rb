@@ -37,6 +37,17 @@ module FileItems
       'https://drive.google.com/file/d/GID'
     end
 
+    # Update a file from a Google::Apis::DriveV3::Change instance
+    def self.update_from_change(change)
+      return unless change.type == 'file'
+      return unless change.file.present?
+
+      where(google_drive_id: change.file_id).update_all(
+        name: change.file.name,
+        version: change.file.version.to_i
+      )
+    end
+
     # The link to the file in Google Drive.
     # Return nil if google_drive_id is nil or unset.
     def external_link

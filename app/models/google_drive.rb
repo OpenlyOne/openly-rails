@@ -25,6 +25,24 @@ class GoogleDrive
       matches ? matches[1] : nil
     end
 
+    # Lists file changes that have happened since the page token
+    # rubocop:disable Metrics/MethodLength
+    def list_changes(token, page_size = 100)
+      drive_service.list_changes(
+        token,
+        page_size: page_size,
+        fields:
+          'nextPageToken, newStartPageToken, '  + # new tokens
+          'changes/type, '                      + # type of change, e.g. file
+          'changes/file_id, '                   + # the file's id
+          'changes/file/version, '              + # the file's version
+          'changes/file/name, '                 + # the file's name
+          'changes/file/parents, '              + # the file's parents
+          'changes/removed, changes/file/trashed' # file deleted?
+      )
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # Get children (files) of folder with ID id_of_folder
     def list_files_in_folder(id_of_folder)
       drive_service.list_files(q: "'#{id_of_folder}' in parents").files

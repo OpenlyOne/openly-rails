@@ -56,6 +56,60 @@ RSpec.describe FileItems::Base, type: :model do
     end
   end
 
+  describe '.update_from_change(change)' do
+    subject(:method)  { FileItems::Base.update_from_change(change_item) }
+    let(:change_item) { build :google_drive_change, id: file.google_drive_id }
+    let(:file)        { create :file_items_base }
+
+    it 'updates the file name' do
+      subject
+      expect(file.reload.name).to eq change_item.file.name
+    end
+
+    it 'updates the file version' do
+      subject
+      expect(file.reload.version).to eq change_item.file.version
+    end
+
+    context 'when change is not of type: file' do
+      before { change_item.type = 'comment' }
+
+      it 'does not update any files' do
+        expect { subject }.not_to(change { file.reload.attributes })
+      end
+    end
+
+    context 'when change is for a file that does not exist' do
+      before { change_item.file_id = 'some-random-id' }
+
+      it 'does not cause an error' do
+        expect { subject }.not_to raise_error
+      end
+    end
+
+    context 'when change does not have the file attribute' do
+      before { change_item.file = nil }
+
+      it 'does not update any files' do
+        expect { subject }.not_to(change { file.reload.attributes })
+      end
+    end
+
+    context 'when two files are affected by the change' do
+      let!(:file2) do
+        create :file_items_base, google_drive_id: file.google_drive_id
+      end
+
+      it 'updates file 1' do
+        expect { subject }.to(change { file.reload.attributes })
+      end
+
+      it 'updates file 2' do
+        expect { subject }.to(change { file2.reload.attributes })
+      end
+    end
+  end
+
   describe '#external_link' do
     subject(:method) { base.external_link }
 
