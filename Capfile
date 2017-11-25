@@ -32,6 +32,7 @@ require 'capistrano/rails'
 require 'capistrano/bundler'
 require 'capistrano/rvm'
 require 'capistrano/puma'
+require 'capistrano/rails/console'
 # Default puma tasks
 install_plugin Capistrano::Puma
 require 'capistrano/figaro_yml'

@@ -9,6 +9,7 @@ class Project < ApplicationRecord
           -> { where parent_id: nil },
           class_name: 'FileItems::Folder',
           dependent: :destroy
+  has_many :files, class_name: 'FileItems::Base'
 
   # Attributes
   # Do not allow owner change
@@ -21,11 +22,23 @@ class Project < ApplicationRecord
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Import Google Drive folder
-  before_save :import_google_drive_folder,
+  around_save :import_google_drive_folder,
               if: proc { |project| project.import_google_drive_folder_on_save },
               unless: proc { |project| project.errors.any? }
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
+
+  # Scopes
+  # Returns projects that have Google drive files
+  scope :having_google_drive_files, (lambda do |array_of_ids|
+    results = Project.none
+    array_of_ids.select(&:present?).each do |id|
+      results = results.or(
+        Project.joins(:files).where(file_items: { google_drive_id: id })
+      )
+    end
+    results.distinct
+  end)
 
   # Validations
   # Owner type must be user
@@ -60,7 +73,7 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
   validate :link_to_google_drive_folder_is_valid,
-           :link_to_google_drive_is_accessible,
+           :link_to_google_drive_is_accessible_folder,
            if: proc { |project| project.import_google_drive_folder_on_save }
 
   # Find a project by profile handle and project slug
@@ -126,10 +139,17 @@ class Project < ApplicationRecord
     # Create the root folder
     root_folder = GoogleDrive.get_file(google_drive_folder_id)
     root_folder =
-      build_root_folder(name: 'root', google_drive_id: root_folder.id)
+      build_root_folder(name: 'root', google_drive_id: root_folder.id,
+                        modified_time: root_folder.modified_time,
+                        version: root_folder.version)
 
-    # Recursively add files
-    recursively_import_google_drive_folder(root_folder)
+    # save (raise Rollback if not successful)
+    return false unless yield
+
+    root_folder.commit!
+
+    # Start recursive FolderImportJob
+    FolderImportJob.perform_later(reference: self, folder_id: root_folder.id)
   end
 
   # Validation: Is the link to the Google Drive folder valid?
@@ -140,10 +160,12 @@ class Project < ApplicationRecord
                'appears not to be a valid Google Drive link')
   end
 
-  # Validation: Is the link to the Google Drive folder accessible?
-  def link_to_google_drive_is_accessible
+  # Validation: Is the link to the Google Drive folder accessible and a folder?
+  def link_to_google_drive_is_accessible_folder
     return if google_drive_folder_id.nil?
-    GoogleDrive.get_file(google_drive_folder_id)
+    file = GoogleDrive.get_file(google_drive_folder_id)
+
+    validate_folder_mime_type(file)
   rescue Google::Apis::ClientError => _e
     errors.add(
       :link_to_google_drive_folder,
@@ -152,16 +174,12 @@ class Project < ApplicationRecord
     )
   end
 
-  # Retrieve a list of Google Drive files inside the FileItems::Folder instance
-  def recursively_import_google_drive_folder(folder)
-    GoogleDrive.list_files_in_folder(folder.google_drive_id).each do |file|
-      new_file = folder.children.build(
-        google_drive_id: file.id,   name: file.name,
-        mime_type: file.mime_type,  project: self
-      )
-      if new_file.mime_type.include? 'google-apps.folder'
-        recursively_import_google_drive_folder(new_file)
-      end
-    end
+  # Validation: Is the file a folder?
+  def validate_folder_mime_type(folder)
+    return if folder.mime_type == FileItems::Folder.new.mime_type
+    errors.add(
+      :link_to_google_drive_folder,
+      'appears not to be a Google Drive folder'
+    )
   end
 end

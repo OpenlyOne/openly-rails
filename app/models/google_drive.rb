@@ -13,7 +13,17 @@ class GoogleDrive
       @drive_service = Google::Apis::DriveV3::DriveService.new
       @drive_service.client_options.application_name =
         'Drive API Ruby Quickstart'
-      @drive_service.authorization = authorizer.get_credentials('default')
+      @drive_service.authorization = authorizer.get_credentials(
+        ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT']
+      )
+    end
+
+    # Get file by ID
+    def get_file(id_of_file)
+      drive_service.get_file(
+        id_of_file,
+        fields: 'id, name, mimeType, version, modifiedTime'
+      )
     end
 
     # Retrieve the ID from a given link
@@ -23,9 +33,37 @@ class GoogleDrive
       matches ? matches[1] : nil
     end
 
+    # Lists file changes that have happened since the page token
+    # rubocop:disable Metrics/MethodLength
+    def list_changes(token, page_size = 100)
+      drive_service.list_changes(
+        token,
+        page_size: page_size,
+        fields:
+          'nextPageToken, newStartPageToken, '  + # new tokens
+          'changes/type, '                      + # type of change, e.g. file
+          'changes/file_id, '                   + # the file's id
+          'changes/file/mimeType, '             + # the file's mime type
+          'changes/file/version, '              + # the file's version
+          'changes/file/name, '                 + # the file's name
+          'changes/file/modifiedTime, '         + # the file's modification time
+          'changes/file/parents, '              + # the file's parents
+          'changes/removed, changes/file/trashed' # file deleted?
+      )
+    end
+    # rubocop:enable Metrics/MethodLength
+
     # Get children (files) of folder with ID id_of_folder
     def list_files_in_folder(id_of_folder)
-      drive_service.list_files(q: "'#{id_of_folder}' in parents").files
+      drive_service.list_files(
+        q: "'#{id_of_folder}' in parents",
+        fields:
+          'files/id, '           + # the file's id
+          'files/version, '      + # the file's version
+          'files/mimeType, '     + # the file's mime type
+          'files/name, '         + # the file's name
+          'files/modifiedTime'     # the file's modification time
+      ).files
     end
 
     private

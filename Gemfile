@@ -51,8 +51,10 @@ gem 'rugged', '~> 0.26',
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
 gem 'google-api-client', '~> 0.17'
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
+# Delayed job for processing background jobs, such as Google Drive requests
+gem 'delayed_job_active_record', '~> 4.1'
+# Daemons for daemonizing the DelayedJob workers
+gem 'daemons', '~> 1.2'
 
 group :development, :test do
   # We will use pry rails as our console
@@ -81,12 +83,14 @@ group :development do
   # Automatically run tests when files update
   gem 'guard-rspec', '~> 4.7', require: false
   # Capistrano for deployment
-  gem 'capistrano',             '~> 3.9', require: false
-  gem 'capistrano-bundler',     '~> 1.2', require: false
-  gem 'capistrano-figaro-yml',  '~> 1.0', require: false
-  gem 'capistrano-rails',       '~> 1.3', require: false
-  gem 'capistrano-rvm',         '~> 0.1', require: false
-  gem 'capistrano3-puma',       '~> 3.1', require: false
+  gem 'capistrano',               '~> 3.9', require: false
+  gem 'capistrano-bundler',       '~> 1.2', require: false
+  gem 'capistrano-figaro-yml',    '~> 1.0', require: false
+  gem 'capistrano-rails',         '~> 1.3', require: false
+  gem 'capistrano-rvm',           '~> 0.1', require: false
+  gem 'capistrano3-puma',         '~> 3.1', require: false
+  # Capistrano integration for the rails console
+  gem 'capistrano-rails-console', '~> 2.2', require: false
   # Generate favicons
   gem 'rails_real_favicon'
 end

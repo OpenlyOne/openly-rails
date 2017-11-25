@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.7 (November 25, 2017)
+
+**New Features**:
+- Reflect Google Drive file changes (addition, modification, rename,
+  relocation, and deletion) in project files
+
 ## v0.6.1 (November 21, 2017)
 
 - Fix: Support absolute file paths for Google Drive credentials file

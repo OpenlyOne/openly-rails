@@ -41,7 +41,7 @@ RSpec.describe Project, type: :model do
       end
     end
 
-    context 'before save' do
+    context 'around save' do
       subject(:project) { build(:project) }
       after { project.save }
 
@@ -77,6 +77,47 @@ RSpec.describe Project, type: :model do
           project.save
         end
         it { expect(project.import_google_drive_folder_on_save).to be false }
+      end
+    end
+  end
+
+  describe 'scopes' do
+    context 'having_google_drive_files(array_of_ids)' do
+      subject(:method)    { Project.having_google_drive_files(array_of_ids) }
+      let(:array_of_ids)  { files.map(&:google_drive_id) }
+      let!(:files)        { create_list :file_items_base, 3 }
+      let!(:other_files)  { create_list :file_items_base, 3 }
+
+      it 'returns the projects of the files' do
+        expect(subject.map(&:id)).to match_array files.map(&:project_id)
+      end
+
+      context 'when one project has multipe file matches' do
+        let(:new_project) { create :project }
+        before do
+          files.each do |file|
+            create :file_items_base,
+                   project: new_project,
+                   google_drive_id: file.google_drive_id
+          end
+        end
+
+        it 'returns the projects of the files + new project' do
+          expect(subject.map(&:id))
+            .to match_array(files.map(&:project_id) + [new_project.id])
+        end
+
+        it 'does not return project multiple times' do
+          expect(subject.select { |p| p.id == new_project.id }.count).to eq 1
+        end
+      end
+
+      context 'when array_of_ids contains nil values' do
+        let(:array_of_ids) { files.map(&:google_drive_id) + [nil, nil, nil] }
+
+        it 'returns the projects of the files' do
+          expect(subject.map(&:id)).to match_array files.map(&:project_id)
+        end
       end
     end
   end
@@ -194,6 +235,16 @@ RSpec.describe Project, type: :model do
                         "#{Settings.google_drive_tracking_account}?"
         end
       end
+      context 'when link to google drive folder is not a folder' do
+        let(:link) do
+          'https://drive.google.com/drive/u/1/folders/' \
+          '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY'
+        end
+        it 'adds an error' do
+          expect(project.errors[:link_to_google_drive_folder])
+            .to include 'appears not to be a Google Drive folder'
+        end
+      end
     end
   end
 
@@ -230,41 +281,44 @@ RSpec.describe Project, type: :model do
     end
     before do
       project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
-      project.send(:import_google_drive_folder)
+    end
+    subject(:method) do
+      project.send(:import_google_drive_folder) { project.save }
     end
     let(:id_of_folder)  { Settings.google_drive_test_folder_id }
     let(:project)       { create(:project) }
 
-    it 'does not persist files' do
-      expect(FileItems::Base.all.count).to eq 0
-      expect(project.root_folder).not_to be_persisted
+    it 'creates a root folder' do
+      subject
+      expect(project.root_folder).to be_persisted
     end
 
-    it 'builds a root folder' do
-      expect(project.root_folder.parent).to eq nil
-      expect(project.root_folder.google_drive_id).to eq id_of_folder
-      expect(project.root_folder.name).to eq 'root'
+    it 'marks root folder as committed' do
+      subject
+      expect(project.root_folder).not_to be_added_since_last_commit
     end
 
-    it 'builds 3 root-level files' do
-      files = project.root_folder.children
-      expect(files.size).to eq 3
+    it 'creates a FolderImportJob' do
+      expect(FolderImportJob).to receive(:perform_later)
+        .with(
+          reference: project,
+          folder_id: kind_of(Numeric)
+        )
+      subject
     end
 
-    it 'builds 2 files in sub-folder' do
-      subfolder = project.root_folder.children.find do |f|
-        f.model_name == 'FileItems::Folder'
+    context 'when save fails' do
+      before { allow(project).to receive(:save).and_return(false) }
+
+      it 'does not persist root folder' do
+        subject
+        expect(project.root_folder).not_to be_persisted
       end
-      expect(subfolder.children.size).to eq 2
-    end
 
-    it 'builds 1 file in sub-sub-folder' do
-      subfolder = project.root_folder.children.find do |f|
-        f.model_name == 'FileItems::Folder'
+      it 'does not start a FolderImportJob' do
+        expect(FolderImportJob).not_to receive(:perform_later)
+        subject
       end
-      subsubfolder =
-        subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
-      expect(subsubfolder.children.size).to eq 1
     end
 
     context 'when root folder already exists' do
