@@ -1,3 +1,16 @@
-= image_tag file.icon, alt: 'File icon', size: '100', class: 'img-responsive'
-br
-span.truncate = file.name
+div.file[class=file.model_name.to_s.split('::').last.downcase
+         class=file_change_html_class(file)]
+
+  div.indicators
+
+    - if file.deleted_since_last_commit? || file.added_since_last_commit? || file.modified_since_last_commit? || file.moved_since_last_commit?
+      span title=file_change_tooltip(file)
+        svg.white-text.z-depth-1[class=change_color(file)
+                                              style="width:24px;height:24px"
+                                              viewBox="0 0 24 24"]
+          path fill="currentColor" d=file_change_icon(file)
+
+  = image_tag file.icon, alt: 'File icon', size: '100', class: 'img-responsive'
+  br
+  span.file-name.truncate[class=file_change_html_class(file)
+                          class=change_text_color(file)] = file.name

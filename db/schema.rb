@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171122062359) do
+ActiveRecord::Schema.define(version: 20171124202705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,24 @@ ActiveRecord::Schema.define(version: 20171122062359) do
     t.index ["email"], name: "index_accounts_on_email", unique: true
   end
 
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by"
+    t.string "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.bigint "delayed_reference_id"
+    t.string "delayed_reference_type"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+    t.index ["queue"], name: "index_delayed_jobs_on_queue"
+  end
+
   create_table "file_items", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.bigint "parent_id"
@@ -32,9 +50,26 @@ ActiveRecord::Schema.define(version: 20171122062359) do
     t.string "mime_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "version", default: 0, null: false
+    t.bigint "version_at_last_commit", default: 0, null: false
+    t.datetime "modified_time"
+    t.datetime "modified_time_at_last_commit"
+    t.bigint "parent_id_at_last_commit"
     t.index ["google_drive_id"], name: "index_file_items_on_google_drive_id"
     t.index ["parent_id"], name: "index_file_items_on_parent_id"
     t.index ["project_id"], name: "index_file_items_on_project_id"
+  end
+
+  create_table "notification_channels", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "file_item_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_item_id"], name: "index_notification_channels_on_file_item_id"
+    t.index ["project_id"], name: "index_notification_channels_on_project_id"
+    t.index ["status"], name: "index_notification_channels_on_status"
   end
 
   create_table "profiles", force: :cascade do |t|

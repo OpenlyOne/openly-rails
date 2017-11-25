@@ -14,6 +14,8 @@ RSpec.describe GoogleDrive, type: :model do
       expect(method.to_h).to have_key :id
       expect(method.to_h).to have_key :name
       expect(method.to_h).to have_key :mime_type
+      expect(method.to_h).to have_key :version
+      expect(method.to_h).to have_key :modified_time
     end
   end
 
@@ -45,6 +47,83 @@ RSpec.describe GoogleDrive, type: :model do
         'https://drive.google.com/drive/fol/'
       end
       it { is_expected.to eq nil }
+    end
+  end
+
+  describe '.list_changes(token, page_size)' do
+    subject(:method) { GoogleDrive.list_changes(token, page_size) }
+    before do
+      allow(GoogleDrive).to receive(:list_changes).and_call_original
+      allow(GoogleDrive).to receive(:drive_service).and_return(service)
+    end
+    let(:service)     { Google::Apis::DriveV3::DriveService.new }
+    let(:token)       { 55 }
+    let(:page_size)   { 20 }
+
+    it 'calls list_changes with token=55 and page_size=20' do
+      expect_any_instance_of(Google::Apis::DriveV3::DriveService)
+        .to receive(:list_changes).with(55, hash_including(page_size: 20))
+      subject
+    end
+
+    context 'query fields' do
+      let(:fields) { @fields.split(', ') }
+      before do
+        @fields = nil
+        allow_any_instance_of(Google::Apis::DriveV3::DriveService)
+          .to receive(:list_changes) do |_instance, _token, options|
+            @fields = options[:fields]
+          end
+        subject
+      end
+
+      it 'queries nextPageToken, newStartPageToken' do
+        expect(fields).to include 'nextPageToken'
+        expect(fields).to include 'newStartPageToken'
+      end
+
+      it 'queries the type of change' do
+        expect(fields).to include 'changes/type'
+      end
+
+      it 'queries for file id' do
+        expect(fields).to include 'changes/file_id'
+      end
+
+      it 'queries for file mime type' do
+        expect(fields).to include 'changes/file/mimeType'
+      end
+
+      it 'queries for file version' do
+        expect(fields).to include 'changes/file/version'
+      end
+
+      it 'queries for file name' do
+        expect(fields).to include 'changes/file/name'
+      end
+
+      it 'queries for file modified time' do
+        expect(fields).to include 'changes/file/modifiedTime'
+      end
+
+      it 'queries for file parents' do
+        expect(fields).to include 'changes/file/parents'
+      end
+
+      it 'queries for removal' do
+        expect(fields).to include 'changes/removed'
+        expect(fields).to include 'changes/file/trashed'
+      end
+    end
+
+    context 'when page_size is not passed' do
+      subject(:method) { GoogleDrive.list_changes(token) }
+
+      it 'calls list_changes with token and page_size=100' do
+        expect_any_instance_of(Google::Apis::DriveV3::DriveService)
+          .to receive(:list_changes).with(55, hash_including(page_size: 100))
+        subject
+      end
     end
   end
 
@@ -87,6 +166,43 @@ RSpec.describe GoogleDrive, type: :model do
 
       expect(file.name).to eq 'A Spreadsheet'
       expect(file.mime_type).to eq 'application/vnd.google-apps.spreadsheet'
+    end
+
+    context 'query fields' do
+      before do
+        allow(GoogleDrive).to receive(:list_files_in_folder).and_call_original
+        allow(GoogleDrive).to receive(:drive_service).and_return(service)
+      end
+      let(:service) { Google::Apis::DriveV3::DriveService.new }
+      let(:fields)  { @fields.split(', ') }
+      before do
+        @fields = nil
+        allow_any_instance_of(Google::Apis::DriveV3::DriveService)
+          .to receive(:list_files) do |_instance, options|
+            @fields = options[:fields]
+          end.and_return(Google::Apis::DriveV3::FileList.new(files: []))
+        subject
+      end
+
+      it 'queries for file id' do
+        expect(fields).to include 'files/id'
+      end
+
+      it 'queries for file version' do
+        expect(fields).to include 'files/version'
+      end
+
+      it 'queries the file mime type' do
+        expect(fields).to include 'files/mimeType'
+      end
+
+      it 'queries for file name' do
+        expect(fields).to include 'files/name'
+      end
+
+      it 'queries for file modified time' do
+        expect(fields).to include 'files/modifiedTime'
+      end
     end
   end
 end
