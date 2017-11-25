@@ -37,15 +37,24 @@ module FileItems
       'https://drive.google.com/file/d/GID'
     end
 
-    # Update a file from a Google::Apis::DriveV3::Change instance
-    def self.update_from_change(change)
+    # Update all projects affected by the Google::Apis::DriveV3::Change instance
+    def self.update_all_projects_from_change(change)
       return unless change.type == 'file'
-      return unless change.file.present?
 
-      where(google_drive_id: change.file_id).update_all(
-        version: change.file.version.to_i,
-        name: change.file.name,
-        modified_time: change.file.modified_time
+      projects =
+        Project.having_google_drive_files(
+          [change.file_id, change&.file&.parents&.first]
+        ).order(:id)
+
+      projects.each { |p| update_single_project_from_change(p, change) }
+    end
+
+    # Commit the file (set values at last commit)
+    def commit!
+      update(
+        version_at_last_commit: version,
+        modified_time_at_last_commit: modified_time,
+        parent_id_at_last_commit: parent_id
       )
     end
 
@@ -64,10 +73,68 @@ module FileItems
       "https://drive-thirdparty.googleusercontent.com/#{size}/type/#{mime_type}"
     end
 
+    # Marks the file as deleted (or deletes the file if it has been added since
+    # the last commit)
+    def mark_as_deleted(change)
+      return destroy if added_since_last_commit?
+
+      update(
+        {}.tap do |hash|
+          hash[:version] = change.file.version.to_i if change&.file&.version
+          hash[:name] = change.file.name            if change&.file&.name
+          hash[:modified_time] = nil
+        end
+      )
+    end
+
+    # Update the file with the new parent and the change
+    def update_from_change(new_parent, change)
+      # mark file for deletion if parent does not exist
+      if new_parent.nil? || change.removed || change.file.trashed
+        return mark_as_deleted(change)
+      end
+
+      update(
+        version: change.file.version.to_i,
+        name: change.file.name,
+        modified_time: change.file.modified_time,
+        parent_id: new_parent.id
+      )
+    end
+
+    # Whether or not the file has been added since the last commit
+    def added_since_last_commit?
+      modified_time_at_last_commit.nil?
+    end
+
+    # Whether or not the file has been deleted since the last commit
+    def deleted_since_last_commit?
+      modified_time.nil?
+    end
+
     # Whether or not the file has been modified since the last commit
     def modified_since_last_commit?
-      return false if modified_time.nil? || modified_time_at_last_commit.nil?
+      return false if added_since_last_commit? || deleted_since_last_commit?
       modified_time > modified_time_at_last_commit
+    end
+
+    # Whether or not the file has been modified since the last commit
+    def moved_since_last_commit?
+      parent_id_at_last_commit != parent_id
+    end
+
+    class << self
+      private
+
+      # Update file from change within a single project
+      def update_single_project_from_change(project, change)
+        file = project.files.find_by(google_drive_id: change.file_id)
+        parent =
+          project.files.find_by(google_drive_id: change&.file&.parents&.first)
+
+        return file.update_from_change(parent, change) if file.present?
+        return parent.create_child_from_change(change) if parent.present?
+      end
     end
   end
 end

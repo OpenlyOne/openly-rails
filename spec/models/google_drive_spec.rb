@@ -14,6 +14,8 @@ RSpec.describe GoogleDrive, type: :model do
       expect(method.to_h).to have_key :id
       expect(method.to_h).to have_key :name
       expect(method.to_h).to have_key :mime_type
+      expect(method.to_h).to have_key :version
+      expect(method.to_h).to have_key :modified_time
     end
   end
 
@@ -86,6 +88,10 @@ RSpec.describe GoogleDrive, type: :model do
 
       it 'queries for file id' do
         expect(fields).to include 'changes/file_id'
+      end
+
+      it 'queries for file mime type' do
+        expect(fields).to include 'changes/file/mimeType'
       end
 
       it 'queries for file version' do

@@ -9,6 +9,7 @@ class Project < ApplicationRecord
           -> { where parent_id: nil },
           class_name: 'FileItems::Folder',
           dependent: :destroy
+  has_many :files, class_name: 'FileItems::Base'
 
   # Attributes
   # Do not allow owner change
@@ -26,6 +27,18 @@ class Project < ApplicationRecord
               unless: proc { |project| project.errors.any? }
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
+
+  # Scopes
+  # Returns projects that have Google drive files
+  scope :having_google_drive_files, (lambda do |array_of_ids|
+    results = Project.none
+    array_of_ids.select(&:present?).each do |id|
+      results = results.or(
+        Project.joins(:files).where(file_items: { google_drive_id: id })
+      )
+    end
+    results.distinct
+  end)
 
   # Validations
   # Owner type must be user
@@ -126,10 +139,14 @@ class Project < ApplicationRecord
     # Create the root folder
     root_folder = GoogleDrive.get_file(google_drive_folder_id)
     root_folder =
-      build_root_folder(name: 'root', google_drive_id: root_folder.id)
+      build_root_folder(name: 'root', google_drive_id: root_folder.id,
+                        modified_time: root_folder.modified_time,
+                        version: root_folder.version)
 
     # save (raise Rollback if not successful)
     return false unless yield
+
+    root_folder.commit!
 
     # Start recursive FolderImportJob
     FolderImportJob.perform_later(reference: self, folder_id: root_folder.id)

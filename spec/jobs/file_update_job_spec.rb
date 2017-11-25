@@ -39,8 +39,8 @@ RSpec.describe FileUpdateJob, type: :job do
       end
     end
 
-    it 'calls FileItems::Base.update_from_change once for every change' do
-      expect(FileItems::Base).to receive(:update_from_change)
+    it 'calls FileItems::Base.update_all_projects_from_change per change' do
+      expect(FileItems::Base).to receive(:update_all_projects_from_change)
         .exactly(change_list.changes.count).times
       subject
     end

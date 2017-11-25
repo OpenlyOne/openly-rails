@@ -18,6 +18,14 @@ class GoogleDrive
       )
     end
 
+    # Get file by ID
+    def get_file(id_of_file)
+      drive_service.get_file(
+        id_of_file,
+        fields: 'id, name, mimeType, version, modifiedTime'
+      )
+    end
+
     # Retrieve the ID from a given link
     # Note: Tested for folders only
     def link_to_id(link_to_file)
@@ -35,6 +43,7 @@ class GoogleDrive
           'nextPageToken, newStartPageToken, '  + # new tokens
           'changes/type, '                      + # type of change, e.g. file
           'changes/file_id, '                   + # the file's id
+          'changes/file/mimeType, '             + # the file's mime type
           'changes/file/version, '              + # the file's version
           'changes/file/name, '                 + # the file's name
           'changes/file/modifiedTime, '         + # the file's modification time

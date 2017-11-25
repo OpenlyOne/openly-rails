@@ -5,10 +5,12 @@ RSpec.describe 'folders/show', type: :view do
   let(:project)           { folder.project }
   let(:files_and_folders) { files + folders }
   let(:files) do
-    create_list(:file_items_base, 5, project: project, parent: folder)
+    create_list(:file_items_base, 5, :committed,
+                project: project, parent: folder)
   end
   let(:folders) do
-    create_list(:file_items_folder, 5, project: project, parent: folder)
+    create_list(:file_items_folder, 5, :committed,
+                project: project, parent: folder)
   end
 
   before do
@@ -81,9 +83,45 @@ RSpec.describe 'folders/show', type: :view do
         .to receive(:modified_since_last_commit?).and_return(true)
     end
 
-    it 'adds a file modified indicator' do
+    it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg.file-modified', count: 1
+      expect(rendered).to have_css '.indicators svg', count: 1
+    end
+  end
+
+  context 'when file has been added' do
+    before do
+      allow(files.first)
+        .to receive(:added_since_last_commit?).and_return(true)
+    end
+
+    it 'adds a file indicator' do
+      render
+      expect(rendered).to have_css '.indicators svg', count: 1
+    end
+  end
+
+  context 'when file has been moved' do
+    before do
+      allow(files.first)
+        .to receive(:moved_since_last_commit?).and_return(true)
+    end
+
+    it 'adds a file indicator' do
+      render
+      expect(rendered).to have_css '.indicators svg', count: 1
+    end
+  end
+
+  context 'when file has been deleted' do
+    before do
+      allow(files.first)
+        .to receive(:deleted_since_last_commit?).and_return(true)
+    end
+
+    it 'adds a file indicator' do
+      render
+      expect(rendered).to have_css '.indicators svg', count: 1
     end
   end
 end

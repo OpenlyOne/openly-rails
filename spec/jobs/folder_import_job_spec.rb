@@ -75,7 +75,7 @@ RSpec.describe FolderImportJob, type: :job do
     subject(:method) do
       FolderImportJob.new.send :create_file, file, parent.id, project.id
     end
-    let(:file)        { build :google_drive_file, :with_version_and_time }
+    let(:file) { build :google_drive_file, :with_id, :with_version_and_time }
     let(:project)     { create :project }
     let(:parent)      { create :file_items_folder, project: project }
     let(:saved_file)  { FileItems::Base.find_by(google_drive_id: file.id) }
@@ -105,15 +105,19 @@ RSpec.describe FolderImportJob, type: :job do
       expect(saved_file.project_id).to eq project.id
     end
 
-    it 'saves the version as version_at_last_commit' do
+    it 'saves the version' do
       subject
-      expect(saved_file.version_at_last_commit).to eq file.version
+      expect(saved_file.version).to eq file.version
     end
 
-    it 'saves the modified time as modified_time_at_last_commit' do
+    it 'saves the modified_time' do
       subject
-      expect(saved_file.modified_time_at_last_commit.to_i)
-        .to eq file.modified_time.to_i
+      expect(saved_file.modified_time.to_i).to eq file.modified_time.to_i
+    end
+
+    it 'commits the file' do
+      subject
+      expect(saved_file).not_to be_added_since_last_commit
     end
   end
 end

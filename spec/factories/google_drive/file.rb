@@ -6,9 +6,12 @@ FactoryGirl.define do
       type { %w[document spreadsheet folder].sample }
     end
 
-    id { Faker::Crypto.unique.sha1 }
     mime_type { "application/vnd.google-apps.#{type}" }
     name { Faker::File.file_name('', nil, nil, '') }
+
+    trait :with_id do
+      id { Faker::Crypto.unique.sha1 }
+    end
 
     trait :with_kind do
       kind { 'drive#file' }

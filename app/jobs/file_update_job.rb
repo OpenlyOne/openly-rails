@@ -42,7 +42,7 @@ class FileUpdateJob < ApplicationJob
   # update files based on retrieved change list
   def update_files
     @change_list.changes.each do |change|
-      FileItems::Base.update_from_change(change)
+      FileItems::Base.update_all_projects_from_change(change)
     end
   end
 end

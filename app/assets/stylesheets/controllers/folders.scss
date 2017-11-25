@@ -5,8 +5,13 @@
   .file {
     // scss-lint:disable NestingDepth
 
+    // reduce opacity for deleted file_id
+    &.changed.deleted {
+      opacity: .5;
+    }
+
     // bolden file name if file has been modified
-    &.modified .file-name {
+    &.changed .file-name {
       font-weight: bold;
     }
 

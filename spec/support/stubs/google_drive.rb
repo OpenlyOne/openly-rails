@@ -38,10 +38,11 @@ module GoogleDriveHelper
       end
 
       build(:google_drive_file,
-            :with_kind,
             id: file[:id],
             type: file[:type],
-            name: file[:name])
+            name: file[:name],
+            modified_time: file[:modified_time].to_datetime,
+            version: file[:version])
     end
 
     # List changes since token (imaginary data)
@@ -100,8 +101,8 @@ module GoogleDriveHelper
           id: '1_T9Pw8YGc0y5iWOSX-90SzQ1CTUGFmKR',
           name: 'Test for Upshift One',
           type: 'folder',
-          version: 84,
-          modified_time: 'Fri, 24 Nov 2017 06:20:34.555521217 +0000'.to_time
+          version: 25,
+          modified_time: 'Sun, 19 Nov 2017 22:51:32.066000000 +0000'.to_time
         },
 
         # Test for Upshift
