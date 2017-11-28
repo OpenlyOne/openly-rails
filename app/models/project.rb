@@ -3,6 +3,8 @@
 # Handles projects that belong to a profile (owner)
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
+  include VersionControl
+
   # Associations
   belongs_to :owner, polymorphic: true
   has_one :root_folder,
@@ -172,6 +174,18 @@ class Project < ApplicationRecord
       'appears to be inaccessible. Have you shared the resource with '\
       "#{Settings.google_drive_tracking_account}?"
     )
+  end
+
+  # Get the file path for the project's git repository
+  def repository_file_path
+    return nil unless to_param.present?
+
+    Rails.root.join(
+      Settings.file_storage,
+      'projects',
+      owner.to_param,
+      to_param
+    ).cleanpath.to_s
   end
 
   # Validation: Is the file a folder?

@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/having_version_control.rb'
+
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
   it 'has a valid factory' do
     is_expected.to be_valid
+  end
+
+  it_should_behave_like 'having version control' do
+    subject(:object) { build(:project) }
   end
 
   describe 'associations' do
@@ -404,6 +410,27 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
+    end
+  end
+
+  describe '#repository_file_path' do
+    subject(:repo_path) { project.send(:repository_file_path) }
+    let(:project)       { build_stubbed(:project) }
+
+    it do
+      is_expected.to eq(
+        Rails.root.join(
+          Settings.file_storage,
+          'projects',
+          project.owner.to_param,
+          project.to_param
+        ).cleanpath.to_s
+      )
+    end
+
+    context 'when to_param is nil' do
+      before { allow(project).to receive(:to_param).and_return(nil) }
+      it { is_expected.to be nil }
     end
   end
 end
