@@ -178,13 +178,12 @@ class Project < ApplicationRecord
 
   # Get the file path for the project's git repository
   def repository_file_path
-    return nil unless to_param.present?
+    return nil unless id_in_database.present?
 
     Rails.root.join(
       Settings.file_storage,
       'projects',
-      owner.to_param,
-      to_param
+      id_in_database.to_s
     ).cleanpath.to_s
   end
 

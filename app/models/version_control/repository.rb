@@ -26,18 +26,5 @@ module VersionControl
       # return nil if repo or path does not exist
       return nil
     end
-
-    # Rename the repository (move the directory & files)
-    def rename(new_path)
-      # Move the files
-      if bare?
-        FileUtils.mv path, new_path
-      else
-        FileUtils.mv workdir, new_path
-      end
-
-      # Update the rugged repository
-      @rugged_repository = Rugged::Repository.new new_path
-    end
   end
 end

@@ -422,14 +422,13 @@ RSpec.describe Project, type: :model do
         Rails.root.join(
           Settings.file_storage,
           'projects',
-          project.owner.to_param,
-          project.to_param
+          project.id_in_database.to_s
         ).cleanpath.to_s
       )
     end
 
-    context 'when to_param is nil' do
-      before { allow(project).to receive(:to_param).and_return(nil) }
+    context 'when id_in_database is nil' do
+      before { allow(project).to receive(:id_in_database).and_return(nil) }
       it { is_expected.to be nil }
     end
   end

@@ -25,50 +25,6 @@ RSpec.shared_examples 'having version control' do
       end
     end
 
-    context 'on update' do
-      subject(:method)            { object.update updated_at: Time.now + 1.day }
-      before                      { object.save }
-      let(:repository_file_path)  { object.send(:repository_file_path) }
-      let(:new_repository_file_path) do
-        Rails.root.join(repository_file_path, '..', 'new-path').cleanpath.to_s
-      end
-      before do
-        allow(object)
-          .to receive(:repository_file_path)
-          .and_return repository_file_path, new_repository_file_path
-      end
-
-      it { is_expected.to be_truthy }
-
-      it 'moves the repository to the new path' do
-        method
-        expect(Rails.root.join(object.repository.workdir).cleanpath.to_s)
-          .to eq new_repository_file_path
-      end
-
-      context 'when an error occurs' do
-        before do
-          allow_any_instance_of(VersionControl::Repository)
-            .to receive(:rename)
-            .and_raise 'error'
-        end
-        it { is_expected.to be_falsey }
-        it 'does not save the object to the database' do
-          expect { method }.not_to(change { object.reload.updated_at })
-        end
-      end
-
-      context 'when update does not change output of #repository_file_path' do
-        before do
-          allow(object).to receive(:repository_file_path).and_call_original
-        end
-        it { is_expected.to be_truthy }
-        it 'does not rename the repository' do
-          expect { method }.not_to(change { object.repository.path })
-        end
-      end
-    end
-
     context 'after destroy' do
       subject(:method)      { object.destroy }
       let(:repository_path) { object.send :repository_file_path }

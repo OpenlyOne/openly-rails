@@ -62,45 +62,4 @@ RSpec.describe VersionControl::Repository, type: :model do
       it          { is_expected.to be nil }
     end
   end
-
-  describe '#rename(new_path)' do
-    subject(:method) { repository.rename new_path }
-
-    context 'when repository is bare' do
-      let(:repository)  { build :vc_repository, :bare }
-      let!(:old_path)   { repository.path }
-      let!(:new_path)   { repository.path[0..-2] + '.new.git/' }
-
-      it 'moves the repository to the new path' do
-        method
-        expect(VersionControl::Repository.find(old_path)).to be nil
-        expect(VersionControl::Repository.find(new_path)).not_to be nil
-      end
-
-      it 'updates its reference to rugged_repository' do
-        expect(Rugged::Repository).to receive(:new).and_call_original
-        method
-        expect(repository.path).to eq new_path
-      end
-    end
-
-    context 'when repository is not bare' do
-      let(:repository)  { build :vc_repository }
-      let!(:old_path)   { repository.workdir }
-      let!(:new_path) { Rails.root.join(repository.workdir, '..', 'test').to_s }
-
-      it 'moves the repository to the new path' do
-        method
-        expect(VersionControl::Repository.find(old_path)).to be nil
-        expect(VersionControl::Repository.find(new_path)).not_to be nil
-      end
-
-      it 'updates its reference to rugged_repository' do
-        expect(Rugged::Repository).to receive(:new).and_call_original
-        method
-        expect(Rails.root.join(repository.workdir).cleanpath.to_s)
-          .to eq new_path
-      end
-    end
-  end
 end
