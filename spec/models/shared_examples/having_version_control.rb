@@ -60,9 +60,6 @@ RSpec.shared_examples 'having version control' do
     end
 
     context 'when repository exists' do
-      before do
-        VersionControl::Repository.create object.send(:repository_file_path)
-      end
       it { is_expected.to be_a VersionControl::Repository }
     end
 

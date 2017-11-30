@@ -2,5 +2,7 @@
 enable_account_registration: true
 # The location for storing files, such as Git repositories
 file_storage: 'system'
+# The location for storing lock files
+lock_storage: 'tmp/locks'
 # The account used to access, monitor, and manage files
 google_drive_tracking_account: <%= ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] || 'track@flov.com' %>
