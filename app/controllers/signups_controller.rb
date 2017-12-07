@@ -2,7 +2,6 @@
 
 # Controller for all static pages: index, about, contact, etc...
 class SignupsController < ApplicationController
-
   layout false
 
   def create
