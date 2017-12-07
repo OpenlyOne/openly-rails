@@ -10,6 +10,9 @@ Rails.application.routes.draw do
 
   devise_for :accounts, skip: %i[registrations sessions]
 
+  # Routes for signups
+  post '/signup' => 'signups#create'
+
   # Routes for registration
   if Settings.enable_account_registration
     devise_scope :account do

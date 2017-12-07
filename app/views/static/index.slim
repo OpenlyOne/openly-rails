@@ -8,7 +8,16 @@
       | Share your work, collaborate with your team and the world at large, and
         make a difference.
     .section
-      button.btn-large.disabled Coming Soon
+      .row
+        .col.l6.m9.s12.push-m3.push-l3
+          = form_for Signup.new, url: {controller: 'signups', action: 'create'}, method: :post do |f|
+            .row
+              .col.s12.input-field
+                = f.email_field :email, placeholder: 'Your Email Address', class: 'white black-text center-align'
+            .row
+              .col.s12
+                button action='submit' class="btn-large primary-color primary-color-text"
+                  | Join Now
     .spacing.v48px
 
 .spacing.v64px
