@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryGirl.define do
-  factory :vc_repository, class: VersionControl::Repository do
+  factory :repository, class: VersionControl::Repository do
     skip_create
 
     transient do

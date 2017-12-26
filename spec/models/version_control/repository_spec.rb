@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe VersionControl::Repository, type: :model do
-  subject(:repository) { build :vc_repository }
+  subject(:repository) { build :repository }
 
   it 'has a valid factory' do
     expect { subject }.not_to raise_error
   end
 
   describe 'delegations' do
-    methods = %i[bare? path workdir]
+    methods = %i[bare? path]
 
     methods.each do |method|
       it "delegates #{method}" do
@@ -19,7 +19,7 @@ RSpec.describe VersionControl::Repository, type: :model do
   end
 
   describe '.create(path)' do
-    let!(:repository) { build :vc_repository }
+    let!(:repository) { build :repository }
     let(:path)        { repository.path }
 
     it { is_expected.to be_a VersionControl::Repository }
@@ -52,7 +52,7 @@ RSpec.describe VersionControl::Repository, type: :model do
     subject(:method) { VersionControl::Repository.find path }
 
     context 'when path is a git repository' do
-      let(:repository)  { build :vc_repository }
+      let(:repository)  { build :repository }
       let(:workdir)     { repository.workdir }
       let(:path)        { repository.path }
 
@@ -77,8 +77,8 @@ RSpec.describe VersionControl::Repository, type: :model do
   end
 
   describe '.lock(path)' do
-    let(:repository1) { build :vc_repository }
-    let(:repository2) { build :vc_repository }
+    let(:repository1) { build :repository }
+    let(:repository2) { build :repository }
     let(:path1)       { repository1.workdir }
     let(:path2)       { repository2.workdir }
     let(:thread1)     { double('Thread') }
@@ -141,7 +141,7 @@ RSpec.describe VersionControl::Repository, type: :model do
 
   describe '#destroy' do
     subject(:method)  { repository.destroy }
-    let(:repository)  { build :vc_repository }
+    let(:repository)  { build :repository }
     let(:path)        { repository.workdir }
 
     it 'deletes the files at path' do
@@ -158,13 +158,36 @@ RSpec.describe VersionControl::Repository, type: :model do
 
   describe '#lock' do
     subject(:method)  { repository.send :lock }
-    let(:repository)  { build :vc_repository }
+    let(:repository)  { build :repository }
     let(:path)        { repository.workdir }
 
     it 'calls VersionControl::Repository.lock' do
       expect(VersionControl::Repository)
         .to receive(:lock).with(path)
       method
+    end
+
+    context 'when repository already has lock' do
+      it 'does not call VersionControl::Repository.lock twice' do
+        expect(VersionControl::Repository)
+          .to receive(:lock).with(path).once
+        repository.send(:lock) { method }
+      end
+    end
+  end
+
+  describe '#workdir' do
+    subject(:method) { repository.workdir }
+
+    it "is the cleanpath version of the rugged repository's workdir" do
+      repo_path = repository.path
+      workdir_path = ::File.expand_path('..', repo_path)
+      is_expected.to eq Pathname(workdir_path).cleanpath.to_s
+    end
+
+    context 'when @rugged_repository is nil' do
+      let(:repository) { VersionControl::Repository.new(nil) }
+      it { is_expected.to be nil }
     end
   end
 end

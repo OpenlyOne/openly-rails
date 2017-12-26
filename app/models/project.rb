@@ -151,7 +151,8 @@ class Project < ApplicationRecord
     root_folder.commit!
 
     # Start recursive FolderImportJob
-    FolderImportJob.perform_later(reference: self, folder_id: root_folder.id)
+    FolderImportJob.perform_later(reference: self,
+                                  folder_id: root_folder.google_drive_id)
   end
 
   # Validation: Is the link to the Google Drive folder valid?

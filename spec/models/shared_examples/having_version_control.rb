@@ -51,6 +51,33 @@ RSpec.shared_examples 'having version control' do
     end
   end
 
+  describe 'delegations' do
+    before { object.save }
+
+    it 'delegates stage to repository with prefix :repository' do
+      expect_any_instance_of(VersionControl::Repository).to receive :stage
+      subject.send :repository_stage
+    end
+
+    it 'delegates files to repository_stage' do
+      expect_any_instance_of(VersionControl::Revisions::Staged)
+        .to receive :files
+      subject.send :files
+    end
+
+    context 'when repository is nil' do
+      before { allow(object).to receive(:repository).and_return nil }
+
+      it 'returns nil on calling #repository_stage' do
+        expect(subject.send(:repository_stage)).to eq nil
+      end
+
+      it 'returns nil on calling #files' do
+        expect(subject.send(:files)).to eq nil
+      end
+    end
+  end
+
   describe '#repository' do
     subject(:method) { object.repository }
     before do
@@ -65,6 +92,11 @@ RSpec.shared_examples 'having version control' do
 
     context 'when repository does not exist' do
       before  { FileUtils.rm_rf object.send(:repository_file_path) }
+      it      { is_expected.to be nil }
+    end
+
+    context 'when repository_file_path is nil' do
+      before  { allow(object).to receive(:repository_file_path).and_return nil }
       it      { is_expected.to be nil }
     end
   end

@@ -4,6 +4,7 @@
 module VersionControl
   extend ActiveSupport::Concern
 
+  # Callbacks
   included do
     # Safely create repository after creating object
     after_create do
@@ -26,8 +27,13 @@ module VersionControl
     end
   end
 
+  # Delegations
+  delegate :stage, to: :repository, prefix: :repository, allow_nil: true
+  delegate :files, to: :repository_stage, allow_nil: true
+
   # Return the project's Git repository
   def repository
+    return nil if repository_file_path.nil?
     @repository ||= VersionControl::Repository.find repository_file_path
   end
 

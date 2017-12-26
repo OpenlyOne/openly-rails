@@ -308,7 +308,7 @@ RSpec.describe Project, type: :model do
       expect(FolderImportJob).to receive(:perform_later)
         .with(
           reference: project,
-          folder_id: kind_of(Numeric)
+          folder_id: id_of_folder
         )
       subject
     end

@@ -6,7 +6,6 @@ module VersionControl
   class Repository
     delegate  :bare?,
               :path,
-              :workdir,
               to: :@rugged_repository
 
     # Create a new instance with a Rugged::Repository repo
@@ -18,7 +17,7 @@ module VersionControl
     def self.create(*args)
       lock(args[0]) do
         # raise error if repository already exists
-        raise Errno::EEXIST if File.exist?(args[0])
+        raise Errno::EEXIST if ::File.exist?(args[0])
 
         # create repository
         new(Rugged::Repository.init_at(*args))
@@ -49,6 +48,11 @@ module VersionControl
       end
     end
 
+    # The repository's stage / index / working directory
+    def stage
+      @stage ||= Revisions::Staged.new(self)
+    end
+
     # Destroy the repository
     def destroy
       lock do
@@ -56,11 +60,28 @@ module VersionControl
       end
     end
 
-    private
-
     # Create a file lock for the current instance of repository
     def lock
-      self.class.lock(workdir) { yield }
+      return yield if has_lock
+
+      self.class.lock(workdir) do
+        begin
+          self.has_lock = true
+          return yield()
+        ensure
+          self.has_lock = false
+        end
+      end
     end
+
+    # Return the clean path for the repository's working directory
+    def workdir
+      return nil unless @rugged_repository&.workdir
+      Pathname(@rugged_repository.workdir).cleanpath.to_s
+    end
+
+    private
+
+    attr_accessor :has_lock
   end
 end
