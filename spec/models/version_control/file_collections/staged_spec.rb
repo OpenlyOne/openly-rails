@@ -79,6 +79,38 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
+  describe '#create_root' do
+    subject(:method) { file_collection.create_root(params) }
+    let(:params) do
+      {
+        id: '123-abc-root-id',
+        name: 'my file',
+        mime_type: 'application/vnd.google-apps.folder',
+        version: 5,
+        modified_time: Time.zone.now
+      }
+    end
+
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { file_collection }
+    end
+
+    it { is_expected.to be_an_instance_of VersionControl::Files::Staged::Root }
+
+    it 'creates a root folder' do
+      method
+      expect(file_collection.root).to have_attributes(params)
+    end
+
+    context 'when root already exists' do
+      let!(:root) { create :file, :root, repository: repository }
+
+      it 'raises ActiveRecord::RecordInvalid error' do
+        expect { method }.to raise_error ActiveRecord::RecordInvalid
+      end
+    end
+  end
+
   describe '#exists?(id)' do
     subject(:method)  { file_collection.exists? file_id }
     let(:file_id)     { 'abc' }

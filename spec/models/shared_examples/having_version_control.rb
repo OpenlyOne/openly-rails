@@ -78,6 +78,23 @@ RSpec.shared_examples 'having version control' do
     end
   end
 
+  describe '#reload' do
+    subject(:method) { object.reload }
+    before { object.save }
+
+    it 'resets @repository' do
+      object.repository
+      expect { method }.to(
+        change { object.instance_variable_get(:@repository) }.to(nil)
+      )
+    end
+
+    it 'reloads the object from database' do
+      expect(object.class).to receive(:find)
+      subject
+    end
+  end
+
   describe '#repository' do
     subject(:method) { object.repository }
     before do

@@ -27,6 +27,13 @@ module VersionControl
         end
       end
 
+      # Create the root folder with the given attributes and return it
+      def create_root(attributes)
+        lock do
+          @root = VersionControl::Files::Staged::Root.create(self, attributes)
+        end
+      end
+
       # Return true if file with given ID exists in repository.
       # Return false otherwise.
       def exists?(id)

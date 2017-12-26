@@ -31,6 +31,12 @@ module VersionControl
   delegate :stage, to: :repository, prefix: :repository, allow_nil: true
   delegate :files, to: :repository_stage, allow_nil: true
 
+  # When reloading object, also reset repository
+  def reload
+    @repository = nil
+    super
+  end
+
   # Return the project's Git repository
   def repository
     return nil if repository_file_path.nil?

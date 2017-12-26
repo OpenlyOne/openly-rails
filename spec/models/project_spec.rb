@@ -296,12 +296,7 @@ RSpec.describe Project, type: :model do
 
     it 'creates a root folder' do
       subject
-      expect(project.root_folder).to be_persisted
-    end
-
-    it 'marks root folder as committed' do
-      subject
-      expect(project.root_folder).not_to be_added_since_last_commit
+      expect(project.reload.files.root).to be_a VersionControl::File
     end
 
     it 'creates a FolderImportJob' do
@@ -318,7 +313,7 @@ RSpec.describe Project, type: :model do
 
       it 'does not persist root folder' do
         subject
-        expect(project.root_folder).not_to be_persisted
+        expect(project.reload.files.root).to be nil
       end
 
       it 'does not start a FolderImportJob' do
@@ -328,12 +323,11 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when root folder already exists' do
-      before { create :file_items_folder, project: project, parent: nil }
+      before { create :file, :root, repository: project.repository }
       before { project.reload }
 
       it 'raises an error' do
-        expect { project.send(:import_google_drive_folder) }
-          .to raise_error "Project #{project.id}: Root folder already exists"
+        expect { method }.to raise_error ActiveRecord::RecordInvalid
       end
     end
   end

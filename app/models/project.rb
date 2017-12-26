@@ -135,24 +135,19 @@ class Project < ApplicationRecord
 
   # Import a Google Drive Folder
   def import_google_drive_folder
-    # Raise error if files have already been imported
-    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
-
     # Create the root folder
-    root_folder = GoogleDrive.get_file(google_drive_folder_id)
-    root_folder =
-      build_root_folder(name: 'root', google_drive_id: root_folder.id,
-                        modified_time: root_folder.modified_time,
-                        version: root_folder.version)
+    drive_file = GoogleDrive.get_file(google_drive_folder_id)
+    files.create_root(drive_file.to_h)
 
     # save (raise Rollback if not successful)
-    return false unless yield
-
-    root_folder.commit!
+    unless yield
+      # delete root
+      FileUtils.remove_dir(files.root.send(:path))
+      return false
+    end
 
     # Start recursive FolderImportJob
-    FolderImportJob.perform_later(reference: self,
-                                  folder_id: root_folder.google_drive_id)
+    FolderImportJob.perform_later(reference: self, folder_id: files.root.id)
   end
 
   # Validation: Is the link to the Google Drive folder valid?
