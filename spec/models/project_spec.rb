@@ -15,12 +15,6 @@ RSpec.describe Project, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:owner) }
-    it do
-      is_expected.to(
-        have_one(:root_folder).class_name('FileItems::Folder')
-                              .dependent(:destroy)
-      )
-    end
   end
 
   describe 'attributes' do
@@ -83,47 +77,6 @@ RSpec.describe Project, type: :model do
           project.save
         end
         it { expect(project.import_google_drive_folder_on_save).to be false }
-      end
-    end
-  end
-
-  describe 'scopes' do
-    context 'having_google_drive_files(array_of_ids)' do
-      subject(:method)    { Project.having_google_drive_files(array_of_ids) }
-      let(:array_of_ids)  { files.map(&:google_drive_id) }
-      let!(:files)        { create_list :file_items_base, 3 }
-      let!(:other_files)  { create_list :file_items_base, 3 }
-
-      it 'returns the projects of the files' do
-        expect(subject.map(&:id)).to match_array files.map(&:project_id)
-      end
-
-      context 'when one project has multipe file matches' do
-        let(:new_project) { create :project }
-        before do
-          files.each do |file|
-            create :file_items_base,
-                   project: new_project,
-                   google_drive_id: file.google_drive_id
-          end
-        end
-
-        it 'returns the projects of the files + new project' do
-          expect(subject.map(&:id))
-            .to match_array(files.map(&:project_id) + [new_project.id])
-        end
-
-        it 'does not return project multiple times' do
-          expect(subject.select { |p| p.id == new_project.id }.count).to eq 1
-        end
-      end
-
-      context 'when array_of_ids contains nil values' do
-        let(:array_of_ids) { files.map(&:google_drive_id) + [nil, nil, nil] }
-
-        it 'returns the projects of the files' do
-          expect(subject.map(&:id)).to match_array files.map(&:project_id)
-        end
       end
     end
   end
@@ -329,27 +282,6 @@ RSpec.describe Project, type: :model do
       it 'raises an error' do
         expect { method }.to raise_error ActiveRecord::RecordInvalid
       end
-    end
-  end
-
-  describe '#link_to_google_drive_folder' do
-    subject(:method) { project.link_to_google_drive_folder }
-
-    context 'when a root folder exists' do
-      before do
-        create :file_items_folder, project: project, name: 'root',
-                                   google_drive_id: folder_id, parent: nil
-      end
-      let(:folder_id) { Settings.google_drive_test_folder_id }
-
-      it 'returns its link' do
-        is_expected.to eq 'https://drive.google.com/drive/folders/'\
-          "#{folder_id}"
-      end
-    end
-
-    context 'when root folder does not exist' do
-      it { is_expected.to be nil }
     end
   end
 

@@ -70,6 +70,36 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
     end
   end
 
+  unless skip_methods.include?(:ancestors)
+    describe '#ancestors' do
+      subject(:method)  { file.ancestors }
+      let(:parent)      { create :file, :folder, parent: parent_of_parent }
+      let(:parent_of_parent)  { create :file, :folder, parent: root }
+      let(:root)              { create :file, :root, repository: repository }
+      let(:repository)        { file.file_collection.repository }
+      before { file.instance_variable_set :@parent_id, parent.id }
+
+      it_should_behave_like 'using repository locking' do
+        let(:locker) { file }
+      end
+
+      it 'returns [parent, parent_of_parent, root]' do
+        expect(method.map(&:id)).to eq [parent.id, parent_of_parent.id, root.id]
+      end
+
+      it 'returns an array of staged files' do
+        method.each do |ancestor|
+          expect(ancestor).to be_a VersionControl::Files::Staged
+        end
+      end
+
+      context 'when parent of file does not exist' do
+        before  { file.instance_variable_set :@parent_id, 'blablablub' }
+        it      { is_expected.to eq nil }
+      end
+    end
+  end
+
   unless skip_methods.include?(:update)
     describe '#update(params)' do
       subject(:method)  { file.update(params) }

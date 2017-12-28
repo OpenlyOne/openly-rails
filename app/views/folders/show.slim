@@ -1,4 +1,4 @@
-- if @folder.parent
+- if @ancestors.present?
   nav.breadcrumbs.truncate.gray.lighten-2.black-text.z-depth-0
     .container
       .nav-wrapper
@@ -6,10 +6,10 @@
           = link_to profile_project_root_folder_path(@project.owner, @project), class: "breadcrumb home" do
             svg viewBox="0 0 24 24"
               path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"
-          - collect_parents(@folder).drop(1).map do |folder|
+          - @ancestors.reverse.push(@folder).drop(1).map do |nav_folder|
             svg.separator viewBox="0 0 24 24"
               path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-            =<> link_to folder.name, profile_project_folder_path(@project.owner, @project, folder.google_drive_id), class: "breadcrumb#{folder == @folder ? ' active' : ''}"
+            =<> link_to nav_folder.name, profile_project_folder_path(@project.owner, @project, nav_folder.id), class: "breadcrumb#{nav_folder == @folder ? ' active' : ''}"
 
 .spacing.v48px
 
@@ -20,14 +20,13 @@
       - slice.each do |file|
         .col.s6.m3.l2.center-align
 
-          - if file.is_a? FileItems::Folder
-            = link_to profile_project_folder_path(@project.owner, @project, file.google_drive_id)
+          - if file.directory?
+            = link_to profile_project_folder_path(@project.owner, @project, file.id)
               = render partial: 'file', locals: { file: file }
 
           - else
-            = link_to file.external_link, target: '_blank' do
+            = link_to external_link_for_file(file), target: '_blank' do
               = render partial: 'file', locals: { file: file }
-              - slice.each_slice(4) do |s|
 
       div class=cycle('hide-on-med-and-up', 'hide-on-large-only', 'hide-on-med-only', 'hide-on-large-only', 'hide-on-med-and-up', '')
         .clearfix

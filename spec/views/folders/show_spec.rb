@@ -1,22 +1,19 @@
 # frozen_string_literal: true
 
 RSpec.describe 'folders/show', type: :view do
-  let(:folder)            { create(:file_items_folder, parent: nil) }
-  let(:project)           { folder.project }
+  let(:folder)            { create :file, :root, repository: repository }
+  let(:project)           { create :project }
+  let(:repository)        { project.repository }
   let(:files_and_folders) { files + folders }
-  let(:files) do
-    create_list(:file_items_base, 5, :committed,
-                project: project, parent: folder)
-  end
-  let(:folders) do
-    create_list(:file_items_folder, 5, :committed,
-                project: project, parent: folder)
-  end
+  let(:files)             { create_list :file, 5, parent: folder }
+  let(:folders)           { create_list :file, 5, :folder, parent: folder }
+  let(:ancestors)         { [] }
 
   before do
     assign(:project, project)
     assign(:folder, folder)
     assign(:files, files_and_folders)
+    assign(:ancestors, ancestors)
   end
 
   it 'renders the names of files and folders' do
@@ -29,15 +26,17 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders the icons of files and folders' do
     render
     files_and_folders.each do |file|
-      expect(rendered).to have_css "img[src='#{view.asset_path(file.icon)}']"
+      icon = view.icon_for_file(file)
+      expect(rendered).to have_css "img[src='#{view.asset_path(icon)}']"
     end
   end
 
   it 'renders the links of files' do
     render
     files.each do |file|
+      link = view.external_link_for_file(file)
       expect(rendered)
-        .to have_css "a[href='#{file.external_link}'][target='_blank']"
+        .to have_css "a[href='#{link}'][target='_blank']"
     end
   end
 
@@ -47,21 +46,25 @@ RSpec.describe 'folders/show', type: :view do
       expect(rendered).to have_link(
         folder.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, folder.google_drive_id
+          project.owner, project.slug, folder.id
         )
       )
     end
   end
 
   context 'when folder is not root' do
-    let(:folder) do
-      create :file_items_folder, project: parent.project, parent: parent
-    end
-    let(:parent) { create :file_items_folder }
+    let(:folder)    { create :file, :folder, name: 'Folder',  parent: other }
+    let(:other)     { create :file, :folder, name: 'Other',   parent: docs }
+    let(:docs)      { create :file, :folder, name: 'Docs',    parent: root }
+    let(:root)      { create :file, :root, repository: project.repository }
+    let(:ancestors) { folder.ancestors }
 
     it 'renders breadcrumbs' do
       render
-      expect(rendered).to have_css 'nav'
+      expect(rendered).to have_css(
+        '.breadcrumbs',
+        text: 'Docs  Other  Folder'
+      )
     end
 
     it 'renders current folder' do
@@ -77,7 +80,7 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  context 'when file has been modified' do
+  xcontext 'when file has been modified' do
     before do
       allow(files.first)
         .to receive(:modified_since_last_commit?).and_return(true)
@@ -89,7 +92,7 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  context 'when file has been added' do
+  xcontext 'when file has been added' do
     before do
       allow(files.first)
         .to receive(:added_since_last_commit?).and_return(true)
@@ -101,7 +104,7 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  context 'when file has been moved' do
+  xcontext 'when file has been moved' do
     before do
       allow(files.first)
         .to receive(:moved_since_last_commit?).and_return(true)
@@ -113,7 +116,7 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  context 'when file has been deleted' do
+  xcontext 'when file has been deleted' do
     before do
       allow(files.first)
         .to receive(:deleted_since_last_commit?).and_return(true)

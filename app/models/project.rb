@@ -7,17 +7,13 @@ class Project < ApplicationRecord
 
   # Associations
   belongs_to :owner, polymorphic: true
-  has_one :root_folder,
-          -> { where parent_id: nil },
-          class_name: 'FileItems::Folder',
-          dependent: :destroy
-  has_many :files, class_name: 'FileItems::Base'
 
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
 
   # Accessors
+  attr_reader :link_to_google_drive_folder
   attr_accessor :import_google_drive_folder_on_save
 
   # Callbacks
@@ -29,18 +25,6 @@ class Project < ApplicationRecord
               unless: proc { |project| project.errors.any? }
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
-
-  # Scopes
-  # Returns projects that have Google drive files
-  scope :having_google_drive_files, (lambda do |array_of_ids|
-    results = Project.none
-    array_of_ids.select(&:present?).each do |id|
-      results = results.or(
-        Project.joins(:files).where(file_items: { google_drive_id: id })
-      )
-    end
-    results.distinct
-  end)
 
   # Validations
   # Owner type must be user
@@ -92,14 +76,6 @@ class Project < ApplicationRecord
   end
 
   # The absolute link to the Google Drive root folder
-  def link_to_google_drive_folder
-    @link_to_google_drive_folder ||=
-      if google_drive_folder_id
-        "https://drive.google.com/drive/folders/#{google_drive_folder_id}"
-      end
-  end
-
-  # The absolute link to the Google Drive root folder
   def link_to_google_drive_folder=(link)
     @link_to_google_drive_folder = link
     @google_drive_folder_id = GoogleDrive.link_to_id(link)
@@ -130,7 +106,7 @@ class Project < ApplicationRecord
 
   # The ID of the Google Drive folder associated with this project
   def google_drive_folder_id
-    @google_drive_folder_id ||= root_folder&.google_drive_id
+    @google_drive_folder_id ||= files&.root&.google_drive_id
   end
 
   # Import a Google Drive Folder

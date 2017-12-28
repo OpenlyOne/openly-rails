@@ -5,8 +5,8 @@ feature 'Project' do
     # given there is a project
     project = create :project
     # with some files and folders
-    root = create :file_items_folder, project: project, parent: nil
-    files = create_list :file_items_base, 5, project: project, parent: root
+    root = create :file, :root, repository: project.repository
+    files = create_list :file, 5, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -27,11 +27,10 @@ feature 'Project' do
     # given there is a project
     project = create :project
     # with some files and folders
-    root = create :file_items_folder, project: project, parent: nil
-    create_list :file_items_base, 5, project: project, parent: root
-    subfolder = create :file_items_folder, project: project, parent: root
-    subfiles =
-      create_list :file_items_base, 5, project: project, parent: subfolder
+    root = create :file, :root, repository: project.repository
+    create_list :file, 5, parent: root
+    subfolder = create :file, :folder, parent: root
+    subfiles = create_list :file, 5, parent: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -42,8 +41,7 @@ feature 'Project' do
 
     # then I should be on the project's subfolder page
     expect(page).to have_current_path(
-      "/#{project.owner.to_param}/#{project.to_param}/folders/" \
-      "#{subfolder.google_drive_id}"
+      "/#{project.owner.to_param}/#{project.to_param}/folders/#{subfolder.id}"
     )
     # and see the files in the project subfolder
     subfiles.each do |file|

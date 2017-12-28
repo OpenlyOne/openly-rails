@@ -27,6 +27,31 @@ module VersionControl
         end
       end
 
+      # Return an array of this file's ancestors (parent, parent of parent)
+      # all the way up to the root folder.
+      # The first array element is the immediate parent, the last array element
+      # is the root folder.
+      # Return nil if parent_id does not exist
+      def ancestors
+        return @ancestors if @ancestors
+        return nil if path.nil?
+
+        @ancestors = []
+
+        # set ancestor path and workdir path
+        ancestor_path = Pathname.new(path).parent
+        workdir = Pathname.new(file_collection.workdir)
+
+        # loop through ancestors until we encounter workdir
+        until ancestor_path == workdir
+          @ancestors << file_collection.find_by_path(ancestor_path.to_s)
+          ancestor_path = ancestor_path.parent
+        end
+
+        # Return ancestors
+        @ancestors
+      end
+
       # Update the file with the provided params
       def update(params)
         # Exit if existing version is more recent than intended update

@@ -59,7 +59,7 @@ Rails.application.routes.draw do
       post 'import' => 'projects#import', on: :member
       # Route for folders
       get 'files' => 'folders#root', as: :root_folder
-      resources :folders, param: :google_drive_id, only: :show
+      resources :folders, only: :show
     end
   end
 

@@ -182,6 +182,52 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
+  describe '#find_by_id(id)' do
+    subject(:method)  { file_collection.find_by_id(id) }
+    let(:id)          { file.id }
+    let!(:file)       { create :file, parent: root }
+
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { file_collection }
+    end
+
+    it { is_expected.to be_a VersionControl::Files::Staged }
+    it { is_expected.to have_attributes(id: file.id, name: file.name) }
+
+    context 'when file with id does not exist' do
+      let(:id) { 'abc-does-not-exist' }
+      it { is_expected.to be nil }
+    end
+
+    context 'when id is nil' do
+      let(:id) { nil }
+      it { is_expected.to be nil }
+    end
+  end
+
+  describe '#find_by_path(path)' do
+    subject(:method)  { file_collection.find_by_path(path) }
+    let(:path)        { file.send :path }
+    let!(:file)       { create :file, parent: root }
+
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { file_collection }
+    end
+
+    it { is_expected.to be_a VersionControl::Files::Staged }
+    it { is_expected.to have_attributes(id: file.id, name: file.name) }
+
+    context 'when file with path does not exist' do
+      let(:path) { 'abc-does-not-exist' }
+      it { is_expected.to be nil }
+    end
+
+    context 'when path is nil' do
+      let(:path) { nil }
+      it { is_expected.to be nil }
+    end
+  end
+
   describe 'path_for_file(id)' do
     subject(:method)  { file_collection.send :path_for_file, id }
     let(:basename)    { 'new-file' }
@@ -268,17 +314,17 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
-  describe '#metadata_for(id)' do
-    subject(:method)  { file_collection.send :metadata_for, file_id }
-    let(:file_id)     { root.id }
+  describe '#metadata_for(path)' do
+    subject(:method)  { file_collection.send :metadata_for, file_path }
+    let(:file_path)   { root.send :path }
 
     it_should_behave_like 'using repository locking' do
       before        { root }
       let(:locker)  { file_collection }
     end
 
-    context 'when id is root id' do
-      let(:file_id) { root.id }
+    context 'when path is root path' do
+      let(:file_id) { root.path }
       it do
         is_expected.to eq(
           id: root.id,
@@ -292,10 +338,10 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
       end
     end
 
-    context 'when id is file id' do
-      let(:file_id) { file.id }
-      let(:folder)  { create :file, :folder, parent: root }
-      let(:file)    { create :file, parent: folder }
+    context 'when path is file path' do
+      let(:file_path) { file.send :path }
+      let(:folder)    { create :file, :folder, parent: root }
+      let(:file)      { create :file, parent: folder }
 
       it do
         is_expected.to eq(
@@ -310,9 +356,9 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
       end
     end
 
-    context 'when id is folder id' do
-      let(:file_id) { folder.id }
-      let(:folder)  { create :file, :folder, parent: root }
+    context 'when path is folder path' do
+      let(:file_path) { folder.send :path }
+      let(:folder)    { create :file, :folder, parent: root }
 
       it do
         is_expected.to eq(
@@ -323,6 +369,16 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
           version: folder.version,
           modified_time: folder.modified_time,
           is_root: false
+        )
+      end
+    end
+
+    context 'when path is nil' do
+      let(:file_path) { nil }
+      it 'raises a invalid argument error' do
+        expect { method }.to raise_error(
+          Errno::EINVAL,
+          'Invalid argument - Path must be a String.'
         )
       end
     end

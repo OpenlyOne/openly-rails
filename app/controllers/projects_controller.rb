@@ -20,7 +20,7 @@ class ProjectsController < ApplicationController
   end
 
   def setup
-    return unless @project.root_folder
+    return if @project.files.root.nil?
 
     # Redirect to project page if set up has been completed
     redirect_to [@project.owner, @project],
@@ -38,6 +38,9 @@ class ProjectsController < ApplicationController
   end
 
   def show
+    @project.repository.lock do
+      @root_folder = @project.files.root
+    end
     @user_can_edit_project = can?(:edit, @project)
   end
 

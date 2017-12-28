@@ -12,8 +12,8 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
     let(:file) { root }
   end
   it_should_behave_like 'being a staged file',
-                        %i[.create #create update metadata_path move_to path
-                           validate_for_creation!] do
+                        %i[.create #create ancestors update metadata_path
+                           move_to path validate_for_creation!] do
     let(:file) { root }
   end
   it_should_behave_like 'being a staged folder' do
@@ -63,6 +63,11 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
         expect { method }.to raise_error ActiveRecord::RecordInvalid
       end
     end
+  end
+
+  describe '#ancestors' do
+    subject(:method)  { root.ancestors }
+    it                { is_expected.to eq [] }
   end
 
   describe '#parent_id' do

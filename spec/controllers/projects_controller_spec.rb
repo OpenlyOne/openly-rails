@@ -63,7 +63,7 @@ RSpec.describe ProjectsController, type: :controller do
     end
 
     context 'when root folder exists' do
-      before { create :file_items_folder, project: project, parent: nil }
+      before { create :file, :root, repository: project.repository }
       before { run_request }
 
       it 'returns http redirect' do

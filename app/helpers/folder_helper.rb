@@ -19,15 +19,6 @@ module FolderHelper
     "#{scheme.first}-text text-#{scheme.last}"
   end
 
-  # Recursively get the folder's parents
-  def collect_parents(folder)
-    # stop recursion if we have arrived at the 'top'
-    return [folder] unless folder.parent
-
-    # collect parents and then append self
-    collect_parents(folder.parent) << folder
-  end
-
   # Return the HTML class for the change that has been made to the file
   def file_change_html_class(file)
     return 'changed deleted'  if file.deleted_since_last_commit?

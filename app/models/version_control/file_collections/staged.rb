@@ -16,14 +16,11 @@ module VersionControl
       def create_or_update(attributes)
         lock do
           # Try to find existing file with ID and update it
-          begin
-            file = find(attributes[:id])
-            file.update(attributes)
+          file = find_by_id(attributes[:id])
+          return file.update(attributes) if file.present?
 
           # File does not yet exist, go ahead and create it
-          rescue ActiveRecord::RecordNotFound
-            VersionControl::Files::Staged.create(self, attributes)
-          end
+          VersionControl::Files::Staged.create(self, attributes)
         end
       end
 
@@ -48,12 +45,38 @@ module VersionControl
       # Raises ActiveRecord::RecordNotFound error if file is not found
       def find(id)
         lock do
-          VersionControl::File.new(self, metadata_for(id))
+          file = find_by_id(id)
+          return file if file.present?
+
+          # File was not found, raise error!
+          raise ActiveRecord::RecordNotFound,
+                "Couldn't find file with id: #{id}"
+        end
+      end
+
+      # Find a file by its id
+      # Return nil if not found
+      def find_by_id(id)
+        lock do
+          file_path = path_for_file(id)
+          find_by_path(file_path)
         end
 
-      # Raise ActiveRecord::RecordNotFound error if file was not found
+      # Return nil if file was not found
       rescue Errno::ENOENT, Errno::EINVAL
-        raise ActiveRecord::RecordNotFound, "Couldn't find file with id: #{id}"
+        nil
+      end
+
+      # Find a file by its path
+      # Return nil if not found
+      def find_by_path(path)
+        lock do
+          VersionControl::File.new(self, metadata_for(path))
+        end
+
+      # Return nil if file was not found
+      rescue Errno::ENOENT, Errno::EINVAL
+        nil
       end
 
       # Return the path for a given file identified by its OID.
@@ -73,9 +96,7 @@ module VersionControl
 
       # The root folder
       def root
-        @root ||= lock { find(root_id) }
-      rescue ActiveRecord::RecordNotFound
-        nil
+        @root ||= lock { find_by_id(root_id) }
       end
 
       # The id for the root folder
@@ -97,10 +118,13 @@ module VersionControl
         end
       end
 
-      # Return the metadata for a file in this repository identified by ID
-      def metadata_for(id)
+      # Return the metadata for a file in this repository identified by its path
+      def metadata_for(path)
+        # Raise error if id is not a String
+        raise(Errno::EINVAL, 'Path must be a String.') unless path.is_a? String
+
         lock do
-          path = path_for_file(id)
+          id = ::File.basename(path)
           load_metadata(path).merge(
             id: id,
             parent_id: parent_id_from_file_path(path),

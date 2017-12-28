@@ -14,10 +14,9 @@ module VersionControl
           @children ||=
             lock do
               # List all files in folder's directory
-              Dir.glob("#{path}/*").map do |child|
+              Dir.glob("#{path}/*").map do |path_to_child|
                 # Initialize each file/child
-                child_id = ::File.basename(child)
-                file_collection.find(child_id)
+                file_collection.find_by_path(path_to_child)
               end
             end
         end
