@@ -2,8 +2,19 @@
 
 # Controller for project folders
 class FoldersController < ApplicationController
+  include ProjectLockable
+
+  # Execute without lock or render/redirect delay
   before_action :set_project
-  before_action :set_variables_under_repository_lock
+
+  around_action :wrap_action_in_project_lock
+
+  # Execute with lock and render/redirect delay
+  before_action :set_folder
+  before_action :set_root_folder
+  before_action :set_ancestors
+  before_action :set_user_can_commit_changes
+  before_action :set_files
 
   def root
     render 'show'
@@ -15,18 +26,6 @@ class FoldersController < ApplicationController
 
   def set_project
     @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
-  # Sets various controller instance variables under repository lock to ensure
-  # that variables are loaded in a concurrency-safe way.
-  def set_variables_under_repository_lock
-    @project.repository.lock do
-      set_folder
-      @root_folder              = @project.files.root
-      @ancestors                = @folder.ancestors
-      @user_can_commit_changes  = can?(:new, :revision, @project)
-      set_files
-    end
   end
 
   def set_folder
@@ -44,5 +43,17 @@ class FoldersController < ApplicationController
     @files = @folder.children
 
     helpers.sort_files!(@files)
+  end
+
+  def set_root_folder
+    @root_folder = @project.files.root
+  end
+
+  def set_user_can_commit_changes
+    @user_can_commit_changes = can?(:new, :revision, @project)
+  end
+
+  def set_ancestors
+    @ancestors = @folder.ancestors
   end
 end

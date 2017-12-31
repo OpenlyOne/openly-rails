@@ -2,33 +2,30 @@
 
 # Controller for project revisions
 class RevisionsController < ApplicationController
+  include ProjectLockable
+
+  # Execute without lock or render/redirect delay
   before_action :authenticate_account!
   before_action :set_project
   before_action :authorize_action
 
-  def new
-    @project.repository.lock do
-      build_revision
-      set_root_folder
-    end
-  end
+  around_action :wrap_action_in_project_lock
 
-  # rubocop:disable Metrics/MethodLength
+  # Execute with lock and render/redirect delay
+  before_action :build_revision
+  before_action :set_root_folder
+
+  def new; end
+
   def create
-    @project.repository.lock do
-      build_revision
-      set_root_folder
-
-      if @revision.commit(revision_params[:summary], revision_author)
-        redirect_with_success_to(
-          profile_project_root_folder_path(@project.owner, @project)
-        )
-      else
-        render :new
-      end
+    if @revision.commit(revision_params[:summary], revision_author)
+      redirect_with_success_to(
+        profile_project_root_folder_path(@project.owner, @project)
+      )
+    else
+      render :new
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/a_repository_locking_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe FoldersController, type: :controller do
@@ -23,6 +24,7 @@ RSpec.describe FoldersController, type: :controller do
       # when folder does not exist
       before { FileUtils.remove_dir(folder.send(:path)) }
     end
+    it_should_behave_like 'a repository locking action'
 
     it 'returns http success' do
       run_request
@@ -40,6 +42,7 @@ RSpec.describe FoldersController, type: :controller do
       # when folder does not exist
       before { FileUtils.remove_dir(folder.send(:path)) }
     end
+    it_should_behave_like 'a repository locking action'
 
     it 'returns http success' do
       run_request

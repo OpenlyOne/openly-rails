@@ -2,10 +2,15 @@
 
 # Controller for projects
 class ProjectsController < ApplicationController
+  include ProjectLockable
+
+  # Execute without lock or render/redirect delay
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
   before_action :set_project, only: %i[setup import show edit update destroy]
   before_action :authorize_action, only: %i[setup import edit update destroy]
+
+  around_action :wrap_action_in_project_lock, only: :show
 
   def new; end
 
@@ -38,9 +43,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @project.repository.lock do
-      @root_folder = @project.files.root
-    end
+    @root_folder = @project.files.root
     @user_can_edit_project = can?(:edit, @project)
   end
 

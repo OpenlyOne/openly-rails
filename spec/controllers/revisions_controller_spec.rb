@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'controllers/shared_examples/a_redirect_with_success.rb'
+require 'controllers/shared_examples/a_repository_locking_action.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
@@ -28,6 +29,7 @@ RSpec.describe RevisionsController, type: :controller do
         'You are not authorized to commit changes for this project.'
       end
     end
+    it_should_behave_like 'a repository locking action'
 
     it 'returns http success' do
       run_request
@@ -58,6 +60,7 @@ RSpec.describe RevisionsController, type: :controller do
         'You are not authorized to commit changes for this project.'
       end
     end
+    it_should_behave_like 'a repository locking action'
 
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
