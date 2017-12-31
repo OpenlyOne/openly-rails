@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/version_control/using_repository_locking.rb'
+
 RSpec.describe VersionControl::Repository, type: :model do
   subject(:repository) { build :repository }
 
   it 'has a valid factory' do
     expect { subject }.not_to raise_error
+  end
+
+  describe 'attributes' do
+    it { should respond_to(:rugged_repository) }
   end
 
   describe 'delegations' do
@@ -15,6 +21,11 @@ RSpec.describe VersionControl::Repository, type: :model do
         expect_any_instance_of(Rugged::Repository).to receive method
         subject.send method
       end
+    end
+
+    it 'delegates #lookup to rugged_repository' do
+      expect_any_instance_of(Rugged::Repository).to receive :lookup
+      subject.lookup 'some-object-id'
     end
   end
 
@@ -139,6 +150,38 @@ RSpec.describe VersionControl::Repository, type: :model do
     end
   end
 
+  describe '#build_revision(tree_id = nil)' do
+    subject(:method)  { repository.build_revision tree_id }
+    let(:tree_id)     { nil }
+    let!(:root)       { create :file, :root, repository: repository }
+    let!(:folder)     { create :file, :folder, parent: root }
+    let!(:file)       { create :file, parent: root }
+    let!(:subfolder)  { create :file, :folder, parent: folder }
+    let!(:subfile)    { create :file, parent: folder }
+
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { repository }
+    end
+
+    it { is_expected.to be_an_instance_of VersionControl::Revisions::Drafted }
+
+    it 'saves the stage / working directory' do
+      expect(repository.stage).to receive(:save)
+      subject
+    end
+
+    context 'when tree_id is passed' do
+      let(:tree_id) { 'some-tree-id' }
+
+      it { is_expected.to be_an_instance_of VersionControl::Revisions::Drafted }
+
+      it 'does not save the stage / working directory' do
+        expect(repository.stage).not_to receive(:save)
+        subject
+      end
+    end
+  end
+
   describe '#destroy' do
     subject(:method)  { repository.destroy }
     let(:repository)  { build :repository }
@@ -174,6 +217,16 @@ RSpec.describe VersionControl::Repository, type: :model do
         repository.send(:lock) { method }
       end
     end
+  end
+
+  describe '#revisions' do
+    subject(:method)  { repository.revisions }
+    it                { is_expected.to be_a VersionControl::RevisionCollection }
+  end
+
+  describe '#stage' do
+    subject(:method)  { repository.stage }
+    it                { is_expected.to be_a VersionControl::Revisions::Staged }
   end
 
   describe '#workdir' do

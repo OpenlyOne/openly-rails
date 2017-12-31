@@ -15,6 +15,11 @@ class Ability
       can? :manage, project.owner
     end
 
+    # User can commit changes for projects of profiles that they can manage
+    can %i[new create], :revision do |_revision, project|
+      can? :edit, project
+    end
+
     # Define abilities for the passed in user here. For example:
     #
     #   user ||= User.new # guest user (not logged in)

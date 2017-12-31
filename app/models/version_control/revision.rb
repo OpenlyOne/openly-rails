@@ -5,6 +5,7 @@ module VersionControl
   # staged
   class Revision
     attr_reader :repository
+    delegate :lock, to: :repository
 
     def initialize(repository)
       @repository = repository

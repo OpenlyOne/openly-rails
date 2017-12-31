@@ -22,8 +22,9 @@ class FoldersController < ApplicationController
   def set_variables_under_repository_lock
     @project.repository.lock do
       set_folder
-      @root_folder = @project.files.root
-      @ancestors   = @folder.ancestors
+      @root_folder              = @project.files.root
+      @ancestors                = @folder.ancestors
+      @user_can_commit_changes  = can?(:new, :revision, @project)
       set_files
     end
   end

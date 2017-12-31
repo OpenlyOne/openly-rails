@@ -31,3 +31,10 @@
       div class=cycle('hide-on-med-and-up', 'hide-on-large-only', 'hide-on-med-only', 'hide-on-large-only', 'hide-on-med-and-up', '')
         .clearfix
         .spacing.v48px
+
+/ button for committing changes
+- if @user_can_commit_changes
+  .fixed-action-btn
+    = link_to 'Commit Changes',
+        new_profile_project_revision_path(@project.owner, @project),
+        class: 'btn btn-large primary-color primary-color-text'

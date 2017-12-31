@@ -4,9 +4,9 @@ module VersionControl
   # Wrapper for Rugged2 repositories (which is a wrapper for libgit2
   # (#wrapception))
   class Repository
-    delegate  :bare?,
-              :path,
-              to: :@rugged_repository
+    attr_reader :rugged_repository
+
+    delegate :bare?, :lookup, :path, to: :rugged_repository
 
     # Create a new instance with a Rugged::Repository repo
     def initialize(rugged_repository)
@@ -48,9 +48,17 @@ module VersionControl
       end
     end
 
-    # The repository's stage / index / working directory
-    def stage
-      @stage ||= Revisions::Staged.new(self)
+    # Build a new revision draft, either based on the passed tree id or by
+    # saving the files in working directory
+    def build_revision(tree_id = nil)
+      lock do
+        # Save files in working directory if we're building a revision without
+        # having an existing tree id
+        tree_id ||= stage.save
+
+        # Initialize the revision draft and return
+        Revisions::Drafted.new(self, tree_id)
+      end
     end
 
     # Destroy the repository
@@ -72,6 +80,16 @@ module VersionControl
           self.has_lock = false
         end
       end
+    end
+
+    # A collection of this repository's revisions
+    def revisions
+      @revisions ||= RevisionCollection.new(self)
+    end
+
+    # The repository's stage / index / working directory
+    def stage
+      @stage ||= Revisions::Staged.new(self)
     end
 
     # Return the clean path for the repository's working directory

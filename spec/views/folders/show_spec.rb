@@ -52,6 +52,26 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
+  it 'does not have a button to commit changes' do
+    render
+    expect(rendered).not_to have_link(
+      'Commit Changes',
+      href: new_profile_project_revision_path(project.owner, project)
+    )
+  end
+
+  context 'when current user can edit project' do
+    before { assign(:user_can_commit_changes, true) }
+
+    it 'has a button to commit changes' do
+      render
+      expect(rendered).to have_link(
+        'Commit Changes',
+        href: new_profile_project_revision_path(project.owner, project)
+      )
+    end
+  end
+
   context 'when folder is not root' do
     let(:folder)    { create :file, :folder, name: 'Folder',  parent: other }
     let(:other)     { create :file, :folder, name: 'Other',   parent: docs }
