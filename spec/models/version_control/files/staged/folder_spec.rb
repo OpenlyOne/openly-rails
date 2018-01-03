@@ -3,7 +3,7 @@
 require 'models/shared_examples/version_control/being_a_file.rb'
 require 'models/shared_examples/version_control/being_a_staged_file.rb'
 require 'models/shared_examples/version_control/being_a_staged_folder.rb'
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::Files::Staged::Folder, type: :model do
   subject(:folder) { build :file, :folder }

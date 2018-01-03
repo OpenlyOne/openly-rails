@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'models/shared_examples/caching_method_call.rb'
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.shared_examples 'being a staged folder' do
   describe 'class' do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'models/shared_examples/caching_method_call.rb'
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.shared_examples 'being a staged file' do |skip_methods = []|
   describe 'class' do
@@ -244,42 +244,6 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
     end
   end
 
-  unless skip_methods.include?(:validate_for_creation!)
-    describe '#validate_for_creation!' do
-      subject(:method)  { file.send :validate_for_creation! }
-      before            { allow(file).to receive(:path).and_return 'some-path' }
-
-      it 'does not raise error' do
-        expect { method }.not_to raise_error
-      end
-
-      it_should_behave_like 'using repository locking' do
-        let(:locker) { file }
-      end
-
-      context 'when path is nil' do
-        before { allow(file).to receive(:path).and_return(nil) }
-
-        it 'raises ActiveRecord::RecordInvalid' do
-          expect { method }.to raise_error ActiveRecord::RecordInvalid
-        end
-      end
-
-      context 'when file with ID already exists' do
-        let(:file_collection) { file.file_collection }
-        before do
-          FileUtils.touch(
-            ::File.expand_path(file.id, file_collection.workdir)
-          )
-        end
-
-        it 'raises ActiveRecord::RecordInvalid' do
-          expect { method }.to raise_error ActiveRecord::RecordInvalid
-        end
-      end
-    end
-  end
-
   unless skip_methods.include?(:'#create')
     describe '#create' do
       subject(:method)  { file.send :create }
@@ -409,6 +373,42 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
           method
           expect { repository.stage.files.find(file.id) }
             .to raise_error(ActiveRecord::RecordNotFound)
+        end
+      end
+    end
+  end
+
+  unless skip_methods.include?(:validate_for_creation!)
+    describe '#validate_for_creation!' do
+      subject(:method)  { file.send :validate_for_creation! }
+      before            { allow(file).to receive(:path).and_return 'some-path' }
+
+      it 'does not raise error' do
+        expect { method }.not_to raise_error
+      end
+
+      it_should_behave_like 'using repository locking' do
+        let(:locker) { file }
+      end
+
+      context 'when path is nil' do
+        before { allow(file).to receive(:path).and_return(nil) }
+
+        it 'raises ActiveRecord::RecordInvalid' do
+          expect { method }.to raise_error ActiveRecord::RecordInvalid
+        end
+      end
+
+      context 'when file with ID already exists' do
+        let(:file_collection) { file.file_collection }
+        before do
+          FileUtils.touch(
+            ::File.expand_path(file.id, file_collection.workdir)
+          )
+        end
+
+        it 'raises ActiveRecord::RecordInvalid' do
+          expect { method }.to raise_error ActiveRecord::RecordInvalid
         end
       end
     end

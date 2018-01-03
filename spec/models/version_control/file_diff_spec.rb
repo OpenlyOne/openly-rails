@@ -2,9 +2,7 @@
 
 require 'models/shared_examples/caching_method_call.rb'
 require 'models/shared_examples/version_control/for_file_diff.rb'
-# TODO: Refactor into single file repository_locking.rb
-require 'models/shared_examples/version_control/using_repository_locking.rb'
-require 'models/shared_examples/version_control/not_using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::FileDiff, type: :model do
   subject(:diff) do

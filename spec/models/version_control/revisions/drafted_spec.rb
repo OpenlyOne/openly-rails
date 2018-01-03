@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'models/shared_examples/caching_method_call.rb'
-require 'models/shared_examples/version_control/using_repository_locking.rb'
 require 'models/shared_examples/version_control/being_a_revision.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::Revisions::Drafted, type: :model do
   subject(:revision)  { repository.build_revision }

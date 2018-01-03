@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-# TODO: Refactor into single file repository_locking.rb
-require 'models/shared_examples/version_control/using_repository_locking.rb'
-require 'models/shared_examples/version_control/not_using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::RevisionDiff, type: :model do
   subject(:diff) { VersionControl::RevisionDiff.new(base, differentiator) }

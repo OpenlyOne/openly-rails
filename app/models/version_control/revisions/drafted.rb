@@ -37,10 +37,7 @@ module VersionControl
       # Return the tree for this revision draft
       def tree
         return nil unless @tree_id.present?
-        @tree ||=
-          lock do
-            repository.lookup @tree_id
-          end
+        @tree ||= repository.lookup @tree_id
       end
 
       private

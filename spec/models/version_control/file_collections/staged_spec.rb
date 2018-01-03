@@ -2,7 +2,7 @@
 
 require 'models/shared_examples/caching_method_call.rb'
 require 'models/shared_examples/version_control/being_a_file_collection.rb'
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::FileCollections::Staged, type: :model do
   subject(:file_collection) { repository.stage.files }

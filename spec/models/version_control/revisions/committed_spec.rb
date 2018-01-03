@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/version_control/using_repository_locking.rb'
 require 'models/shared_examples/version_control/being_a_revision.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::Revisions::Committed, type: :model do
   subject(:revision)  { create :revision }

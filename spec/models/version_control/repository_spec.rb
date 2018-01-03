@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::Repository, type: :model do
   subject(:repository) { build :repository }
@@ -30,31 +30,33 @@ RSpec.describe VersionControl::Repository, type: :model do
   end
 
   describe '.create(path)' do
-    let!(:repository) { build :repository }
-    let(:path)        { repository.path }
+    subject(:method)  { VersionControl::Repository.create(path) }
+    let(:directory)   { Rails.root.join(Settings.file_storage).to_s }
+    let(:path)        { "#{directory}/my-new-repo" }
 
     it { is_expected.to be_a VersionControl::Repository }
 
     it 'creates a new repository at the path' do
-      actual_path =
-        Rails.root.join(`cd #{path}/objects; git rev-parse --git-dir`.strip)
-      expect(actual_path.cleanpath).to eq Rails.root.join(path).cleanpath
+      actual_path = Rails.root.join(
+        `cd #{method.path}/objects; git rev-parse --git-dir`.strip
+      )
+      expect(actual_path.cleanpath).to eq Rails.root.join(method.path).cleanpath
     end
 
     it 'sets the repository to be non-bare' do
+      method
       expect(`cd #{path}; git rev-parse --is-bare-repository`).to eq "false\n"
     end
 
-    it 'uses locking' do
-      expect(VersionControl::Repository)
-        .to receive(:lock).with(repository.workdir)
-      VersionControl::Repository.create(repository.workdir)
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { VersionControl::Repository }
     end
 
     context 'when repository already exists' do
+      before { VersionControl::Repository.create(path) }
+
       it 'raises an error' do
-        expect { VersionControl::Repository.create(repository.workdir) }
-          .to raise_error(Errno::EEXIST)
+        expect { method }.to raise_error(Errno::EEXIST)
       end
     end
   end
@@ -192,10 +194,8 @@ RSpec.describe VersionControl::Repository, type: :model do
       expect(File).not_to exist path
     end
 
-    it 'uses locking' do
-      expect(VersionControl::Repository)
-        .to receive(:lock).with(path)
-      method
+    it_should_behave_like 'using repository locking' do
+      let(:locker) { repository }
     end
   end
 
@@ -205,15 +205,13 @@ RSpec.describe VersionControl::Repository, type: :model do
     let(:path)        { repository.workdir }
 
     it 'calls VersionControl::Repository.lock' do
-      expect(VersionControl::Repository)
-        .to receive(:lock).with(path)
+      expect(VersionControl::Repository).to receive(:lock).with(path)
       method
     end
 
     context 'when repository already has lock' do
       it 'does not call VersionControl::Repository.lock twice' do
-        expect(VersionControl::Repository)
-          .to receive(:lock).with(path).once
+        expect(VersionControl::Repository).to receive(:lock).with(path).once
         repository.send(:lock) { method }
       end
     end
