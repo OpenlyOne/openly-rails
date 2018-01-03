@@ -30,6 +30,7 @@ module VersionControl
   # Delegations
   delegate :stage, to: :repository, prefix: :repository, allow_nil: true
   delegate :files, to: :repository_stage, allow_nil: true
+  delegate :revisions, to: :repository, allow_nil: true
 
   # When reloading object, also reset repository
   def reload

@@ -8,7 +8,7 @@ RSpec.describe VersionControl::Revisions::Committed, type: :model do
   let(:repository)    { revision.repository }
 
   it_should_behave_like 'being a revision' do
-    let!(:revision) { create :revision }
+    subject!(:revision) { create :revision }
   end
 
   describe 'attributes' do
@@ -22,6 +22,20 @@ RSpec.describe VersionControl::Revisions::Committed, type: :model do
       expect_any_instance_of(VersionControl::RevisionCollection)
         .to receive :repository
       subject.repository
+    end
+
+    it 'delegates tree to @commit' do
+      subject
+      expect_any_instance_of(Rugged::Commit).to receive :tree
+      subject.tree
+    end
+  end
+
+  describe '#files' do
+    subject(:method) { revision.files }
+    it do
+      is_expected
+        .to be_an_instance_of VersionControl::FileCollections::Committed
     end
   end
 end

@@ -4,8 +4,7 @@ module VersionControl
   # A version controlled file
   class File
     attr_reader :file_collection, :id, :name, :parent_id, :mime_type, :version,
-                :modified_time
-    delegate :lock, :repository, to: :@file_collection
+                :path
 
     # Initialize an instance of version controlled file and cast to appropriate
     # type (staged or committed)
@@ -35,7 +34,16 @@ module VersionControl
       @parent_id        = params[:parent_id]
       @mime_type        = params[:mime_type]
       @version          = params[:version]
-      @modified_time    = params[:modified_time]
+      @modified_time    = params[:modified_time]&.utc
+      @path             = params[:path]
+      @git_oid          = params[:git_oid]
+    end
+
+    # Always return modified time in UTC and as Time class
+    # This is important because YAML.safe_load (for reading committed files)
+    # only supports a very narrow set of classes, Time being one of them.
+    def modified_time
+      @modified_time&.utc
     end
 
     # Return true if file is a directory, false otherwise

@@ -12,12 +12,18 @@ module VersionControl
 
     # Return the last (most recent) revision in this repository
     def last
-      @last ||=
-        lock do
-          last_commit = repository.rugged_repository.branches['master']&.target
-          return nil unless last_commit.present?
-          Revisions::Committed.new(self, last_commit)
-        end
+      return @last if @last
+
+      last_commit = repository.rugged_repository.branches['master']&.target
+
+      @last =
+        last_commit.present? ? Revisions::Committed.new(self, last_commit) : nil
+    end
+
+    # Resets cached instance variables and returns self for chaining
+    def reload
+      @last = nil
+      self
     end
   end
 end

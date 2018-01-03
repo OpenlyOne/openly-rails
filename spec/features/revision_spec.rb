@@ -29,5 +29,7 @@ feature 'Revision' do
     expect(page).to have_text 'Revision successfully created.'
     # and have the revision persisted to the repository
     expect(project.repository.revisions.last).to be_present
+    # and see no file modification icons
+    expect(page).to have_css '.file.unchanged', count: 5
   end
 end

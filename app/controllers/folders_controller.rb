@@ -10,11 +10,11 @@ class FoldersController < ApplicationController
   around_action :wrap_action_in_project_lock
 
   # Execute with lock and render/redirect delay
-  before_action :set_folder
-  before_action :set_root_folder
+  before_action :set_folder_diff
+  before_action :set_file_diffs
   before_action :set_ancestors
+  before_action :set_root_folder
   before_action :set_user_can_commit_changes
-  before_action :set_files
 
   def root
     render 'show'
@@ -24,25 +24,29 @@ class FoldersController < ApplicationController
 
   private
 
+  def set_ancestors
+    @ancestors = @folder_diff.ancestors_of_file
+  end
+
+  def set_file_diffs
+    @file_diffs = @folder_diff.children_as_diffs
+
+    helpers.sort_file_diffs!(@file_diffs)
+  end
+
+  def set_folder_diff
+    # Load the folder. If ID param is not set, load root folder.
+    @folder_diff = @project.repository
+                           .stage
+                           .diff(@project.repository.revisions.last)
+                           .diff_file(params[:id] || @project.files.root_id)
+
+    # Raise error if folder is not a directory
+    raise ActiveRecord::RecordNotFound unless @folder_diff.is_or_was_directory?
+  end
+
   def set_project
     @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
-  def set_folder
-    # If id is not set, we want to load the root folder
-    params[:id] ||= @project.files.root_id
-
-    # Load the folder
-    @folder = @project.files.find_by_id(params[:id])
-
-    # Raise error unless folder is a directory
-    raise ActiveRecord::RecordNotFound unless @folder&.directory?
-  end
-
-  def set_files
-    @files = @folder.children
-
-    helpers.sort_files!(@files)
   end
 
   def set_root_folder
@@ -51,9 +55,5 @@ class FoldersController < ApplicationController
 
   def set_user_can_commit_changes
     @user_can_commit_changes = can?(:new, :revision, @project)
-  end
-
-  def set_ancestors
-    @ancestors = @folder.ancestors
   end
 end

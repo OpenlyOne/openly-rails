@@ -10,5 +10,11 @@ module VersionControl
     def initialize(repository)
       @repository = repository
     end
+
+    # Create a RevisionDiff with self as the base and the passed revision as the
+    # differentiator
+    def diff(differentiator)
+      VersionControl::RevisionDiff.new(self, differentiator)
+    end
   end
 end

@@ -1,11 +1,20 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/caching_method_call.rb'
 require 'models/shared_examples/version_control/using_repository_locking.rb'
 
 RSpec.shared_examples 'being a staged file' do |skip_methods = []|
   describe 'class' do
     it  { is_expected.to be_an_instance_of described_class }
     it  { is_expected.to be_kind_of VersionControl::Files::Staged }
+  end
+
+  describe 'delegations' do
+    it 'delegates lock to file_collection' do
+      subject
+      expect(subject.file_collection).to receive :lock
+      subject.lock {}
+    end
   end
 
   unless skip_methods.include?(:'.create')
@@ -83,6 +92,10 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         let(:locker) { file }
       end
 
+      it_behaves_like 'caching method call', :ancestors do
+        subject { file }
+      end
+
       it 'returns [parent, parent_of_parent, root]' do
         expect(method.map(&:id)).to eq [parent.id, parent_of_parent.id, root.id]
       end
@@ -95,6 +108,37 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
 
       context 'when parent of file does not exist' do
         before  { file.instance_variable_set :@parent_id, 'blablablub' }
+        it      { is_expected.to eq nil }
+      end
+    end
+  end
+
+  unless skip_methods.include?(:path)
+    describe '#path' do
+      subject(:method)  { file.path }
+      let(:repository)  { file.file_collection.repository }
+
+      it_should_behave_like 'using repository locking' do
+        let(:locker) { file }
+      end
+
+      context 'when parent file exists' do
+        let!(:root) { create :file, :root, repository: repository }
+        before      { file.instance_variable_set :@parent_id, root.id }
+        it { is_expected.to eq "#{repository.workdir}/#{root.id}/#{file.id}" }
+
+        it_behaves_like 'caching method call', :path do
+          subject { file }
+        end
+      end
+
+      context 'when parent id does not exist in working directory' do
+        before  { file.instance_variable_set :@parent_id, 'notfound' }
+        it      { is_expected.to eq nil }
+      end
+
+      context 'when parent id is nil' do
+        before  { file.instance_variable_set :@parent_id, nil }
         it      { is_expected.to eq nil }
       end
     end
@@ -156,7 +200,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         let(:parent_id)   { new_parent.id }
 
         it 'removes file at old path' do
-          old_path = file.send :path
+          old_path = file.path
           method
           expect(::File).not_to exist(old_path)
         end
@@ -168,7 +212,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         end
 
         context 'when file is not persisted' do
-          before  { FileUtils.remove_dir(file.send(:path)) }
+          before  { FileUtils.remove_dir(file.path) }
           it      { expect { method }.to raise_error(Errno::ENOENT) }
         end
       end
@@ -183,7 +227,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         end
 
         context 'when file is not persisted' do
-          before  { FileUtils.remove_dir(file.send(:path)) }
+          before  { FileUtils.remove_dir(file.path) }
           it      { expect { method }.to raise_error(Errno::ENOENT) }
         end
       end
@@ -294,7 +338,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
 
       it 'sets file path to root.id/new_parent.id/id' do
         method
-        expect(file.send(:path))
+        expect(file.path)
           .to eq "#{repository.workdir}/#{root.id}/#{new_parent.id}/#{file.id}"
       end
 
@@ -304,18 +348,18 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
       end
 
       it 'removes file at old path' do
-        old_path = file.send :path
+        old_path = file.path
         method
         expect(::File).not_to exist(old_path)
       end
 
       it 'adds file at new path' do
         method
-        expect(::File).to exist(file.send(:path))
+        expect(::File).to exist(file.path)
       end
 
       it 'leaves file unchanged' do
-        expect { method }.not_to(change { ::File.size(file.send(:path)) })
+        expect { method }.not_to(change { ::File.size(file.path) })
       end
 
       context 'when new_parent_id is equal to existing parent_id' do
@@ -327,7 +371,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         end
 
         it 'does not destroy the file' do
-          old_path = file.send :path
+          old_path = file.path
           method
           expect(::File).to exist(old_path)
         end
@@ -358,7 +402,7 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
 
         it 'sets path to nil' do
           method
-          expect(file.send(:path)).to eq nil
+          expect(file.path).to eq nil
         end
 
         it 'deletes the file' do
@@ -366,33 +410,6 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
           expect { repository.stage.files.find(file.id) }
             .to raise_error(ActiveRecord::RecordNotFound)
         end
-      end
-    end
-  end
-
-  unless skip_methods.include?(:path)
-    describe '#path' do
-      subject(:method)  { file.send :path }
-      let(:repository)  { file.file_collection.repository }
-
-      it_should_behave_like 'using repository locking' do
-        let(:locker) { file }
-      end
-
-      context 'when parent file exists' do
-        let!(:root) { create :file, :root, repository: repository }
-        before      { file.instance_variable_set :@parent_id, root.id }
-        it { is_expected.to eq "#{repository.workdir}/#{root.id}/#{file.id}" }
-      end
-
-      context 'when parent id does not exist in working directory' do
-        before  { file.instance_variable_set :@parent_id, 'notfound' }
-        it      { is_expected.to eq nil }
-      end
-
-      context 'when parent id is nil' do
-        before  { file.instance_variable_set :@parent_id, nil }
-        it      { is_expected.to eq nil }
       end
     end
   end
@@ -413,6 +430,15 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         path = ::File.expand_path(file.id, repository.workdir)
         metadata = YAML.load_file(path).symbolize_keys
         expect(metadata).to match file.send(:metadata)
+      end
+
+      it 'writes metadata in a YAML.safe_load compatible format' do
+        method
+        path = ::File.expand_path(file.id, repository.workdir)
+        metadata = File.read(path)
+        expect do
+          YAML.safe_load(metadata, Settings.whitelisted_yaml_classes)
+        end.not_to raise_error
       end
     end
   end

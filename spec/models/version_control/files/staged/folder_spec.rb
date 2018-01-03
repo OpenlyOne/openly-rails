@@ -47,13 +47,13 @@ RSpec.describe VersionControl::Files::Staged::Folder, type: :model do
 
     it 'creates a directory at abc' do
       method
-      path = ::File.expand_path(params[:id], root.send(:path))
+      path = ::File.expand_path(params[:id], root.path)
       expect(::File).to be_directory(path)
     end
 
     it 'writes metadata to abc/.self' do
       method
-      path = ::File.expand_path("#{params[:id]}/.self", root.send(:path))
+      path = ::File.expand_path("#{params[:id]}/.self", root.path)
       metadata = YAML.load_file(path).symbolize_keys
       expect(metadata)
         .to match params.slice(:name, :mime_type, :version, :modified_time)

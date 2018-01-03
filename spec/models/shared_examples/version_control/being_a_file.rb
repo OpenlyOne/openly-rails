@@ -9,16 +9,19 @@ RSpec.shared_examples 'being a file' do
     it { should respond_to(:mime_type) }
     it { should respond_to(:version) }
     it { should respond_to(:modified_time) }
+    it { should respond_to(:path) }
   end
 
-  describe 'delegations' do
-    methods = %i[lock repository]
+  describe '#modified_time' do
+    subject(:method)  { file.modified_time }
+    let(:time)        { Time.zone.now }
+    before            { file.instance_variable_set :@modified_time, time }
 
-    methods.each do |method|
-      it "delegates #{method}" do
-        expect_any_instance_of(VersionControl::FileCollection).to receive method
-        subject.send method
-      end
+    it { is_expected.to be_an_instance_of Time }
+
+    context 'when @modified_time is nil' do
+      let(:time)  { nil }
+      it          { is_expected.to be nil }
     end
   end
 

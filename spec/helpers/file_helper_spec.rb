@@ -7,37 +7,39 @@ RSpec.describe FileHelper, type: :helper do
     let(:file)        { build :file, id: 'FILE-ID', mime_type: mime_type }
 
     context 'when mime type is folder' do
-      before { allow(helper).to receive(:file_type).and_return :folder }
+      before { allow(helper).to receive(:type_of_file).and_return :folder }
       it { is_expected.to eq 'https://drive.google.com/drive/folders/FILE-ID' }
     end
 
     context 'when mime type is document' do
-      before { allow(helper).to receive(:file_type).and_return :document }
+      before { allow(helper).to receive(:type_of_file).and_return :document }
       it { is_expected.to eq 'https://docs.google.com/document/d/FILE-ID' }
     end
 
     context 'when mime type is spreadsheet' do
-      before { allow(helper).to receive(:file_type).and_return :spreadsheet }
+      before { allow(helper).to receive(:type_of_file).and_return :spreadsheet }
       it { is_expected.to eq 'https://docs.google.com/spreadsheets/d/FILE-ID' }
     end
 
     context 'when mime type is presentation' do
-      before { allow(helper).to receive(:file_type).and_return :presentation }
+      before do
+        allow(helper).to receive(:type_of_file).and_return :presentation
+      end
       it { is_expected.to eq 'https://docs.google.com/presentation/d/FILE-ID' }
     end
 
     context 'when mime type is drawing' do
-      before { allow(helper).to receive(:file_type).and_return :drawing }
+      before { allow(helper).to receive(:type_of_file).and_return :drawing }
       it { is_expected.to eq 'https://docs.google.com/drawings/d/FILE-ID' }
     end
 
     context 'when mime type is form' do
-      before { allow(helper).to receive(:file_type).and_return :form }
+      before { allow(helper).to receive(:type_of_file).and_return :form }
       it { is_expected.to eq 'https://docs.google.com/forms/d/FILE-ID' }
     end
 
     context 'when mime type is anything else' do
-      before { allow(helper).to receive(:file_type).and_return :other }
+      before { allow(helper).to receive(:type_of_file).and_return :other }
       it { is_expected.to eq 'https://drive.google.com/file/d/FILE-ID' }
     end
 
@@ -53,7 +55,7 @@ RSpec.describe FileHelper, type: :helper do
     let(:file)        { build :file, mime_type: mime_type }
 
     context 'when mime type is folder' do
-      before  { allow(helper).to receive(:file_type).and_return :folder }
+      before  { allow(helper).to receive(:type_of_file).and_return :folder }
       it      { is_expected.to eq 'files/folder.png' }
     end
 
@@ -68,6 +70,47 @@ RSpec.describe FileHelper, type: :helper do
     context 'when mime type is empty' do
       let(:mime_type) { '' }
       it              { is_expected.to eq nil }
+    end
+  end
+
+  describe '#link_to_file(file, project)' do
+    subject(:method)  { helper.link_to_file(file, project) {} }
+    let(:project)     { create :project }
+
+    context 'when file is directory' do
+      let(:file) { build :file, :folder }
+
+      it 'returns internal link to directory' do
+        expect(helper).to receive(:link_to).with(
+          "/#{project.owner.handle}/#{project.slug}/folders/#{file.id}"
+        )
+        method
+      end
+
+      it 'does not set target to _blank' do
+        expect(helper).to receive(:link_to).with(kind_of(String))
+        method
+      end
+    end
+
+    context 'when file is not directory' do
+      let(:file) { build :file }
+
+      it 'sets url to external_link_for_file' do
+        expect(helper).to receive(:link_to).with(
+          external_link_for_file(file),
+          kind_of(Hash)
+        )
+        method
+      end
+
+      it 'sets target to _blank' do
+        expect(helper).to receive(:link_to).with(
+          kind_of(String),
+          hash_including(target: '_blank')
+        )
+        method
+      end
     end
   end
 
@@ -97,7 +140,7 @@ RSpec.describe FileHelper, type: :helper do
       subject
       last_file = files[0]
       files[1..2].each do |file|
-        # expect file name to come later alphabetically) than last_file's name
+        # expect file name to come later (alphabetically) than last_file's name
         expect(file.name > last_file.name).to be true
 
         # set last_file to current file for next comparison
@@ -106,7 +149,7 @@ RSpec.describe FileHelper, type: :helper do
 
       last_file = files[3]
       files[4..5].each do |file|
-        # expect file name to come later alphabetically) than last_file's name
+        # expect file name to come later (alphabetically) than last_file's name
         expect(file.name > last_file.name).to be true
 
         # set last_file to current file for next comparison
@@ -115,8 +158,25 @@ RSpec.describe FileHelper, type: :helper do
     end
   end
 
-  describe '#file_type(file)' do
-    subject(:method)  { file_type(file) }
+  describe '#sort_order_for_files' do
+    subject(:method)  { sort_order_for_files(file) }
+    let(:file)        { build :file, name: 'File Name' }
+
+    it { is_expected.to be_an Array }
+
+    context 'when file is directory' do
+      before { allow(file).to receive(:directory?).and_return true }
+      it { is_expected.to eq [0, 'File Name'] }
+    end
+
+    context 'when file is not directory' do
+      before { allow(file).to receive(:directory?).and_return false }
+      it { is_expected.to eq [1, 'File Name'] }
+    end
+  end
+
+  describe '#type_of_file(file)' do
+    subject(:method)  { type_of_file(file) }
     let(:file)        { build :file, mime_type: mime_type }
 
     context 'when mime type is folder' do

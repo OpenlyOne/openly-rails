@@ -1,0 +1,9 @@
+/ render the diff/change indicator for this file diff
+
+div.indicators
+  - if file_diff.been_changed?
+    span title=tooltip_for_file_diff(file_diff)
+      svg.white-text.z-depth-1[class=color_for_file_diff(file_diff)
+                               style="width:24px;height:24px"
+                               viewBox="0 0 24 24"]
+        path fill="currentColor" d=icon_for_file_diff(file_diff)

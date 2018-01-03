@@ -6,3 +6,7 @@ file_storage: 'system'
 lock_storage: 'tmp/locks'
 # The account used to access, monitor, and manage files
 google_drive_tracking_account: <%= ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] || 'track@flov.com' %>
+# The classes whitelisted for use in YAML.safe_load
+# Example: YAML.safe_load(string, Settings.whitelisted_yaml_classes)
+# Read more: http://www.rubydoc.info/stdlib/psych/Psych.safe_load
+whitelisted_yaml_classes: [Time]

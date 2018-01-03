@@ -65,6 +65,11 @@ RSpec.shared_examples 'having version control' do
       subject.send :files
     end
 
+    it 'delegates revisions to repository' do
+      expect_any_instance_of(VersionControl::Repository).to receive :revisions
+      subject.send :revisions
+    end
+
     context 'when repository is nil' do
       before { allow(object).to receive(:repository).and_return nil }
 
@@ -74,6 +79,10 @@ RSpec.shared_examples 'having version control' do
 
       it 'returns nil on calling #files' do
         expect(subject.send(:files)).to eq nil
+      end
+
+      it 'returns nil on calling #revisions' do
+        expect(subject.send(:revisions)).to eq nil
       end
     end
   end

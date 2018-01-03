@@ -25,7 +25,6 @@ feature 'Folder Import' do
     expect(page).to have_css '.file', count: 3
 
     # and see file modification icons
-    pending 'files are marked as added'
     expect(page).to have_css '.file.changed.added', count: 3
   end
 end

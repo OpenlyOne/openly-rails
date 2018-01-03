@@ -11,6 +11,11 @@ module VersionControl
           nil
         end
 
+        # The path of the root folder
+        def path
+          ::File.expand_path(id, @file_collection.workdir)
+        end
+
         # Raise ActiveRecord::RecordInvalid if file is invalid for creation
         # File is valid for creation if no root folder exists yet
         def validate_for_creation!
@@ -25,11 +30,6 @@ module VersionControl
         # Overwrite move_to method
         # Root is never moved or deleted
         def move_to(*args); end
-
-        # The path of the root folder
-        def path
-          ::File.expand_path(id, @file_collection.workdir)
-        end
       end
     end
   end

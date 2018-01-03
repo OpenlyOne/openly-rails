@@ -11,4 +11,19 @@ RSpec.shared_examples 'being a revision' do
       subject.send :lock
     end
   end
+
+  describe '#diff(revision)' do
+    let(:method)    { subject.diff(revision) }
+    let(:revision)  { instance_double(VersionControl::Revision) }
+
+    it { expect(method).to be_an_instance_of VersionControl::RevisionDiff }
+
+    it 'sets base to self' do
+      expect(method.base).to be subject
+    end
+
+    it 'sets differentiator to revision' do
+      expect(method.differentiator).to be revision
+    end
+  end
 end

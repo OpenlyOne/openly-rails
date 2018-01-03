@@ -44,6 +44,15 @@ RSpec.describe FoldersController, type: :controller do
     end
     it_should_behave_like 'a repository locking action'
 
+    context 'when file is not a directory' do
+      let(:file)  { create :file, parent: folder }
+      before      { params[:id] = file.id }
+
+      it 'raises a 404 error' do
+        expect { run_request }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+
     it 'returns http success' do
       run_request
       expect(response).to have_http_status :success

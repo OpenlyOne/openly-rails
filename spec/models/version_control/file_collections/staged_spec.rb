@@ -1,11 +1,29 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/caching_method_call.rb'
+require 'models/shared_examples/version_control/being_a_file_collection.rb'
 require 'models/shared_examples/version_control/using_repository_locking.rb'
 
 RSpec.describe VersionControl::FileCollections::Staged, type: :model do
   subject(:file_collection) { repository.stage.files }
   let(:repository)          { build :repository }
   let(:root)                { create :file, :root, repository: repository }
+
+  it_should_behave_like 'being a file collection'
+
+  describe 'delegations' do
+    it 'delegates lock to repository' do
+      subject
+      expect(subject.repository).to receive :lock
+      subject.lock {}
+    end
+
+    it 'delegates workdir to repository' do
+      subject
+      expect(subject.repository).to receive :workdir
+      subject.workdir
+    end
+  end
 
   describe '#count' do
     subject(:method) { file_collection.count }
@@ -111,23 +129,63 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
-  describe '#exists?(id)' do
-    subject(:method)  { file_collection.exists? file_id }
-    let(:file_id)     { 'abc' }
+  describe '#exists?(id_or_ids)' do
+    subject(:method)  { file_collection.exists? id }
+    let(:id)          { file.id }
+    let!(:file)       { create :file, parent: root }
 
     it_should_behave_like 'using repository locking' do
       let(:locker) { file_collection }
     end
 
-    context 'when file with id exists' do
-      before do
-        FileUtils.touch(::File.expand_path(file_id, file_collection.workdir))
-      end
-      it { is_expected.to be true }
-    end
+    it { is_expected.to be true }
 
     context 'when file with id does not exist' do
-      it { is_expected.to be false }
+      let(:id)  { 'does-not-exist' }
+      it        { is_expected.to be false }
+    end
+
+    context 'when id is nil' do
+      let(:id)  { nil }
+      it        { is_expected.to be false }
+    end
+
+    context 'when multiple ids are passed' do
+      let(:id) { [file.id, root.id] }
+
+      it { is_expected.to be_a Hash }
+
+      it 'returns true for file and root' do
+        expect(method).to eq file.id => true, root.id => true
+      end
+
+      context 'when single id as array is passed' do
+        let(:id) { [file.id] }
+
+        it { is_expected.to be_a Hash }
+        it { expect(method).to eq file.id => true }
+      end
+
+      context 'when some elements are nil' do
+        let(:id) { [file.id, nil, root.id, nil] }
+
+        it 'drops nil and returns true for file and root ' do
+          expect(method).to eq file.id => true, root.id => true
+        end
+      end
+
+      context 'when some elements are non-existent' do
+        let(:id) { [file.id, 'fail', root.id, 'does not exist'] }
+
+        it 'returns true for file and root and false for others' do
+          is_expected.to include(
+            file.id           =>  true,
+            'fail'            =>  false,
+            root.id           =>  true,
+            'does not exist'  =>  false
+          )
+        end
+      end
     end
   end
 
@@ -182,7 +240,7 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
-  describe '#find_by_id(id)' do
+  describe '#find_by_id(id_or_ids)' do
     subject(:method)  { file_collection.find_by_id(id) }
     let(:id)          { file.id }
     let!(:file)       { create :file, parent: root }
@@ -194,6 +252,16 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     it { is_expected.to be_a VersionControl::Files::Staged }
     it { is_expected.to have_attributes(id: file.id, name: file.name) }
 
+    context 'when file is a folder' do
+      let!(:file) { create :file, :folder, parent: root }
+      it          { is_expected.to be_a VersionControl::Files::Staged::Folder }
+    end
+
+    context 'when file is root' do
+      let!(:file) { root }
+      it          { is_expected.to be_a VersionControl::Files::Staged::Root }
+    end
+
     context 'when file with id does not exist' do
       let(:id) { 'abc-does-not-exist' }
       it { is_expected.to be nil }
@@ -203,11 +271,50 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
       let(:id) { nil }
       it { is_expected.to be nil }
     end
+
+    context 'when multiple ids are passed' do
+      let(:id) { [file.id, root.id] }
+
+      it { is_expected.to be_an Array }
+
+      it 'returns file and root' do
+        expect(method.map(&:id)).to eq [file.id, root.id]
+      end
+
+      context 'when single id as array is passed' do
+        let(:id) { [file.id] }
+
+        it { is_expected.to be_an Array }
+        it { expect(method[0].id).to eq file.id }
+      end
+
+      context 'when some elements are nil' do
+        let(:id) { [file.id, nil, root.id, nil] }
+
+        it 'returns file, nil, file, and nil' do
+          expect(method[0]).to be_a VersionControl::File
+          expect(method[1]).to be nil
+          expect(method[2]).to be_a VersionControl::File
+          expect(method[3]).to be nil
+        end
+      end
+
+      context 'when some elements are non-existent' do
+        let(:id) { [file.id, 'fail', root.id, 'does not exist'] }
+
+        it 'returns file, nil, file, and nil' do
+          expect(method[0]).to be_a VersionControl::File
+          expect(method[1]).to be nil
+          expect(method[2]).to be_a VersionControl::File
+          expect(method[3]).to be nil
+        end
+      end
+    end
   end
 
   describe '#find_by_path(path)' do
     subject(:method)  { file_collection.find_by_path(path) }
-    let(:path)        { file.send :path }
+    let(:path)        { file.path }
     let!(:file)       { create :file, parent: root }
 
     it_should_behave_like 'using repository locking' do
@@ -215,7 +322,22 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
 
     it { is_expected.to be_a VersionControl::Files::Staged }
-    it { is_expected.to have_attributes(id: file.id, name: file.name) }
+    it 'passes all parameters' do
+      expect(VersionControl::Files::Staged).to receive(:new).with(
+        file_collection,
+        name: file.name,
+        mime_type: file.mime_type,
+        version: file.version,
+        modified_time: file.modified_time,
+        id: file.id,
+        parent_id: root.id,
+        is_root: false
+        # TODO: Path should be passed to initializer
+        # TODO: Path should be relative
+        # path: file.path
+      )
+      subject
+    end
 
     context 'when file with path does not exist' do
       let(:path) { 'abc-does-not-exist' }
@@ -228,49 +350,69 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
-  describe 'path_for_file(id)' do
-    subject(:method)  { file_collection.send :path_for_file, id }
-    let(:basename)    { 'new-file' }
-    let(:id)          { "#{basename}-1" }
-    let(:path)        { File.expand_path(id, repository.workdir) }
-    before            { FileUtils.mkdir_p(path) if id.present? }
+  describe '#find_paths_by_ids(ids)' do
+    subject(:method)  { file_collection.find_paths_by_ids(ids) }
+    let(:root)      { create :file, :root, id: 'root', repository: repository }
+    let(:folder)    { create :file, :folder, id: 'folder', parent: root }
+    let(:subfolder) { create :file, :folder, id: 'subfolder', parent: folder }
+    let!(:file)     { create :file, id: 'file', parent: subfolder }
+    let(:workdir)   { repository.workdir }
+    let(:ids) do
+      [root.id,
+       folder.id,
+       subfolder.id,
+       file.id]
+    end
 
     it_should_behave_like 'using repository locking' do
       let(:locker) { file_collection }
     end
-    it { is_expected.to eq path }
 
-    context 'when second file with similar id exists' do
-      let(:id_2)    { basename }
-      let(:path_2)  { File.expand_path(id_2, repository.workdir) }
-      before        { FileUtils.mkdir_p path_2 }
+    it 'returns paths to the files' do
+      expect(method[0]).to eq "#{workdir}/root"
+      expect(method[1]).to eq "#{workdir}/root/folder"
+      expect(method[2]).to eq "#{workdir}/root/folder/subfolder"
+      expect(method[3]).to eq "#{workdir}/root/folder/subfolder/file"
+    end
 
-      it 'only returns exact matches' do
-        expect(subject).to eq path
-        expect(file_collection.send(:path_for_file, id_2)).to eq path_2
+    it 'globs the directory once' do
+      expect(Dir).to receive(:glob).exactly(1).times.and_call_original
+      subject
+    end
+
+    it 'sorts results according to passed ids' do
+      ids.reverse!
+      is_expected.to match [file, subfolder, folder, root].map(&:path)
+    end
+
+    context 'when ids contain GLOB metacharacters' do
+      let(:ids) { ['*', '?', '[list]'] }
+      it        { is_expected.to contain_exactly nil, nil, nil }
+    end
+
+    context 'when some of the ids cannot be found' do
+      before { ids << 'does not exist' }
+
+      it 'returns all the paths' do
+        expect(method[0..3])
+          .to match [root, folder, subfolder, file].map(&:path)
+      end
+
+      it 'sets the last entry to nil' do
+        expect(method.last).to eq nil
       end
     end
 
-    context 'when file does not exist' do
-      before { FileUtils.remove_dir(path) }
+    context 'when some of the ids are nil' do
+      before { ids << nil }
 
-      it 'raises a file not found error' do
-        expect { method }.to raise_error(
-          Errno::ENOENT,
-          'No such file or directory - ' \
-          "File named #{id} does not exist in " \
-          "#{Pathname(repository.workdir).cleanpath}"
-        )
+      it 'returns all the paths' do
+        expect(method[0..3])
+          .to match [root, folder, subfolder, file].map(&:path)
       end
-    end
 
-    context 'when file is nil' do
-      let(:id) { nil }
-      it 'raises a invalid argument error' do
-        expect { method }.to raise_error(
-          Errno::EINVAL,
-          'Invalid argument - ID must be a String.'
-        )
+      it 'sets the last entry to nil' do
+        expect(method.last).to eq nil
       end
     end
   end
@@ -288,6 +430,10 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
         is_expected.to be_an_instance_of VersionControl::Files::Staged::Root
       end
       it { is_expected.to have_attributes(id: root.id, name: root.name) }
+
+      it_behaves_like 'caching method call', :root do
+        subject { file_collection }
+      end
     end
 
     context 'when root does not exist' do
@@ -307,6 +453,10 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     context 'when root exists' do
       before { FileUtils.touch path }
       it { is_expected.to eq root_id }
+
+      it_behaves_like 'caching method call', :root_id do
+        subject { file_collection }
+      end
     end
 
     context 'when root does not exist' do
@@ -384,8 +534,10 @@ RSpec.describe VersionControl::FileCollections::Staged, type: :model do
     end
   end
 
-  describe '#parent_id_from_file_path(path)' do
-    subject(:method) { file_collection.send :parent_id_from_file_path, path }
+  describe '#parent_id_from_absolute_file_path(path)' do
+    subject(:method) do
+      file_collection.send :parent_id_from_absolute_file_path, path
+    end
 
     context 'when path is :working_directory:/abc/def' do
       let(:path)  { ::File.expand_path('abc/def', file_collection.workdir) }

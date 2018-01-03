@@ -8,12 +8,21 @@ RSpec.describe 'folders/show', type: :view do
   let(:files)             { create_list :file, 5, parent: folder }
   let(:folders)           { create_list :file, 5, :folder, parent: folder }
   let(:ancestors)         { [] }
+  let(:revision_diff)     { instance_double VersionControl::RevisionDiff }
+  let(:folder_diff) do
+    VersionControl::FileDiff.new(revision_diff, folder, folder)
+  end
+  let(:file_diffs) do
+    files_and_folders.map do |file|
+      VersionControl::FileDiff.new(revision_diff, file, file)
+    end
+  end
 
   before do
-    assign(:project, project)
-    assign(:folder, folder)
-    assign(:files, files_and_folders)
-    assign(:ancestors, ancestors)
+    assign(:project,      project)
+    assign(:folder_diff,  folder_diff)
+    assign(:file_diffs,   file_diffs)
+    assign(:ancestors,    ancestors)
   end
 
   it 'renders the names of files and folders' do
@@ -100,51 +109,47 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  xcontext 'when file has been modified' do
+  context 'when file has been modified' do
     before do
-      allow(files.first)
-        .to receive(:modified_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:been_modified?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.modified .indicators svg', count: 1
     end
   end
 
-  xcontext 'when file has been added' do
+  context 'when file has been added' do
     before do
-      allow(files.first)
-        .to receive(:added_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:been_added?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.added .indicators svg', count: 1
     end
   end
 
-  xcontext 'when file has been moved' do
+  context 'when file has been moved' do
     before do
-      allow(files.first)
-        .to receive(:moved_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:been_moved?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.moved .indicators svg', count: 1
     end
   end
 
-  xcontext 'when file has been deleted' do
+  context 'when file has been deleted' do
     before do
-      allow(files.first)
-        .to receive(:deleted_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:been_deleted?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.deleted .indicators svg', count: 1
     end
   end
 end

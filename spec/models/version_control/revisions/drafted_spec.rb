@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/caching_method_call.rb'
 require 'models/shared_examples/version_control/using_repository_locking.rb'
 require 'models/shared_examples/version_control/being_a_revision.rb'
 
@@ -120,6 +121,10 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     it { is_expected.to be_an_instance_of Rugged::Tree }
     it { is_expected.to eq repository.send(:lookup, tree_id) }
 
+    it_behaves_like 'caching method call', :tree do
+      subject { revision }
+    end
+
     context 'when tree_id is nil' do
       before  { revision.instance_variable_set :@tree_id, nil }
       it      { is_expected.to be nil }
@@ -142,6 +147,10 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     end
 
     it { is_expected.to eq last_revision_oid }
+
+    it_behaves_like 'caching method call', :last_revision_id do
+      subject { revision }
+    end
 
     context 'when .last-revision file is empty' do
       let(:last_revision_oid) { '' }

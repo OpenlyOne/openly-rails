@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/version_control/using_repository_locking.rb'
+require 'models/shared_examples/caching_method_call.rb'
 
 RSpec.describe VersionControl::RevisionCollection, type: :model do
   subject(:revision_collection) { repository.revisions }
@@ -18,13 +18,8 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
   end
 
   describe '#last' do
-    subject(:method) { revision_collection.last }
-
-    it_should_behave_like 'using repository locking' do
-      let(:locker) { revision_collection }
-    end
-
-    it { is_expected.to be nil }
+    subject(:method)  { revision_collection.last }
+    it                { is_expected.to be nil }
 
     context 'when a previous revision exists' do
       before            { create :revision, repository: repository }
@@ -37,6 +32,24 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
       it 'has the id of the last revision' do
         expect(method).to have_attributes(id: last_commit.oid)
       end
+
+      it_behaves_like 'caching method call', :last do
+        subject { revision_collection }
+      end
+    end
+  end
+
+  describe '#reload' do
+    subject(:method) { revision_collection.reload }
+
+    it { is_expected.to eq revision_collection }
+
+    it 'resets @last instance variable' do
+      revision_collection.instance_variable_set(:@last, 'cached')
+      expect { method }.to(
+        change { revision_collection.instance_variable_get :@last }
+          .from('cached').to(nil)
+      )
     end
   end
 end

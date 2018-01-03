@@ -2,8 +2,10 @@
 
 module VersionControl
   module Files
-    # A staged revision for a version controlled repository
+    # A staged file in a version controlled repository
     class Staged < VersionControl::File
+      delegate :lock, to: :file_collection
+
       # Cast StagedFile to correct type
       def self.new(file_collection, params)
         return super unless self == VersionControl::Files::Staged
@@ -32,6 +34,7 @@ module VersionControl
       # The first array element is the immediate parent, the last array element
       # is the root folder.
       # Return nil if parent_id does not exist
+      # TODO: Refactor & follow flow of committed ancestors
       def ancestors
         return @ancestors if @ancestors
         return nil if path.nil?
@@ -50,6 +53,16 @@ module VersionControl
 
         # Return ancestors
         @ancestors
+      end
+
+      # Return the path for the file in the repository's working directory
+      def path
+        @path ||=
+          lock do
+            parent_path = file_collection.find_paths_by_ids([parent_id]).first
+
+            parent_path.present? ? ::File.expand_path(id, parent_path) : nil
+          end
       end
 
       # Update the file with the provided params
@@ -122,19 +135,6 @@ module VersionControl
         end
       end
 
-      # Return the path for the file in the repository's working directory
-      def path
-        @path ||=
-          lock do
-            ::File.expand_path(
-              id,
-              @file_collection.path_for_file(parent_id)
-            )
-          end
-      rescue Errno::ENOENT, Errno::EINVAL
-        @path = nil
-      end
-
       # Raise ActiveRecord::RecordInvalid if file is invalid for creation
       # File is valid for creation if
       # a) path is set
@@ -151,7 +151,7 @@ module VersionControl
         lock do
           ::File.write(
             metadata_path,
-            metadata.to_yaml
+            metadata.stringify_keys.to_yaml
           )
         end
       end

@@ -1,34 +1,28 @@
 - if @ancestors.present?
-  nav.breadcrumbs.truncate.gray.lighten-2.black-text.z-depth-0
-    .container
-      .nav-wrapper
-        .col.s12
-          = link_to profile_project_root_folder_path(@project.owner, @project), class: "breadcrumb home" do
-            svg viewBox="0 0 24 24"
-              path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"
-          - @ancestors.reverse.push(@folder).drop(1).map do |nav_folder|
-            svg.separator viewBox="0 0 24 24"
-              path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-            =<> link_to nav_folder.name, profile_project_folder_path(@project.owner, @project, nav_folder.id), class: "breadcrumb#{nav_folder == @folder ? ' active' : ''}"
+  = render partial: 'ancestors',
+           object: @ancestors,
+           locals: { current_folder: @folder_diff.file_is_or_was,
+                     project: @project }
 
 .spacing.v48px
 
 .container
   .row
-    - @files.each_slice(2) do |slice|
+    - @file_diffs.each_slice(2) do |slice|
 
-      - slice.each do |file|
+      - slice.each do |file_diff|
+
         .col.s6.m3.l2.center-align
+          = render partial: 'file_diff',
+                   object: file_diff,
+                   locals: { project: @project }
 
-          - if file.directory?
-            = link_to profile_project_folder_path(@project.owner, @project, file.id)
-              = render partial: 'file', locals: { file: file }
-
-          - else
-            = link_to external_link_for_file(file), target: '_blank' do
-              = render partial: 'file', locals: { file: file }
-
-      div class=cycle('hide-on-med-and-up', 'hide-on-large-only', 'hide-on-med-only', 'hide-on-large-only', 'hide-on-med-and-up', '')
+      div class=cycle('hide-on-med-and-up',
+                      'hide-on-large-only',
+                      'hide-on-med-only',
+                      'hide-on-large-only',
+                      'hide-on-med-and-up',
+                      '')
         .clearfix
         .spacing.v48px
 

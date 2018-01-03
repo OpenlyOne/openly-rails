@@ -2,8 +2,10 @@
 
 module VersionControl
   module FileCollections
-    # A staged revision for a version controlled repository
+    # A collection of staged files for a version controlled repository
     class Staged < FileCollection
+      delegate :lock, :workdir, to: :repository
+
       # Count files in working directory (includes root)
       def count
         lock do
@@ -31,14 +33,22 @@ module VersionControl
         end
       end
 
-      # Return true if file with given ID exists in repository.
-      # Return false otherwise.
-      def exists?(id)
+      # Return true if file with given ID exists among files of revision
+      # If an array is passed, will find and return a hash in the form of:
+      # {'12345' => true, 'abcdef' => false, id => does_id_exist?}
+      # Return false if file does not exist.
+      def exists?(id_or_ids)
         lock do
-          path_for_file(id)&.present?
+          paths = find_paths_by_ids(Array.wrap(id_or_ids).compact).compact
+
+          # If we are only looking for a single ID, return true or false now
+          return paths.any? unless id_or_ids.is_a? Array
+
+          # Transform paths into a hash in the form of 'id' => true/false
+          id_or_ids.compact.map do |id|
+            [id, paths.any? { |path| ::File.basename(path) == id }]
+          end.to_h
         end
-      rescue Errno::ENOENT
-        false
       end
 
       # Find a file in the repository by its ID
@@ -55,16 +65,18 @@ module VersionControl
       end
 
       # Find a file by its id
+      # If an array is passed, will find and return all matching files
       # Return nil if not found
-      def find_by_id(id)
+      def find_by_id(id_or_ids)
         lock do
-          file_path = path_for_file(id)
-          find_by_path(file_path)
-        end
+          paths = find_paths_by_ids Array.wrap(id_or_ids)
+          files = paths.map do |path|
+            find_by_path(path)
+          end
 
-      # Return nil if file was not found
-      rescue Errno::ENOENT, Errno::EINVAL
-        nil
+          # Return array if array was passed. Single instance, otherwise.
+          id_or_ids.is_a?(Array) ? files : files.first
+        end
       end
 
       # Find a file by its path
@@ -79,18 +91,18 @@ module VersionControl
         nil
       end
 
-      # Return the path for a given file identified by its OID.
-      def path_for_file(id)
-        # Raise error if id is not a String
-        raise(Errno::EINVAL, 'ID must be a String.') unless id.is_a? String
-
+      # Find paths for an array of ids by globbing the repository's workdir
+      def find_paths_by_ids(ids)
         lock do
-          # Find file and return its path
-          path = Dir.glob("#{workdir}/**/#{id}").first
-          return path if path.present?
+          # Escape the ids to find to prevent * or ? from being parsed as
+          # glob meta-characters
+          escaped_ids = ids.map { |id| Shellwords.escape(id) }
+          paths = Dir.glob("#{workdir}/**/{#{escaped_ids.join(',')}}")
 
-          # No file found, raise error
-          raise Errno::ENOENT, "File named #{id} does not exist in #{workdir}"
+          # sort by ids
+          ids.map do |id|
+            paths.detect { |path| ::File.basename(path) == id }
+          end
         end
       end
 
@@ -118,6 +130,7 @@ module VersionControl
         end
       end
 
+      # TODO: Use relative paths
       # Return the metadata for a file in this repository identified by its path
       def metadata_for(path)
         # Raise error if id is not a String
@@ -127,8 +140,9 @@ module VersionControl
           id = ::File.basename(path)
           load_metadata(path).merge(
             id: id,
-            parent_id: parent_id_from_file_path(path),
+            parent_id: parent_id_from_absolute_file_path(path),
             is_root: (id == root_id)
+            # TODO: Pass path variable
           )
         end
       end
@@ -142,18 +156,13 @@ module VersionControl
 
       # Return the file's parent ID from the file's path
       # Return nil if parent is the working directory
-      def parent_id_from_file_path(path)
-        # The path to the parent
-        parent_path = Pathname.new(::File.expand_path('..', path))
+      # TODO: Use relative file paths and delete this method
+      def parent_id_from_absolute_file_path(path)
+        # The path relative to the repository's working directory
+        relative_path =
+          Pathname.new(path).relative_path_from(Pathname.new(workdir))
 
-        # The parent path relative to the repository's working directory
-        relative_path = parent_path.relative_path_from(Pathname.new(workdir))
-
-        # The parent id is the basename to string
-        parent_id = relative_path.basename.to_s
-
-        # Return nil if parent is the working directory
-        parent_id == '.' ? nil : parent_id
+        self.class.parent_id_from_relative_path(relative_path)
       end
     end
   end

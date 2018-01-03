@@ -83,6 +83,12 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
     end
   end
 
+  describe '#path' do
+    subject(:method)  { root.path }
+    let(:workdir)     { root.file_collection.workdir }
+    it                { is_expected.to eq "#{workdir}/#{root.id}" }
+  end
+
   describe '#update(params)' do
     subject(:method)  { root.update(params) }
     let(:root)        { create :file, :root }
@@ -138,7 +144,7 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
       end
 
       it 'does not destroy the file' do
-        old_path = root.send :path
+        old_path = root.path
         method
         expect(::File).to exist(old_path)
       end
@@ -173,11 +179,5 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
   describe '#move_to' do
     subject(:method)  { root.send :move_to }
     it                { is_expected.to be nil }
-  end
-
-  describe '#path' do
-    subject(:method)  { root.send :path }
-    let(:workdir)     { root.file_collection.workdir }
-    it                { is_expected.to eq "#{workdir}/#{root.id}" }
   end
 end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/caching_method_call.rb'
 require 'models/shared_examples/version_control/using_repository_locking.rb'
 
 RSpec.shared_examples 'being a staged folder' do
@@ -20,6 +21,10 @@ RSpec.shared_examples 'being a staged folder' do
 
       it_should_behave_like 'using repository locking' do
         let(:locker) { folder }
+      end
+
+      it_behaves_like 'caching method call', :children do
+        subject { folder }
       end
     end
   end

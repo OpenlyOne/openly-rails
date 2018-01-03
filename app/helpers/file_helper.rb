@@ -10,7 +10,7 @@ module FileHelper
   def external_link_for_file(file)
     return nil unless file.mime_type.present? && file.id.present?
 
-    case file_type(file)
+    case type_of_file(file)
     when :document      then "https://docs.google.com/document/d/#{file.id}"
     when :drawing       then "https://docs.google.com/drawings/d/#{file.id}"
     when :folder        then "https://drive.google.com/drive/folders/#{file.id}"
@@ -25,7 +25,7 @@ module FileHelper
   def icon_for_file(file)
     return nil unless file.mime_type.present?
 
-    case file_type(file)
+    case type_of_file(file)
     when :folder
       'files/folder.png'
     else
@@ -34,20 +34,49 @@ module FileHelper
     end
   end
 
-  # Sort files by 1) directory first and 2) file name in ascending order
-  def sort_files!(files)
-    files.sort_by! do |file|
-      [
-        (file.directory? ? 0 : 1),  # put directories first
-        file.name                   # then sort by name in ascending order
-      ]
+  # Wrap block into a link_to the file.
+  # If the file is a directory, wraps into an internal link to that directory.
+  # If the file is not a directory, wraps into an external link to Drive.
+  def link_to_file(file, project, &block)
+    # internal link to that folder
+    if file.directory?
+      link_to profile_project_folder_path(project.owner, project, file.id) do
+        capture(&block)
+      end
+
+    # external link to the original file on Google Drive
+    else
+      link_to external_link_for_file(file), target: '_blank' do
+        capture(&block)
+      end
     end
   end
 
-  private
+  # Sort files according to sort order
+  def sort_files!(files)
+    files.sort_by! do |file|
+      sort_order_for_files(file)
+    end
+  end
+
+  # Return the sort order for files.
+  #
+  # Files are sorted by:
+  # 1) directory first and
+  # 2) file name in ascending order
+  #
+  # Example use:
+  # files.sort_by! { |file| sort_order_for_files(file) }
+  # file_diffs.sort_by! { |diff| sort_order_for_files(diff.file_is_or_was) }
+  def sort_order_for_files(file)
+    [
+      (file.directory? ? 0 : 1),  # put directories first
+      file.name                   # then sort by name in ascending order
+    ]
+  end
 
   # Convert the file's mime_type to a symbol representing its type
-  def file_type(file)
+  def type_of_file(file)
     return nil unless file.mime_type.present?
 
     case file.mime_type
