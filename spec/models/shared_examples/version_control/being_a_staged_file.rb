@@ -113,6 +113,32 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
     end
   end
 
+  unless skip_methods.include?(:destroy)
+    describe '#destroy' do
+      subject(:method)  { file.destroy }
+      let(:repository)  { file.file_collection.repository }
+      before            { file.instance_variable_set :@parent_id, root.id }
+      before            { file.send :create }
+
+      it { is_expected.to be true }
+
+      it 'deletes the file from stage' do
+        method
+        expect(repository.stage.files).not_to be_exists file.id
+      end
+
+      it 'sets @path to nil' do
+        method
+        expect(file.instance_variable_get(:@path)).to eq nil
+      end
+
+      context 'when path is nil' do
+        before  { allow(file).to receive(:path).and_return nil }
+        it      { is_expected.to be false }
+      end
+    end
+  end
+
   unless skip_methods.include?(:path)
     describe '#path' do
       subject(:method)  { file.path }

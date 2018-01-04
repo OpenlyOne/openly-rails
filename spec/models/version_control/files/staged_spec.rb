@@ -7,7 +7,9 @@ RSpec.describe VersionControl::Files::Staged, type: :model do
   subject(:file) { build :file }
 
   it_should_behave_like 'being a file'
-  it_should_behave_like 'being a staged file'
+  it_should_behave_like 'being a staged file' do
+    let(:root) { create :file, :root, repository: repository }
+  end
 
   describe '.new(file_collection, params)' do
     subject(:method)  { VersionControl::Files::Staged.new(collection, params) }

@@ -41,9 +41,8 @@ RSpec.describe Project, type: :model do
       end
     end
 
-    context 'around save' do
+    context 'after save' do
       subject(:project) { build(:project) }
-      after { project.save }
 
       context 'when import_google_drive_folder_on_save is true' do
         before do
@@ -56,12 +55,9 @@ RSpec.describe Project, type: :model do
           project.link_to_google_drive_folder =
             Settings.google_drive_test_folder
         end
-        it { is_expected.to receive(:import_google_drive_folder) }
+        after { project.save }
+        it    { is_expected.to receive(:import_google_drive_folder) }
       end
-    end
-
-    context 'after save' do
-      subject(:project) { build(:project) }
 
       context 'when import_google_drive_folder_on_save was true' do
         before do
@@ -240,10 +236,9 @@ RSpec.describe Project, type: :model do
     end
     before do
       project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
+      project.import_google_drive_folder_on_save = true
     end
-    subject(:method) do
-      project.send(:import_google_drive_folder) { project.save }
-    end
+    subject(:method)    { project.save }
     let(:id_of_folder)  { Settings.google_drive_test_folder_id }
     let(:project)       { create(:project) }
 
@@ -279,8 +274,29 @@ RSpec.describe Project, type: :model do
       before { create :file, :root, repository: project.repository }
       before { project.reload }
 
-      it 'raises an error' do
-        expect { method }.to raise_error ActiveRecord::RecordInvalid
+      it { is_expected.to be false }
+
+      it 'does not persist changes to project' do
+        project.title = 'My New Title'
+        method
+        expect(project.reload.title).not_to eq 'My New Title'
+      end
+    end
+
+    context 'when any error occurs' do
+      before do
+        allow(FolderImportJob).to receive(:perform_later).and_raise('error')
+      end
+
+      it 'does not persist root folder' do
+        expect { method }.to raise_error RuntimeError
+        expect(project.reload.files.root).to be nil
+      end
+
+      it 'does not persist changes to project' do
+        project.title = 'My New Title'
+        expect { method }.to raise_error RuntimeError
+        expect(project.reload.title).not_to eq 'My New Title'
       end
     end
   end

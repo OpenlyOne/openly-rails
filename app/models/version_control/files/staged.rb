@@ -55,6 +55,15 @@ module VersionControl
         @ancestors
       end
 
+      # Deletes the file from stage. If file is a directory, recursively deletes
+      # all children. Handle with care!
+      def destroy
+        return false if path.nil?
+        FileUtils.remove_entry(path)
+        @path = nil
+        true
+      end
+
       # Return the path for the file in the repository's working directory
       def path
         @path ||=
@@ -131,7 +140,8 @@ module VersionControl
           # Path was not present, that means the file is meant to be deleted or
           # moved to a parent outside of this repository.
           # In either case, we want to destroy the file.
-          FileUtils.remove_dir(old_path)
+          @path = old_path
+          destroy
         end
       end
 

@@ -14,6 +14,7 @@ RSpec.describe VersionControl::Files::Staged::Folder, type: :model do
   it_should_behave_like 'being a staged file',
                         %i[.create #create metadata_path] do
     let(:file) { folder }
+    let(:root) { create :file, :root, repository: repository }
   end
   it_should_behave_like 'being a staged folder' do
     subject(:folder)  { build :file, :folder, parent: root }

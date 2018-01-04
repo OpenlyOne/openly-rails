@@ -20,9 +20,8 @@ class Project < ApplicationRecord
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Import Google Drive folder
-  around_save :import_google_drive_folder,
-              if: proc { |project| project.import_google_drive_folder_on_save },
-              unless: proc { |project| project.errors.any? }
+  after_save :import_google_drive_folder,
+             if: :import_google_drive_folder_on_save
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
 
@@ -115,15 +114,13 @@ class Project < ApplicationRecord
     drive_file = GoogleDrive.get_file(google_drive_folder_id)
     files.create_root(drive_file.to_h)
 
-    # save (raise Rollback if not successful)
-    unless yield
-      # delete root
-      FileUtils.remove_dir(files.root.send(:path))
-      return false
-    end
-
     # Start recursive FolderImportJob
     FolderImportJob.perform_later(reference: self, folder_id: files.root.id)
+  rescue StandardError
+    # An error was found -- make sure root is not persisted
+    files.root&.destroy
+    # Re-raise original error
+    raise
   end
 
   # Validation: Is the link to the Google Drive folder valid?
