@@ -206,6 +206,12 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         expect(persisted_file).to have_attributes params
       end
 
+      it_behaves_like 'being updatable without param key', :name
+      it_behaves_like 'being updatable without param key', :parent_id
+      it_behaves_like 'being updatable without param key', :mime_type
+      it_behaves_like 'being updatable without param key', :version
+      it_behaves_like 'being updatable without param key', :modified_time
+
       context 'params[:version] is not greater than existing version' do
         let(:version) { file.version }
 
@@ -404,6 +410,35 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
     end
   end
 
+  unless skip_methods.include?(:update_attributes_from_hash)
+    describe '#update_attributes_from_hash(params)' do
+      subject(:method)  { file.send :update_attributes_from_hash, params }
+      let(:params)      { {} }
+
+      it { expect { method }.not_to(change { file.send :metadata }) }
+
+      context 'when params includes :name' do
+        before  { params.merge! name: 'A name' }
+        it      { expect { method }.to(change { file.name }) }
+      end
+
+      context 'when params includes :mime_type' do
+        before  { params.merge! mime_type: 'mime.type.test' }
+        it      { expect { method }.to(change { file.mime_type }) }
+      end
+
+      context 'when params includes :version' do
+        before  { params.merge! version: file.version + 1 }
+        it      { expect { method }.to(change { file.version }) }
+      end
+
+      context 'when params includes :modified_time' do
+        before  { params.merge! modified_time: Time.zone.now.tomorrow }
+        it      { expect { method }.to(change { file.modified_time }) }
+      end
+    end
+  end
+
   unless skip_methods.include?(:validate_for_creation!)
     describe '#validate_for_creation!' do
       subject(:method)  { file.send :validate_for_creation! }
@@ -467,5 +502,21 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         end.not_to raise_error
       end
     end
+  end
+end
+
+RSpec.shared_examples 'being updatable without param key' do |key|
+  before { params.except!(key) }
+
+  it "does not change #{key}" do
+    expect { method }.not_to(
+      change { repository.stage.files.find(file.id).send(key) }
+    )
+  end
+
+  it "persists new attributes (without #{key}) to repository" do
+    method
+    persisted_file = repository.stage.files.find(file.id)
+    expect(persisted_file).to have_attributes params
   end
 end

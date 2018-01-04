@@ -133,23 +133,18 @@ RSpec.shared_context 'file diff with children' do
   end
 
   # update files
-  before do
-    # additions
-    add1
-    add2
-
-    # move in files
-    move_in1.update(parent_id: folder.id, version: move_in1.version + 1)
-    move_in2.update(parent_id: folder.id, version: move_in2.version + 1)
-
-    # removals
-    delete1.update(parent_id: nil, version: delete1.version + 1)
-    delete2.update(parent_id: nil, version: delete2.version + 2)
-
-    # move out files
-    move_out1.update(parent_id: root.id, version: move_out1.version + 1)
-    move_out2.update(parent_id: root.id, version: move_out2.version + 1)
-  end
+  # additions
+  before  { add1 }
+  before  { add2 }
+  # move in files
+  before  { move_in1.update parent_id: folder.id }
+  before  { move_in2.update parent_id: folder.id }
+  # removals
+  before  { delete1.update parent_id: nil }
+  before  { delete2.update parent_id: nil }
+  # move out files
+  before  { move_out1.update parent_id: root.id }
+  before  { move_out2.update parent_id: root.id }
 end
 
 RSpec.shared_context 'file diff with files' do

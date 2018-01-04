@@ -50,7 +50,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     end
 
     context 'when id exists only in differentiator' do
-      before { file.update(parent_id: nil, version: file.version + 1) }
+      before { file.update parent_id: nil }
 
       it { expect(method.base).to be nil }
       it { expect(method.differentiator).to be_a VersionControl::File }

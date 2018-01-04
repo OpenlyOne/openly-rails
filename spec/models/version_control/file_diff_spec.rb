@@ -61,17 +61,9 @@ RSpec.describe VersionControl::FileDiff, type: :model do
       end
 
       context 'when ancestor has been updated in revision base' do
-        before do
-          # move parent to root folder, changing the ancestry path from
-          # 'root > parent of parent > parent' to 'root > parent'
-          parent.update(
-            name: 'Updated Folder',
-            parent_id: root.id,
-            mime_type: parent.mime_type,
-            modified_time: parent.modified_time,
-            version: parent.version + 1
-          )
-        end
+        # move parent to root folder, changing the ancestry path from
+        # 'root > parent of parent > parent' to 'root > parent'
+        before { parent.update name: 'Updated Folder', parent_id: root.id }
 
         it 'has ancestors: parent_of_parent, root' do
           expect(method.map(&:id)).to eq [parent, root].map(&:id)

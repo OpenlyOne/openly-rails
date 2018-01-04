@@ -29,7 +29,7 @@ feature 'Folder' do
     # with some files and folders
     root = create :file, :root, repository: project.repository
     create_list :file, 5, parent: root
-    subfolder = create :file, :folder, parent: root
+    subfolder = create :file, :folder, name: 'A Unique Subfolder', parent: root
     subfiles = create_list :file, 5, parent: subfolder
 
     # when I visit the project page
@@ -83,10 +83,10 @@ feature 'Folder' do
 
     # when changes are made to files
     added_file = create :file, parent: folder
-    update_file(modified_file, modified_time: Time.zone.now)
-    update_file(moved_out_file, parent_id: root.id)
-    update_file(moved_in_file, parent_id: folder.id)
-    update_file(removed_file, parent_id: nil)
+    modified_file.update(modified_time: Time.zone.now)
+    moved_out_file.update(parent_id: root.id)
+    moved_in_file.update(parent_id: folder.id)
+    removed_file.update(parent_id: nil)
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -131,7 +131,7 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed' do
-      before  { update_file(code, parent_id: nil) }
+      before  { code.update(parent_id: nil) }
       before  { action }
 
       it 'then ancestry path is root > folder > documents > code' do
@@ -140,25 +140,13 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed and documents is moved into root' do
-      before  { update_file(code, parent_id: nil) }
-      before  { update_file(docs, name: 'The Docs', parent_id: root.id) }
+      before  { code.update(parent_id: nil) }
+      before  { docs.update(name: 'The Docs', parent_id: root.id) }
       before  { action }
 
       it 'then ancestry path is root > documents > code' do
         expect(page.find('.breadcrumbs').text).to eq 'The Docs Code'
       end
     end
-  end
-
-  # update the file with the given parameters
-  def update_file(file, params)
-    params.reverse_merge!(
-      name: file.name,
-      parent_id: file.parent_id,
-      mime_type: file.mime_type,
-      version: file.version + 1,
-      modified_time: file.modified_time
-    )
-    file.update(params)
   end
 end

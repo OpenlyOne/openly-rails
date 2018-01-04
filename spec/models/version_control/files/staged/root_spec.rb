@@ -92,6 +92,7 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
   describe '#update(params)' do
     subject(:method)  { root.update(params) }
     let(:root)        { create :file, :root }
+    let(:file)        { root }
     let(:repository)  { root.file_collection.repository }
     let(:version)     { root.version + 1 }
     let(:params) do
@@ -119,6 +120,17 @@ RSpec.describe VersionControl::Files::Staged::Root, type: :model do
       persisted_file = repository.stage.files.find(root.id)
       expect(persisted_file).to have_attributes params
     end
+
+    it_behaves_like 'being updatable without param key', :name
+    it_behaves_like 'being updatable without param key', :parent_id do
+      before do
+        # Suppress warning message from calling #parent_id on root
+        allow(STDOUT).to receive(:puts)
+      end
+    end
+    it_behaves_like 'being updatable without param key', :mime_type
+    it_behaves_like 'being updatable without param key', :version
+    it_behaves_like 'being updatable without param key', :modified_time
 
     context 'params[:version] is not greater than existing version' do
       let(:version) { root.version }

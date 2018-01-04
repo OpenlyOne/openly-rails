@@ -77,17 +77,14 @@ module VersionControl
       # Update the file with the provided params
       def update(params)
         # Exit if existing version is more recent than intended update
-        return false unless params[:version] > version
+        return false if params.key?(:version) && params[:version] <= version
 
         lock do
           # Move the file to a new location, if necessary
-          move_to params[:parent_id]
+          move_to(params[:parent_id]) if params.key?(:parent_id)
 
           # Update file attributes
-          @name           = params[:name]
-          @mime_type      = params[:mime_type]
-          @version        = params[:version]
-          @modified_time  = params[:modified_time]
+          update_attributes_from_hash(params)
 
           # Persist new attributes to repository
           write_metadata if path.present?
@@ -108,12 +105,10 @@ module VersionControl
 
       # Return the file's metadata
       def metadata
-        {
-          name: name,
+        { name: name,
           mime_type: mime_type,
           version: version,
-          modified_time: modified_time
-        }
+          modified_time: modified_time }
       end
 
       # The path to the file's metadata
@@ -143,6 +138,14 @@ module VersionControl
           @path = old_path
           destroy
         end
+      end
+
+      # Set new attribute values from params hash
+      def update_attributes_from_hash(params)
+        @name           = params[:name]          if params.key? :name
+        @mime_type      = params[:mime_type]     if params.key? :mime_type
+        @version        = params[:version]       if params.key? :version
+        @modified_time  = params[:modified_time] if params.key? :modified_time
       end
 
       # Raise ActiveRecord::RecordInvalid if file is invalid for creation
