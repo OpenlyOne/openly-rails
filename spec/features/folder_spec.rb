@@ -72,12 +72,13 @@ feature 'Folder' do
     project = create :project
     # with some files and folders
     root = create :file, :root, repository: project.repository
-    folder = create :file, :folder, parent: root
-    modified_file = create :file, parent: folder
-    moved_out_file = create :file, parent: folder
-    moved_in_file = create :file, parent: root
-    removed_file = create :file, parent: folder
-    unchanged_file = create :file, parent: folder
+    folder                      = create :file, :folder, parent: root
+    modified_file               = create :file, parent: folder
+    moved_out_file              = create :file, parent: folder
+    moved_in_file               = create :file, parent: root
+    moved_in_and_modified_file  = create :file, parent: root
+    removed_file                = create :file, parent: folder
+    unchanged_file              = create :file, parent: folder
     # and files are committed
     create :revision, repository: project.repository
 
@@ -86,6 +87,8 @@ feature 'Folder' do
     modified_file.update(modified_time: Time.zone.now)
     moved_out_file.update(parent_id: root.id)
     moved_in_file.update(parent_id: folder.id)
+    moved_in_and_modified_file.update(parent_id: folder.id,
+                                      modified_time: Time.zone.now)
     removed_file.update(parent_id: nil)
 
     # when I visit the project page
@@ -96,11 +99,13 @@ feature 'Folder' do
     click_on folder.name
 
     # then I should see a diff for each file
-    expect(page).to have_css '.file.added',     text: added_file.name
-    expect(page).to have_css '.file.modified',  text: modified_file.name
-    expect(page).to have_css '.file.moved',     text: moved_in_file.name
-    expect(page).to have_css '.file.deleted',   text: removed_file.name
-    expect(page).to have_css '.file.unchanged', text: unchanged_file.name
+    expect(page).to have_css '.file.added',           text: added_file.name
+    expect(page).to have_css '.file.modified',        text: modified_file.name
+    expect(page).to have_css '.file.moved',           text: moved_in_file.name
+    expect(page).to have_css '.file.moved.modified',
+                             text: moved_in_and_modified_file.name
+    expect(page).to have_css '.file.deleted',         text: removed_file.name
+    expect(page).to have_css '.file.unchanged',       text: unchanged_file.name
 
     # and not see the file that was moved out of the directory
     expect(page).not_to have_text moved_out_file

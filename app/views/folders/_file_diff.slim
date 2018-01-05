@@ -5,7 +5,9 @@
   div.file[class=type_of_file(file_diff.file_is_or_was)
            class=html_class_for_file_diff(file_diff)]
 
-    = render partial: 'file_diff_indicators', locals: { file_diff: file_diff }
+    div.indicators
+      = render partial: 'file_diff_indicator',
+             collection: file_diff.changes
 
     = image_tag icon_for_file(file_diff.file_is_or_was),
                 alt: 'File icon',
@@ -14,4 +16,4 @@
     br
     span.file-name.truncate[class=html_class_for_file_diff(file_diff)
                             class=text_color_for_file_diff(file_diff)]
-      = file_diff.name_is_or_was
+      = file_diff.name

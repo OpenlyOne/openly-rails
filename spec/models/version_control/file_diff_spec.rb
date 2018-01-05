@@ -30,6 +30,26 @@ RSpec.describe VersionControl::FileDiff, type: :model do
       expect(revision_diff).to receive(:differentiator)
       subject.send :revision_differentiator
     end
+
+    it 'delegates directory? to file_is_or_was' do
+      expect(diff.base).to receive(:directory?)
+      subject.directory?
+    end
+
+    it 'delegates id to file_is_or_was' do
+      expect(diff.base).to receive(:id)
+      subject.id
+    end
+
+    it 'delegates mime_type to file_is_or_was' do
+      expect(diff.base).to receive(:mime_type)
+      subject.mime_type
+    end
+
+    it 'delegates name to file_is_or_was' do
+      expect(diff.base).to receive(:name)
+      subject.name
+    end
   end
 
   describe '#ancestors_of_file' do
@@ -78,35 +98,35 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     end
   end
 
-  describe '#been_added?' do
-    subject(:method)  { diff.been_added? }
+  describe '#added?' do
+    subject(:method)  { diff.added? }
     it                { is_expected.to be false }
 
     it_behaves_like 'when base is nil, returns:', false
     it_behaves_like 'when differentiator is nil, returns:', true
   end
 
-  describe '#been_changed?' do
-    subject(:method)  { diff.been_changed? }
+  describe '#changed?' do
+    subject(:method)  { diff.changed? }
     it                { is_expected.to be false }
 
     context 'when base has been added' do
-      before  { allow(diff).to receive(:been_added?) { true } }
+      before  { allow(diff).to receive(:added?) { true } }
       it      { is_expected.to be true }
     end
 
     context 'when base has been modified' do
-      before  { allow(diff).to receive(:been_modified?) { true } }
+      before  { allow(diff).to receive(:modified?) { true } }
       it      { is_expected.to be true }
     end
 
     context 'when base has been moved' do
-      before  { allow(diff).to receive(:been_moved?) { true } }
+      before  { allow(diff).to receive(:moved?) { true } }
       it      { is_expected.to be true }
     end
 
     context 'when base has been deleted' do
-      before  { allow(diff).to receive(:been_deleted?) { true } }
+      before  { allow(diff).to receive(:deleted?) { true } }
       it      { is_expected.to be true }
     end
 
@@ -114,8 +134,8 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     it_behaves_like 'when differentiator is nil, returns:', true
   end
 
-  describe '#been_modified?' do
-    subject { diff.been_modified? }
+  describe '#modified?' do
+    subject { diff.modified? }
     it      { is_expected.to be false }
 
     context "when base's modified time > differentiator's modified time" do
@@ -129,8 +149,8 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     it_behaves_like 'when differentiator is nil, returns:', false
   end
 
-  describe '#been_moved?' do
-    subject { diff.been_moved? }
+  describe '#moved?' do
+    subject { diff.moved? }
     it      { is_expected.to be false }
 
     context 'when base and differentiator have a different parent_id' do
@@ -142,11 +162,33 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     it_behaves_like 'when differentiator is nil, returns:', false
   end
 
-  describe '#been_deleted?' do
-    subject(:method)  { diff.been_deleted? }
+  describe '#deleted?' do
+    subject(:method)  { diff.deleted? }
     it                { is_expected.to be false }
     it_behaves_like 'when base is nil, returns:', true
     it_behaves_like 'when differentiator is nil, returns:', false
+  end
+
+  describe '#changes' do
+    subject(:method)  { diff.changes }
+
+    it { is_expected.to be_empty }
+
+    context 'when base has been added' do
+      before  { allow(diff).to receive(:added?) { true } }
+      it      { is_expected.to contain_exactly :added }
+    end
+
+    context 'when base has been modified and moved' do
+      before  { allow(diff).to receive(:modified?) { true } }
+      before  { allow(diff).to receive(:moved?)    { true } }
+      it      { is_expected.to contain_exactly :moved, :modified }
+    end
+
+    context 'when base has been deleted' do
+      before  { allow(diff).to receive(:deleted?) { true } }
+      it      { is_expected.to contain_exactly :deleted }
+    end
   end
 
   describe '#children_as_diffs' do
@@ -157,28 +199,28 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     it { expect(method.count).to eq 9 }
 
     it 'contains diff for the three files that have remained' do
-      expect(method.reject(&:been_changed?).map(&:id_is_or_was))
+      expect(method.reject(&:changed?).map(&:id))
         .to contain_exactly 'remain1', 'remain2', 'remain3'
     end
 
     it 'contains diff for the two files that have been added' do
-      expect(method.select(&:been_added?).map(&:id_is_or_was))
+      expect(method.select(&:added?).map(&:id))
         .to contain_exactly 'add1', 'add2'
     end
 
     it 'contains diff for the two files that have been moved in' do
-      expect(method.select(&:been_moved?).map(&:id_is_or_was))
+      expect(method.select(&:moved?).map(&:id))
         .to contain_exactly 'move_in1', 'move_in2'
     end
 
     it 'contains diff for the two files that have been deleted' do
-      expect(method.select(&:been_deleted?).map(&:id_is_or_was))
+      expect(method.select(&:deleted?).map(&:id))
         .to contain_exactly 'delete1', 'delete2'
     end
 
     it 'does not contain diff for the two files that have been moved out' do
-      expect(method).not_to(be_any { |diff| diff.id_is_or_was == 'move_out1' })
-      expect(method).not_to(be_any { |diff| diff.id_is_or_was == 'move_out2' })
+      expect(method).not_to(be_any { |diff| diff.id == 'move_out1' })
+      expect(method).not_to(be_any { |diff| diff.id == 'move_out2' })
     end
 
     it_behaves_like 'caching method call', :children_as_diffs do
@@ -198,18 +240,21 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     it_behaves_like 'locking repository only when revision base is stage'
   end
 
-  it_should_behave_like 'having is_or_was attribute', :file do
-    let(:base_attribute)            { base }
-    let(:differentiator_attribute)  { differentiator }
+  describe '#file_is_or_was' do
+    subject(:method) { diff.file_is_or_was }
+    it { is_expected.to eq base }
+
+    context 'when base is nil' do
+      let(:base)  { nil }
+      it          { is_expected.to eq differentiator }
+    end
+
+    context 'when base and differentiator are nil' do
+      let(:base)            { nil }
+      let(:differentiator)  { nil }
+      it                    { is_expected.to be nil }
+    end
   end
-  it_should_behave_like 'having is_or_was attribute', :id
-  it_should_behave_like 'having is_or_was attribute', :directory? do
-    let(:base)            { build :file, :folder }
-    let(:differentiator)  { build :file }
-    let(:method_name)     { 'is_or_was_directory?' }
-  end
-  it_should_behave_like 'having is_or_was attribute', :mime_type
-  it_should_behave_like 'having is_or_was attribute', :name
 
   describe '#diffs_of_children_that_have_been_added' do
     include_context 'file diff with children'
@@ -217,16 +262,16 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     subject(:method) { diff.send :diffs_of_children_that_have_been_added }
 
     it 'returns diffs for added files and moved-in files' do
-      expect(method.map(&:id_is_or_was))
+      expect(method.map(&:id))
         .to contain_exactly 'add1', 'add2', 'move_in1', 'move_in2'
     end
 
     it 'marks two returned diffs as added' do
-      expect(method.select(&:been_added?).count).to eq 2
+      expect(method.select(&:added?).count).to eq 2
     end
 
     it 'marks two returned diffs as moved' do
-      expect(method.select(&:been_moved?).count).to eq 2
+      expect(method.select(&:moved?).count).to eq 2
     end
 
     it_behaves_like 'caching method call', :diffs_of_added_children do
@@ -251,12 +296,12 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     subject(:method) { diff.send :diffs_of_children_that_have_remained }
 
     it 'returns diffs for remaining files' do
-      expect(method.map(&:id_is_or_was))
+      expect(method.map(&:id))
         .to contain_exactly 'remain1', 'remain2', 'remain3'
     end
 
     it 'does not mark returned diffs as changed' do
-      expect(method).to be_none(&:been_changed?)
+      expect(method).to be_none(&:changed?)
     end
 
     it_behaves_like 'caching method call', :diffs_of_remained_children do
@@ -281,11 +326,11 @@ RSpec.describe VersionControl::FileDiff, type: :model do
     subject(:method) { diff.send :diffs_of_children_that_have_been_deleted }
 
     it 'returns diffs for deleted files' do
-      expect(method.map(&:id_is_or_was)).to contain_exactly 'delete1', 'delete2'
+      expect(method.map(&:id)).to contain_exactly 'delete1', 'delete2'
     end
 
     it 'marks returned diffs as deleted' do
-      expect(method).to be_all(&:been_deleted?)
+      expect(method).to be_all(&:deleted?)
     end
 
     it_behaves_like 'caching method call', :diffs_of_deleted_children do

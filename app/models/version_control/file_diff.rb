@@ -4,6 +4,8 @@ module VersionControl
   # The diff (or change) between two version controlled files
   class FileDiff
     attr_reader :revision_diff, :base, :differentiator
+    delegate :directory?, :id, :name, :mime_type, to: :file_is_or_was,
+                                                  allow_nil: true
 
     # Initialize an instance of FileDiff given an instance of RevisionDiff, a
     # base file, and a differentiator file.
@@ -50,37 +52,45 @@ module VersionControl
 
     # Has the base been added since differentiator? In other words, does base
     # exist and differentiator does not?
-    def been_added?
-      @been_added ||= base.present? && differentiator.nil?
+    def added?
+      @added ||= base.present? && differentiator.nil?
     end
 
     # Are there any changes from differentiator to base? For example, has base
     # been added since differentiator?
-    def been_changed?
-      @been_changed ||=
-        been_added? || been_modified? || been_moved? || been_deleted?
+    def changed?
+      changes.any?
     end
 
     # Has the base been modified (content or file name) since differentiator?
     # In other words, do base and differentiator have different modified times?
-    def been_modified?
-      @been_modified ||= base&.modified_time.present? &&
-                         differentiator&.modified_time.present? &&
-                         base.modified_time > differentiator.modified_time
+    def modified?
+      @modified ||= base&.modified_time.present? &&
+                    differentiator&.modified_time.present? &&
+                    base.modified_time > differentiator.modified_time
     end
 
     # Has the base been moved since differentiator? In other words, do base
     # and differentiator belong to different parents?
-    def been_moved?
-      @been_moved ||= base&.parent_id.present? &&
-                      differentiator&.parent_id.present? &&
-                      base.parent_id != differentiator.parent_id
+    def moved?
+      @moved ||= base&.parent_id.present? &&
+                 differentiator&.parent_id.present? &&
+                 base.parent_id != differentiator.parent_id
     end
 
     # Has the base been deleted since differentiator? In other words, does base
     # not exist and differentiator does?
-    def been_deleted?
-      @been_deleted ||= base.nil? && differentiator.present?
+    def deleted?
+      @deleted ||= base.nil? && differentiator.present?
+    end
+
+    # Return an array of changes that have been made to base since
+    # differentiator
+    def changes
+      @changes ||=
+        %i[added modified moved deleted].select do |change|
+          send("#{change}?")
+        end
     end
 
     # Return an array of diffs for the children of base and differentiator.
@@ -105,28 +115,6 @@ module VersionControl
     # Return base. If nil, return differentiator.
     def file_is_or_was
       base || differentiator
-    end
-
-    # ID of base or differentiator
-    def id_is_or_was
-      file_is_or_was&.id
-    end
-
-    # Is base a directory? If base is nil, is differentiator a directory?
-    # rubocop:disable Style/PredicateName
-    def is_or_was_directory?
-      file_is_or_was&.directory?
-    end
-    # rubocop:enable Style/PredicateName
-
-    # Mime type of base or differentiator
-    def mime_type_is_or_was
-      file_is_or_was&.mime_type
-    end
-
-    # Name of base or differentiator
-    def name_is_or_was
-      file_is_or_was&.name
     end
 
     private

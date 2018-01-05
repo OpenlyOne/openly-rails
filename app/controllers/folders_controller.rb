@@ -42,7 +42,7 @@ class FoldersController < ApplicationController
                            .diff_file(params[:id] || @project.files.root_id)
 
     # Raise error if folder is not a directory
-    raise ActiveRecord::RecordNotFound unless @folder_diff.is_or_was_directory?
+    raise ActiveRecord::RecordNotFound unless @folder_diff.directory?
   end
 
   def set_project

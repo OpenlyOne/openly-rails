@@ -111,7 +111,7 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been modified' do
     before do
-      allow(file_diffs.first).to receive(:been_modified?).and_return(true)
+      allow(file_diffs.first).to receive(:modified?).and_return(true)
     end
 
     it 'adds a file indicator' do
@@ -122,7 +122,7 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been added' do
     before do
-      allow(file_diffs.first).to receive(:been_added?).and_return(true)
+      allow(file_diffs.first).to receive(:added?).and_return(true)
     end
 
     it 'adds a file indicator' do
@@ -133,7 +133,7 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been moved' do
     before do
-      allow(file_diffs.first).to receive(:been_moved?).and_return(true)
+      allow(file_diffs.first).to receive(:moved?).and_return(true)
     end
 
     it 'adds a file indicator' do
@@ -144,12 +144,24 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been deleted' do
     before do
-      allow(file_diffs.first).to receive(:been_deleted?).and_return(true)
+      allow(file_diffs.first).to receive(:deleted?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
       expect(rendered).to have_css '.file.deleted .indicators svg', count: 1
+    end
+  end
+
+  context 'when file has been moved and modified' do
+    before do
+      allow(file_diffs.first).to receive(:moved?).and_return(true)
+      allow(file_diffs.first).to receive(:modified?).and_return(true)
+    end
+
+    it 'adds two file indicators' do
+      render
+      expect(rendered).to have_css '.file.changed .indicators svg', count: 2
     end
   end
 end

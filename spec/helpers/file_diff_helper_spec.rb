@@ -8,31 +8,27 @@ RSpec.describe FileDiffHelper, type: :helper do
   let(:base)            { build :file }
   let(:differentiator)  { base }
 
-  describe '#color_for_file_diff(file_diff)' do
-    subject(:method) { color_for_file_diff(file_diff) }
+  describe '#color_for_file_diff_change(file_diff_change)' do
+    subject(:method) { color_for_file_diff_change(file_diff_change) }
 
-    context 'when base has been added' do
-      before { allow(file_diff).to receive(:been_added?) { true } }
+    context 'when diff change is :added' do
+      let(:file_diff_change) { :added }
       it { is_expected.to eq 'green darken-2' }
     end
 
-    context 'when base has been modified' do
-      before { allow(file_diff).to receive(:been_modified?) { true } }
+    context 'when diff change is :modified' do
+      let(:file_diff_change) { :modified }
       it { is_expected.to eq 'amber darken-4' }
     end
 
-    context 'when base has been moved' do
-      before { allow(file_diff).to receive(:been_moved?) { true } }
+    context 'when diff change is :moved' do
+      let(:file_diff_change) { :moved }
       it { is_expected.to eq 'purple darken-2' }
     end
 
-    context 'when base has been deleted' do
-      before { allow(file_diff).to receive(:been_deleted?) { true } }
+    context 'when diff change is :deleted' do
+      let(:file_diff_change) { :deleted }
       it { is_expected.to eq 'red darken-2' }
-    end
-
-    context 'when base has not been changed' do
-      it { is_expected.to eq nil }
     end
   end
 
@@ -40,23 +36,29 @@ RSpec.describe FileDiffHelper, type: :helper do
     subject(:method) { html_class_for_file_diff(file_diff) }
 
     context 'when base has been added' do
-      before { allow(file_diff).to receive(:been_added?) { true } }
+      before { allow(file_diff).to receive(:added?) { true } }
       it { is_expected.to eq 'changed added' }
     end
 
     context 'when base has been modified' do
-      before { allow(file_diff).to receive(:been_modified?) { true } }
+      before { allow(file_diff).to receive(:modified?) { true } }
       it { is_expected.to eq 'changed modified' }
     end
 
     context 'when base has been moved' do
-      before { allow(file_diff).to receive(:been_moved?) { true } }
+      before { allow(file_diff).to receive(:moved?) { true } }
       it { is_expected.to eq 'changed moved' }
     end
 
     context 'when base has been deleted' do
-      before { allow(file_diff).to receive(:been_deleted?) { true } }
+      before { allow(file_diff).to receive(:deleted?) { true } }
       it { is_expected.to eq 'changed deleted' }
+    end
+
+    context 'when base has been modified and moved' do
+      before { allow(file_diff).to receive(:modified?) { true } }
+      before { allow(file_diff).to receive(:moved?) { true } }
+      it { is_expected.to eq 'changed modified moved' }
     end
 
     context 'when base has not been changed' do
@@ -64,31 +66,27 @@ RSpec.describe FileDiffHelper, type: :helper do
     end
   end
 
-  describe '#icon_for_file_diff(file_diff)' do
-    subject(:method) { icon_for_file_diff(file_diff) }
+  describe '#icon_for_file_diff_change(file_diff_change)' do
+    subject(:method) { icon_for_file_diff_change(file_diff_change) }
 
-    context 'when base has been added' do
-      before { allow(file_diff).to receive(:been_added?) { true } }
+    context 'when diff change is :added' do
+      let(:file_diff_change) { :added }
       it { is_expected.to be_a String }
     end
 
-    context 'when base has been modified' do
-      before { allow(file_diff).to receive(:been_modified?) { true } }
+    context 'when diff change is :modified' do
+      let(:file_diff_change) { :modified }
       it { is_expected.to be_a String }
     end
 
-    context 'when base has been moved' do
-      before { allow(file_diff).to receive(:been_moved?) { true } }
+    context 'when diff change is :moved' do
+      let(:file_diff_change) { :moved }
       it { is_expected.to be_a String }
     end
 
-    context 'when base has been deleted' do
-      before { allow(file_diff).to receive(:been_deleted?) { true } }
+    context 'when diff change is :deleted' do
+      let(:file_diff_change) { :deleted }
       it { is_expected.to be_a String }
-    end
-
-    context 'when base has not been changed' do
-      it { is_expected.to eq nil }
     end
   end
 
@@ -122,10 +120,8 @@ RSpec.describe FileDiffHelper, type: :helper do
 
     it 'puts directories first' do
       subject
-      expect(file_diffs[0..2].map(&:is_or_was_directory?))
-        .to eq [true, true, true]
-      expect(file_diffs[3..5].map(&:is_or_was_directory?))
-        .to eq [false, false, false]
+      expect(file_diffs[0..2].map(&:directory?)).to eq [true, true, true]
+      expect(file_diffs[3..5].map(&:directory?)).to eq [false, false, false]
     end
 
     it 'puts file diffs in alphabetical order' do
@@ -133,8 +129,7 @@ RSpec.describe FileDiffHelper, type: :helper do
       last_file_diff = file_diffs[0]
       file_diffs[1..2].each do |file_diff|
         # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name_is_or_was > last_file_diff.name_is_or_was)
-          .to be true
+        expect(file_diff.name > last_file_diff.name).to be true
 
         # set last_file_diffs to current file_diffs for next comparison
         last_file_diff = file_diff
@@ -143,8 +138,7 @@ RSpec.describe FileDiffHelper, type: :helper do
       last_file_diff = file_diffs[3]
       file_diffs[4..5].each do |file_diff|
         # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name_is_or_was > last_file_diff.name_is_or_was)
-          .to be true
+        expect(file_diff.name > last_file_diff.name).to be true
 
         # set last_file_diffs to current file_diffs for next comparison
         last_file_diff = file_diff
@@ -156,22 +150,22 @@ RSpec.describe FileDiffHelper, type: :helper do
     subject(:method) { text_color_for_file_diff(file_diff) }
 
     context 'when base has been added' do
-      before { allow(file_diff).to receive(:been_added?) { true } }
+      before { allow(file_diff).to receive(:added?) { true } }
       it { is_expected.to eq 'green-text text-darken-2' }
     end
 
     context 'when base has been modified' do
-      before { allow(file_diff).to receive(:been_modified?) { true } }
+      before { allow(file_diff).to receive(:modified?) { true } }
       it { is_expected.to eq 'amber-text text-darken-4' }
     end
 
     context 'when base has been moved' do
-      before { allow(file_diff).to receive(:been_moved?) { true } }
+      before { allow(file_diff).to receive(:moved?) { true } }
       it { is_expected.to eq 'purple-text text-darken-2' }
     end
 
     context 'when base has been deleted' do
-      before { allow(file_diff).to receive(:been_deleted?) { true } }
+      before { allow(file_diff).to receive(:deleted?) { true } }
       it { is_expected.to eq 'red-text text-darken-2' }
     end
 
@@ -180,31 +174,27 @@ RSpec.describe FileDiffHelper, type: :helper do
     end
   end
 
-  describe '#tooltip_for_file_diff(file_diff)' do
-    subject(:method) { tooltip_for_file_diff(file_diff) }
+  describe '#tooltip_for_file_diff_change(file_diff_change)' do
+    subject(:method) { tooltip_for_file_diff_change(file_diff_change) }
 
-    context 'when base has been added' do
-      before { allow(file_diff).to receive(:been_added?) { true } }
+    context 'when diff change is :added' do
+      let(:file_diff_change) { :added }
       it { is_expected.to eq 'File has been added' }
     end
 
-    context 'when base has been modified' do
-      before { allow(file_diff).to receive(:been_modified?) { true } }
+    context 'when diff change is :modified' do
+      let(:file_diff_change) { :modified }
       it { is_expected.to eq 'File has been modified' }
     end
 
-    context 'when base has been moved' do
-      before { allow(file_diff).to receive(:been_moved?) { true } }
+    context 'when diff change is :moved' do
+      let(:file_diff_change) { :moved }
       it { is_expected.to eq 'File has been moved' }
     end
 
-    context 'when base has been deleted' do
-      before { allow(file_diff).to receive(:been_deleted?) { true } }
+    context 'when diff change is :deleted' do
+      let(:file_diff_change) { :deleted }
       it { is_expected.to eq 'File has been deleted' }
-    end
-
-    context 'when base has not been changed' do
-      it { is_expected.to eq nil }
     end
   end
 end

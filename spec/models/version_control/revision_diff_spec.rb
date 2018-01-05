@@ -117,7 +117,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
       expect(method.count).to eq filter.count
 
       filter.each do |id|
-        expect(method.detect { |diff| diff.id_is_or_was == id }).to be_present
+        expect(method.detect { |diff| diff.id == id }).to be_present
       end
     end
 

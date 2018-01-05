@@ -38,26 +38,6 @@ RSpec.shared_examples 'expected when differentiator has no children ' \
   end
 end
 
-RSpec.shared_examples 'having is_or_was attribute' do |attribute|
-  subject(:method)                { diff.send method_name }
-  let(:method_name)               { "#{attribute}_is_or_was" }
-  let(:base_attribute)            { base.send(attribute) }
-  let(:differentiator_attribute)  { differentiator.send(attribute) }
-
-  it { is_expected.to eq base_attribute }
-
-  context 'when base is nil' do
-    let(:base)  { nil }
-    it          { is_expected.to eq differentiator_attribute }
-  end
-
-  context 'when base and differentiator are nil' do
-    let(:base)            { nil }
-    let(:differentiator)  { nil }
-    it                    { is_expected.to be nil }
-  end
-end
-
 RSpec.shared_examples 'locking repository only when revision base is stage' do
   context 'when revision base is stage' do
     let(:revision_base) { repository.stage }
@@ -80,11 +60,11 @@ end
 
 RSpec.shared_examples 'returning correct diffs' do
   it 'returns the correct diffs' do
-    expect(method.map(&:id_is_or_was)).to match_array file_ids
+    expect(method.map(&:id)).to match_array file_ids
   end
 
   it 'has correct change on returned diffs' do
-    expect(method).to(be_all { |file| file.send "been_#{mark_as}?" })
+    expect(method).to(be_all { |file| file.send "#{mark_as}?" })
   end
 end
 
