@@ -9,6 +9,7 @@ class FolderImportJob < ApplicationJob
   def perform(*args)
     variables_from_arguments(*args)
 
+    # TODO: Lock repository after receiving files
     GoogleDrive.list_files_in_folder(@folder_id).each do |file|
       # create a new file
       file = create_or_update_file(file, @folder_id, @project)

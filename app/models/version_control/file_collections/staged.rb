@@ -115,6 +115,8 @@ module VersionControl
       def root_id
         @root_id ||=
           lock do
+            # TODO: Use glob here -- it automatically filters out hidden files
+            #       In essence: Dir.glob("#{workdir}/*")
             Dir.entries(workdir).find do |entry|
               !entry.start_with?('.')
             end
