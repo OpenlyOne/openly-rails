@@ -230,6 +230,19 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '.repository_folder_path' do
+    subject(:method) { Project.repository_folder_path }
+
+    it do
+      is_expected.to eq(
+        Rails.root.join(
+          Settings.file_storage,
+          'projects'
+        ).cleanpath.to_s
+      )
+    end
+  end
+
   describe '#import_google_drive_folder' do
     before do
       mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'

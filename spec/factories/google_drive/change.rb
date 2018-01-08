@@ -17,25 +17,18 @@ FactoryGirl.define do
     file_id { id }
     type { 'file' }
     removed { false }
-    file do
-      build :google_drive_file,
-            :with_version_and_time,
-            name: name,
-            mime_type: mime_type,
-            version: version,
-            trashed: trashed,
-            parents: parents,
-            modified_time: modified_time
-    end
-  end
 
-  factory :google_drive_change_removal, class: Google::Apis::DriveV3::Change do
-    transient do
-      id { Faker::Crypto.unique.sha1 }
+    trait :with_file do
+      file do
+        build :google_drive_file,
+              :with_version_and_time,
+              name: name,
+              mime_type: mime_type,
+              version: version,
+              trashed: trashed,
+              parents: parents,
+              modified_time: modified_time
+      end
     end
-
-    file_id { id }
-    type { 'file' }
-    removed { false }
   end
 end

@@ -74,6 +74,14 @@ class Project < ApplicationRecord
     end
   end
 
+  # The base path for version controlled repositories of Project instances
+  def self.repository_folder_path
+    Rails.root.join(
+      Settings.file_storage,
+      'projects'
+    ).cleanpath.to_s
+  end
+
   # The absolute link to the Google Drive root folder
   def link_to_google_drive_folder=(link)
     @link_to_google_drive_folder = link
@@ -145,15 +153,13 @@ class Project < ApplicationRecord
     )
   end
 
-  # Get the file path for the project's git repository
+  # The file path for the project instance's version controlled repository
   def repository_file_path
     return nil unless id_in_database.present?
 
-    Rails.root.join(
-      Settings.file_storage,
-      'projects',
-      id_in_database.to_s
-    ).cleanpath.to_s
+    Pathname.new(self.class.repository_folder_path)
+            .join(id_in_database.to_s)
+            .cleanpath.to_s
   end
 
   # Validation: Is the file a folder?

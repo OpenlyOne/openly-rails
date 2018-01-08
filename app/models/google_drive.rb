@@ -18,6 +18,26 @@ class GoogleDrive
       )
     end
 
+    # Return a hash of the change record's attributes
+    def attributes_from_change_record(record)
+      attributes = { id: record.file_id }
+
+      # Set parent_id to nil if this file was removed
+      attributes[:parent_id] = nil if record.removed
+
+      # If file attribute is present, merge with attributes from file record
+      attributes.reverse_merge attributes_from_file_record(record.file)
+    end
+
+    # Return a hash of the file record's attributes
+    def attributes_from_file_record(record)
+      return {} if record.nil?
+
+      record.to_h.tap do |hash|
+        hash[:parent_id] = record.trashed? ? nil : record.parents&.first
+      end
+    end
+
     # Get file by ID
     def get_file(id_of_file)
       drive_service.get_file(

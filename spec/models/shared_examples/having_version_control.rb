@@ -87,6 +87,69 @@ RSpec.shared_examples 'having version control' do
     end
   end
 
+  describe '.find_each_repository' do
+    let(:dir_path)  { described_class.repository_folder_path }
+    let!(:repo1)    { create :repository, dir: dir_path }
+    let!(:repo2)    { create :repository, dir: dir_path }
+    let!(:repo3)    { create :repository, dir: dir_path }
+    let!(:repo4)    { create :repository, dir: dir_path }
+    let!(:repo5)    { create :repository, dir: dir_path }
+
+    it 'yields for each repository that exists' do
+      expect { |b| described_class.find_each_repository(&b) }
+        .to yield_control.exactly(5).times
+    end
+
+    it 'yields the repository' do
+      expect(STDOUT).to receive(:puts).with repo1.path
+      expect(STDOUT).to receive(:puts).with repo2.path
+      expect(STDOUT).to receive(:puts).with repo3.path
+      expect(STDOUT).to receive(:puts).with repo4.path
+      expect(STDOUT).to receive(:puts).with repo5.path
+      described_class.find_each_repository do |repository|
+        puts repository.path
+      end
+    end
+
+    context 'when :lock is passed' do
+      it 'locks each repository before yielding' do
+        expect(VersionControl::Repository).to receive(:lock).with repo1.workdir
+        expect(VersionControl::Repository).to receive(:lock).with repo2.workdir
+        expect(VersionControl::Repository).to receive(:lock).with repo3.workdir
+        expect(VersionControl::Repository).to receive(:lock).with repo4.workdir
+        expect(VersionControl::Repository).to receive(:lock).with repo5.workdir
+        described_class.find_each_repository(:lock) { |_| }
+      end
+    end
+
+    context 'when some other value is passed' do
+      it 'does not lock repository before yielding' do
+        expect(VersionControl::Repository).not_to receive(:lock)
+        described_class.find_each_repository(:false_value) { |_| }
+      end
+    end
+
+    context 'when nothing is passed' do
+      it 'does not lock repository before yielding' do
+        expect(VersionControl::Repository).not_to receive(:lock)
+        described_class.find_each_repository { |_| }
+      end
+    end
+
+    context 'when repository_folder_path does not exist' do
+      before { FileUtils.remove_entry described_class.repository_folder_path }
+
+      it 'does not raise an error' do
+        expect { described_class.find_each_repository {} }.not_to raise_error
+      end
+
+      it 'does not yield' do
+        expect { |b| described_class.find_each_repository(&b) }
+          .not_to yield_control
+      end
+    end
+  end
+
   describe '#reload' do
     subject(:method) { object.reload }
     before { object.save }

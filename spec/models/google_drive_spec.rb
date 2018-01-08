@@ -5,6 +5,72 @@ RSpec.describe GoogleDrive, type: :model do
     mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
   end
 
+  describe 'attributes_from_change_record(record)' do
+    subject(:method) { GoogleDrive.attributes_from_change_record record }
+    let(:record) { build :google_drive_change, :with_file }
+
+    it { is_expected.to include id: record.file_id }
+    it { is_expected.to include name: record.file.name }
+    it { is_expected.to include parent_id: record.file.parents.first }
+    it { is_expected.to include mime_type: record.file.mime_type }
+    it { is_expected.to include version: record.file.version }
+    it { is_expected.to include modified_time: record.file.modified_time }
+
+    context 'when removed attribute is true' do
+      let(:record) { build :google_drive_change, removed: true }
+
+      it { is_expected.to include id: record.file_id, parent_id: nil }
+    end
+
+    context 'when file trashed attribute is true' do
+      let(:record) { build :google_drive_change, :with_file, trashed: true }
+
+      it { is_expected.to include id: record.file_id, parent_id: nil }
+    end
+
+    context 'when file attribute is nil' do
+      let(:record) { build :google_drive_change }
+
+      it { is_expected.to eq id: record.file_id }
+    end
+  end
+
+  describe '.attributes_from_file_record(record)' do
+    subject(:method) { GoogleDrive.attributes_from_file_record record }
+    let(:record) do
+      build :google_drive_file,
+            :with_id,
+            :with_version_and_time,
+            parents: ['id-of-parent'],
+            trashed: trashed
+    end
+    let(:trashed) { false }
+
+    it { is_expected.to include id: record.id }
+    it { is_expected.to include name: record.name }
+    it { is_expected.to include parent_id: record.parents.first }
+    it { is_expected.to include mime_type: record.mime_type }
+    it { is_expected.to include version: record.version }
+    it { is_expected.to include modified_time: record.modified_time }
+
+    context 'when parents attribute is not present' do
+      before  { record.parents = nil }
+      it      { is_expected.to include parent_id: nil }
+    end
+
+    context 'when trashed attribute is true' do
+      let(:trashed) { true }
+      it { is_expected.to include parent_id: nil }
+    end
+
+    context 'when record is nil' do
+      let(:record) { nil }
+
+      it { is_expected.to be_a Hash }
+      it { is_expected.to be_empty }
+    end
+  end
+
   describe '.get_file' do
     subject(:method)  { GoogleDrive.get_file(id_of_file) }
     let(:id_of_file)  { Settings.google_drive_test_folder_id }
