@@ -49,6 +49,9 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  # Suppress output for rendering of views
+  config.action_view.logger = nil
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 

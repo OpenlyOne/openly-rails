@@ -1,22 +1,28 @@
 # frozen_string_literal: true
 
 RSpec.describe 'folders/show', type: :view do
-  let(:folder)            { create(:file_items_folder, parent: nil) }
-  let(:project)           { folder.project }
+  let(:folder)            { create :file, :root, repository: repository }
+  let(:project)           { create :project }
+  let(:repository)        { project.repository }
   let(:files_and_folders) { files + folders }
-  let(:files) do
-    create_list(:file_items_base, 5, :committed,
-                project: project, parent: folder)
+  let(:files)             { create_list :file, 5, parent: folder }
+  let(:folders)           { create_list :file, 5, :folder, parent: folder }
+  let(:ancestors)         { [] }
+  let(:revision_diff)     { instance_double VersionControl::RevisionDiff }
+  let(:folder_diff) do
+    VersionControl::FileDiff.new(revision_diff, folder, folder)
   end
-  let(:folders) do
-    create_list(:file_items_folder, 5, :committed,
-                project: project, parent: folder)
+  let(:file_diffs) do
+    files_and_folders.map do |file|
+      VersionControl::FileDiff.new(revision_diff, file, file)
+    end
   end
 
   before do
-    assign(:project, project)
-    assign(:folder, folder)
-    assign(:files, files_and_folders)
+    assign(:project,      project)
+    assign(:folder_diff,  folder_diff)
+    assign(:file_diffs,   file_diffs)
+    assign(:ancestors,    ancestors)
   end
 
   it 'renders the names of files and folders' do
@@ -29,15 +35,17 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders the icons of files and folders' do
     render
     files_and_folders.each do |file|
-      expect(rendered).to have_css "img[src='#{view.asset_path(file.icon)}']"
+      icon = view.icon_for_file(file)
+      expect(rendered).to have_css "img[src='#{view.asset_path(icon)}']"
     end
   end
 
   it 'renders the links of files' do
     render
     files.each do |file|
+      link = view.external_link_for_file(file)
       expect(rendered)
-        .to have_css "a[href='#{file.external_link}'][target='_blank']"
+        .to have_css "a[href='#{link}'][target='_blank']"
     end
   end
 
@@ -47,21 +55,45 @@ RSpec.describe 'folders/show', type: :view do
       expect(rendered).to have_link(
         folder.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, folder.google_drive_id
+          project.owner, project.slug, folder.id
         )
       )
     end
   end
 
-  context 'when folder is not root' do
-    let(:folder) do
-      create :file_items_folder, project: parent.project, parent: parent
+  it 'does not have a button to commit changes' do
+    render
+    expect(rendered).not_to have_link(
+      'Commit Changes',
+      href: new_profile_project_revision_path(project.owner, project)
+    )
+  end
+
+  context 'when current user can edit project' do
+    before { assign(:user_can_commit_changes, true) }
+
+    it 'has a button to commit changes' do
+      render
+      expect(rendered).to have_link(
+        'Commit Changes',
+        href: new_profile_project_revision_path(project.owner, project)
+      )
     end
-    let(:parent) { create :file_items_folder }
+  end
+
+  context 'when folder is not root' do
+    let(:folder)    { create :file, :folder, name: 'Folder',  parent: other }
+    let(:other)     { create :file, :folder, name: 'Other',   parent: docs }
+    let(:docs)      { create :file, :folder, name: 'Docs',    parent: root }
+    let(:root)      { create :file, :root, repository: project.repository }
+    let(:ancestors) { folder.ancestors }
 
     it 'renders breadcrumbs' do
       render
-      expect(rendered).to have_css 'nav'
+      expect(rendered).to have_css(
+        '.breadcrumbs',
+        text: 'Docs  Other  Folder'
+      )
     end
 
     it 'renders current folder' do
@@ -79,49 +111,57 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been modified' do
     before do
-      allow(files.first)
-        .to receive(:modified_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:modified?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.modified .indicators svg', count: 1
     end
   end
 
   context 'when file has been added' do
     before do
-      allow(files.first)
-        .to receive(:added_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:added?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.added .indicators svg', count: 1
     end
   end
 
   context 'when file has been moved' do
     before do
-      allow(files.first)
-        .to receive(:moved_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:moved?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.moved .indicators svg', count: 1
     end
   end
 
   context 'when file has been deleted' do
     before do
-      allow(files.first)
-        .to receive(:deleted_since_last_commit?).and_return(true)
+      allow(file_diffs.first).to receive(:deleted?).and_return(true)
     end
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.indicators svg', count: 1
+      expect(rendered).to have_css '.file.deleted .indicators svg', count: 1
+    end
+  end
+
+  context 'when file has been moved and modified' do
+    before do
+      allow(file_diffs.first).to receive(:moved?).and_return(true)
+      allow(file_diffs.first).to receive(:modified?).and_return(true)
+    end
+
+    it 'adds two file indicators' do
+      render
+      expect(rendered).to have_css '.file.changed .indicators svg', count: 2
     end
   end
 end

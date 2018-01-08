@@ -1,0 +1,19 @@
+/ render a single file with diff/change indicator
+
+= link_to_file(file_diff.file_is_or_was, project) do
+
+  div.file[class=type_of_file(file_diff.file_is_or_was)
+           class=html_class_for_file_diff(file_diff)]
+
+    div.indicators
+      = render partial: 'file_diff_indicator',
+             collection: file_diff.changes
+
+    = image_tag icon_for_file(file_diff.file_is_or_was),
+                alt: 'File icon',
+                size: '100',
+                class: 'img-responsive'
+    br
+    span.file-name.truncate[class=html_class_for_file_diff(file_diff)
+                            class=text_color_for_file_diff(file_diff)]
+      = file_diff.name

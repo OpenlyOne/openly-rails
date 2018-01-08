@@ -9,38 +9,36 @@ class FolderImportJob < ApplicationJob
   def perform(*args)
     variables_from_arguments(*args)
 
-    GoogleDrive.list_files_in_folder(@folder.google_drive_id).each do |file|
+    # TODO: Lock repository after receiving files
+    GoogleDrive.list_files_in_folder(@folder_id).each do |file|
       # create a new file
-      new_file = create_file(file, @folder_id, @reference_id)
+      file = create_or_update_file(file, @folder_id, @project)
 
       # schedule a new job if the file is a folder
-      if new_file.mime_type.include? 'google-apps.folder'
-        schedule_folder_import_job_for(new_file)
-      end
+      schedule_folder_import_job_for(file.id) if file.directory?
     end
   end
 
   private
 
-  # Create a new file from the given Google Drive file, parent ID, & project ID
-  def create_file(google_drive_file, parent_folder_id, project_id)
-    FileItems::Base.create(
-      google_drive_id:  google_drive_file.id,
-      name:             google_drive_file.name,
-      mime_type:        google_drive_file.mime_type,
-      parent_id:        parent_folder_id,
-      project_id:       project_id,
-      version:          google_drive_file.version,
-      modified_time:    google_drive_file.modified_time
-    ).tap(&:commit!)
+  # Create a new file from the given Google Drive file, parent ID, & project
+  def create_or_update_file(google_drive_file, parent_folder_id, project)
+    project.files.create_or_update(
+      id:             google_drive_file.id,
+      name:           google_drive_file.name,
+      mime_type:      google_drive_file.mime_type,
+      parent_id:      parent_folder_id,
+      version:        google_drive_file.version,
+      modified_time:  google_drive_file.modified_time
+    )
   end
 
   # Create a new FolderImportJob for the folder
-  def schedule_folder_import_job_for(folder)
+  def schedule_folder_import_job_for(folder_id)
     FolderImportJob.perform_later(
       reference_id:   @reference_id,
       reference_type: @reference_type,
-      folder_id:      folder.id
+      folder_id:      folder_id
     )
   end
 
@@ -48,7 +46,7 @@ class FolderImportJob < ApplicationJob
   def variables_from_arguments(*args)
     @reference_type = args[0][:reference_type]
     @reference_id   = args[0][:reference_id]
+    @project        = Project.find(@reference_id)
     @folder_id      = args[0][:folder_id]
-    @folder         = FileItems::Folder.find(@folder_id)
   end
 end
