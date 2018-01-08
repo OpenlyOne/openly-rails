@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171207215149) do
+ActiveRecord::Schema.define(version: 20180108071756) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,24 +40,6 @@ ActiveRecord::Schema.define(version: 20171207215149) do
     t.string "delayed_reference_type"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
-  end
-
-  create_table "file_items", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "parent_id"
-    t.string "google_drive_id", null: false
-    t.text "name", null: false
-    t.string "mime_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "version", default: 0, null: false
-    t.bigint "version_at_last_commit", default: 0, null: false
-    t.datetime "modified_time"
-    t.datetime "modified_time_at_last_commit"
-    t.bigint "parent_id_at_last_commit"
-    t.index ["google_drive_id"], name: "index_file_items_on_google_drive_id"
-    t.index ["parent_id"], name: "index_file_items_on_parent_id"
-    t.index ["project_id"], name: "index_file_items_on_project_id"
   end
 
   create_table "notification_channels", force: :cascade do |t|
@@ -101,7 +83,5 @@ ActiveRecord::Schema.define(version: 20171207215149) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "file_items", "file_items", column: "parent_id"
-  add_foreign_key "file_items", "projects"
   add_foreign_key "profiles", "accounts"
 end
