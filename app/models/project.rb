@@ -164,7 +164,7 @@ class Project < ApplicationRecord
 
   # Validation: Is the file a folder?
   def validate_folder_mime_type(folder)
-    return if folder.mime_type == FileItems::Folder.new.mime_type
+    return if VersionControl::File.directory_type? folder.mime_type
     errors.add(
       :link_to_google_drive_folder,
       'appears not to be a Google Drive folder'
