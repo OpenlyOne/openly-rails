@@ -16,7 +16,7 @@ module VersionControl
     after_create do
       begin
         create_repository
-      rescue
+      rescue StandardError
         # Do not persist object if any errors occur while creating repository
         raise ActiveRecord::Rollback
       end
@@ -26,7 +26,7 @@ module VersionControl
     after_destroy do
       begin
         destroy_repository
-      rescue
+      rescue StandardError
         # Do not persist object if any errors occur while destroying repository
         raise ActiveRecord::Rollback
       end
