@@ -27,8 +27,8 @@ RSpec.describe GoogleDriveHelper, live_google_drive_requests: true do
       let(:token)     { 1 }
       let(:page_size) { 5 }
       it do
-        expect(orig.to_h.except(:changes))
-          .to eq(mock.to_h.except(:changes))
+        expect(orig.to_h.except(:changes, :next_page_token))
+          .to eq(mock.to_h.except(:changes, :next_page_token))
       end
     end
 

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe 'projects/show', type: :view do
-  let(:project) { create(:project) }
+  let(:project)     { create(:project) }
+  let(:root_folder) { nil }
 
   before do
     assign(:project, project)
+    assign(:root_folder, root_folder)
   end
 
   it 'renders the title of the project' do
@@ -39,7 +41,7 @@ RSpec.describe 'projects/show', type: :view do
   end
 
   context 'when a root folder exists' do
-    before { create :file_items_folder, project: project, parent: nil }
+    let(:root_folder) { create :file, :root, repository: project.repository }
 
     it 'renders a link to the project files' do
       render
@@ -53,7 +55,7 @@ RSpec.describe 'projects/show', type: :view do
       render
       expect(rendered).to have_link(
         'Open in Drive',
-        href: project.root_folder.external_link
+        href: view.external_link_for_file(root_folder)
       )
     end
   end

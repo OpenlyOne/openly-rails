@@ -55,6 +55,8 @@ gem 'google-api-client', '~> 0.17'
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
 gem 'daemons', '~> 1.2'
+# Filelock for extended file locking (simple timeout and wait)
+gem 'filelock'
 
 group :development, :test do
   # We will use pry rails as our console

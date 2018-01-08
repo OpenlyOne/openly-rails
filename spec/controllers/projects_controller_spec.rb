@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'controllers/shared_examples/a_redirect_with_success.rb'
+require 'controllers/shared_examples/a_repository_locking_action.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
@@ -63,7 +64,7 @@ RSpec.describe ProjectsController, type: :controller do
     end
 
     context 'when root folder exists' do
-      before { create :file_items_folder, project: project, parent: nil }
+      before { create :file, :root, repository: project.repository }
       before { run_request }
 
       it 'returns http redirect' do
@@ -126,6 +127,7 @@ RSpec.describe ProjectsController, type: :controller do
 
     include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'a repository locking action'
 
     it 'returns http success' do
       run_request

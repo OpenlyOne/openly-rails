@@ -24,8 +24,7 @@ feature 'Folder Import' do
     # then I should see all the files
     expect(page).to have_css '.file', count: 3
 
-    # and see no file modifiation icons
-    expect(page).not_to have_css '.file.changed'
-    expect(page).to have_css '.file.unchanged', count: 3
+    # and see file modification icons
+    expect(page).to have_css '.file.changed.added', count: 3
   end
 end
