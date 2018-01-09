@@ -82,7 +82,7 @@ RSpec.describe FolderImportJob, type: :job do
     context 'when file already exists' do
       let(:existing_file) do
         build :google_drive_file, :with_id, :with_version_and_time,
-              id: file.id
+              id: file.id, mime_type: file.mime_type
       end
       before do
         FolderImportJob.new.send :create_or_update_file, existing_file,

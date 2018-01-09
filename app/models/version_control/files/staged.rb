@@ -138,7 +138,6 @@ module VersionControl
       # Set new attribute values from params hash
       def update_attributes_from_hash(params)
         @name           = params[:name]          if params.key? :name
-        @mime_type      = params[:mime_type]     if params.key? :mime_type
         @version        = params[:version]       if params.key? :version
         @modified_time  = params[:modified_time] if params.key? :modified_time
       end
