@@ -111,6 +111,26 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     end
   end
 
+  describe '#files', isolated_unit_test: true do
+    subject(:method) { revision.files }
+    let(:file_collection) do
+      instance_double VersionControl::FileCollections::Committed
+    end
+
+    before do
+      expect(VersionControl::FileCollections::Committed)
+        .to receive(:new).with(revision).and_return file_collection
+    end
+
+    it 'returns the file collection' do
+      is_expected.to eq file_collection
+    end
+
+    it_behaves_like 'caching method call', :files do
+      subject { revision }
+    end
+  end
+
   describe '#tree' do
     subject(:method)  { revision.tree }
     let(:tree_id)     { revision.instance_variable_get :@tree_id }

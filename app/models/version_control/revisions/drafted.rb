@@ -34,6 +34,11 @@ module VersionControl
         end
       end
 
+      # A file collection for the files in this revision
+      def files
+        @files ||= FileCollections::Committed.new(self)
+      end
+
       # Return the tree for this revision draft
       def tree
         return nil unless @tree_id.present?
