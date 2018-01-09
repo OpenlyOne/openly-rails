@@ -111,11 +111,6 @@ module VersionControl
           modified_time: modified_time }
       end
 
-      # The path to the file's metadata
-      def metadata_path
-        path
-      end
-
       # Move the file to a new location specified by new_parent_id
       # If new_parent_id is nil, does not exist, or is outside of the
       # repository, the file is destroyed.
