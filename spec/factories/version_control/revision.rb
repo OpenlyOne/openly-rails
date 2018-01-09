@@ -6,7 +6,8 @@ FactoryGirl.define do
 
     transient do
       repository    { build :repository }
-      summary       { Faker::HarryPotter.quote }
+      title         { Faker::HarryPotter.quote }
+      summary       { Faker::Lorem.paragraph }
       author_name   { Faker::Name.name }
       author_email  { "#{author_name.to_param}@example.com" }
       author        { { name: author_name, email: author_email } }
@@ -15,7 +16,7 @@ FactoryGirl.define do
     initialize_with do
       commit =
         repository.lookup(
-          repository.build_revision.commit(summary, author)
+          repository.build_revision.commit(title, summary, author)
         )
       new(repository.revisions, commit)
     end

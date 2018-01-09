@@ -33,12 +33,6 @@ module VersionControl
             write_metadata
           end
         end
-
-        # The path to the folder's metadata file
-        def metadata_path
-          return nil unless path.present?
-          "#{path}/.self"
-        end
       end
     end
   end

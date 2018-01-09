@@ -206,6 +206,13 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         expect(persisted_file).to have_attributes params
       end
 
+      it 'does not change mime type' do
+        params[:mime_type] = 'a.new.mime.type'
+        method
+        persisted_file = repository.stage.files.find(file.id)
+        expect(persisted_file.mime_type).not_to eq 'a.new.mime.type'
+      end
+
       it_behaves_like 'being updatable without param key', :name
       it_behaves_like 'being updatable without param key', :parent_id
       it_behaves_like 'being updatable without param key', :mime_type
@@ -422,11 +429,6 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
         it      { expect { method }.to(change { file.name }) }
       end
 
-      context 'when params includes :mime_type' do
-        before  { params.merge! mime_type: 'mime.type.test' }
-        it      { expect { method }.to(change { file.mime_type }) }
-      end
-
       context 'when params includes :version' do
         before  { params.merge! version: file.version + 1 }
         it      { expect { method }.to(change { file.version }) }
@@ -435,6 +437,14 @@ RSpec.shared_examples 'being a staged file' do |skip_methods = []|
       context 'when params includes :modified_time' do
         before  { params.merge! modified_time: Time.zone.now.tomorrow }
         it      { expect { method }.to(change { file.modified_time }) }
+      end
+
+      context 'when params includes :mime_type' do
+        before  { params.merge! mime_type: 'mime.type.test' }
+
+        it 'does not change the existing mime type' do
+          expect { method }.not_to(change { file.mime_type })
+        end
       end
     end
   end

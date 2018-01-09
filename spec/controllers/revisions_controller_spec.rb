@@ -5,6 +5,7 @@ require 'controllers/shared_examples/a_repository_locking_action.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe RevisionsController, type: :controller do
   let!(:project)        { create :project }
@@ -45,7 +46,7 @@ RSpec.describe RevisionsController, type: :controller do
     let(:add_params) do
       {
         revision: {
-          summary: 'Initial Commit',
+          title: 'Initial Commit',
           tree_id: revision_draft.tree_id
         }
       }
@@ -72,6 +73,15 @@ RSpec.describe RevisionsController, type: :controller do
       expect_any_instance_of(VersionControl::Revisions::Drafted)
         .to receive(:commit)
       run_request
+    end
+
+    context 'when creation fails' do
+      before do
+        allow_any_instance_of(VersionControl::Revisions::Drafted)
+          .to receive(:commit).and_return false
+      end
+
+      it_should_behave_like 'successfully rendering view'
     end
   end
 end

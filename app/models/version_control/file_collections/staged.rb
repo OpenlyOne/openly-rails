@@ -128,7 +128,9 @@ module VersionControl
       # Load the YAML metadata from the provided path
       def load_metadata(path)
         lock do
-          YAML.load_file(metadata_path_from_file_path(path))&.symbolize_keys
+          YAML.load_file(
+            File.file_path_to_metadata_path(path, ::File.directory?(path))
+          )&.symbolize_keys
         end
       end
 
@@ -146,13 +148,6 @@ module VersionControl
             is_root: (id == root_id)
             # TODO: Pass path variable
           )
-        end
-      end
-
-      # Generate the metadata path based on the file path
-      def metadata_path_from_file_path(path)
-        lock do
-          ::File.directory?(path) ? "#{path}/.self" : path
         end
       end
 

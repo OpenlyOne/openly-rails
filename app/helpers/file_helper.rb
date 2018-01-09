@@ -37,19 +37,18 @@ module FileHelper
   # Wrap block into a link_to the file.
   # If the file is a directory, wraps into an internal link to that directory.
   # If the file is not a directory, wraps into an external link to Drive.
-  def link_to_file(file, project, &block)
+  def link_to_file(file, project, options = {}, &block)
     # internal link to that folder
     if file.directory?
-      link_to profile_project_folder_path(project.owner, project, file.id) do
-        capture(&block)
-      end
+      path = profile_project_folder_path(project.owner, project, file.id)
 
     # external link to the original file on Google Drive
     else
-      link_to external_link_for_file(file), target: '_blank' do
-        capture(&block)
-      end
+      path = external_link_for_file(file)
+      options.reverse_merge! target: '_blank'
     end
+
+    link_to(path, options) { capture(&block) }
   end
 
   # Sort files according to sort order
@@ -89,4 +88,6 @@ module FileHelper
     else                                                 :other
     end
   end
+
+  # rubocop:enable Metrics/CyclomaticComplexity
 end

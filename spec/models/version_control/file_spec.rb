@@ -40,4 +40,33 @@ RSpec.describe VersionControl::File, type: :model do
       it { is_expected.to be false }
     end
   end
+
+  describe '.file_path_to_metadata_path(file_path, is_folder)',
+           isolated_unit_test: true do
+    subject(:method) do
+      VersionControl::File.file_path_to_metadata_path path, is_folder
+    end
+    let(:path)      { 'path/to/file' }
+    let(:is_folder) { false }
+
+    it { is_expected.to eq 'path/to/file' }
+
+    context 'when file is a folder' do
+      let(:is_folder) { true }
+
+      it { is_expected.to eq 'path/to/file/.self' }
+    end
+  end
+
+  describe '.metadata_path_to_file_path(metadata_path)',
+           isolated_unit_test: true do
+    subject(:method)  { VersionControl::File.metadata_path_to_file_path path }
+    let(:path)        { 'path/to/file' }
+    it { is_expected.to eq 'path/to/file' }
+
+    context 'when metadata belongs to folder (path ends with .self)' do
+      let(:path) { 'path/to/folder/.self' }
+      it { is_expected.to eq 'path/to/folder' }
+    end
+  end
 end
