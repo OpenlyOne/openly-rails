@@ -13,25 +13,26 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
   end
 
   describe 'attributes' do
+    it { is_expected.to respond_to(:title) }
     it { is_expected.to respond_to(:summary) }
     it { is_expected.to respond_to(:tree_id) }
   end
 
   describe 'validations' do
-    let(:summary) { 'Initial Revision' }
+    let(:title) { 'Initial Revision' }
     before do
-      revision.instance_variable_set :@summary, summary
+      revision.instance_variable_set :@title, title
     end
 
     it { is_expected.to be_valid }
 
-    context 'when summary is nil' do
-      let(:summary) { nil }
+    context 'when title is nil' do
+      let(:title) { nil }
       it            { is_expected.to be_invalid }
     end
 
-    context 'when summary is blank' do
-      let(:summary) { '' }
+    context 'when title is blank' do
+      let(:title) { '' }
       it            { is_expected.to be_invalid }
     end
 
@@ -47,10 +48,11 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
   end
 
   describe '#commit' do
-    subject(:method)  { revision.commit(summary, author) }
+    subject(:method)  { revision.commit(title, summary, author) }
     let!(:root)       { create :file, :root, repository: repository }
     let!(:files)      { create_list :file, 5, parent: root }
-    let(:summary)     { 'Commit with Rugged' }
+    let(:title)       { 'Commit with Rugged' }
+    let(:summary)     { '' }
     let(:author)      { { name: 'username', email: '1' } }
 
     it_should_behave_like 'using repository locking' do
@@ -64,10 +66,10 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
       expect(repository.rugged_repository.last_commit).to be_present
     end
 
-    it 'writes summary and author to the commit' do
+    it 'writes title and author to the commit' do
       method
       expect(repository.rugged_repository.last_commit).to have_attributes(
-        message: summary,
+        message: title,
         author: hash_including(name: author[:name], email: author[:email])
       )
     end
@@ -75,6 +77,17 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     it 'saves the tree' do
       method
       expect(repository.rugged_repository.last_commit.tree).to eq revision.tree
+    end
+
+    context 'when optional summary is provided' do
+      let(:summary) { 'This commit was made using Rugged/Libgit2' }
+      it 'writes title and summary to the commit' do
+        method
+        expect(repository.rugged_repository.last_commit).to have_attributes(
+          message: "Commit with Rugged\r\n\r\nThis commit was made using " \
+                   'Rugged/Libgit2'
+        )
+      end
     end
 
     context 'when draft is invalid' do

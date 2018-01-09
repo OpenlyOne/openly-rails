@@ -22,8 +22,14 @@
     .row
       .col.s12.l12
         .input-field
-          = f.text_area :summary, rows: 5, placeholder: 'Summarize the changes you have made to files', class: 'inherit materialize-textarea noscript'
-          = f.label :summary
+          = f.text_field :title, placeholder: 'One sentence description of your changes'
+          = f.label :title, 'Title'
+
+    .row
+      .col.s12.l12
+        .input-field
+          = f.text_area :summary, rows: 3, placeholder: 'Summarize the changes you have made to files', class: 'materialize-textarea noscript'
+          = f.label :summary, 'Summary of Changes (optional)'
 
     .row
       .col.s12.right-align

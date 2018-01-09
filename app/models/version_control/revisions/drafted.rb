@@ -6,11 +6,11 @@ module VersionControl
     class Drafted < Revision
       include ActiveModel::Validations
 
-      attr_reader :summary, :tree_id
+      attr_reader :title, :summary, :tree_id
 
       # Validations
-      # Summary must be present
-      validates :summary, presence: true
+      # Title must be present
+      validates :title, presence: true
       validate :last_revision_id_matches_actual_last_revision_id
 
       def initialize(repository, tree_id)
@@ -20,8 +20,9 @@ module VersionControl
 
       # Commit the drafted revision to the repository, making the revision
       # permanent
-      def commit(summary, author)
+      def commit(title, summary, author)
         lock do
+          @title = title
           @summary = summary
           @author = author
 
@@ -54,7 +55,7 @@ module VersionControl
           tree: tree,
           author: author,
           committer: author,
-          message: @summary,
+          message: [@title, @summary].select(&:present?).join("\r\n\r\n"),
           parents: [last_revision_id].compact,
           update_ref: 'HEAD'
         }

@@ -19,7 +19,8 @@ class RevisionsController < ApplicationController
   def new; end
 
   def create
-    if @revision.commit(revision_params[:summary], revision_author)
+    if @revision.commit(revision_params[:title], revision_params[:summary],
+                        revision_author)
       redirect_with_success_to(
         profile_project_root_folder_path(@project.owner, @project)
       )
@@ -74,7 +75,7 @@ class RevisionsController < ApplicationController
   end
 
   def revision_params
-    params.require(:revision).permit(:summary, :tree_id)
+    params.require(:revision).permit(:title, :summary, :tree_id)
   end
 
   # TODO@refactor: This should not be the controller's responsibility. Ideally,

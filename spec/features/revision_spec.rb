@@ -16,8 +16,8 @@ feature 'Revision' do
     click_on 'Files'
     # and click on Commit Changes
     click_on 'Commit Changes'
-    # and enter a revision summary
-    fill_in 'Summary', with: 'Initial Commit'
+    # and enter a revision title
+    fill_in 'Title', with: 'Initial Commit'
     # and click on 'Commit'
     click_on 'Commit'
 

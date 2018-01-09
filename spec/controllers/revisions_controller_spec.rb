@@ -46,7 +46,7 @@ RSpec.describe RevisionsController, type: :controller do
     let(:add_params) do
       {
         revision: {
-          summary: 'Initial Commit',
+          title: 'Initial Commit',
           tree_id: revision_draft.tree_id
         }
       }

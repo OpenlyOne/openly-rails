@@ -39,6 +39,12 @@ RSpec.describe 'revisions/new', type: :view do
     )
   end
 
+  it 'has a text field for revision titile' do
+    render
+    expect(rendered).to have_css 'input#revision_title'
+  end
+
+
   it 'has a text area for revision summary' do
     render
     expect(rendered).to have_css 'textarea#revision_summary'
