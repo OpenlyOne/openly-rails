@@ -15,10 +15,10 @@ module FileDiffHelper
   end
 
   # Return the HTML class for the change that has been made to the file
-  def html_class_for_file_diff(file_diff)
-    return 'unchanged' unless file_diff.changed?
+  def html_class_for_file_diff_changes(file_diff_changes)
+    return 'unchanged' if file_diff_changes.empty?
 
-    "changed #{file_diff.changes.join(' ')}"
+    "changed #{file_diff_changes.join(' ')}"
   end
 
   # Get the SVG path for the file change
@@ -49,8 +49,8 @@ module FileDiffHelper
   end
 
   # Return the text color class for the change that has been made to the file
-  def text_color_for_file_diff(file_diff)
-    scheme = color_for_file_diff_change(file_diff.changes.first)&.split(' ')
+  def text_color_for_file_diff_change(file_diff_change)
+    scheme = color_for_file_diff_change(file_diff_change)&.split(' ')
     return nil if scheme.nil?
 
     "#{scheme.first}-text text-#{scheme.last}"

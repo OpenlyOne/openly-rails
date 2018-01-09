@@ -1,0 +1,26 @@
+- added     = (file_diff_change == :added)
+- modified  = (file_diff_change == :modified)
+- moved     = (file_diff_change == :moved)
+- deleted   = (file_diff_change == :deleted)
+
+
+span.file-name[class=text_color_for_file_diff_change(file_diff_change)]
+
+  / print: filename in bold
+  b
+    = link_to_file(file_diff.file_is_or_was, project, target: '_blank') do
+      = file_diff.name
+
+  / print: added/modified/moved/deleted
+  =< file_diff_change
+
+  / print: ancestor path
+  - if moved || added || deleted
+    / Drop root level entry from path and replace with 'Home'
+    - ancestor_path = \
+        ancestors.reverse.map(&:name).drop(1).prepend('Home').join(' > ')
+
+    - if moved || added
+      =< "to #{ancestor_path}"
+    - else
+      =< "from #{ancestor_path}"

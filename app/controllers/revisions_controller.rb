@@ -13,6 +13,7 @@ class RevisionsController < ApplicationController
 
   # Execute with lock and render/redirect delay
   before_action :build_revision
+  before_action :set_file_diffs, only: :new
   before_action :set_root_folder
 
   def new; end
@@ -23,6 +24,7 @@ class RevisionsController < ApplicationController
         profile_project_root_folder_path(@project.owner, @project)
       )
     else
+      set_file_diffs
       render :new
     end
   end
@@ -47,6 +49,22 @@ class RevisionsController < ApplicationController
     { name: current_user.handle, email: current_user.id.to_s }
   end
 
+  # TODO@performance: Improve N+1 query by bulk preloading ancestors
+  def set_ancestors_of_file_diffs
+    @ancestors_of_file_diffs =
+      @file_diffs.index_by(&:id).transform_values!(&:ancestors_of_file)
+  end
+
+  def set_file_diffs
+    @file_diffs = @revision.diff(@project.repository.revisions.last)
+                           .changed_files_as_diffs
+
+    _filter_out_unchanged_file_diffs
+    set_ancestors_of_file_diffs
+
+    helpers.sort_file_diffs!(@file_diffs)
+  end
+
   def set_project
     @project = Project.find(params[:profile_handle], params[:project_slug])
   end
@@ -57,5 +75,12 @@ class RevisionsController < ApplicationController
 
   def revision_params
     params.require(:revision).permit(:summary, :tree_id)
+  end
+
+  # TODO@refactor: This should not be the controller's responsibility. Ideally,
+  # =>             take care of this at source (i.e.:
+  # =>             VersionControl::RevisionDiff#_rugged_deltas)
+  def _filter_out_unchanged_file_diffs
+    @file_diffs.select!(&:changed?)
   end
 end

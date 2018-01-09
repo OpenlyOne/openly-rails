@@ -4,7 +4,7 @@
     .container
       .row.no-margin-bottom
         .col.s12
-          h2 Review Changes
+          h2 Commit Changes
 
   .container
     - if @revision.errors.any?
@@ -13,7 +13,9 @@
       .row
         .col.s12
           .validation-errors
-            = render partial: "error", collection: @revision.errors.full_messages, as: :error
+            = render partial: "error",
+                     collection: @revision.errors.full_messages,
+                     as: :error
 
     = f.hidden_field :tree_id
 
@@ -24,6 +26,21 @@
           = f.label :summary
 
     .row
-      .col.s12
+      .col.s12.right-align
         button action='submit' class="btn-large primary-color primary-color-text"
           | Commit Changes
+
+    .spacing.v1
+
+    h3: span Review Changes
+    / render preview of file changes
+    - if @file_diffs.none?
+      | There are no changes to review.
+    - else
+      - @file_diffs.each do |diff|
+        = render partial: 'file_diff',
+                 object: diff,
+                 locals: { ancestors: @ancestors_of_file_diffs[diff.id],
+                           project: @project }
+
+    .spacing.v48px

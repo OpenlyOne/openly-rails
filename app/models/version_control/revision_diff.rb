@@ -8,6 +8,10 @@ module VersionControl
     # Initialize an instance of RevisionDiff given two revisions.
     # The base should be the more current revision, the differentiator the less
     # current one.
+    # TODO: Should probably swap the order (it makes more sense to say:
+    #       "generate the change from revision B to revision A" than to say
+    #       "generate the change to revision A from revision B"
+    #       Maybe call the arguments from_revision, to_revision
     def initialize(base, differentiator)
       @base           = base
       @differentiator = differentiator
@@ -123,7 +127,7 @@ module VersionControl
       # Keep only paths
       paths = file_hashes.map { |hash| hash[:path] }
       # Convert metadata paths to file paths
-      paths.map { |path| File.metadata_path_to_file_path path }
+      paths.map { |path| VersionControl::File.metadata_path_to_file_path path }
     end
 
     # Return the array of Rugged::Diff::Deltas by diffing differentiator tree

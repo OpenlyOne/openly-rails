@@ -73,7 +73,7 @@ RSpec.describe FileHelper, type: :helper do
     end
   end
 
-  describe '#link_to_file(file, project)' do
+  describe '#link_to_file(file, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { create :project }
 
@@ -82,13 +82,14 @@ RSpec.describe FileHelper, type: :helper do
 
       it 'returns internal link to directory' do
         expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/#{file.id}"
+          "/#{project.owner.handle}/#{project.slug}/folders/#{file.id}",
+          any_args
         )
         method
       end
 
       it 'does not set target to _blank' do
-        expect(helper).to receive(:link_to).with(kind_of(String))
+        expect(helper).to receive(:link_to).with(kind_of(String), {})
         method
       end
     end
@@ -109,6 +110,19 @@ RSpec.describe FileHelper, type: :helper do
           kind_of(String),
           hash_including(target: '_blank')
         )
+        method
+      end
+    end
+
+    context "when options include target: '_blank'" do
+      subject(:method)  { helper.link_to_file(file, project, options) {} }
+      let(:file)        { build :file, :folder }
+      let(:options)     { { target: '_blank' } }
+
+      it 'passes options to #link_to' do
+        expect(helper)
+          .to receive(:link_to)
+          .with(kind_of(String), hash_including(target: '_blank'))
         method
       end
     end

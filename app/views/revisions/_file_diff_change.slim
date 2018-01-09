@@ -1,0 +1,13 @@
+div.file[class=type_of_file(file_diff.file_is_or_was)
+         class=file_diff_change]
+
+  = image_tag icon_for_file(file_diff.file_is_or_was),
+             alt: 'File icon',
+             size: '30',
+             class: 'img-responsive file-icon'
+
+  = render partial: 'file_diff_change_text',
+           locals: { file_diff_change: file_diff_change,
+                     file_diff: file_diff,
+                     ancestors: ancestors,
+                     project: project }

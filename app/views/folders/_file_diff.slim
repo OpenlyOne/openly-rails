@@ -3,7 +3,7 @@
 = link_to_file(file_diff.file_is_or_was, project) do
 
   div.file[class=type_of_file(file_diff.file_is_or_was)
-           class=html_class_for_file_diff(file_diff)]
+           class=html_class_for_file_diff_changes(file_diff.changes)]
 
     div.indicators
       = render partial: 'file_diff_indicator',
@@ -14,6 +14,7 @@
                 size: '100',
                 class: 'img-responsive'
     br
-    span.file-name.truncate[class=html_class_for_file_diff(file_diff)
-                            class=text_color_for_file_diff(file_diff)]
+    span.file-name.truncate[
+      class=text_color_for_file_diff_change(file_diff.changes.first)
+    ]
       = file_diff.name
