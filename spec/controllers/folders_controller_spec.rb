@@ -2,6 +2,7 @@
 
 require 'controllers/shared_examples/a_repository_locking_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/setting_project_context.rb'
 
 RSpec.describe FoldersController, type: :controller do
   let!(:folder)         { create :file, :root, repository: project.repository }
@@ -25,6 +26,7 @@ RSpec.describe FoldersController, type: :controller do
       before { FileUtils.remove_dir(folder.send(:path)) }
     end
     it_should_behave_like 'a repository locking action'
+    it_should_behave_like 'setting project context'
 
     it 'returns http success' do
       run_request
@@ -43,6 +45,7 @@ RSpec.describe FoldersController, type: :controller do
       before { FileUtils.remove_dir(folder.send(:path)) }
     end
     it_should_behave_like 'a repository locking action'
+    it_should_behave_like 'setting project context'
 
     context 'when file is not a directory' do
       let(:file)  { create :file, parent: folder }

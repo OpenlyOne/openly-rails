@@ -2,6 +2,7 @@
 
 # Controller for project revisions
 class RevisionsController < ApplicationController
+  include CanSetProjectContext
   include ProjectLockable
 
   # Execute without lock or render/redirect delay
@@ -12,9 +13,9 @@ class RevisionsController < ApplicationController
   around_action :wrap_action_in_project_lock
 
   # Execute with lock and render/redirect delay
+  before_action :set_project_context
   before_action :build_revision
   before_action :set_file_diffs, only: :new
-  before_action :set_root_folder
 
   def new; end
 
@@ -64,14 +65,6 @@ class RevisionsController < ApplicationController
     set_ancestors_of_file_diffs
 
     helpers.sort_file_diffs!(@file_diffs)
-  end
-
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
-  def set_root_folder
-    @root_folder = @project.files.root
   end
 
   def revision_params

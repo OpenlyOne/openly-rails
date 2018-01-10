@@ -6,6 +6,7 @@ require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
+require 'controllers/shared_examples/setting_project_context.rb'
 
 RSpec.describe RevisionsController, type: :controller do
   let!(:project)        { create :project }
@@ -31,6 +32,7 @@ RSpec.describe RevisionsController, type: :controller do
       end
     end
     it_should_behave_like 'a repository locking action'
+    it_should_behave_like 'setting project context'
 
     it 'returns http success' do
       run_request
@@ -62,6 +64,7 @@ RSpec.describe RevisionsController, type: :controller do
       end
     end
     it_should_behave_like 'a repository locking action'
+    it_should_behave_like 'setting project context'
 
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
