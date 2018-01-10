@@ -103,10 +103,10 @@ RSpec.describe FileDiffHelper, type: :helper do
       ].shuffle
     end
     let(:dir1)        { build :file, :folder, name: 'A Folder' }
-    let(:dir2)        { build :file, :folder, name: 'Homework' }
+    let(:dir2)        { build :file, :folder, name: 'homework' }
     let(:dir3)        { build :file, :folder, name: 'Something Great' }
     let(:file1)       { build :file, name: 'A Funny File' }
-    let(:file2)       { build :file, name: 'Financials' }
+    let(:file2)       { build :file, name: 'financials' }
     let(:file3)       { build :file, name: 'Potato Soup Recipe' }
 
     it 'sorts file diffs in correct order' do
@@ -124,12 +124,13 @@ RSpec.describe FileDiffHelper, type: :helper do
       expect(file_diffs[3..5].map(&:directory?)).to eq [false, false, false]
     end
 
-    it 'puts file diffs in alphabetical order' do
+    it 'puts file diffs in alphabetical order (case insensitive)' do
       subject
       last_file_diff = file_diffs[0]
       file_diffs[1..2].each do |file_diff|
         # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name > last_file_diff.name).to be true
+        expect(file_diff.name.downcase > last_file_diff.name.downcase)
+          .to be true
 
         # set last_file_diffs to current file_diffs for next comparison
         last_file_diff = file_diff
@@ -138,7 +139,8 @@ RSpec.describe FileDiffHelper, type: :helper do
       last_file_diff = file_diffs[3]
       file_diffs[4..5].each do |file_diff|
         # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name > last_file_diff.name).to be true
+        expect(file_diff.name.downcase > last_file_diff.name.downcase)
+          .to be true
 
         # set last_file_diffs to current file_diffs for next comparison
         last_file_diff = file_diff
