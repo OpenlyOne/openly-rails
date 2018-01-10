@@ -1,0 +1,16 @@
+.container
+
+  .spacing.v32px
+
+  - (@revisions + [nil]).each_cons(2) do |this_revision, previous_revision|
+    .revision[data-revision-id=this_revision.id]
+      = render partial: 'revision', object: this_revision
+
+      / TODO: this is probably not the right place to generate a diff
+      = render partial: 'revision_diff',
+               object: this_revision.diff(previous_revision),
+               locals: { project: @project }
+
+    .spacing.v16px
+    .divider
+    .spacing.v16px

@@ -20,5 +20,9 @@ FactoryGirl.define do
         )
       new(repository.revisions, commit)
     end
+
+    after(:create) do |revision|
+      revision.revision_collection.reload
+    end
   end
 end

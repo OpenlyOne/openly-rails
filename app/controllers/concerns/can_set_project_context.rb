@@ -20,9 +20,17 @@ module CanSetProjectContext
   # the page (link to Files, link to Google Drive, link to revisions)
   def set_project_context
     _set_root_folder
+    _set_has_revisions
   end
 
   def _set_root_folder
     @root_folder = @project.files.root
+  end
+
+  def _set_has_revisions
+    # TODO: Add #revisions directly to project (delegate to repository)
+    # TODO: Add method #any? to RevisionsCollection
+    # Final output: @project.revisions.any?
+    @has_revisions = @project.repository.revisions.last.present?
   end
 end

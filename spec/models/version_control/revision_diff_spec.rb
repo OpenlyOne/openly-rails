@@ -15,9 +15,12 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
   end
 
   describe 'delegations' do
-    it { should delegate_method(:rugged_repository).to(:repository) }
-    it { should delegate_method(:tree).to(:base).with_prefix(true) }
-    it { should delegate_method(:tree).to(:differentiator).with_prefix(true) }
+    it { is_expected.to delegate_method(:rugged_repository).to(:repository) }
+    it { is_expected.to delegate_method(:tree).to(:base).with_prefix(true) }
+    it do
+      is_expected.to delegate_method(:tree)
+        .to(:differentiator).with_prefix(true)
+    end
   end
 
   describe '#changed_files_as_diffs', isolated_unit_test: true do

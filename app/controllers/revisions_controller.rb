@@ -6,16 +6,25 @@ class RevisionsController < ApplicationController
   include ProjectLockable
 
   # Execute without lock or render/redirect delay
-  before_action :authenticate_account!
+  before_action :authenticate_account!, except: :index
   before_action :set_project
-  before_action :authorize_action
+  before_action :authorize_action, except: :index
 
   around_action :wrap_action_in_project_lock
 
   # Execute with lock and render/redirect delay
   before_action :set_project_context
-  before_action :build_revision
+  before_action :build_revision, only: %i[new create]
   before_action :set_file_diffs, only: :new
+
+  def index
+    # TODO: Raise 404 if no revisions exist or redirect
+    # TODO: Refactor to @project.revisions.all
+    # TODO@performance: PRELOAD revision diffs, file diffs, and ancestors of
+    # =>                files. Loading those in the view is bad practice and
+    # =>                unnecessary N+1 queries.
+    @revisions = @project.repository.revisions.all
+  end
 
   def new; end
 
@@ -58,6 +67,8 @@ class RevisionsController < ApplicationController
   end
 
   def set_file_diffs
+    # TODO@performance: PRELOAD ancestors of files. Loading those in the view is
+    #                   bad practice and unnecessary N+1 queries.
     @file_diffs = @revision.diff(@project.repository.revisions.last)
                            .changed_files_as_diffs
 

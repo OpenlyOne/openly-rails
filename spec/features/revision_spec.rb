@@ -1,6 +1,32 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
+  scenario 'User can see past revisions' do
+    # given there is a project
+    project = create :project
+    # with three revisions and a file added/modified/destroyed in between
+    root = create :file, :root, repository: project.repository
+    file = create :file, name: 'File1', parent: root
+    first_revision = create :revision, repository: project.repository
+    file.update(modified_time: Time.zone.now)
+    second_revision = create :revision, repository: project.repository
+    file.destroy
+    third_revision = create :revision, repository: project.repository
+
+    # when I visit the project page
+    visit "#{project.owner.to_param}/#{project.to_param}"
+    # and click on Revisions
+    click_on 'Revisions'
+
+    # then I should see each revision in reverse chronological order
+    expect(page.find_all('.revision .metadata .title').map(&:text))
+      .to eq [third_revision, second_revision, first_revision].map(&:title)
+    # and see file changes for each revision
+    expect(page.find_all('.revision-diff').map(&:text)).to eq(
+      ['File1 deleted from Home', 'File1 modified', 'File1 added to Home']
+    )
+  end
+
   scenario 'User can create revision' do
     # given there is a project
     project = create :project
@@ -12,7 +38,7 @@ feature 'Revision' do
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
-    # and click on Filess
+    # and click on Files
     click_on 'Files'
     # and click on Commit Changes
     click_on 'Commit Changes'
@@ -38,7 +64,7 @@ feature 'Revision' do
     project = create :project
     # with some files and folders
     root = create :file, :root, repository: project.repository
-    create_list :file, 5, parent: root
+    create_list :file, 5, name: 'unchanged', parent: root
     folder                      = create :file, :folder, parent: root
     modified_file               = create :file, parent: folder
     moved_out_file              = create :file, parent: folder
@@ -81,8 +107,6 @@ feature 'Revision' do
     expect(page).to have_css '.file.deleted', text: removed_file.name
     expect(page).to have_css '.file.moved',   text: moved_folder.name
     # and not see the descendants of moved folders listed
-    moved_folder.children.each do |child|
-      expect(page).not_to have_text child.name
-    end
+    expect(page).not_to have_text 'unchanged'
   end
 end

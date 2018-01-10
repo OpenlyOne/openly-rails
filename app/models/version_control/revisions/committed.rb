@@ -18,6 +18,14 @@ module VersionControl
       def files
         @files ||= FileCollections::Committed.new(self)
       end
+
+      def summary
+        @summary ||= @commit.message.split("\r\n\r\n", 2)[1]
+      end
+
+      def title
+        @title ||= @commit.message.split("\r\n\r\n").first
+      end
     end
   end
 end

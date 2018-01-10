@@ -17,6 +17,21 @@ RSpec.describe RevisionsController, type: :controller do
     }
   end
 
+  describe 'GET #index' do
+    let(:params)      { default_params }
+    let(:run_request) { get :index, params: params }
+
+    include_examples 'raise 404 if non-existent', Profiles::Base
+    include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'a repository locking action'
+    it_should_behave_like 'setting project context'
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+  end
+
   describe 'GET #new' do
     let(:params)      { default_params }
     let(:run_request) { get :new, params: params }
