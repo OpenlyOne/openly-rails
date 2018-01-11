@@ -3,42 +3,30 @@
 # Handles projects that belong to a profile (owner)
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
+  include VersionControl
+
   # Associations
   belongs_to :owner, polymorphic: true
-  has_one :root_folder,
-          -> { where parent_id: nil },
-          class_name: 'FileItems::Folder',
-          dependent: :destroy
-  has_many :files, class_name: 'FileItems::Base'
+  has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
+                                          association_foreign_key: 'profile_id',
+                                          validate: false
 
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
 
   # Accessors
+  attr_reader :link_to_google_drive_folder
   attr_accessor :import_google_drive_folder_on_save
 
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Import Google Drive folder
-  around_save :import_google_drive_folder,
-              if: proc { |project| project.import_google_drive_folder_on_save },
-              unless: proc { |project| project.errors.any? }
+  after_save :import_google_drive_folder,
+             if: :import_google_drive_folder_on_save
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
-
-  # Scopes
-  # Returns projects that have Google drive files
-  scope :having_google_drive_files, (lambda do |array_of_ids|
-    results = Project.none
-    array_of_ids.select(&:present?).each do |id|
-      results = results.or(
-        Project.joins(:files).where(file_items: { google_drive_id: id })
-      )
-    end
-    results.distinct
-  end)
 
   # Validations
   # Owner type must be user
@@ -89,12 +77,12 @@ class Project < ApplicationRecord
     end
   end
 
-  # The absolute link to the Google Drive root folder
-  def link_to_google_drive_folder
-    @link_to_google_drive_folder ||=
-      if google_drive_folder_id
-        "https://drive.google.com/drive/folders/#{google_drive_folder_id}"
-      end
+  # The base path for version controlled repositories of Project instances
+  def self.repository_folder_path
+    Rails.root.join(
+      Settings.file_storage,
+      'projects'
+    ).cleanpath.to_s
   end
 
   # The absolute link to the Google Drive root folder
@@ -128,28 +116,22 @@ class Project < ApplicationRecord
 
   # The ID of the Google Drive folder associated with this project
   def google_drive_folder_id
-    @google_drive_folder_id ||= root_folder&.google_drive_id
+    @google_drive_folder_id ||= files&.root&.google_drive_id
   end
 
   # Import a Google Drive Folder
   def import_google_drive_folder
-    # Raise error if files have already been imported
-    raise "Project #{id}: Root folder already exists" if root_folder&.persisted?
-
     # Create the root folder
-    root_folder = GoogleDrive.get_file(google_drive_folder_id)
-    root_folder =
-      build_root_folder(name: 'root', google_drive_id: root_folder.id,
-                        modified_time: root_folder.modified_time,
-                        version: root_folder.version)
-
-    # save (raise Rollback if not successful)
-    return false unless yield
-
-    root_folder.commit!
+    drive_file = GoogleDrive.get_file(google_drive_folder_id)
+    files.create_root(drive_file.to_h)
 
     # Start recursive FolderImportJob
-    FolderImportJob.perform_later(reference: self, folder_id: root_folder.id)
+    FolderImportJob.perform_later(reference: self, folder_id: files.root.id)
+  rescue StandardError
+    # An error was found -- make sure root is not persisted
+    files.root&.destroy
+    # Re-raise original error
+    raise
   end
 
   # Validation: Is the link to the Google Drive folder valid?
@@ -174,12 +156,22 @@ class Project < ApplicationRecord
     )
   end
 
+  # The file path for the project instance's version controlled repository
+  def repository_file_path
+    return nil unless id_in_database.present?
+
+    Pathname.new(self.class.repository_folder_path)
+            .join(id_in_database.to_s)
+            .cleanpath.to_s
+  end
+
   # Validation: Is the file a folder?
   def validate_folder_mime_type(folder)
-    return if folder.mime_type == FileItems::Folder.new.mime_type
+    return if VersionControl::File.directory_type? folder.mime_type
     errors.add(
       :link_to_google_drive_folder,
       'appears not to be a Google Drive folder'
     )
   end
 end
+# rubocop:enable Metrics/ClassLength

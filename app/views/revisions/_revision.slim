@@ -1,0 +1,7 @@
+.metadata
+  h5.title
+    = render partial: 'revision_timestamp',
+             locals: { revision: revision, device: :desktop }
+    b = revision.title
+  .summary
+    = simple_format html_escape(revision.summary)

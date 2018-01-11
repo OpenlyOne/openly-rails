@@ -1,0 +1,11 @@
+.profile
+  = link_to profile_path(profile) do
+
+    = image_tag 'profiles/picture.jpg',
+                size: '70',
+                class: 'responsive-img circle z-depth-1'
+
+    br
+
+    span.chip.profile-name.z-depth-1.white.black-text
+      = profile.name

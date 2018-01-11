@@ -1,0 +1,63 @@
+// Styling for ProfilesController
+
+.c-revisions {
+
+  .revision .title {
+    line-height: 32px; // match line height of timestamp
+  }
+
+  h3 {
+    position: relative;
+    z-index: 1;
+
+    // Horizontal line/divider behind heading
+    // Adapted from: https://codepen.io/ericrasch/pen/Irlpm
+    &::before {
+      border-top: 1px solid $divider-color;
+      bottom: 0;
+      content: '';
+      left: 0;
+      // positioning must be absolute here, and relative positioning must be
+      // applied to the parent
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 100%;
+      z-index: -1;
+    }
+
+    span {
+      // to hide the lines from behind the text, you have to set the background
+      // color the same as the container
+      background: $background-color;
+      padding-right: 25px;
+    }
+  }
+
+  .file {
+    // scss-lint:disable NestingDepth
+
+    margin-bottom: 2px;
+    margin-top: 2px;
+
+    .file-icon {
+      float: left;
+      height: 30px;
+      width: 30px;
+    }
+
+    .file-name {
+      display: block;
+      line-height: 20px;
+      padding: 5px 0 5px 35px;
+    }
+
+    a {
+      color: inherit;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

@@ -19,32 +19,26 @@ RSpec.describe FolderImportJob, type: :job do
       FolderImportJob.perform_later(reference: project, folder_id: folder.id)
     end
     let(:project) { create :project }
-    let!(:folder) do
-      create :file_items_folder, google_drive_id: root_id, project: project
-    end
     let(:root_id) { Settings.google_drive_test_folder_id }
+    let(:folder) do
+      create :file, :root, id: root_id, repository: project.repository
+    end
 
     it 'creates 3 root-level files' do
       subject
-      files = project.reload.root_folder.children
-      expect(files.size).to eq 3
+      expect(project.files.root.children.size).to eq 3
     end
 
     it 'creates 2 files in sub-folder' do
       subject
-      subfolder = project.reload.root_folder.children.find do |f|
-        f.model_name == 'FileItems::Folder'
-      end
+      subfolder = project.files.root.children.find(&:directory?)
       expect(subfolder.children.size).to eq 2
     end
 
     it 'creates 1 file in sub-sub-folder' do
       subject
-      subfolder = project.root_folder.children.find do |f|
-        f.model_name == 'FileItems::Folder'
-      end
-      subsubfolder =
-        subfolder.children.find { |f| f.model_name == 'FileItems::Folder' }
+      subfolder     = project.files.root.children.find(&:directory?)
+      subsubfolder  = subfolder.children.find(&:directory?)
       expect(subsubfolder.children.size).to eq 1
     end
 
@@ -55,69 +49,77 @@ RSpec.describe FolderImportJob, type: :job do
       end
 
       it 'creates 3 files' do
-        expect { subject }
-          .to change(FileItems::Base, :count).by(3)
+        folder
+        expect { subject }.to change { project.files.count }.by(3)
       end
-    end
-
-    it 'creates 1 FolderImportJob' do
-      expect(FolderImportJob).to receive(:perform_later)
-        .with(
-          reference: project,
-          folder_id: FileItems::Folder.last.id
-        )
-
-      subject
     end
   end
 
-  describe '#create_file' do
+  describe '#create_or_update_file' do
     subject(:method) do
-      FolderImportJob.new.send :create_file, file, parent.id, project.id
+      FolderImportJob.new.send :create_or_update_file, file, parent.id, project
     end
     let(:file) { build :google_drive_file, :with_id, :with_version_and_time }
+    let(:parent)      { create :file, :root, repository: project.repository }
     let(:project)     { create :project }
-    let(:parent)      { create :file_items_folder, project: project }
-    let(:saved_file)  { FileItems::Base.find_by(google_drive_id: file.id) }
+    let(:saved_file)  { project.files.find(file.id) }
 
-    it 'saves the google drive id' do
-      subject
-      expect(saved_file.google_drive_id).to eq file.id
+    context 'when file does not exist' do
+      before { method }
+
+      it 'creates the file' do
+        expect(saved_file).to have_attributes(
+          id: file.id,
+          name: file.name,
+          mime_type: file.mime_type,
+          parent_id: parent.id,
+          version: file.version,
+          modified_time: file.modified_time
+        )
+      end
     end
 
-    it 'saves the file name' do
-      subject
-      expect(saved_file.name).to eq file.name
-    end
+    context 'when file already exists' do
+      let(:existing_file) do
+        build :google_drive_file, :with_id, :with_version_and_time,
+              id: file.id, mime_type: file.mime_type
+      end
+      before do
+        FolderImportJob.new.send :create_or_update_file, existing_file,
+                                 parent.id, project
+      end
 
-    it 'saves the file mime type' do
-      subject
-      expect(saved_file.mime_type).to eq file.mime_type
-    end
+      context 'when version is newer than existing file' do
+        before { file.version = existing_file.version + 5 }
+        before { method }
 
-    it 'saves the parent ID' do
-      subject
-      expect(saved_file.parent_id).to eq parent.id
-    end
+        it 'updates file attributes' do
+          expect(saved_file).to have_attributes(
+            id: file.id,
+            name: file.name,
+            mime_type: file.mime_type,
+            parent_id: parent.id,
+            version: file.version,
+            modified_time: file.modified_time
+          )
+        end
+      end
 
-    it 'saves the project ID' do
-      subject
-      expect(saved_file.project_id).to eq project.id
-    end
+      context 'when version is older than existing file' do
+        before { file.version = existing_file.version - 5 }
+        before { method }
 
-    it 'saves the version' do
-      subject
-      expect(saved_file.version).to eq file.version
-    end
-
-    it 'saves the modified_time' do
-      subject
-      expect(saved_file.modified_time.to_i).to eq file.modified_time.to_i
-    end
-
-    it 'commits the file' do
-      subject
-      expect(saved_file).not_to be_added_since_last_commit
+        it 'does not update file attributes' do
+          expect(saved_file).to have_attributes(
+            id: existing_file.id,
+            name: existing_file.name,
+            mime_type: existing_file.mime_type,
+            parent_id: parent.id,
+            version: existing_file.version,
+            modified_time: existing_file.modified_time
+          )
+        end
+      end
     end
   end
 end

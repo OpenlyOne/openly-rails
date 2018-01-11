@@ -1,8 +1,13 @@
 // Styles for all types of spacings, paddings, and margins
 
 // Add a set amount of vertical spacing between elements
-// Usage: div.spacing with h16, h32, ..., h64, h128
-@each $factor in 1, 2, 3, 4, 8 {
+// Usage: div.spacing with v16, v32, ..., v64, v128
+.spacing.v1 {
+  display: block;
+  height: 1px;
+}
+
+@each $factor in .5, 1, 2, 3, 4, 8 {
   div.spacing.v#{$factor * $base-unit} {
     display: block;
     height: $factor * $base-unit;

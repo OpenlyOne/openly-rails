@@ -1,0 +1,47 @@
+= form_for(@revision, as: :revision, url: profile_project_revisions_path(@project.owner, @project)) do |f|
+
+  .page-subheading.gray.lighten-3
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h2 Commit Changes
+
+  .container
+    - if @revision.errors.any?
+      / if errors include :last_revision_id, then replace with detailed explanation
+      - format_revision_errors!(@revision, url_for(action: :new))
+      .row
+        .col.s12
+          .validation-errors
+            = render partial: "error",
+                     collection: @revision.errors.full_messages,
+                     as: :error
+
+    = f.hidden_field :tree_id
+
+    .row
+      .col.s12.l12
+        .input-field
+          = f.text_field :title, placeholder: 'One sentence description of your changes'
+          = f.label :title, 'Title'
+
+    .row
+      .col.s12.l12
+        .input-field
+          = f.text_area :summary, rows: 3, placeholder: 'Summarize the changes you have made to files', class: 'materialize-textarea noscript'
+          = f.label :summary, 'Summary of Changes (optional)'
+
+    .row
+      .col.s12.right-align
+        button action='submit' class="btn-large primary-color primary-color-text"
+          | Commit Changes
+
+    .spacing.v1
+
+    h3: span Review Changes
+    // TODO: This is probably not the right place to generate a diff
+    = render partial: 'revision_diff',
+             object: @revision.diff(@project.repository.revisions.last),
+             locals: { project: @project }
+
+    .spacing.v48px

@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.describe 'projects/show', type: :view do
-  let(:project) { create(:project) }
+  let(:project)       { create(:project) }
+  let(:root_folder)   { nil }
+  let(:has_revisions) { false }
+  let(:collaborators) { [] }
 
   before do
     assign(:project, project)
+    assign(:root_folder, root_folder)
+    assign(:has_revisions, has_revisions)
+    assign(:collaborators, collaborators)
   end
 
   it 'renders the title of the project' do
@@ -27,6 +33,28 @@ RSpec.describe 'projects/show', type: :view do
     )
   end
 
+  it 'shows the project owner with link to their profile' do
+    render
+    expect(rendered).to have_link(
+      project.owner.name,
+      href: profile_path(project.owner)
+    )
+  end
+
+  context 'when project has collaborators' do
+    let(:collaborators) { build_list :user, 2 }
+
+    it 'shows the collaborators with link to their profile' do
+      render
+      collaborators.each do |collaborator|
+        expect(rendered).to have_link(
+          collaborator.name,
+          href: profile_path(collaborator)
+        )
+      end
+    end
+  end
+
   context 'when current user can edit project' do
     before { assign(:user_can_edit_project, true) }
 
@@ -39,7 +67,7 @@ RSpec.describe 'projects/show', type: :view do
   end
 
   context 'when a root folder exists' do
-    before { create :file_items_folder, project: project, parent: nil }
+    let(:root_folder) { create :file, :root, repository: project.repository }
 
     it 'renders a link to the project files' do
       render
@@ -53,7 +81,19 @@ RSpec.describe 'projects/show', type: :view do
       render
       expect(rendered).to have_link(
         'Open in Drive',
-        href: project.root_folder.external_link
+        href: view.external_link_for_file(root_folder)
+      )
+    end
+  end
+
+  context 'when at least one revision exists' do
+    let(:has_revisions) { true }
+
+    it 'renders a link to the project revisions' do
+      render
+      expect(rendered).to have_link(
+        'Revisions',
+        href: profile_project_revisions_path(project.owner, project.slug)
       )
     end
   end

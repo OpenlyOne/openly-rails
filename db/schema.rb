@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171207215149) do
+ActiveRecord::Schema.define(version: 20180111043112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,36 +42,6 @@ ActiveRecord::Schema.define(version: 20171207215149) do
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
   end
 
-  create_table "file_items", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "parent_id"
-    t.string "google_drive_id", null: false
-    t.text "name", null: false
-    t.string "mime_type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "version", default: 0, null: false
-    t.bigint "version_at_last_commit", default: 0, null: false
-    t.datetime "modified_time"
-    t.datetime "modified_time_at_last_commit"
-    t.bigint "parent_id_at_last_commit"
-    t.index ["google_drive_id"], name: "index_file_items_on_google_drive_id"
-    t.index ["parent_id"], name: "index_file_items_on_parent_id"
-    t.index ["project_id"], name: "index_file_items_on_project_id"
-  end
-
-  create_table "notification_channels", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "file_item_id", null: false
-    t.integer "status", default: 0, null: false
-    t.datetime "expires_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["file_item_id"], name: "index_notification_channels_on_file_item_id"
-    t.index ["project_id"], name: "index_notification_channels_on_project_id"
-    t.index ["status"], name: "index_notification_channels_on_status"
-  end
-
   create_table "profiles", force: :cascade do |t|
     t.bigint "account_id"
     t.string "name", null: false
@@ -82,6 +52,13 @@ ActiveRecord::Schema.define(version: 20171207215149) do
     t.citext "handle", null: false
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
     t.index ["handle"], name: "index_profiles_on_handle", unique: true
+  end
+
+  create_table "profiles_projects", id: false, force: :cascade do |t|
+    t.bigint "profile_id", null: false
+    t.bigint "project_id", null: false
+    t.index ["profile_id"], name: "index_profiles_projects_on_profile_id"
+    t.index ["project_id", "profile_id"], name: "index_profiles_projects_on_project_id_and_profile_id", unique: true
   end
 
   create_table "projects", force: :cascade do |t|
@@ -101,7 +78,5 @@ ActiveRecord::Schema.define(version: 20171207215149) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "file_items", "file_items", column: "parent_id"
-  add_foreign_key "file_items", "projects"
   add_foreign_key "profiles", "accounts"
 end

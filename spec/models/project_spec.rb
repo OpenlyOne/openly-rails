@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/having_version_control.rb'
+
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
@@ -7,13 +9,16 @@ RSpec.describe Project, type: :model do
     is_expected.to be_valid
   end
 
+  it_should_behave_like 'having version control' do
+    subject(:object) { build(:project) }
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:owner) }
     it do
-      is_expected.to(
-        have_one(:root_folder).class_name('FileItems::Folder')
-                              .dependent(:destroy)
-      )
+      is_expected
+        .to have_and_belong_to_many(:collaborators)
+        .class_name('Profiles::User').validate(false)
     end
   end
 
@@ -41,9 +46,8 @@ RSpec.describe Project, type: :model do
       end
     end
 
-    context 'around save' do
+    context 'after save' do
       subject(:project) { build(:project) }
-      after { project.save }
 
       context 'when import_google_drive_folder_on_save is true' do
         before do
@@ -56,12 +60,9 @@ RSpec.describe Project, type: :model do
           project.link_to_google_drive_folder =
             Settings.google_drive_test_folder
         end
-        it { is_expected.to receive(:import_google_drive_folder) }
+        after { project.save }
+        it    { is_expected.to receive(:import_google_drive_folder) }
       end
-    end
-
-    context 'after save' do
-      subject(:project) { build(:project) }
 
       context 'when import_google_drive_folder_on_save was true' do
         before do
@@ -77,47 +78,6 @@ RSpec.describe Project, type: :model do
           project.save
         end
         it { expect(project.import_google_drive_folder_on_save).to be false }
-      end
-    end
-  end
-
-  describe 'scopes' do
-    context 'having_google_drive_files(array_of_ids)' do
-      subject(:method)    { Project.having_google_drive_files(array_of_ids) }
-      let(:array_of_ids)  { files.map(&:google_drive_id) }
-      let!(:files)        { create_list :file_items_base, 3 }
-      let!(:other_files)  { create_list :file_items_base, 3 }
-
-      it 'returns the projects of the files' do
-        expect(subject.map(&:id)).to match_array files.map(&:project_id)
-      end
-
-      context 'when one project has multipe file matches' do
-        let(:new_project) { create :project }
-        before do
-          files.each do |file|
-            create :file_items_base,
-                   project: new_project,
-                   google_drive_id: file.google_drive_id
-          end
-        end
-
-        it 'returns the projects of the files + new project' do
-          expect(subject.map(&:id))
-            .to match_array(files.map(&:project_id) + [new_project.id])
-        end
-
-        it 'does not return project multiple times' do
-          expect(subject.select { |p| p.id == new_project.id }.count).to eq 1
-        end
-      end
-
-      context 'when array_of_ids contains nil values' do
-        let(:array_of_ids) { files.map(&:google_drive_id) + [nil, nil, nil] }
-
-        it 'returns the projects of the files' do
-          expect(subject.map(&:id)).to match_array files.map(&:project_id)
-        end
       end
     end
   end
@@ -275,34 +235,41 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '.repository_folder_path' do
+    subject(:method) { Project.repository_folder_path }
+
+    it do
+      is_expected.to eq(
+        Rails.root.join(
+          Settings.file_storage,
+          'projects'
+        ).cleanpath.to_s
+      )
+    end
+  end
+
   describe '#import_google_drive_folder' do
     before do
       mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
     end
     before do
       project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
+      project.import_google_drive_folder_on_save = true
     end
-    subject(:method) do
-      project.send(:import_google_drive_folder) { project.save }
-    end
+    subject(:method)    { project.save }
     let(:id_of_folder)  { Settings.google_drive_test_folder_id }
     let(:project)       { create(:project) }
 
     it 'creates a root folder' do
       subject
-      expect(project.root_folder).to be_persisted
-    end
-
-    it 'marks root folder as committed' do
-      subject
-      expect(project.root_folder).not_to be_added_since_last_commit
+      expect(project.reload.files.root).to be_a VersionControl::File
     end
 
     it 'creates a FolderImportJob' do
       expect(FolderImportJob).to receive(:perform_later)
         .with(
           reference: project,
-          folder_id: kind_of(Numeric)
+          folder_id: id_of_folder
         )
       subject
     end
@@ -312,7 +279,7 @@ RSpec.describe Project, type: :model do
 
       it 'does not persist root folder' do
         subject
-        expect(project.root_folder).not_to be_persisted
+        expect(project.reload.files.root).to be nil
       end
 
       it 'does not start a FolderImportJob' do
@@ -322,34 +289,33 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when root folder already exists' do
-      before { create :file_items_folder, project: project, parent: nil }
+      before { create :file, :root, repository: project.repository }
       before { project.reload }
 
-      it 'raises an error' do
-        expect { project.send(:import_google_drive_folder) }
-          .to raise_error "Project #{project.id}: Root folder already exists"
+      it { is_expected.to be false }
+
+      it 'does not persist changes to project' do
+        project.title = 'My New Title'
+        method
+        expect(project.reload.title).not_to eq 'My New Title'
       end
     end
-  end
 
-  describe '#link_to_google_drive_folder' do
-    subject(:method) { project.link_to_google_drive_folder }
-
-    context 'when a root folder exists' do
+    context 'when any error occurs' do
       before do
-        create :file_items_folder, project: project, name: 'root',
-                                   google_drive_id: folder_id, parent: nil
+        allow(FolderImportJob).to receive(:perform_later).and_raise('error')
       end
-      let(:folder_id) { Settings.google_drive_test_folder_id }
 
-      it 'returns its link' do
-        is_expected.to eq 'https://drive.google.com/drive/folders/'\
-          "#{folder_id}"
+      it 'does not persist root folder' do
+        expect { method }.to raise_error RuntimeError
+        expect(project.reload.files.root).to be nil
       end
-    end
 
-    context 'when root folder does not exist' do
-      it { is_expected.to be nil }
+      it 'does not persist changes to project' do
+        project.title = 'My New Title'
+        expect { method }.to raise_error RuntimeError
+        expect(project.reload.title).not_to eq 'My New Title'
+      end
     end
   end
 
@@ -404,6 +370,26 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
+    end
+  end
+
+  describe '#repository_file_path' do
+    subject(:repo_path) { project.send(:repository_file_path) }
+    let(:project)       { build_stubbed(:project) }
+
+    it do
+      is_expected.to eq(
+        Rails.root.join(
+          Settings.file_storage,
+          'projects',
+          project.id_in_database.to_s
+        ).cleanpath.to_s
+      )
+    end
+
+    context 'when id_in_database is nil' do
+      before { allow(project).to receive(:id_in_database).and_return(nil) }
+      it { is_expected.to be nil }
     end
   end
 end
