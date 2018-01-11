@@ -2,10 +2,16 @@
 
 .c-revisions {
 
+  .revision .title {
+    line-height: 32px; // match line height of timestamp
+  }
+
+  // create a very slight overlay effect where the author name touches the
+  // bottom of the author profile picture
   .revision .author-name {
-    margin-bottom: -15px;
+    margin-bottom: -10px;
     position: relative;
-    top: -15px;
+    top: -10px;
   }
 
   h3 {

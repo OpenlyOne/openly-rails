@@ -1,8 +1,6 @@
 .metadata
   h5.title
-    = link_to anchor: revision.id do
-      span.chip.right
-        => time_ago_in_words(revision.created_at)
-        | ago
+    = render partial: 'revision_timestamp',
+             locals: { revision: revision, device: :desktop }
     b = revision.title
   p.summary = revision.summary

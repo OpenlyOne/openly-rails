@@ -5,7 +5,13 @@
   - (@revisions + [nil]).each_cons(2) do |this_revision, previous_revision|
     .row.revision id=this_revision.id
 
-      .spacing.v16px
+      .spacing.v8px
+
+      = render partial: 'revision_timestamp',
+               locals: { revision: this_revision, device: :mobile }
+
+      .spacing.v8px
+
 
       .col.l2.m3.s12.center-align
         = render partial: 'revision_author',
