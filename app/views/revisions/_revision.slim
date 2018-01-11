@@ -3,4 +3,5 @@
     = render partial: 'revision_timestamp',
              locals: { revision: revision, device: :desktop }
     b = revision.title
-  p.summary = revision.summary
+  .summary
+    = simple_format html_escape(revision.summary)
