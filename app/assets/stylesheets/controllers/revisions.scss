@@ -2,6 +2,18 @@
 
 .c-revisions {
 
+  .revision .title {
+    line-height: 32px; // match line height of timestamp
+  }
+
+  // create a very slight overlay effect where the author name touches the
+  // bottom of the author profile picture
+  .revision .author-name {
+    margin-bottom: -10px;
+    position: relative;
+    top: -10px;
+  }
+
   h3 {
     position: relative;
     z-index: 1;
@@ -32,6 +44,9 @@
 
   .file {
     // scss-lint:disable NestingDepth
+
+    margin-bottom: 2px;
+    margin-top: 2px;
 
     .file-icon {
       float: left;

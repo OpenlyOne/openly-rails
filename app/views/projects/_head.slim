@@ -22,6 +22,10 @@
               div.tab
                 = link_to 'Files', profile_project_root_folder_path(@project.owner, @project),
                           class: ('active' if active_tab == :files)
+            - if @has_revisions
+              div.tab
+                = link_to 'Revisions', profile_project_revisions_path(@project.owner, @project),
+                          class: ('active' if active_tab == :revisions)
             - if @root_folder
               div.tab
                 = link_to external_link_for_file(@root_folder), target: '_blank' do

@@ -7,7 +7,7 @@
   height: 1px;
 }
 
-@each $factor in 1, 2, 3, 4, 8 {
+@each $factor in .5, 1, 2, 3, 4, 8 {
   div.spacing.v#{$factor * $base-unit} {
     display: block;
     height: $factor * $base-unit;

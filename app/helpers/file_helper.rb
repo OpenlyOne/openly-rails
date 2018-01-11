@@ -62,15 +62,17 @@ module FileHelper
   #
   # Files are sorted by:
   # 1) directory first and
-  # 2) file name in ascending order
+  # 2) file name in ascending alphabetical order case insensitive
   #
   # Example use:
   # files.sort_by! { |file| sort_order_for_files(file) }
   # file_diffs.sort_by! { |diff| sort_order_for_files(diff.file_is_or_was) }
   def sort_order_for_files(file)
     [
-      (file.directory? ? 0 : 1),  # put directories first
-      file.name                   # then sort by name in ascending order
+      # put directories first
+      (file.directory? ? 0 : 1),
+      # then sort by name in ascending order (case insensitive)
+      file.name.downcase
     ]
   end
 

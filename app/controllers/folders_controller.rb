@@ -2,6 +2,7 @@
 
 # Controller for project folders
 class FoldersController < ApplicationController
+  include CanSetProjectContext
   include ProjectLockable
 
   # Execute without lock or render/redirect delay
@@ -10,10 +11,10 @@ class FoldersController < ApplicationController
   around_action :wrap_action_in_project_lock
 
   # Execute with lock and render/redirect delay
+  before_action :set_project_context
   before_action :set_folder_diff
   before_action :set_file_diffs
   before_action :set_ancestors
-  before_action :set_root_folder
   before_action :set_user_can_commit_changes
 
   def root
@@ -43,14 +44,6 @@ class FoldersController < ApplicationController
 
     # Raise error if folder is not a directory
     raise ActiveRecord::RecordNotFound unless @folder_diff.directory?
-  end
-
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
-  def set_root_folder
-    @root_folder = @project.files.root
   end
 
   def set_user_can_commit_changes

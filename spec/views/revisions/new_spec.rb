@@ -1,19 +1,22 @@
 # frozen_string_literal: true
 
 RSpec.describe 'revisions/new', type: :view do
-  let(:project)                 { create(:project) }
-  let(:revision)                { project.repository.build_revision }
-  let(:file_diffs)              { [] }
-  let(:revision_diff)           { instance_double VersionControl::RevisionDiff }
-  let(:ancestors_of_file_diffs) { {} }
+  let(:project)       { create(:project) }
+  let(:revision)      { project.repository.build_revision }
+  let(:file_diffs)    { [] }
+  let(:revision_diff) { instance_double VersionControl::RevisionDiff }
 
   before do
     assign(:project, project)
     assign(:revision, revision)
-    assign(:file_diffs, file_diffs)
-    assign(:ancestors_of_file_diffs, ancestors_of_file_diffs)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
+  end
+
+  before do
+    allow(revision).to receive(:diff).and_return revision_diff
+    allow(revision_diff)
+      .to receive(:changed_files_as_diffs).and_return file_diffs
   end
 
   it 'renders a form with profile_project_revision_path action' do
@@ -39,7 +42,7 @@ RSpec.describe 'revisions/new', type: :view do
     )
   end
 
-  it 'has a text field for revision titile' do
+  it 'has a text field for revision title' do
     render
     expect(rendered).to have_css 'input#revision_title'
   end
@@ -57,7 +60,7 @@ RSpec.describe 'revisions/new', type: :view do
 
   it 'lets the user know that there are no changes to review' do
     render
-    expect(rendered).to have_text 'There are no changes to review.'
+    expect(rendered).to have_text 'No files changed.'
   end
 
   context 'when last revision id does not match actual last revision id' do
@@ -93,7 +96,6 @@ RSpec.describe 'revisions/new', type: :view do
       [added_file_diff, modified_file_diff, moved_file_diff,
        modified_and_moved_file_diff, deleted_file_diff]
     end
-    let(:revision_diff) { instance_double VersionControl::RevisionDiff }
     let(:added_file_diff) do
       VersionControl::FileDiff.new(revision_diff, build(:file), nil)
     end
@@ -121,10 +123,12 @@ RSpec.describe 'revisions/new', type: :view do
     let(:deleted_file_diff) do
       VersionControl::FileDiff.new(revision_diff, nil, build(:file))
     end
-    let(:ancestors_of_file_diffs) do
-      file_diffs.index_by(&:id).transform_values! do |_|
-        [build(:file, name: 'ancestor'), build(:file, name: 'root')]
-      end
+
+    before do
+      allow_any_instance_of(VersionControl::FileDiff)
+        .to receive(:ancestors_of_file).and_return(
+          [build(:file, name: 'ancestor'), build(:file, name: 'root')]
+        )
     end
 
     it 'lists diff for added file with path' do

@@ -2,19 +2,29 @@
 
 # Controller for project revisions
 class RevisionsController < ApplicationController
+  include CanSetProjectContext
   include ProjectLockable
 
   # Execute without lock or render/redirect delay
-  before_action :authenticate_account!
+  before_action :authenticate_account!, except: :index
   before_action :set_project
-  before_action :authorize_action
+  before_action :authorize_action, except: :index
 
   around_action :wrap_action_in_project_lock
 
   # Execute with lock and render/redirect delay
-  before_action :build_revision
+  before_action :set_project_context
+  before_action :build_revision, only: %i[new create]
   before_action :set_file_diffs, only: :new
-  before_action :set_root_folder
+
+  def index
+    # TODO: Raise 404 if no revisions exist or redirect
+    # TODO: Refactor to @project.revisions.all
+    # TODO@performance: PRELOAD revision diffs, file diffs, and ancestors of
+    # =>                files. Loading those in the view is bad practice and
+    # =>                unnecessary N+1 queries.
+    @revisions = @project.repository.revisions.all
+  end
 
   def new; end
 
@@ -57,6 +67,8 @@ class RevisionsController < ApplicationController
   end
 
   def set_file_diffs
+    # TODO@performance: PRELOAD ancestors of files. Loading those in the view is
+    #                   bad practice and unnecessary N+1 queries.
     @file_diffs = @revision.diff(@project.repository.revisions.last)
                            .changed_files_as_diffs
 
@@ -64,14 +76,6 @@ class RevisionsController < ApplicationController
     set_ancestors_of_file_diffs
 
     helpers.sort_file_diffs!(@file_diffs)
-  end
-
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
-  def set_root_folder
-    @root_folder = @project.files.root
   end
 
   def revision_params

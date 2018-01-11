@@ -3,5 +3,5 @@
 = render partial: 'file_diff_change',
          collection: file_diff.changes,
          locals: { file_diff: file_diff,
-                   ancestors: ancestors,
+                   ancestors: file_diff.ancestors_of_file,
                    project: project }

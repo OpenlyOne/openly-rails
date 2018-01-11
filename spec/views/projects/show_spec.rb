@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe 'projects/show', type: :view do
-  let(:project)     { create(:project) }
-  let(:root_folder) { nil }
+  let(:project)       { create(:project) }
+  let(:root_folder)   { nil }
+  let(:has_revisions) { false }
 
   before do
     assign(:project, project)
     assign(:root_folder, root_folder)
+    assign(:has_revisions, has_revisions)
   end
 
   it 'renders the title of the project' do
@@ -56,6 +58,18 @@ RSpec.describe 'projects/show', type: :view do
       expect(rendered).to have_link(
         'Open in Drive',
         href: view.external_link_for_file(root_folder)
+      )
+    end
+  end
+
+  context 'when at least one revision exists' do
+    let(:has_revisions) { true }
+
+    it 'renders a link to the project revisions' do
+      render
+      expect(rendered).to have_link(
+        'Revisions',
+        href: profile_project_revisions_path(project.owner, project.slug)
       )
     end
   end

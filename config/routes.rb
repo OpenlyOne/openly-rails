@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       # Route for folders
       get 'files' => 'folders#root', as: :root_folder
       resources :folders, only: :show
-      resources :revisions, only: %i[new create]
+      resources :revisions, only: %i[index new create]
     end
   end
 

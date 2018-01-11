@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe 'routes for revisions', type: :routing do
+  it 'has an index route' do
+    expect(profile_project_revisions_path('handle', 'slug'))
+      .to eq '/handle/slug/revisions'
+    expect(get: '/handle/slug/revisions').to(
+      route_to('revisions#index', profile_handle: 'handle',
+                                  project_slug: 'slug')
+    )
+  end
+
   it 'has a new route' do
     expect(new_profile_project_revision_path('handle', 'slug'))
       .to eq '/handle/slug/revisions/new'

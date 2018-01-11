@@ -133,9 +133,9 @@ RSpec.describe FileHelper, type: :helper do
     let(:files)       { [dir1, dir2, dir3, file1, file2, file3].shuffle }
     let(:dir1)        { build :file, :folder, name: 'A Folder' }
     let(:dir2)        { build :file, :folder, name: 'Homework' }
-    let(:dir3)        { build :file, :folder, name: 'Something Great' }
+    let(:dir3)        { build :file, :folder, name: 'something Great' }
     let(:file1)       { build :file, name: 'A Funny File' }
-    let(:file2)       { build :file, name: 'Financials' }
+    let(:file2)       { build :file, name: 'financials' }
     let(:file3)       { build :file, name: 'Potato Soup Recipe' }
 
     it { is_expected.to eq [dir1, dir2, dir3, file1, file2, file3] }
@@ -150,12 +150,12 @@ RSpec.describe FileHelper, type: :helper do
       expect(files[3..5].map(&:directory?)).to eq [false, false, false]
     end
 
-    it 'puts files in alphabetical order' do
+    it 'puts files in alphabetical order (case insensitive)' do
       subject
       last_file = files[0]
       files[1..2].each do |file|
         # expect file name to come later (alphabetically) than last_file's name
-        expect(file.name > last_file.name).to be true
+        expect(file.name.downcase > last_file.name.downcase).to be true
 
         # set last_file to current file for next comparison
         last_file = file
@@ -164,7 +164,7 @@ RSpec.describe FileHelper, type: :helper do
       last_file = files[3]
       files[4..5].each do |file|
         # expect file name to come later (alphabetically) than last_file's name
-        expect(file.name > last_file.name).to be true
+        expect(file.name.downcase > last_file.name.downcase).to be true
 
         # set last_file to current file for next comparison
         last_file = file
@@ -178,14 +178,18 @@ RSpec.describe FileHelper, type: :helper do
 
     it { is_expected.to be_an Array }
 
+    it 'parses file names as case insensitive' do
+      expect(method.last).to eq 'file name'
+    end
+
     context 'when file is directory' do
       before { allow(file).to receive(:directory?).and_return true }
-      it { is_expected.to eq [0, 'File Name'] }
+      it { is_expected.to eq [0, 'file name'] }
     end
 
     context 'when file is not directory' do
       before { allow(file).to receive(:directory?).and_return false }
-      it { is_expected.to eq [1, 'File Name'] }
+      it { is_expected.to eq [1, 'file name'] }
     end
   end
 

@@ -2,6 +2,7 @@
 
 # Controller for projects
 class ProjectsController < ApplicationController
+  include CanSetProjectContext
   include ProjectLockable
 
   # Execute without lock or render/redirect delay
@@ -11,6 +12,9 @@ class ProjectsController < ApplicationController
   before_action :authorize_action, only: %i[setup import edit update destroy]
 
   around_action :wrap_action_in_project_lock, only: :show
+
+  # Execute with lock and render/redirect delay
+  before_action :set_project_context, only: :show
 
   def new; end
 
@@ -43,7 +47,6 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @root_folder = @project.files.root
     @user_can_edit_project = can?(:edit, @project)
   end
 
