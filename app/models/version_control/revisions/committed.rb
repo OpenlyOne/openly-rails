@@ -19,6 +19,10 @@ module VersionControl
         @commit.author[:email]
       end
 
+      def created_at
+        @commit.author[:time]
+      end
+
       def files
         @files ||= FileCollections::Committed.new(self)
       end

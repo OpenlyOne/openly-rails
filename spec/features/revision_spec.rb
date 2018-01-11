@@ -27,7 +27,7 @@ feature 'Revision' do
     click_on 'Revisions'
 
     # then I should see each revision in reverse chronological order
-    expect(page.find_all('.revision .metadata .title').map(&:text))
+    expect(page.find_all('.revision .metadata .title b').map(&:text))
       .to eq [third_revision, second_revision, first_revision].map(&:title)
     # with their author
     expect(page.find_all('.revision .author').map(&:text))

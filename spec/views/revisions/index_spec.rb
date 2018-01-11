@@ -18,13 +18,15 @@ RSpec.describe 'revisions/index', type: :view do
   before do
     assign(:project, project)
     assign(:revisions, revisions)
+    controller.request.path_parameters[:profile_handle] = project.owner.to_param
+    controller.request.path_parameters[:project_slug] = project.to_param
   end
 
   it 'renders the title of each revision' do
     render
     revisions.each do |revision|
       expect(rendered).to have_css(
-        ".revision[data-revision-id='#{revision.id}'] .title",
+        ".revision[id='#{revision.id}'] .title",
         text: revision.title
       )
     end
@@ -34,7 +36,7 @@ RSpec.describe 'revisions/index', type: :view do
     render
     revisions.each do |revision|
       expect(rendered).to have_css(
-        ".revision[data-revision-id='#{revision.id}'] .summary",
+        ".revision[id='#{revision.id}'] .summary",
         text: revision.summary
       )
     end
@@ -48,11 +50,22 @@ RSpec.describe 'revisions/index', type: :view do
     end
   end
 
+  it 'renders a timestamp with link for each revision' do
+    render
+    revisions.each do |revision|
+      expect(rendered).to have_link(
+        time_ago_in_words(revision.created_at),
+        href: profile_project_revisions_path(project.owner, project,
+                                             anchor: revision.id)
+      )
+    end
+  end
+
   it 'renders that no files changed' do
     render
     revisions.each do |revision|
       expect(rendered).to have_css(
-        ".revision[data-revision-id='#{revision.id}'] .revision-diff",
+        ".revision[id='#{revision.id}'] .revision-diff",
         text: 'No files changed.'
       )
     end
@@ -77,14 +90,14 @@ RSpec.describe 'revisions/index', type: :view do
       it 'it lists file1 as added' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision1.id}'] .file.added",
+          ".revision[id='#{revision1.id}'] .file.added",
           text: 'File1 added to Home'
         )
       end
       it 'it lists folder as added' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision1.id}'] .file.added",
+          ".revision[id='#{revision1.id}'] .file.added",
           text: 'Folder added to Home'
         )
       end
@@ -94,14 +107,14 @@ RSpec.describe 'revisions/index', type: :view do
       it 'it lists file2 as added' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision2.id}'] .file.added",
+          ".revision[id='#{revision2.id}'] .file.added",
           text: 'File2 added to Home'
         )
       end
       it 'it lists file1 as moved' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision2.id}'] .file.moved",
+          ".revision[id='#{revision2.id}'] .file.moved",
           text: 'File1 moved to Home > Folder'
         )
       end
@@ -111,14 +124,14 @@ RSpec.describe 'revisions/index', type: :view do
       it 'it lists file2 as deleted' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision3.id}'] .file.deleted",
+          ".revision[id='#{revision3.id}'] .file.deleted",
           text: 'File2 deleted from Home'
         )
       end
       it 'it lists file1 as modified' do
         render
         expect(rendered).to have_css(
-          ".revision[data-revision-id='#{revision3.id}'] .file.modified",
+          ".revision[id='#{revision3.id}'] .file.modified",
           text: 'File1 modified'
         )
       end

@@ -1,3 +1,8 @@
 .metadata
-  h5.title: b = revision.title
+  h5.title
+    = link_to anchor: revision.id do
+      span.chip.right
+        => time_ago_in_words(revision.created_at)
+        | ago
+    b = revision.title
   p.summary = revision.summary

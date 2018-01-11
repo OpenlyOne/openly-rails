@@ -46,6 +46,21 @@ RSpec.describe VersionControl::Revisions::Committed, type: :model do
     it { is_expected.to eq '123' }
   end
 
+  describe '#created_at', isolated_unit_test: true do
+    subject(:method)  { revision.created_at }
+    let(:revision)    { VersionControl::Revisions::Committed.new(nil, commit) }
+    let(:commit)      { instance_double Rugged::Commit }
+    let(:author)      { { name: 'alice', email: '123', time: time } }
+    let(:time)        { Time.new(2009, 11, 17) }
+
+    before do
+      allow(commit).to receive(:oid)
+      allow(commit).to receive(:author).and_return author
+    end
+
+    it { is_expected.to eq time }
+  end
+
   describe '#files' do
     subject(:method) { revision.files }
     it do
