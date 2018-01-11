@@ -16,8 +16,9 @@ class Ability
     end
 
     # User can commit changes for projects of profiles that they can manage
+    # or of which they are a collaborator
     can %i[new create], :revision do |_revision, project|
-      can? :edit, project
+      can?(:edit, project) || project.collaborators.exists?(user.id)
     end
 
     # Define abilities for the passed in user here. For example:

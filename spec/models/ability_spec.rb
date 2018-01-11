@@ -59,8 +59,14 @@ RSpec.describe Ability, type: :model do
       it_should_behave_like 'having authorization', actions
     end
 
-    context 'when user is not project owner' do
+    context 'when user is collaborator' do
+      before { project.collaborators << user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not project owner or collaborator' do
       before { project.owner = build_stubbed(:user) }
+      before { project.collaborators = [] }
       it_should_behave_like 'not having authorization', actions
     end
   end
