@@ -1,8 +1,19 @@
 # frozen_string_literal: true
 
 RSpec.describe 'revisions/index', type: :view do
-  let(:project)   { create(:project) }
-  let(:revisions) { create_list :revision, 3, repository: project.repository }
+  let(:project)     { create(:project) }
+  let(:repository)  { project.repository }
+  let(:revisions)   { [revision1, revision2, revision3] }
+  let(:revision1) do
+    create :revision, repository: repository, author: authors[0]
+  end
+  let(:revision2) do
+    create :revision, repository: repository, author: authors[1]
+  end
+  let(:revision3) do
+    create :revision, repository: repository, author: authors[2]
+  end
+  let(:authors) { create_list :user, 3 }
 
   before do
     assign(:project, project)
@@ -29,11 +40,11 @@ RSpec.describe 'revisions/index', type: :view do
     end
   end
 
-  it 'renders the author of each revision' do
-    pending 'Not yet implemented'
+  it 'renders the author of each revision with link' do
     render
     authors.each do |author|
-      expect(rendered).to have_css '.revision .author', text: author
+      expect(rendered).to have_css '.revision .author', text: author.name
+      expect(rendered).to have_link author.name, href: profile_path(author)
     end
   end
 

@@ -1,16 +1,25 @@
 .container
 
-  .spacing.v32px
+  .spacing.v16px
 
   - (@revisions + [nil]).each_cons(2) do |this_revision, previous_revision|
-    .revision[data-revision-id=this_revision.id]
-      = render partial: 'revision', object: this_revision
+    .row.revision[data-revision-id=this_revision.id]
 
-      / TODO: this is probably not the right place to generate a diff
-      = render partial: 'revision_diff',
-               object: this_revision.diff(previous_revision),
-               locals: { project: @project }
+      .spacing.v16px
 
-    .spacing.v16px
-    .divider
-    .spacing.v16px
+      .col.l2.m3.s12.center-align
+        = render partial: 'revision_author',
+                 object: Profiles::User.find_by_id(this_revision.author_email)
+
+      .col.l10.m9.s12
+        = render partial: 'revision', object: this_revision
+
+        / TODO: this is probably not the right place to generate a diff
+        = render partial: 'revision_diff',
+                 object: this_revision.diff(previous_revision),
+                 locals: { project: @project }
+
+    - if previous_revision.present?
+      .divider
+
+.spacing.v48px

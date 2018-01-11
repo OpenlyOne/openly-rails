@@ -8,15 +8,14 @@ FactoryGirl.define do
       repository    { build :repository }
       title         { Faker::HarryPotter.quote }
       summary       { Faker::Lorem.paragraph }
-      author_name   { Faker::Name.name }
-      author_email  { "#{author_name.to_param}@example.com" }
-      author        { { name: author_name, email: author_email } }
+      author        { create :user }
+      author_hash   { { name: author.handle, email: author.id.to_s } }
     end
 
     initialize_with do
       commit =
         repository.lookup(
-          repository.build_revision.commit(title, summary, author)
+          repository.build_revision.commit(title, summary, author_hash)
         )
       new(repository.revisions, commit)
     end

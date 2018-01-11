@@ -15,6 +15,10 @@ module VersionControl
         @id                   = commit.oid
       end
 
+      def author_email
+        @commit.author[:email]
+      end
+
       def files
         @files ||= FileCollections::Committed.new(self)
       end

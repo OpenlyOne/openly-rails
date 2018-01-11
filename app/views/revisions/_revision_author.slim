@@ -1,0 +1,9 @@
+.author
+  = link_to profile_path(revision_author) do
+
+    = image_tag 'profiles/picture.jpg', size: '70', class: 'responsive-img circle'
+
+    br
+
+    span.chip.author-name
+      = revision_author.name

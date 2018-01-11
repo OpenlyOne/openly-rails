@@ -7,11 +7,19 @@ feature 'Revision' do
     # with three revisions and a file added/modified/destroyed in between
     root = create :file, :root, repository: project.repository
     file = create :file, name: 'File1', parent: root
-    first_revision = create :revision, repository: project.repository
+    users = create_list :user, 3
+    # TODO: This is not a complete feature test because it relies on the
+    # =>    assumption that the author's ID is stored in the email field when
+    # =>    a commit is made. If that implementation changes, this spec would
+    # =>    still pass.
+    first_revision =
+      create :revision, repository: project.repository, author: users[0]
     file.update(modified_time: Time.zone.now)
-    second_revision = create :revision, repository: project.repository
+    second_revision =
+      create :revision, repository: project.repository, author: users[1]
     file.destroy
-    third_revision = create :revision, repository: project.repository
+    third_revision =
+      create :revision, repository: project.repository, author: users[2]
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -21,6 +29,9 @@ feature 'Revision' do
     # then I should see each revision in reverse chronological order
     expect(page.find_all('.revision .metadata .title').map(&:text))
       .to eq [third_revision, second_revision, first_revision].map(&:title)
+    # with their author
+    expect(page.find_all('.revision .author').map(&:text))
+      .to eq [users.last.name, users.second.name, users.first.name]
     # and see file changes for each revision
     expect(page.find_all('.revision-diff').map(&:text)).to eq(
       ['File1 deleted from Home', 'File1 modified', 'File1 added to Home']
