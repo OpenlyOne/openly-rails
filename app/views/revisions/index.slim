@@ -14,7 +14,8 @@
 
 
       .col.l2.m3.s12.center-align
-        = render partial: 'revision_author',
+        / TODO: BUG: This is triggering an N+1 query. Needs fixing!
+        = render partial: 'profiles/profile',
                  object: Profiles::User.find_by_id(this_revision.author_email)
 
       .col.l10.m9.s12

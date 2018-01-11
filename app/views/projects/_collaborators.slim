@@ -1,0 +1,16 @@
+.row
+  - collaborators.each_slice(2) do |slice|
+
+    - slice.each do |collaborator|
+
+      .col.s6.m3.l2.center-align
+        = render partial: 'profiles/profile', object: collaborator
+
+    div class=cycle('hide-on-med-and-up',
+                    'hide-on-large-only',
+                    'hide-on-med-only',
+                    'hide-on-large-only',
+                    'hide-on-med-and-up',
+                    '')
+      .clearfix
+      .spacing.v48px

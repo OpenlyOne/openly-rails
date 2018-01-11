@@ -45,7 +45,7 @@ RSpec.describe 'revisions/index', type: :view do
   it 'renders the author of each revision with link' do
     render
     authors.each do |author|
-      expect(rendered).to have_css '.revision .author', text: author.name
+      expect(rendered).to have_css '.revision .profile', text: author.name
       expect(rendered).to have_link author.name, href: profile_path(author)
     end
   end

@@ -47,6 +47,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
+    @collaborators = @project.collaborators
     @user_can_edit_project = can?(:edit, @project)
   end
 

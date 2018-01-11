@@ -30,7 +30,7 @@ feature 'Revision' do
     expect(page.find_all('.revision .metadata .title b').map(&:text))
       .to eq [third_revision, second_revision, first_revision].map(&:title)
     # with their author
-    expect(page.find_all('.revision .author').map(&:text))
+    expect(page.find_all('.revision .profile').map(&:text))
       .to eq [users.last.name, users.second.name, users.first.name]
     # and see file changes for each revision
     expect(page.find_all('.revision-diff').map(&:text)).to eq(

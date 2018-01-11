@@ -4,11 +4,13 @@ RSpec.describe 'projects/show', type: :view do
   let(:project)       { create(:project) }
   let(:root_folder)   { nil }
   let(:has_revisions) { false }
+  let(:collaborators) { [] }
 
   before do
     assign(:project, project)
     assign(:root_folder, root_folder)
     assign(:has_revisions, has_revisions)
+    assign(:collaborators, collaborators)
   end
 
   it 'renders the title of the project' do
@@ -29,6 +31,28 @@ RSpec.describe 'projects/show', type: :view do
     expect(rendered).not_to have_css(
       "a[href='#{edit_profile_project_path(project.owner, project)}']"
     )
+  end
+
+  it 'shows the project owner with link to their profile' do
+    render
+    expect(rendered).to have_link(
+      project.owner.name,
+      href: profile_path(project.owner)
+    )
+  end
+
+  context 'when project has collaborators' do
+    let(:collaborators) { build_list :user, 2 }
+
+    it 'shows the collaborators with link to their profile' do
+      render
+      collaborators.each do |collaborator|
+        expect(rendered).to have_link(
+          collaborator.name,
+          href: profile_path(collaborator)
+        )
+      end
+    end
   end
 
   context 'when current user can edit project' do

@@ -55,6 +55,9 @@ feature 'Project' do
   scenario 'User can view project' do
     # given there is a project
     project = create(:project)
+    # with two collaborators
+    collaborators = create_list :user, 2
+    project.collaborators << collaborators
 
     # when I visit the project's owner
     visit "/#{project.owner.to_param}"
@@ -66,6 +69,10 @@ feature 'Project' do
       .to have_current_path profile_project_path(project.owner, project)
     # and I should see the project's title
     expect(page).to have_text project.title
+    # and the project's owner and collaborators
+    expect(page).to have_text project.owner.name
+    expect(page).to have_text collaborators.first.name
+    expect(page).to have_text collaborators.last.name
   end
 
   scenario 'User can edit project' do
