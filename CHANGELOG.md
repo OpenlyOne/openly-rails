@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.8.1 (January 10, 2017)
+
+**Fix**:
+- Delete migration related to dropping notification channels.
+
+
 ## v0.8 (January 10, 2017)
 
 **New Features**:
