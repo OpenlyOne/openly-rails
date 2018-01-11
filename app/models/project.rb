@@ -7,6 +7,9 @@ class Project < ApplicationRecord
 
   # Associations
   belongs_to :owner, polymorphic: true
+  has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
+                                          association_foreign_key: 'profile_id',
+                                          validate: false
 
   # Attributes
   # Do not allow owner change
@@ -171,3 +174,4 @@ class Project < ApplicationRecord
     )
   end
 end
+# rubocop:enable Metrics/ClassLength

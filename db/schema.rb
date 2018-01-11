@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180108180921) do
+ActiveRecord::Schema.define(version: 20180111043112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,13 @@ ActiveRecord::Schema.define(version: 20180108180921) do
     t.citext "handle", null: false
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
     t.index ["handle"], name: "index_profiles_on_handle", unique: true
+  end
+
+  create_table "profiles_projects", id: false, force: :cascade do |t|
+    t.bigint "profile_id", null: false
+    t.bigint "project_id", null: false
+    t.index ["profile_id"], name: "index_profiles_projects_on_profile_id"
+    t.index ["project_id", "profile_id"], name: "index_profiles_projects_on_project_id_and_profile_id", unique: true
   end
 
   create_table "projects", force: :cascade do |t|

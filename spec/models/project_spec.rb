@@ -15,6 +15,11 @@ RSpec.describe Project, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:owner) }
+    it do
+      is_expected
+        .to have_and_belong_to_many(:collaborators)
+        .class_name('Profiles::User').validate(false)
+    end
   end
 
   describe 'attributes' do

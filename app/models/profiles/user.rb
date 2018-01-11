@@ -13,6 +13,9 @@ module Profiles
 
     # Associations
     belongs_to :account
+    has_and_belongs_to_many :collaborations, class_name: 'Project',
+                                             foreign_key: 'profile_id',
+                                             validate: false
 
     # Attributes
     # Do not allow account change
