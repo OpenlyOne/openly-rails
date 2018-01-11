@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.8 (January 10, 2017)
+
+**New Features**:
+- Users can commit changes in projects.
+- Users can see the revision history of projects.
+- Users can collaborate on projects.
+
 ## v0.7.1 (December 7, 2017)
 
 **New Features**:
