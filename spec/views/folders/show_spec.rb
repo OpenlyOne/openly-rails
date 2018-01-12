@@ -61,6 +61,14 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
+  it 'renders a link to infos for each file' do
+    render
+    files_and_folders.each do |file|
+      link = profile_project_file_infos_path(project.owner, project, file.id)
+      expect(rendered).to have_link(text: '', href: link)
+    end
+  end
+
   it 'does not have a button to commit changes' do
     render
     expect(rendered).not_to have_link(

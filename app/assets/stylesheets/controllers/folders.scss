@@ -2,8 +2,35 @@
 
 .c-folders {
 
+  // show file info icon on hover
+  .file:hover .info {
+    display: block;
+  }
+
   .file {
     // scss-lint:disable NestingDepth
+
+    .info {
+      height: 24px;
+      margin-left: -24px;
+      width: 24px;
+
+      // on mobile and tablet, hide info icon by default
+      @media #{$large-and-up} {
+        display: none;
+      }
+
+      // black color for icon on hover
+      &:hover {
+        // scss-lint:disable ImportantRule
+        color: color('shades', 'black') !important;
+      }
+    }
+
+    // links should take up full width of column
+    a:not(.info) {
+      display: block;
+    }
 
     // reduce opacity for deleted files
     &.changed.deleted {

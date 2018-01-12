@@ -40,6 +40,13 @@
     margin-bottom: 2px;
     margin-top: 2px;
 
+    // for desktop devices, show info button on hover
+    &:hover {
+      .options-on-hover {
+        display: inline-block;
+      }
+    }
+
     .file-icon {
       float: left;
       height: 30px;
@@ -49,7 +56,21 @@
     .file-name {
       display: block;
       line-height: 20px;
+      // allow words to break within if they won't fit on a single line
+      // otherwise
+      overflow-wrap: break-word;
+      // paddding left for the file icon
       padding: 5px 0 5px 35px;
+
+      // padding right for the mobile/tablet file info button
+      @media #{$medium-and-down} {
+        padding-right: 30px;
+      }
+    }
+
+    // hide options by default
+    .options-on-hover {
+      display: none;
     }
 
     a {

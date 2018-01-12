@@ -3,24 +3,31 @@
 - moved     = (file_diff_change == :moved)
 - deleted   = (file_diff_change == :deleted)
 
+= render partial: 'link_to_file_info',
+         locals: { file_id: file_diff.id, project: project,
+                   device: :mobile_and_tablet }
 
 span.file-name[class=text_color_for_file_diff_change(file_diff_change)]
 
-  / print: filename in bold
-  b
-    = link_to_file(file_diff.file_is_or_was, project, target: '_blank') do
-      = file_diff.name
+  span.name-and-description
+    / print: filename in bold
+    b
+      = link_to_file(file_diff.file_is_or_was, project, target: '_blank') do
+        = file_diff.name
 
-  / print: added/modified/moved/deleted
-  =< file_diff_change
+    / print: added/modified/moved/deleted
+    =< file_diff_change
 
-  / print: ancestor path
-  - if moved || added || deleted
-    / Drop root level entry from path and replace with 'Home'
-    - ancestor_path = \
-        ancestors.reverse.map(&:name).drop(1).prepend('Home').join(' > ')
+    / print: ancestor path
+    - if moved || added || deleted
+      / Drop root level entry from path and replace with 'Home'
+      - ancestor_path = \
+          ancestors.reverse.map(&:name).drop(1).prepend('Home').join(' > ')
 
-    - if moved || added
-      =< "to #{ancestor_path}"
-    - else
-      =< "from #{ancestor_path}"
+      - if moved || added
+        =< "to #{ancestor_path}"
+      - else
+        =< "from #{ancestor_path}"
+
+  = render partial: 'link_to_file_info',
+           locals: { file_id: file_diff.id, project: project, device: :desktop }
