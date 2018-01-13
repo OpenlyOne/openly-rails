@@ -6,7 +6,8 @@
   - class_tag = 'hide-on-med-and-up'
   - is_slim   = true
 
-= link_to({ anchor: revision.id }, class: class_tag ) do
+= link_to profile_project_revisions_path(project.owner, project, anchor: revision.id),
+          class: class_tag do
   span.chip.right[class=('slim' if is_slim)]
     => time_ago_in_words(revision.created_at)
     | ago

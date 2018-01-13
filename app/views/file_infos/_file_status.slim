@@ -1,0 +1,30 @@
+/ render the current file status with links or display that the file has been
+/ deleted
+
+- if current_file_diff.present?
+
+  .row
+    .col.s12.m6
+      = render partial: 'link_to_open_in_drive',
+               locals: { file: current_file_diff.file_is_or_was }
+
+      / Add vertical spacing between the two buttons on mobile devices
+      .spacing.v32px.hide-on-med-and-up
+
+    .col.s12.m6
+      = render partial: 'link_to_parent_folder',
+               locals: { project: project,
+                         file: current_file_diff.file_is_or_was }
+
+  .spacing.v16px
+
+  = render partial: 'new_file_changes',
+           locals: { project: project,
+                     current_file_diff: current_file_diff }
+
+  .spacing.v16px
+
+- else
+
+  i = "This file has been deleted from #{@project.title}."
+  .spacing.v16px

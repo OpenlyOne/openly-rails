@@ -9,6 +9,10 @@
   // create space between page heading and content
   margin-bottom: 50px;
 
+  // allow breaking words in the middle of the word if the word is too long for
+  // the line
+  overflow-wrap: break-word;
+
   // add vertical spacing within title
   padding: 32px 0;
 
@@ -21,5 +25,34 @@
   // Tabs should add some vertical spacing
   .tabs {
     margin-top: 16px;
+  }
+}
+
+
+// Show a horizontal line/divider behind heading
+// Adapted from: https://codepen.io/ericrasch/pen/Irlpm
+.with-separator {
+  position: relative;
+  z-index: 1;
+
+  &::before {
+    border-top: 1px solid $divider-color;
+    bottom: 0;
+    content: '';
+    left: 0;
+    // positioning must be absolute here, and relative positioning must be
+    // applied to the parent
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 100%;
+    z-index: -1;
+  }
+
+  span {
+    // to hide the lines from behind the text, you have to set the background
+    // color the same as the container
+    background: $background-color;
+    padding-right: 25px;
   }
 }

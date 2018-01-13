@@ -1,0 +1,15 @@
+/ render list of current file changes, if any
+
+h3.with-separator: span New Changes (uncommitted)
+
+- if current_file_diff.changes.any?
+
+  = render partial: 'revisions/revision_diff',
+           locals: { project: project,
+                     file_diffs: [current_file_diff],
+                     show_link_to_file_info: false,
+                     all_links_in_new_tab: false }
+
+
+- else
+  i No changes have been made to this file since the last revision.

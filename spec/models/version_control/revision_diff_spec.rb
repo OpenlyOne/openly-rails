@@ -17,6 +17,10 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
   describe 'delegations' do
     it { is_expected.to delegate_method(:rugged_repository).to(:repository) }
     it { is_expected.to delegate_method(:tree).to(:base).with_prefix(true) }
+    it { is_expected.to delegate_method(:id).to(:base).with_prefix(true) }
+    it do
+      is_expected.to delegate_method(:id).to(:differentiator).with_prefix(true)
+    end
     it do
       is_expected.to delegate_method(:tree)
         .to(:differentiator).with_prefix(true)
@@ -43,6 +47,12 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     end
 
     before do
+      expect(diff1).to receive(:changed?).and_return false
+      expect(diff2).to receive(:changed?).and_return true
+      expect(diff3).to receive(:changed?).and_return true
+    end
+
+    before do
       expect(diff).to receive(:_files_of_blobs_added_to_base)
         .exactly(2).times.and_return [file1, file2]
       expect(diff).to receive(:_files_of_blobs_deleted_from_differentiator)
@@ -52,8 +62,8 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
         .and_return [diff1, diff2, diff3]
     end
 
-    it 'returns [diff1, diff2, diff3]' do
-      is_expected.to eq [diff1, diff2, diff3]
+    it 'returns [diff2, diff3]' do
+      is_expected.to eq [diff2, diff3]
     end
   end
 
@@ -402,32 +412,20 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
 
   describe '#_rugged_deltas', isolated_unit_test: true do
     subject(:method)  { diff.send :_rugged_deltas }
-    let(:rugged_repo) { instance_double Rugged::Repository }
-    # let(:base)        { instance_double VersionControl::Revisions::Committed }
-    let(:base_tree)   { instance_double Rugged::Tree }
-    let(:differentiator_tree) { instance_double Rugged::Tree }
-    let(:rugged_diff)         { instance_double Rugged::Diff }
-    let(:delta1)              { instance_double Rugged::Diff::Delta }
-    let(:delta2)              { instance_double Rugged::Diff::Delta }
+    let(:rugged_diff) { instance_double Rugged::Diff }
+    let(:deltas)      { %w[delta1 delta1] }
 
     before do
-      expect(diff).to receive(:rugged_repository).and_return rugged_repo
-      expect(diff).to receive(:base_tree).and_return base_tree
+      expect(diff).to receive(:rugged_repository).and_return 'rugged_repo'
+      expect(diff).to receive(:base_tree).and_return 'base_tree'
       expect(diff).to receive(:differentiator_tree)
-        .and_return differentiator_tree
-      # expect(base).to receive(:tree).and_return base_tree
+        .and_return 'differentiator_tree'
       expect(Rugged::Tree).to receive(:diff)
-        .with(rugged_repo, differentiator_tree, base_tree)
+        .with('rugged_repo', 'differentiator_tree', 'base_tree')
         .and_return rugged_diff
-      expect(rugged_diff).to receive(:deltas).and_return [delta1, delta2]
+      expect(rugged_diff).to receive(:deltas).and_return deltas
     end
 
-    it 'returns [delta1, delta2]' do
-      is_expected.to eq [delta1, delta2]
-    end
-
-    it_behaves_like 'caching method call', :_rugged_deltas do
-      subject { diff }
-    end
+    it { is_expected.to eq deltas }
   end
 end

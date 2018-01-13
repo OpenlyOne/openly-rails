@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.9 (January 13, 2017)
+
+**New Features**:
+- File's have an info page that shows their new changes as well as a revision
+  history for just that file
+
+**Changes**:
+- Color scheme changed to 'blue darken-3'
+
+**Fix**:
+- Labels no longer be overlap their textareas
+- Tab text is no longer be truncated
+
 ## v0.8.1 (January 10, 2017)
 
 **Fix**:

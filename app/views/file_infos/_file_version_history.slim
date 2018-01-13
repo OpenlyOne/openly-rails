@@ -1,0 +1,23 @@
+/ render list of revisions that affected the file
+
+h3.with-separator.no-margin-bottom: span File History
+
+- @file_versions.each_with_index do |version, index|
+
+  - revision = version.revision_diff.base
+
+  / TODO: BUG: The call to profiles below is triggering an N+1 query. Needs fixing!
+  = render partial: 'revisions/revision_with_diff',
+           object: revision,
+           locals: { project: project,
+                     profile: Profiles::User.find_by_id(revision.author_email),
+                     file_diffs: [version],
+                     show_link_to_file_info: false }
+
+  - if index != (@file_versions.count - 1)
+    .divider
+
+- if @file_versions.none?
+
+  .spacing.v16px
+  i No previous versions of this file exist.

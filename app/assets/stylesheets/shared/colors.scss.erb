@@ -52,11 +52,12 @@ $colors: map-merge($colors, ('blue-gray': map-get($colors, 'blue-grey')));
 // app/models/color.rb)
 .color-scheme {
 
+  // TODO: Color schemes will need to be reviewed
   <% Color.schemes.each do |scheme| %>
   &.primary-<%= scheme[:base] %> {
     @include define-classes-based-on-color-scheme(
-      color('<%= scheme[:base] %>', 'base'),
-      color('<%= scheme[:base] %>', 'darken-1')
+      color('<%= scheme[:base] %>', 'darken-3'),
+      color('<%= scheme[:base] %>', 'darken-4')
     );
   }
 

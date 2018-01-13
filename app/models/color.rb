@@ -15,7 +15,7 @@ class Color
       #   { base: 'purple',       text: 'white' }
       # ]
       [
-        { base: 'indigo', text: 'white' }
+        { base: 'blue', text: 'white' }
       ]
     end
   end

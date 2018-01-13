@@ -1,9 +1,13 @@
 / render a single file with diff/change indicator
 
-= link_to_file(file_diff.file_is_or_was, project) do
+div.file[class=type_of_file(file_diff.file_is_or_was)
+         class=html_class_for_file_diff_changes(file_diff.changes)]
 
-  div.file[class=type_of_file(file_diff.file_is_or_was)
-           class=html_class_for_file_diff_changes(file_diff.changes)]
+  = render partial: 'link_to_file_info',
+           locals: { file_id: file_diff.id, project: project }
+
+  = link_to_file(file_diff.file_is_or_was, project) do
+
 
     div.indicators
       = render partial: 'file_diff_indicator',
