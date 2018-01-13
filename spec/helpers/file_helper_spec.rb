@@ -114,16 +114,25 @@ RSpec.describe FileHelper, type: :helper do
       end
     end
 
-    context "when options include target: '_blank'" do
+    context 'when options are passed' do
       subject(:method)  { helper.link_to_file(file, project, options) {} }
-      let(:file)        { build :file, :folder }
-      let(:options)     { { target: '_blank' } }
+      let(:file)        { build :file }
+      let(:options)     { {} }
 
-      it 'passes options to #link_to' do
-        expect(helper)
-          .to receive(:link_to)
-          .with(kind_of(String), hash_including(target: '_blank'))
-        method
+      it 'does not modify the passed options hash' do
+        expect { method }.not_to(change { options })
+      end
+
+      context "when options include target: '_blank'" do
+        let(:file)        { build :file, :folder }
+        let(:options)     { { target: '_blank' } }
+
+        it 'passes options to #link_to' do
+          expect(helper)
+            .to receive(:link_to)
+            .with(kind_of(String), hash_including(target: '_blank'))
+          method
+        end
       end
     end
   end
