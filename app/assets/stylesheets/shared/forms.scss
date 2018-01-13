@@ -5,8 +5,11 @@
   input,
   textarea {
     + label {
-      transform: translateY(-14px) scale(.8);
-      transform-origin: 0 0;
+      // scss-lint:disable ImportantRule
+      // we must override any other transform rules to prevent the label from
+      // overlapping the input element or textarea
+      transform: translateY(-14px) scale(.8) !important;
+      transform-origin: 0 0 !important;
     }
   }
 

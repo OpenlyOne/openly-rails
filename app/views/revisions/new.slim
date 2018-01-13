@@ -28,7 +28,10 @@
     .row
       .col.s12.l12
         .input-field
-          = f.text_area :summary, rows: 3, placeholder: 'Summarize the changes you have made to files', class: 'materialize-textarea noscript'
+          = f.text_area :summary,
+                        rows: 3,
+                        placeholder: 'Summarize the changes you have made to files',
+                        class: 'materialize-textarea noscript'
           = f.label :summary, 'Summary of Changes (optional)'
 
     .row
