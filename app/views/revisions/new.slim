@@ -44,6 +44,7 @@
     = render partial: 'revision_diff',
              locals: { project: @project,
                        file_diffs: revision_diff.changed_files_as_diffs,
-                       show_link_to_file_info: true }
+                       show_link_to_file_info: true,
+                       all_links_in_new_tab: true }
 
     .spacing.v48px

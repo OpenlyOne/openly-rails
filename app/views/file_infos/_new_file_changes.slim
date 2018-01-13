@@ -7,7 +7,8 @@ h3.with-separator: span New Changes (uncommitted)
   = render partial: 'revisions/revision_diff',
            locals: { project: project,
                      file_diffs: [current_file_diff],
-                     show_link_to_file_info: false }
+                     show_link_to_file_info: false,
+                     all_links_in_new_tab: false }
 
 
 - else
