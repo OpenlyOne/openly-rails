@@ -11,18 +11,9 @@
 
 .container
 
-  .row
-    .col.s12.m6
-      = render partial: 'link_to_open_in_drive', locals: { file: @file }
-
-      / Add vertical spacing between the two buttons on mobile devices
-      .spacing.v32px.hide-on-med-and-up
-
-    .col.s12.m6
-      = render partial: 'link_to_parent_folder',
-               locals: { project: @project, file: @file }
-
-  .spacing.v32px
+  = render partial: 'file_status',
+           locals: { current_file_diff: @current_file_diff,
+                     project: @project }
 
   = render partial: 'file_version_history',
            locals: { project: @project, file_versions: @file_versions }

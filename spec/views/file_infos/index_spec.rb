@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe 'file_infos/index', type: :view do
-  let(:project)       { build_stubbed :project }
-  let(:file)          { build :file }
-  let(:file_versions) { [] }
+  let(:project)           { build_stubbed :project }
+  let(:file)              { build :file, name: 'My Document' }
+  let(:current_file_diff) { VersionControl::FileDiff.new(nil, file, file) }
+  let(:file_versions)     { [] }
 
   before do
     assign(:project, project)
     assign(:file, file)
+    assign(:current_file_diff, current_file_diff)
     assign(:file_versions, file_versions)
   end
 
@@ -34,16 +36,52 @@ RSpec.describe 'file_infos/index', type: :view do
     expect(rendered).to have_link 'Open Parent Folder', href: link
   end
 
-  it 'renders No previous versions of this file' do
+  it 'renders that the file has been unchanged since the last revision' do
+    render
+    expect(rendered).to have_text 'New Changes (uncommitted)'
+    expect(rendered).to have_text(
+      'No changes have been made to this file since the last revision'
+    )
+  end
+
+  it 'renders that there are no previous versions of the file' do
     render
     expect(rendered).to have_text 'No previous versions of this file exist.'
   end
 
-  xcontext 'when file is and has been deleted' do
+  context 'when file is and has been deleted' do
+    let(:current_file_diff) { nil }
+
+    it 'renders that the file has been deleted from the project' do
+      render
+      expect(rendered)
+        .to have_text "This file has been deleted from #{project.title}."
+    end
+
     it 'does not have a link to the file on Google Drive' do
+      render
+      expect(rendered).not_to have_link 'Open in Drive'
     end
 
     it 'does not have a link to the parent folder' do
+      render
+      expect(rendered).not_to have_link 'Open Parent Folder'
+    end
+  end
+
+  context 'when current_file_diff has uncommitted changes' do
+    before do
+      allow(current_file_diff).to receive(:changes)
+        .and_return %i[added modified moved deleted]
+      allow(current_file_diff).to receive(:ancestors_of_file).and_return []
+    end
+
+    it 'renders uncommitted changes' do
+      render
+      expect(rendered).to have_text 'My Document added to Home'
+      expect(rendered).to have_text 'My Document modified'
+      expect(rendered).to have_text 'My Document moved to Home'
+      expect(rendered).to have_text 'My Document deleted from Home'
     end
   end
 

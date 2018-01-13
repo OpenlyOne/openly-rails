@@ -13,12 +13,26 @@ class FileInfosController < ApplicationController
   # Execute with lock and render/redirect delay
   before_action :set_project_context
   before_action :set_file_id
+  before_action :set_current_file_diff
   before_action :set_file_versions
   before_action :set_file
 
   def index; end
 
   private
+
+  # Attempt to find the file diff of stage (base) and last revision
+  # (differentiator)
+  def set_current_file_diff
+    @current_file_diff = @project.repository
+                                 .stage
+                                 .diff(@project.repository.revisions.last)
+                                 .diff_file(@file_id)
+    # preload ancestors while in lock
+    @current_file_diff.ancestors_of_file
+  rescue ActiveRecord::RecordNotFound
+    @current_file_diff = nil
+  end
 
   # Set @file_id from params
   def set_file_id
@@ -27,8 +41,8 @@ class FileInfosController < ApplicationController
 
   # Find file in stage or version history
   def set_file
-    # Find the file in stage
-    @file = @project.files.find_by_id @file_id
+    # Set the file from current_file_diff OR
+    @file = @current_file_diff&.file_is_or_was
 
     # Set file to most recent version (unless it's already been set because it
     # exists in stage)
