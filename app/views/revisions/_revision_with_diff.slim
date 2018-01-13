@@ -1,0 +1,27 @@
+/ render a single revision with file diff
+
+.row.revision id=revision_with_diff.id
+
+  .spacing.v8px
+
+  = render partial: 'revisions/revision_timestamp',
+           locals: { project: project,
+                     revision: revision_with_diff,
+                     device: :mobile }
+
+  .spacing.v8px
+
+
+  .col.l2.m3.s12.center-align
+    = render partial: 'profiles/profile',
+             object: profile
+
+  .col.l10.m9.s12
+    = render partial: 'revisions/revision',
+             object: revision_with_diff,
+             locals: { project: project }
+
+    = render partial: 'revisions/revision_diff',
+             locals: { file_diffs: file_diffs,
+                       project: project,
+                       show_link_to_file_info: show_link_to_file_info }

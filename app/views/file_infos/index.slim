@@ -22,5 +22,9 @@
       = render partial: 'link_to_parent_folder',
                locals: { project: @project, file: @file }
 
+  .spacing.v32px
+
+  = render partial: 'file_version_history',
+           locals: { project: @project, file_versions: @file_versions }
 
   .spacing.v48px

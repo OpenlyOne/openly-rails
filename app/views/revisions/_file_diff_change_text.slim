@@ -3,9 +3,10 @@
 - moved     = (file_diff_change == :moved)
 - deleted   = (file_diff_change == :deleted)
 
-= render partial: 'link_to_file_info',
-         locals: { file_id: file_diff.id, project: project,
-                   device: :mobile_and_tablet }
+- if show_link_to_file_info
+  = render partial: 'revisions/link_to_file_info',
+           locals: { file_id: file_diff.id, project: project,
+                     device: :mobile_and_tablet }
 
 span.file-name[class=text_color_for_file_diff_change(file_diff_change)]
 
@@ -29,5 +30,6 @@ span.file-name[class=text_color_for_file_diff_change(file_diff_change)]
       - else
         =< "from #{ancestor_path}"
 
-  = render partial: 'link_to_file_info',
-           locals: { file_id: file_diff.id, project: project, device: :desktop }
+  - if show_link_to_file_info
+    = render partial: 'revisions/link_to_file_info',
+             locals: { file_id: file_diff.id, project: project, device: :desktop }

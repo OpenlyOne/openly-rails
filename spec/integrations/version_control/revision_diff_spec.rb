@@ -86,5 +86,16 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
 
       it { expect(method.map(&:id)).not_to include root.id }
     end
+
+    xcontext 'when parent is moved' do
+
+      it 'includes the parent' do
+
+      end
+
+      it 'does not include the children' do
+
+      end
+    end
   end
 end
