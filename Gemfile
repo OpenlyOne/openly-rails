@@ -41,7 +41,7 @@ gem 'devise', '~> 4.3'
 # Use CanCanCan for authorization (permission management)
 gem 'cancancan', '~> 2.0'
 # Nokogiri for parsing fields with errors
-gem 'nokogiri', '~> 1.8'
+gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
 gem 'config', '~> 1.4'
 # Rugged for Git integration

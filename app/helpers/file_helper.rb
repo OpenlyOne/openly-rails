@@ -45,7 +45,7 @@ module FileHelper
     # external link to the original file on Google Drive
     else
       path = external_link_for_file(file)
-      options.reverse_merge! target: '_blank'
+      options = options.reverse_merge target: '_blank'
     end
 
     link_to(path, options) { capture(&block) }
