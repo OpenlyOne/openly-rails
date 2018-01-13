@@ -86,6 +86,14 @@ RSpec.describe 'revisions/index', type: :view do
 
     before { assign(:revisions, [revision3, revision2, revision1]) }
 
+    it 'renders a link to infos for each file' do
+      render
+      [file1, folder, file2].each do |file|
+        link = profile_project_file_infos_path(project.owner, project, file.id)
+        expect(rendered).to have_link(text: 'More', href: link)
+      end
+    end
+
     context 'under revision 1' do
       it 'it lists file1 as added' do
         render

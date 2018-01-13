@@ -57,10 +57,13 @@ Rails.application.routes.draw do
               path: '/', except: %i[index new create], param: :slug do
       get  'setup'  => 'projects#setup',  on: :member
       post 'import' => 'projects#import', on: :member
-      # Route for folders
+      # Routes for folders
       get 'files' => 'folders#root', as: :root_folder
       resources :folders, only: :show
+      # Routes for revisions
       resources :revisions, only: %i[index new create]
+      # Routes for file infos
+      resources :file_infos, path: 'files/:id/info', only: :index
     end
   end
 

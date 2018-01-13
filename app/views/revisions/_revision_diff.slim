@@ -1,9 +1,11 @@
-/ render file changes
-/ TODO: Is this the right place for sorting?
-- file_diffs = revision_diff.changed_files_as_diffs.select(&:changed?)
-- sort_file_diffs! file_diffs
+/ Renders the changes of a file (file diffs)
 
 .revision-diff
-  = render(partial: 'file_diff',
-           collection: file_diffs,
-           locals: { project: project }) || '<i>No files changed.</i>'.html_safe
+  - if file_diffs.any?
+    = render partial: 'revisions/file_diff',
+             collection: sort_file_diffs!(file_diffs),
+             locals: { project: project,
+                       show_link_to_file_info: show_link_to_file_info,
+                       all_links_in_new_tab: all_links_in_new_tab }
+  - else
+    i No files changed.

@@ -175,5 +175,11 @@ RSpec.describe 'revisions/new', type: :view do
         text: "#{modified_and_moved_file_diff.name} moved to Home > ancestor"
       )
     end
+
+    it 'marks all links as external links' do
+      render
+      expect(rendered).to have_css("a[target='_blank']")
+      expect(rendered).not_to have_css("a:not([target='_blank'])")
+    end
   end
 end

@@ -40,8 +40,11 @@
 
     h3: span Review Changes
     // TODO: This is probably not the right place to generate a diff
+    - revision_diff = @revision.diff(@project.repository.revisions.last)
     = render partial: 'revision_diff',
-             object: @revision.diff(@project.repository.revisions.last),
-             locals: { project: @project }
+             locals: { project: @project,
+                       file_diffs: revision_diff.changed_files_as_diffs,
+                       show_link_to_file_info: true,
+                       all_links_in_new_tab: true }
 
     .spacing.v48px

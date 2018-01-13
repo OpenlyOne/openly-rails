@@ -33,7 +33,7 @@ feature 'Revision' do
     expect(page.find_all('.revision .profile').map(&:text))
       .to eq [users.last.name, users.second.name, users.first.name]
     # and see file changes for each revision
-    expect(page.find_all('.revision-diff').map(&:text)).to eq(
+    expect(page.find_all('.revision .name-and-description').map(&:text)).to eq(
       ['File1 deleted from Home', 'File1 modified', 'File1 added to Home']
     )
   end

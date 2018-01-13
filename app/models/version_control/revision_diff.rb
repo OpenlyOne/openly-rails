@@ -4,6 +4,8 @@ module VersionControl
   # The diff (or change) between two revisions in the repository
   class RevisionDiff
     attr_reader :base, :differentiator
+    delegate :id, to: :base, prefix: true
+    delegate :id, to: :differentiator, prefix: true
 
     # Initialize an instance of RevisionDiff given two revisions.
     # The base should be the more current revision, the differentiator the less
@@ -25,7 +27,9 @@ module VersionControl
         _files_of_blobs_deleted_from_differentiator,
         _files_of_blobs_added_to_base.map(&:id) |
         _files_of_blobs_deleted_from_differentiator.map(&:id)
-      )
+      ).select(&:changed?)
+      # TODO: Eliminate unchanged diffs at the delta level before initializing
+      # =>    files, so we don't need to run #select(&:changed?) at the end.
     end
 
     # Generate a FileDiff between base and differentiator revision for the file

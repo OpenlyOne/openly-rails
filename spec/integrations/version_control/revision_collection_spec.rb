@@ -30,4 +30,37 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
       it { is_expected.to eq [] }
     end
   end
+
+  describe '#all_as_diffs' do
+    subject(:method)        { revision_collection.all_as_diffs }
+    let!(:oldest_revision)  { create :revision, repository: repository }
+    let!(:second_revision)  { create :revision, repository: repository }
+    let!(:newest_revision)  { create :revision, repository: repository }
+
+    it 'returns three revision diffs' do
+      expect(method).to be_an Array
+      expect(method.map(&:class).uniq).to eq [VersionControl::RevisionDiff]
+    end
+
+    it 'returns an array with diff between newest and second revision' do
+      expect(method.first).to have_attributes(
+        base_id: newest_revision.id,
+        differentiator_id: second_revision.id
+      )
+    end
+
+    it 'returns an array with diff between second and oldest revision' do
+      expect(method.first).to have_attributes(
+        base_id: newest_revision.id,
+        differentiator_id: second_revision.id
+      )
+    end
+
+    it 'returns an array with diff between oldest revision and nil' do
+      expect(method.first).to have_attributes(
+        base_id: newest_revision.id,
+        differentiator_id: second_revision.id
+      )
+    end
+  end
 end

@@ -1,0 +1,21 @@
+.page-subheading.gray.lighten-3
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h2
+          = image_tag icon_for_file(@file),
+                      alt: 'File icon',
+                      size: '56',
+                      class: 'img-responsive left'
+          span = @file.name
+
+.container
+
+  = render partial: 'file_status',
+           locals: { current_file_diff: @current_file_diff,
+                     project: @project }
+
+  = render partial: 'file_version_history',
+           locals: { project: @project, file_versions: @file_versions }
+
+  .spacing.v48px

@@ -86,5 +86,21 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
 
       it { expect(method.map(&:id)).not_to include root.id }
     end
+
+    context 'when folder with files is moved' do
+      let!(:child)        { create :file, parent: folder }
+      let!(:other_folder) { create :file, :folder, parent: root }
+      before              { create :revision, repository: repository }
+      # move the folder
+      before              { folder.update(parent_id: other_folder.id) }
+
+      it 'includes the folder' do
+        expect(method.map(&:id)).to include folder.id
+      end
+
+      it 'does not include the child file' do
+        expect(method.map(&:id)).not_to include child.id
+      end
+    end
   end
 end
