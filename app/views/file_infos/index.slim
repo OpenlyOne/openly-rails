@@ -2,6 +2,25 @@
   .container
     .row.no-margin-bottom
       .col.s12
-        h2 File Info
+        h2
+          = image_tag icon_for_file(@file),
+                      alt: 'File icon',
+                      size: '56',
+                      class: 'img-responsive left'
+          span = @file.name
 
 .container
+
+  .row
+    .col.s12.m6
+      = render partial: 'link_to_open_in_drive', locals: { file: @file }
+
+      / Add vertical spacing between the two buttons on mobile devices
+      .spacing.v32px.hide-on-med-and-up
+
+    .col.s12.m6
+      = render partial: 'link_to_parent_folder',
+               locals: { project: @project, file: @file }
+
+
+  .spacing.v48px

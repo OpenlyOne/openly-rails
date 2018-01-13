@@ -25,6 +25,17 @@ module VersionControl
         end
     end
 
+    # Return an array of VersionControl::RevisionDiffs that include diffs
+    # between all revisions in this repository, starting from most recent all
+    # the way to the oldest revision. Each revision will be diffed to its
+    # parent (/previous) revision
+    # rev1 <-> rev2, rev2 <-> rev3, ..., revX <-> nil
+    def all_as_diffs
+      (all + [nil]).each_cons(2).map do |this_revision, previous_revision|
+        this_revision.diff(previous_revision)
+      end
+    end
+
     # Return the last (most recent) revision in this repository
     def last
       return @last if @last

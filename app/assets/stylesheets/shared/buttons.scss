@@ -18,3 +18,9 @@
   padding: $button-floating-large-size / 4;
   width: $button-floating-large-size;
 }
+
+// Adjust SVG-based icons in button to be vertically centered
+.btn > i > svg {
+  position: relative;
+  top: 3px;
+}

@@ -22,36 +22,49 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
     subject(:method)    { collection.all }
     let(:collection)    { VersionControl::RevisionCollection.new(nil) }
     let(:rugged_repo)   { instance_double Rugged::Repository }
-    let(:commit1)       { Rugged::Commit }
-    let(:commit2)       { Rugged::Commit }
-    let(:commit3)       { Rugged::Commit }
-    let(:revision1)     { VersionControl::Revisions::Committed }
-    let(:revision2)     { VersionControl::Revisions::Committed }
-    let(:revision3)     { VersionControl::Revisions::Committed }
+    let(:commits)       { %w[commit3 commit2 commit1] }
+    let(:revisions)     { %w[revision3 revision2 revision1] }
 
     before do
       expect(collection).to receive(:rugged_repository).and_return rugged_repo
-      expect(collection).to receive(:_last_rugged_commit).and_return commit1
+      expect(collection).to receive(:_last_rugged_commit).and_return commits[0]
 
       expect(Rugged::Walker).to receive(:walk)
-        .with(rugged_repo, show: commit1, simplify: true)
-        .and_return [commit1, commit2, commit3]
+        .with(rugged_repo, show: commits[0], simplify: true)
+        .and_return commits
 
       expect(VersionControl::Revisions::Committed)
-        .to receive(:new).with(collection, commit1).and_return revision1
+        .to receive(:new).with(collection, commits[0]).and_return revisions[0]
       expect(VersionControl::Revisions::Committed)
-        .to receive(:new).with(collection, commit2).and_return revision2
+        .to receive(:new).with(collection, commits[1]).and_return revisions[1]
       expect(VersionControl::Revisions::Committed)
-        .to receive(:new).with(collection, commit3).and_return revision3
+        .to receive(:new).with(collection, commits[2]).and_return revisions[2]
     end
 
-    it 'returns [revision3, revision2, revision1]' do
-      is_expected.to eq [revision3, revision2, revision1]
-    end
+    it { is_expected.to eq revisions }
 
     it_behaves_like 'caching method call', :all do
       subject { collection }
     end
+  end
+
+  describe '#all_as_diffs', isolated_unit_test: true do
+    subject(:method)  { collection.all_as_diffs }
+    let(:collection)  { VersionControl::RevisionCollection.new(nil) }
+    let(:revisions)   { [revision1, revision2, revision3] }
+    let(:revision1)   { instance_double VersionControl::Revisions::Committed }
+    let(:revision2)   { instance_double VersionControl::Revisions::Committed }
+    let(:revision3)   { instance_double VersionControl::Revisions::Committed }
+    let(:diffs)       { %w[diff1 diff2 diff3] }
+
+    before do
+      expect(collection).to receive(:all).and_return revisions
+      expect(revision1).to receive(:diff).with(revision2).and_return diffs[0]
+      expect(revision2).to receive(:diff).with(revision3).and_return diffs[1]
+      expect(revision3).to receive(:diff).with(nil).and_return diffs[2]
+    end
+
+    it { is_expected.to eq diffs }
   end
 
   describe '#last' do

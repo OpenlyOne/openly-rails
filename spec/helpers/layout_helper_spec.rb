@@ -19,6 +19,17 @@ RSpec.describe LayoutHelper, type: :helper do
     it 'includes the action name with a- prefix' do
       expect(helper.controller_action_identifier).to include 'a-create'
     end
+
+    context 'when controller_name or action_name includes hyphens' do
+      before do
+        allow(controller).to receive(:controller_name).and_return('a_b_c')
+        allow(controller).to receive(:action_name).and_return('d_e_f')
+      end
+
+      it 'replaces them with dashes' do
+        expect(helper.controller_action_identifier).to eq 'c-a-b-c a-d-e-f'
+      end
+    end
   end
 
   describe '#color_scheme' do

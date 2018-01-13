@@ -17,6 +17,10 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
   describe 'delegations' do
     it { is_expected.to delegate_method(:rugged_repository).to(:repository) }
     it { is_expected.to delegate_method(:tree).to(:base).with_prefix(true) }
+    it { is_expected.to delegate_method(:id).to(:base).with_prefix(true) }
+    it do
+      is_expected.to delegate_method(:id).to(:differentiator).with_prefix(true)
+    end
     it do
       is_expected.to delegate_method(:tree)
         .to(:differentiator).with_prefix(true)

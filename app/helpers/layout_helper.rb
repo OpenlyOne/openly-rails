@@ -5,7 +5,7 @@ module LayoutHelper
   # Return a string containing controller and action name, formatted as
   # 'c-controller_name a-action_name'
   def controller_action_identifier
-    "c-#{controller_name} a-#{action_name}"
+    "c-#{controller_name} a-#{action_name}".tr('_', '-')
   end
 
   # Pick random color scheme
