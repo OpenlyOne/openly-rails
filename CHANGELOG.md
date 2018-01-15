@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.10 (January 14, 2017)
+
+**Internal:**
+- Track errors in application and background jobs (in production) with Rollbar
+
 ## v0.9.1 (January 13, 2017)
 
 **Fixes:**
