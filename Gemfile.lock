@@ -292,6 +292,8 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     retriable (3.1.1)
+    rollbar (2.15.5)
+      multi_json
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
@@ -430,6 +432,7 @@ DEPENDENCIES
   puma (= 3.8.1)
   rails (~> 5.1.2)
   rails_real_favicon
+  rollbar (~> 2.15)
   rspec-rails (~> 3.5)
   rugged (~> 0.26)!
   sass-rails (~> 5.0)
