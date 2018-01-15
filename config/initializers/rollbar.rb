@@ -47,13 +47,10 @@ Rollbar.configure do |config|
   #  Thread.new { Rollbar.process_from_async_handler(payload) }
   # }
 
-  # Enable asynchronous reporting (using sucker_punch)
-  # config.use_sucker_punch
-
-  # Enable delayed reporting (using Sidekiq)
-  # config.use_sidekiq
-  # You can supply custom Sidekiq options:
-  # config.use_sidekiq 'queue' => 'default'
+  # Use async reporting with our own ApplicationJob error handler
+  config.use_async = true
+  config.async_handler = ErrorReportJob
+  config.failover_handlers = [Rollbar::Delay::Thread]
 
   # If your application runs behind a proxy server, you can set proxy parameters
   # here.
