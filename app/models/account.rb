@@ -14,6 +14,9 @@ class Account < ApplicationRecord
   # Do not allow email change
   attr_readonly :email
 
+  # Delegations
+  delegate :handle, to: :user, prefix: true
+
   # Validations
   validates :user, presence: true, on: :create
   devise :validatable
