@@ -57,6 +57,8 @@ gem 'delayed_job_active_record', '~> 4.1'
 gem 'daemons', '~> 1.2'
 # Filelock for extended file locking (simple timeout and wait)
 gem 'filelock'
+# Error-tracking with Rollbar
+gem 'rollbar', '~> 2.15'
 
 group :development, :test do
   # We will use pry rails as our console

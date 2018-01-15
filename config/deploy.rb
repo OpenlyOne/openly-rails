@@ -37,6 +37,11 @@ set :puma_preload_app, true
 set :puma_worker_timeout, nil
 set :puma_init_active_record, true
 
+# Communicate deploy information to Rollbar
+set :rollbar_token, ENV['ROLLBAR_ACCESS_TOKEN']
+set :rollbar_env, (proc { fetch :stage })
+set :rollbar_role, (proc { :app })
+
 ## Defaults:
 # set :scm,           :git
 # set :branch,        :master
