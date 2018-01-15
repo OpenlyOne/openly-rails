@@ -13,6 +13,8 @@
 GOOGLE_DRIVE_CLIENT_ID: <client id from credentials.json>
 GOOGLE_DRIVE_CLIENT_SECRET: <client secret from credentials.json>
 GOOGLE_DRIVE_CREDENTIALS_PATH: '/home/user/credentials/google.yaml'
+GOOGLE_DRIVE_TRACKING_ACCOUNT: <account used for tracking changes to files>
+ROLLBAR_ACCESS_TOKEN: <access token from rollbar: post_server_item>
 
 production:
   DEPLOY_USER: <username of user for deployment>
@@ -20,6 +22,7 @@ production:
   UPSHIFT_DATABASE_NAME: <your postgres database>
   UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
   UPSHIFT_DATABASE_PASSWORD: <your postgres user's password>
+  GOOGLE_DRIVE_CREDENTIALS_PATH: '/var/apps/app-name/shared/credentials/google-drive.yaml'
 
 test:
   MOCK_GOOGLE_DRIVE_REQUESTS: 'false' # set to 'true' to mock requests
