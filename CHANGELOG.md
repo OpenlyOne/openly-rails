@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.10 (January 14, 2017)
+
+**Internal:**
+- Track errors in application and background jobs (in production) with Rollbar
+
+## v0.9.1 (January 13, 2017)
+
+**Fixes:**
+- Links correctly open in current tab unless otherwise intended
+- Upgrade 'nokogiri' gem to v1.8.1 to patch vulnerability
+
 ## v0.9 (January 13, 2017)
 
 **New Features**:
