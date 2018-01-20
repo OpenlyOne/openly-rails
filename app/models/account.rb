@@ -7,7 +7,7 @@ class Account < ApplicationRecord
   has_one :user, class_name: 'Profiles::User', dependent: :destroy
 
   # Devise
-  devise :database_authenticatable, :registerable
+  devise :database_authenticatable, :registerable, :rememberable
 
   # Attributes
   accepts_nested_attributes_for :user

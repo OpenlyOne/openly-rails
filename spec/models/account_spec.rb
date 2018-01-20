@@ -20,6 +20,17 @@ RSpec.describe Account, type: :model do
     it { is_expected.to delegate_method(:handle).to(:user).with_prefix(true) }
   end
 
+  describe 'devise' do
+    context 'rememberable' do
+      it 'remembers the account for one week' do
+        subject.save
+        subject.remember_me!
+        expect(subject.remember_expires_at)
+          .to be_within(1.minute).of(Time.zone.now + 1.week)
+      end
+    end
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:user).on(:create) }
     it { is_expected.to validate_confirmation_of(:password) }
