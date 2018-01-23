@@ -21,6 +21,18 @@ module Profiles
     # Associations
     has_many :projects, as: :owner, dependent: :destroy, inverse_of: :owner
 
+    # Profile Picture
+    has_attached_file :picture,
+                      styles: {
+                        large: ['250x250#', :jpg],
+                        medium: ['100x100#', :jpg]
+                      },
+                      default_style: :medium,
+                      path: ':attachment_path/profiles/:id_partition/picture/' \
+                            ':style.:extension',
+                      url:  ':attachment_url/profiles/:id_partition/picture/' \
+                            ':style.:extension'
+
     # Attributes
     # Do not allow handle to change
     attr_readonly :handle
@@ -52,6 +64,14 @@ module Profiles
     validates :handle,
               uniqueness: { case_sensitive: true },
               unless: proc { |handle| handle.errors[:identifier].any? }
+
+    # Profile picture
+    validates_with AttachmentSizeValidator,
+                   attributes: :picture,
+                   less_than: 10.megabytes
+    validates_with AttachmentContentTypeValidator,
+                   attributes: :picture,
+                   content_type: %w[image/jpeg image/gif image/png]
 
     # Use handle identifier as param in URLs
     def to_param
