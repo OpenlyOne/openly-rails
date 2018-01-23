@@ -1,0 +1,30 @@
+= form_for @profile do |f|
+
+  .page-heading.primary-color.primary-color-text.no-margin-bottom.z-depth-1
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h1
+            = f.text_field :name, placeholder: 'Your Name', class: 'inherit'
+
+  .profile-banner style="background-image: url(#{image_path('profiles/banner.jpg')});"
+
+  .container
+    .profile-picture
+      = image_tag 'profiles/picture.jpg', class: 'responsive-img z-depth-1'
+
+  .container
+    .spacing.v48px
+
+    - if @profile.errors.any?
+      .row
+        .col.s12
+          .validation-errors
+            = render partial: "error", collection: @profile.errors.full_messages, as: :error
+
+    .row
+      .col.s12
+        button action='submit' class="btn-large primary-color primary-color-text"
+          | Save
+
+.spacing.v48px

@@ -51,7 +51,10 @@ Rails.application.routes.draw do
   post  '/projects/new' => 'projects#create', as: :projects
 
   # Routes for user profiles (must be last)
-  resources :profiles, path: '/', only: :show, param: :handle do
+  resources :profiles, path: '/', only: %i[show edit update], param: :handle
+
+  # Routes for existing projects (must be last)
+  resources :profiles, path: '/', only: [], param: :handle do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
