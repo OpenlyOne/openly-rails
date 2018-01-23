@@ -5,12 +5,14 @@ RSpec.describe Profiles::User, type: :model do
 
   describe 'attachment: picture' do
     subject(:method) { user.picture = picture }
-    let(:picture) do
-      File.new(
-        Rails.root.join('spec', 'support', 'fixtures', 'profiles',
-                        'picture.jpg')
-      )
+    let(:picture_fixture_path) do
+      Rails.root.join('spec', 'support', 'fixtures', 'profiles')
     end
+    let(:picture) { File.new(picture_fixture_path.join('picture.jpg')) }
+    let(:path_to_image_with_exif_data) do
+      picture_fixture_path.join('image_with_exif_data.jpg')
+    end
+    let(:image_with_exif_data) { File.new path_to_image_with_exif_data }
 
     it 'stores at :attachment_path/profiles/000/000/00x/picture' do
       method
@@ -40,6 +42,19 @@ RSpec.describe Profiles::User, type: :model do
                      .to_s
 
       expect(user.picture.url).to be_starts_with picture_url
+    end
+
+    it 'strips exif metadata from uploaded image' do
+      exif_data = `identify -verbose #{path_to_image_with_exif_data}`
+      expect(exif_data).to match(/exif:/)
+
+      user.picture = image_with_exif_data
+      user.save
+      uploaded_image = user.picture.path
+
+      exif_data = `identify -verbose #{uploaded_image}`
+
+      expect(exif_data).not_to match(/exif:/)
     end
   end
 end
