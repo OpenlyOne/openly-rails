@@ -20,11 +20,15 @@
   .container
     .spacing.v48px
 
+    / skip picture errors
+    - @profile.errors.delete :picture
     - if @profile.errors.any?
       .row
         .col.s12
           .validation-errors
-            = render partial: "error", collection: @profile.errors.full_messages, as: :error
+            = render partial: "error",
+                     collection: @profile.errors.full_messages,
+                     as: :error
 
     .row
       .col.s12.input-field

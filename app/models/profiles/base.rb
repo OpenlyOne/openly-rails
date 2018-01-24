@@ -72,7 +72,8 @@ module Profiles
                    less_than: 10.megabytes
     validates_with AttachmentContentTypeValidator,
                    attributes: :picture,
-                   content_type: %w[image/jpeg image/gif image/png]
+                   content_type: %w[image/jpeg image/gif image/png],
+                   message: 'must be JPEG, PNG, or GIF'
 
     # Use handle identifier as param in URLs
     def to_param

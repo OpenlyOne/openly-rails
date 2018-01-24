@@ -23,6 +23,12 @@ RSpec.describe 'profiles/edit', type: :view do
     expect(rendered).to have_css '.validation-errors', text: 'mock error'
   end
 
+  it 'does not render :picture errors' do
+    profile.errors.add(:picture, 'mock error')
+    render
+    expect(rendered).not_to have_css '.validation-errors', text: 'mock error'
+  end
+
   it 'has an input field for name' do
     render
     expect(rendered).to have_css 'input#profiles_base_name'
