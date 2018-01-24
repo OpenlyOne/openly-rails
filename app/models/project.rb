@@ -52,6 +52,11 @@ class Project < ApplicationRecord
                 with:     /[a-zA-Z0-9]\z/,
                 message:  'must end with a letter or number'
               }
+    validates :slug,
+              format: {
+                without:  /\Aedit\z/,
+                message:  'is not available'
+              }
   end
   # Validate uniqueness unless slug has errors
   validates :slug,
