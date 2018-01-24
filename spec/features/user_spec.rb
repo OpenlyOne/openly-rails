@@ -32,13 +32,19 @@ feature 'User' do
 
     # and click on edit
     find('a#edit_profile').click
-    # and fill in a new name
+    # and fill in a new name and picture
     fill_in 'profiles_base_name', with: 'My New Name'
+    attach_file(
+      'profiles_base[picture]',
+      Rails.root.join('spec', 'support', 'fixtures', 'profiles', 'picture.jpg')
+    )
 
     # and save
     click_on 'Save'
 
     # then I should see my new name
     expect(page).to have_css 'h1', text: 'My New Name'
+    # and the picture should be saved
+    expect(user.reload.picture).to be_exist
   end
 end

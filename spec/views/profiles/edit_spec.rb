@@ -28,6 +28,11 @@ RSpec.describe 'profiles/edit', type: :view do
     expect(rendered).to have_css 'input#profiles_base_name'
   end
 
+  it 'has an input file field for picture' do
+    render
+    expect(rendered).to have_css 'input[type=file]#profiles_base_picture'
+  end
+
   it 'has a button to save the profile' do
     render
     expect(rendered).to have_css "button[action='submit']", text: 'Save'
