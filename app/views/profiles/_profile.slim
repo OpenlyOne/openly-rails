@@ -1,7 +1,7 @@
 .profile
   = link_to profile_path(profile) do
 
-    = image_tag 'profiles/picture.jpg',
+    = image_tag profile.picture(:medium),
                 size: '70',
                 class: 'responsive-img circle z-depth-1'
 
