@@ -31,7 +31,8 @@ module Profiles
                       path: ':attachment_path/profiles/:id_partition/picture/' \
                             ':style.:extension',
                       url:  ':attachment_url/profiles/:id_partition/picture/' \
-                            ':style.:extension'
+                            ':style.:extension',
+                      default_url: '/fallback/profiles/picture.jpg'
 
     # Attributes
     # Do not allow handle to change
