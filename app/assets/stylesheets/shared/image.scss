@@ -1,0 +1,29 @@
+// Styling for images
+
+// Responsive banners shared between various views, such as the user's profile
+// banner
+.profile-banner,
+.project-banner {
+  display: block;
+  height: 200px;
+
+  position: relative;
+  z-index: -1;
+
+  @media #{$medium-and-up} {
+    height: 250px;
+  }
+
+  @media #{$large-and-up} {
+    height: 300px;
+  }
+}
+
+// centering for background images, such as the user's profile banner
+.profile-banner,
+.project-banner,
+.img.centered-background {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}

@@ -59,6 +59,8 @@ gem 'daemons', '~> 1.2'
 gem 'filelock'
 # Error-tracking with Rollbar
 gem 'rollbar', '~> 2.15'
+# Paperclip for attachments
+gem 'paperclip', '~> 5.1'
 
 group :development, :test do
   # We will use pry rails as our console

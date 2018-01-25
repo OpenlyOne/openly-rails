@@ -30,4 +30,15 @@ RSpec.describe 'profiles/show', type: :view do
       )
     end
   end
+
+  context 'when current user can edit profile' do
+    before { assign(:user_can_edit_profile, true) }
+
+    it 'does have a link to edit the profile' do
+      render
+      expect(rendered).to have_css(
+        "a[href='#{edit_profile_path(profile)}']"
+      )
+    end
+  end
 end

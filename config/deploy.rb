@@ -52,8 +52,8 @@ set :rollbar_role, (proc { :app })
 ## Linked Files & Directories (Default None):
 # set :linked_files, %w{config/database.yml}
 set :linked_dirs,
-    %W[public/.well-known #{Settings.file_storage}]
-#    %w[bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system]
+    %W[public/.well-known #{Settings.file_storage}
+       #{Settings.attachment_storage}]
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
@@ -65,6 +65,20 @@ namespace :puma do
   end
 
   before :start, :make_dirs
+end
+
+# Refresh missing styles for paperclip
+namespace :paperclip do
+  desc 'build missing paperclip styles'
+  task :build_missing_styles do
+    on roles(:app) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'paperclip:refresh:missing_styles'
+        end
+      end
+    end
+  end
 end
 
 namespace :deploy do
@@ -95,11 +109,14 @@ namespace :deploy do
     end
   end
 
-  before :starting,     :check_revision
-  after  :finishing,    :compile_assets
-  after  :finishing,    :cleanup
-  after  :published,    :generate_500_html
+  before :starting,       :check_revision
+  after  :finishing,      :compile_assets
+  after  :compile_assets, 'paperclip:build_missing_styles'
+  after  :finishing,      :cleanup
+  after  :published,      :generate_500_html
 end
+
+# rubocop:enable Metrics/BlockLength
 
 # ps aux | grep puma    # Get puma pid
 # kill -s SIGUSR2 pid   # Restart puma

@@ -33,5 +33,11 @@ module Upshift
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Remove (strip) exif data from all uploaded attachments because exif data
+    # can contain sensitive information about the location where an image was
+    # taken, etc...
+    config.paperclip_defaults =
+      { convert_options: { all: '-strip' } }
   end
 end
