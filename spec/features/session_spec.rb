@@ -56,4 +56,29 @@ feature 'Session' do
     # then I should be signed out
     expect(page).to have_text 'Signed out successfully'
   end
+
+  scenario 'User can choose to be remembered' do
+    # given I have an account
+    account = create(:account)
+    # and I am on the homepage
+    visit '/'
+
+    # when I click on 'Login'
+    within 'nav' do
+      click_on 'Login', exact: true
+    end
+    # and enter my email and password
+    fill_in 'Email', with: account.email
+    fill_in 'Password', with: account.password
+    # and choose 'Remember me'
+    check 'Remember me'
+    # and log in
+    click_on 'Log in'
+
+    # then I should be signed in
+    expect(page).to have_text 'Signed in successfully'
+    # and I should be remembered for one week
+    expect(account.reload.remember_expires_at)
+      .to be_within(1.minute).of(Time.zone.now + 1.week)
+  end
 end

@@ -1,17 +1,49 @@
 // Styling for ProfilesController
 
+// Size of the picture on large screens
+$picture-size-large: 150px;
+// Size of the picture on tablets and mobile screens
+$picture-size-small: 100px;
+
+
 .c-profiles {
   .profile-picture {
     display: block;
-    margin-bottom: -50px;
+    margin-bottom: - $picture-size-small / 2;
     position: relative;
-    top: -50px;
-    width: 100px;
+    top: - $picture-size-small / 2;
+    width: $picture-size-small;
 
+    // Set dimensions for the actual image
+    > img,
+    > .img {
+      height: $picture-size-small;
+      width: $picture-size-small;
+    }
+
+    // Position the upload button
+    .upload.btn {
+      padding: 0 1rem;
+      position: relative;
+      top: $picture-size-large / 2 - 18px;
+    }
+
+
+    // Increase picture size on large screens
     @media #{$large-and-up} {
-      margin-bottom: -75px;
-      top: -75px;
-      width: 150px;
+      margin-bottom: - $picture-size-large / 2;
+      top: - $picture-size-large / 2;
+      width: $picture-size-large;
+
+      > img,
+      > .img {
+        height: $picture-size-large;
+        width: $picture-size-large;
+      }
+
+      .upload.btn {
+        top: $picture-size-large / 2 - 18px;
+      }
     }
   }
 }

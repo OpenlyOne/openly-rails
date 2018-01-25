@@ -158,6 +158,11 @@ RSpec.describe Project, type: :model do
         project.slug += '-'
         is_expected.to be_invalid
       end
+
+      it "must not be 'edit'" do
+        project.slug = 'edit'
+        is_expected.to be_invalid
+      end
     end
 
     context 'when import_google_drive_folder_on_save = true' do

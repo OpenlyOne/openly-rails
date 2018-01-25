@@ -16,6 +16,10 @@ RSpec.shared_examples 'being a profile' do
     end
   end
 
+  describe 'attachments' do
+    it { is_expected.to have_attached_file(:picture) }
+  end
+
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:handle) }
   end
@@ -43,6 +47,17 @@ RSpec.shared_examples 'being a profile' do
         subject.handle += '_'
         is_expected.to be_invalid
       end
+    end
+
+    it do
+      is_expected
+        .to validate_attachment_content_type(:picture)
+        .allowing('image/png', 'image/gif', 'image/jpeg')
+        .rejecting('text/plain', 'text/xml', 'application/pdf')
+    end
+
+    it do
+      is_expected.to validate_attachment_size(:picture).less_than(10.megabytes)
     end
   end
 

@@ -4,7 +4,10 @@
 .input-field {
   input,
   textarea {
-    + label {
+    // Use ~ selector to correctly display input fields with labels for
+    // Grammarly users (Grammarly inserts a div each before and after every
+    // textarea)
+    ~ label {
       // scss-lint:disable ImportantRule
       // we must override any other transform rules to prevent the label from
       // overlapping the input element or textarea
@@ -77,4 +80,13 @@ input[type='text'] {
   height: auto;
   overflow-y: scroll;
   resize: vertical;
+}
+
+// reduce opacity on the file upload button
+.upload.btn {
+  opacity: .5;
+
+  &:hover {
+    opacity: 1;
+  }
 }

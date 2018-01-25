@@ -24,6 +24,7 @@ require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 require 'capybara/rspec'
 require 'shoulda/matchers'
+require 'paperclip/matchers'
 require 'faker'
 require 'database_cleaner'
 
@@ -116,6 +117,9 @@ RSpec.configure do |config|
 
   # Include GoogleDriveHelper
   config.include GoogleDriveHelper
+
+  # Include Paperclip matchers
+  config.include Paperclip::Shoulda::Matchers
 
   # add this line at the bottom of the config section
   # it saves us time when using FactoryGirl methods.

@@ -1,0 +1,44 @@
+= form_for @profile do |f|
+
+  .page-heading.primary-color.primary-color-text.no-margin-bottom.z-depth-1
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h1
+            = f.text_field :name, placeholder: 'Your Name', class: 'inherit'
+
+  .profile-banner style="background-image: url(#{image_path('profiles/banner.jpg')});"
+
+  .container
+    .profile-picture
+      div.img.centered-background.rounded.z-depth-1.center-align style="\
+          background-image: url('#{@profile.picture(:large)}');"
+        = f.label :picture, class: 'upload primary-color primary-color-text btn'
+          i: svg style="width:24px;height:24px" viewBox="0 0 24 24"
+            path fill="currentColor" d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
+
+  .container
+    .spacing.v48px
+
+    / skip picture errors
+    - @profile.errors.delete :picture
+    - if @profile.errors.any?
+      .row
+        .col.s12
+          .validation-errors
+            = render partial: "error",
+                     collection: @profile.errors.full_messages,
+                     as: :error
+
+    .row
+      .col.s12.input-field
+        = f.file_field :picture, accept: "image/jpeg, image/gif, image/png"
+        = f.label :picture
+        .spacing.v32px
+
+    .row
+      .col.s12
+        button action='submit' class="btn-large primary-color primary-color-text"
+          | Save
+
+.spacing.v48px
