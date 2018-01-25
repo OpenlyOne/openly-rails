@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.11 (January 25, 2017)
+
+**New Features:**
+- Users can edit their profile and upload custom profile pictures.
+- Users can choose to be remember on sign in, so that re-authentication is not
+  required unless user is inactive for one week
+
+**Fixes:**
+- Labels no longer overlap their textareas even when Grammarly is used
+
 ## v0.10 (January 14, 2017)
 
 **Internal:**
@@ -14,7 +24,7 @@
 ## v0.9 (January 13, 2017)
 
 **New Features**:
-- File's have an info page that shows their new changes as well as a revision
+- Files have an info page that shows their new changes as well as a revision
   history for just that file
 
 **Changes**:
