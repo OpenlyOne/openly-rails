@@ -6,6 +6,15 @@ require 'capistrano/setup'
 # Include default deployment tasks
 require 'capistrano/deploy'
 
+# Load ENV vars via Figaro
+require 'figaro'
+Figaro.application =
+  Figaro::Application.new(
+    environment: 'production',
+    path: File.expand_path('../config/application.yml', __FILE__)
+  )
+Figaro.load
+
 # Load the SCM plugin appropriate to your project:
 #
 # require 'capistrano/scm/hg'
