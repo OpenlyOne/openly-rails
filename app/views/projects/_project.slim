@@ -2,3 +2,5 @@
   = link_to url_for([project.owner, project]), class: 'card hoverable'
     .card-image style="background-image: url(#{image_path('projects/banner.jpg')});"
     .card-title.truncate.primary-color.primary-color-text = project.title
+    - if project.description.present?
+      .card-content.black-text = truncate(project.description, length: 200)
