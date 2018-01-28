@@ -19,11 +19,12 @@
     = image_tag @profile.picture(:large),
                 class: 'responsive-img rounded z-depth-1'
 
-/ .container
-/   .row
-/     .col.s12
-/       div.flow-text
-/         = simple_format '250 char. bio can go here'
+- if @profile.about.present?
+  .container
+    .row
+      .col.s12
+        .flow-text
+          = simple_format html_escape(@profile.about.to_s)
 
 - if @projects.present?
   .container
