@@ -14,6 +14,11 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.name
   end
 
+  it 'renders the about text of the profile' do
+    render
+    expect(rendered).to have_text profile.about
+  end
+
   it 'lists projects' do
     render
     projects.each do |project|
