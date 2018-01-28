@@ -15,13 +15,20 @@
 
 .spacing.v32px
 
+- if @project.tags.any?
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        - @project.tags.each do |tag|
+          .chip.tag.primary-color.primary-color-text = tag
+
+
 - if @project.description.present?
   .container
     .row.no-margin-bottom
       .col.s12
         .flow-text
           = simple_format html_escape(@project.description)
-
 
 
 .container
