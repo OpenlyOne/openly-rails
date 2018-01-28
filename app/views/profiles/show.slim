@@ -21,7 +21,7 @@
 
 - if @profile.about.present?
   .container
-    .row
+    .row.no-margin-bottom
       .col.s12
         .flow-text
           = simple_format html_escape(@profile.about.to_s)
