@@ -18,6 +18,11 @@ RSpec.describe 'projects/show', type: :view do
     expect(rendered).to have_text project.title
   end
 
+  it 'renders the description of the project' do
+    render
+    expect(rendered).to have_text project.description
+  end
+
   it 'renders a link to the project home page' do
     render
     expect(rendered).to have_link(
