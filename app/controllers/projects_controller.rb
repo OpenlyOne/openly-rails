@@ -97,7 +97,7 @@ class ProjectsController < ApplicationController
       when :import
         %w[link_to_google_drive_folder]
       else
-        %w[title slug description]
+        %w[title slug tag_list description]
       end
 
     params.require(:project).permit(*attributes)

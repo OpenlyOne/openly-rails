@@ -89,6 +89,7 @@ feature 'Project' do
     fill_in 'project_title',  with: 'My New Project Title'
     fill_in 'Project URL',    with: 'new-slug'
     fill_in 'Description',    with: 'My Description'
+    fill_in 'Tags',           with: 'Environment, Education, Health'
     # and save
     click_on 'Save'
 
@@ -97,6 +98,10 @@ feature 'Project' do
       .to have_current_path "/#{project.owner.to_param}/new-slug"
     # and see the project's new title
     expect(page).to have_text 'My New Project Title'
+    # and see the project's new tags
+    expect(page).to have_text 'Environment'
+    expect(page).to have_text 'Education'
+    expect(page).to have_text 'Health'
     # and see the project's new description
     expect(page).to have_text 'My Description'
     # and see a success message
