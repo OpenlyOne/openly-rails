@@ -14,6 +14,11 @@ RSpec.shared_examples 'being a profile' do
     it do
       is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
     end
+    it do
+      is_expected
+        .to have_and_belong_to_many(:collaborations)
+        .class_name('Project').validate(false)
+    end
   end
 
   describe 'attachments' do

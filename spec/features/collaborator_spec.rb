@@ -1,6 +1,22 @@
 # frozen_string_literal: true
 
 feature 'Collaborators' do
+  scenario 'As a collaborator, the project is listed on my profile' do
+    # given there is a project
+    project = create :project
+    # and I am signed in as a user
+    me = create :user
+    sign_in_as me.account
+    # who is added to that project's Collaborators
+    project.collaborators << me
+
+    # when I visit my profile page
+    visit me.to_param.to_s
+
+    # then I should see the project
+    expect(page).to have_text project.title
+  end
+
   scenario 'As a collaborator, I can create a new revision' do
     # given there is a project
     project = create :project
