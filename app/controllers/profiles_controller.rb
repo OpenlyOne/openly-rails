@@ -7,7 +7,11 @@ class ProfilesController < ApplicationController
   before_action :authorize_action, except: :show
 
   def show
-    @projects = @profile.projects.order id: :desc
+    @projects =
+      Project
+      .where_profile_is_owner_or_collaborator(@profile)
+      .includes(:owner)
+      .order(:title, :id)
     @user_can_edit_profile = can?(:edit, @profile)
   end
 

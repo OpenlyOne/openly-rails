@@ -13,11 +13,6 @@ RSpec.describe Profiles::User, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
-    it do
-      is_expected
-        .to have_and_belong_to_many(:collaborations)
-        .class_name('Project').validate(false)
-    end
   end
 
   describe 'attributes' do

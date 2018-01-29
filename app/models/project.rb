@@ -28,6 +28,17 @@ class Project < ApplicationRecord
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
 
+  # Scopes
+  # Projects where profile is owner or collaborator
+  scope :where_profile_is_owner_or_collaborator, lambda { |profile|
+    Project
+      .left_joins(:collaborators)
+      .where('owner_id = :profile_id ' \
+             'OR profiles_projects.profile_id = :profile_id',
+             profile_id: profile.id)
+      .distinct
+  }
+
   # Validations
   # Owner type must be user
   validates :owner_type, inclusion: { in: %w[Profiles::Base] }

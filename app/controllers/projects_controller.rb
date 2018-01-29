@@ -47,7 +47,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @collaborators = @project.collaborators
+    @collaborators = @project.collaborators.order(:name, :id)
     @user_can_edit_project = can?(:edit, @project)
   end
 
