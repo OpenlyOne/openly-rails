@@ -35,6 +35,19 @@
           = f.label :slug, 'Project URL (letters, numbers, and dashes)'
 
     .row
+      .col.s12.input-field
+        = f.text_field :tag_list, placeholder: 'Education, Environment, Health, ...'
+        = f.label :tag_list, 'Tags (separate by comma)'
+
+    .row
+      .col.s12.input-field
+        = f.text_area :description,
+                      rows: 3,
+                      placeholder: 'Describe this project',
+                      class: 'materialize-textarea noscript'
+        = f.label :description
+
+    .row
       .col.s12
         button action='submit' class="btn-large primary-color primary-color-text"
           = button

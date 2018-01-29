@@ -88,15 +88,24 @@ feature 'Project' do
     # and fill in a new title
     fill_in 'project_title',  with: 'My New Project Title'
     fill_in 'Project URL',    with: 'new-slug'
+    fill_in 'Description',    with: 'My Description'
+    fill_in 'Tags',           with: 'climate   change,education , Health, NGO'
     # and save
     click_on 'Save'
 
     # then I should be back on project_path
     expect(page)
       .to have_current_path "/#{project.owner.to_param}/new-slug"
-    # and see the new project's title
+    # and see the project's new title
     expect(page).to have_text 'My New Project Title'
-    # and see the first commit
+    # and see the project's new tags
+    expect(page).to have_text 'Climate Change'
+    expect(page).to have_text 'Education'
+    expect(page).to have_text 'Health'
+    expect(page).to have_text 'NGO'
+    # and see the project's new description
+    expect(page).to have_text 'My Description'
+    # and see a success message
     expect(page).to have_text 'Project successfully updated.'
   end
 

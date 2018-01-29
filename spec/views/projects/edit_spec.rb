@@ -30,6 +30,16 @@ RSpec.describe 'projects/edit', type: :view do
     expect(rendered).to have_css 'input#project_slug'
   end
 
+  it 'has an input field for tag list' do
+    render
+    expect(rendered).to have_css 'input#project_tag_list'
+  end
+
+  it 'has a textarea for description' do
+    render
+    expect(rendered).to have_css 'textarea#project_description'
+  end
+
   it 'has a button to save the project' do
     render
     expect(rendered).to have_css "button[action='submit']", text: 'Save'

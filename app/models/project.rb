@@ -28,6 +28,17 @@ class Project < ApplicationRecord
   # Reset value of import_google_drive_folder_on_save
   after_save { self.import_google_drive_folder_on_save = false }
 
+  # Scopes
+  # Projects where profile is owner or collaborator
+  scope :where_profile_is_owner_or_collaborator, lambda { |profile|
+    Project
+      .left_joins(:collaborators)
+      .where('owner_id = :profile_id ' \
+             'OR profiles_projects.profile_id = :profile_id',
+             profile_id: profile.id)
+      .distinct
+  }
+
   # Validations
   # Owner type must be user
   validates :owner_type, inclusion: { in: %w[Profiles::Base] }
@@ -94,6 +105,19 @@ class Project < ApplicationRecord
   def link_to_google_drive_folder=(link)
     @link_to_google_drive_folder = link
     @google_drive_folder_id = GoogleDrive.link_to_id(link)
+  end
+
+  # List of tags, separated by comma
+  def tag_list
+    tags.join(', ')
+  end
+
+  # Set tags by list of tags (must be comma-separated)
+  def tag_list=(tag_list)
+    self.tags =
+      tag_list.split(',')     # Split tag list by comma delimiter
+              .map(&:squish)  # Strips spaces and squishes consecutive spaces
+              .select(&:present?) # Ignore empty tags
   end
 
   # Trim whitespaces around title

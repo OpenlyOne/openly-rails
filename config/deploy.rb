@@ -51,8 +51,12 @@ set :rollbar_role, (proc { :app })
 
 ## Linked Files & Directories (Default None):
 # set :linked_files, %w{config/database.yml}
+# Must link tmp/pids to allow DelayedJob to survive deployments,
+# see: https://github.com/platanus/capistrano3-delayed-job/pull/22
 set :linked_dirs,
-    %W[public/.well-known #{Settings.file_storage}
+    %W[public/.well-known
+       tmp/pids
+       #{Settings.file_storage}
        #{Settings.attachment_storage}]
 
 namespace :puma do

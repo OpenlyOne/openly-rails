@@ -47,7 +47,7 @@ RSpec.describe ProfilesController, type: :controller do
   end
 
   describe 'PATCH #update' do
-    let(:add_params)  { { profiles_base: { name: 'new name' } } }
+    let(:add_params)  { { profiles_base: { name: 'name', about: 'about' } } }
     let(:params)      { default_params.merge(add_params) }
     let(:run_request) { patch :update, params: params }
     before            { sign_in profile.account }

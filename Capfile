@@ -6,6 +6,15 @@ require 'capistrano/setup'
 # Include default deployment tasks
 require 'capistrano/deploy'
 
+# Load ENV vars via Figaro
+require 'figaro'
+Figaro.application =
+  Figaro::Application.new(
+    environment: 'production',
+    path: File.expand_path('../config/application.yml', __FILE__)
+  )
+Figaro.load
+
 # Load the SCM plugin appropriate to your project:
 #
 # require 'capistrano/scm/hg'
@@ -38,6 +47,8 @@ install_plugin Capistrano::Puma
 require 'capistrano/figaro_yml'
 # Communicate deploy information to Capistrano
 require 'rollbar/capistrano3'
+# DelayedJob tasks for Capistrano
+require 'capistrano/delayed_job'
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
 Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }

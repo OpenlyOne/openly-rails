@@ -34,6 +34,14 @@
       .col.s12.input-field
         = f.file_field :picture, accept: "image/jpeg, image/gif, image/png"
         = f.label :picture
+
+    .row
+      .col.s12.input-field
+        = f.text_area :about,
+                      rows: 3,
+                      placeholder: 'Tell the world about yourself',
+                      class: 'materialize-textarea noscript'
+        = f.label :about
         .spacing.v32px
 
     .row
