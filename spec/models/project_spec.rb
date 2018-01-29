@@ -351,6 +351,24 @@ RSpec.describe Project, type: :model do
         expect(project.tags).to eq %w[one two three four]
       end
     end
+
+    context 'when list contains multiple whitespaces within tag' do
+      let(:tag_list) { 'my  awesome  tag, other    tag' }
+
+      it 'squishes whitespace to single space' do
+        method
+        expect(project.tags).to eq ['my awesome tag', 'other tag']
+      end
+    end
+
+    context 'when list contains empty tags' do
+      let(:tag_list) { 'my tag, , other tag' }
+
+      it 'ignores the empty tags' do
+        method
+        expect(project.tags).to eq ['my tag', 'other tag']
+      end
+    end
   end
 
   describe '#title=' do

@@ -20,7 +20,9 @@
     .row.no-margin-bottom
       .col.s12
         - @project.tags.each do |tag|
-          .chip.tag.primary-color.primary-color-text = tag
+          .chip.tag.primary-color.primary-color-text
+            / display tag with 1st letter of every word upcased
+            = tag.gsub(/\w+/, &:upcase_first)
 
 
 - if @project.description.present?

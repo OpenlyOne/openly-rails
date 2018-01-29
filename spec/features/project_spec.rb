@@ -89,7 +89,7 @@ feature 'Project' do
     fill_in 'project_title',  with: 'My New Project Title'
     fill_in 'Project URL',    with: 'new-slug'
     fill_in 'Description',    with: 'My Description'
-    fill_in 'Tags',           with: 'Environment, Education, Health'
+    fill_in 'Tags',           with: 'climate   change,education , Health, NGO'
     # and save
     click_on 'Save'
 
@@ -99,9 +99,10 @@ feature 'Project' do
     # and see the project's new title
     expect(page).to have_text 'My New Project Title'
     # and see the project's new tags
-    expect(page).to have_text 'Environment'
+    expect(page).to have_text 'Climate Change'
     expect(page).to have_text 'Education'
     expect(page).to have_text 'Health'
+    expect(page).to have_text 'NGO'
     # and see the project's new description
     expect(page).to have_text 'My Description'
     # and see a success message

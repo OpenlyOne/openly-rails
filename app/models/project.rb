@@ -101,9 +101,12 @@ class Project < ApplicationRecord
     tags.join(', ')
   end
 
-  # Set tags by list of tags (must be comma-separated
+  # Set tags by list of tags (must be comma-separated)
   def tag_list=(tag_list)
-    self.tags = tag_list.split(',').map(&:strip)
+    self.tags =
+      tag_list.split(',')     # Split tag list by comma delimiter
+              .map(&:squish)  # Strips spaces and squishes consecutive spaces
+              .select(&:present?) # Ignore empty tags
   end
 
   # Trim whitespaces around title
