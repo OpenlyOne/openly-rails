@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.12 (January 29, 2017)
+
+**New Features:**
+- Users can add an about text to their profiles
+- Project owners can add descriptions to their projects
+- Project owners can add tags to their projects
+
+**Enhancements:**
+- Show collaborations (projects that a user collaborates in) on the user's
+  profile page alongside projects that a user owns
+
+**Fixes:**
+- Upgrade 'paperclip' gem to v5.2.1 to patch vulnerability
+
+
 ## v0.11 (January 25, 2017)
 
 **New Features:**
