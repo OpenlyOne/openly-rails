@@ -47,6 +47,8 @@ install_plugin Capistrano::Puma
 require 'capistrano/figaro_yml'
 # Communicate deploy information to Capistrano
 require 'rollbar/capistrano3'
+# DelayedJob tasks for Capistrano
+require 'capistrano/delayed_job'
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
 Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }
