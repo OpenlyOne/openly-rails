@@ -11,6 +11,7 @@ class ProfilesController < ApplicationController
       Project
       .where_profile_is_owner_or_collaborator(@profile)
       .includes(:owner)
+      .order(:title, :id)
     @user_can_edit_profile = can?(:edit, @profile)
   end
 
