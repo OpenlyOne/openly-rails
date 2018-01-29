@@ -97,6 +97,8 @@ group :development do
   gem 'capistrano3-puma',         '~> 3.1', require: false
   # Capistrano integration for the rails console
   gem 'capistrano-rails-console', '~> 2.2', require: false
+  # Capistrano integration for DelayedJob
+  gem 'capistrano3-delayed-job', '~> 1.7'
   # Generate favicons
   gem 'rails_real_favicon'
 end
