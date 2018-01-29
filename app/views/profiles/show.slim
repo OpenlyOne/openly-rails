@@ -32,4 +32,14 @@
       .col.s12
         h3 Projects
     .row
-      = render @projects
+      - @projects.each do |project|
+
+        = render project
+
+        div class=cycle('hide-on-med-and-up',
+                        'hide-on-large-only',
+                        'hide-on-med-only',
+                        'hide-on-large-only',
+                        'hide-on-med-and-up',
+                        '')
+          .clearfix
