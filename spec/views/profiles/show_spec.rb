@@ -19,10 +19,11 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.about
   end
 
-  it 'lists projects with title & description' do
+  it 'lists projects with title & tags & description' do
     render
     projects.each do |project|
       expect(rendered).to have_text project.title
+      expect(rendered).to have_text view.tag_case(project.tags.first)
       expect(rendered).to have_text truncate(project.description, length: 200)
     end
   end

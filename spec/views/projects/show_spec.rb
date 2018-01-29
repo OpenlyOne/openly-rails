@@ -21,7 +21,7 @@ RSpec.describe 'projects/show', type: :view do
   it 'renders the tags of the project' do
     render
     project.tags.each do |tag|
-      expect(rendered).to have_css '.tag', text: tag.upcase_first
+      expect(rendered).to have_css '.tag', text: view.tag_case(tag)
     end
   end
 
