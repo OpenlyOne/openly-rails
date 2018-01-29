@@ -18,6 +18,13 @@ RSpec.describe 'projects/show', type: :view do
     expect(rendered).to have_text project.title
   end
 
+  it 'renders the tags of the project' do
+    render
+    project.tags.each do |tag|
+      expect(rendered).to have_css '.tag', text: view.tag_case(tag)
+    end
+  end
+
   it 'renders the description of the project' do
     render
     expect(rendered).to have_text project.description

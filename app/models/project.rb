@@ -96,6 +96,19 @@ class Project < ApplicationRecord
     @google_drive_folder_id = GoogleDrive.link_to_id(link)
   end
 
+  # List of tags, separated by comma
+  def tag_list
+    tags.join(', ')
+  end
+
+  # Set tags by list of tags (must be comma-separated)
+  def tag_list=(tag_list)
+    self.tags =
+      tag_list.split(',')     # Split tag list by comma delimiter
+              .map(&:squish)  # Strips spaces and squishes consecutive spaces
+              .select(&:present?) # Ignore empty tags
+  end
+
   # Trim whitespaces around title
   def title=(title)
     super(title.try(:strip))

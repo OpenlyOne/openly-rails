@@ -324,6 +324,53 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '#tag_list' do
+    subject(:method)  { project.tag_list }
+    let(:tags)        { %w[one two three four] }
+    before            { project.tags = tags }
+
+    it 'returns tags joined by comma' do
+      is_expected.to eq 'one, two, three, four'
+    end
+  end
+
+  describe '#tag_list=' do
+    subject(:method)  { project.tag_list = tag_list }
+    let(:tag_list)    { 'one,two,three,four' }
+
+    it 'splits tag list into tags' do
+      method
+      expect(project.tags).to eq %w[one two three four]
+    end
+
+    context 'when list contains whitespace around tag delimiter' do
+      let(:tag_list) { 'one   ,  two, three   ,four' }
+
+      it 'strips whitespace from beginning and end of tag' do
+        method
+        expect(project.tags).to eq %w[one two three four]
+      end
+    end
+
+    context 'when list contains multiple whitespaces within tag' do
+      let(:tag_list) { 'my  awesome  tag, other    tag' }
+
+      it 'squishes whitespace to single space' do
+        method
+        expect(project.tags).to eq ['my awesome tag', 'other tag']
+      end
+    end
+
+    context 'when list contains empty tags' do
+      let(:tag_list) { 'my tag, , other tag' }
+
+      it 'ignores the empty tags' do
+        method
+        expect(project.tags).to eq ['my tag', 'other tag']
+      end
+    end
+  end
+
   describe '#title=' do
     it 'strips whitespace' do
       project.title = '   lots of whitespace     '
