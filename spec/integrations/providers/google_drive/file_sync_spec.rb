@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
+RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
   let(:test_folder_id) { @test_folder.id }
 
   # create test folder
-  before(:all) do
+  before do
     @test_folder =
       Providers::GoogleDrive::Api.create_file_in_home_folder(
         "Test @ #{Time.zone.now}",
@@ -13,12 +13,12 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
   end
 
   # delete test folder
-  after(:all) { Providers::GoogleDrive::Api.delete_file(@test_folder.id) }
+  after { Providers::GoogleDrive::Api.delete_file(@test_folder.id) }
 
   describe '.create(name, parent_id, mime_type)' do
     subject(:created_file) { @created_file }
 
-    before(:all) do
+    before do
       # Create file and get id
       file_sync = described_class.create(
         'Test File',
@@ -42,7 +42,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
   describe '#rename(name)' do
     subject(:renamed_file) { @renamed_file }
 
-    before(:all) do
+    before do
       # Create file and get id
       file_sync = described_class.create(
         'Test File',
@@ -66,7 +66,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     subject(:relocated_file)  { @relocated_file }
     let(:subfolder_id)        { @subfolder.id }
 
-    before(:all) do
+    before do
       # Create file and get id
       file_sync = described_class.create(
         'Test File',
