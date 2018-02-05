@@ -2,7 +2,12 @@
 
 RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
   subject(:file_sync) { Providers::GoogleDrive::FileSync.new }
-  let(:api)           { Providers::GoogleDrive::Api }
+  let(:api)           { instance_double Providers::GoogleDrive::ApiConnection }
+
+  before do
+    allow(Providers::GoogleDrive::FileSync)
+      .to receive(:default_api_connection).and_return(api)
+  end
 
   describe 'attributes' do
     it { is_expected.to respond_to :id }
@@ -10,27 +15,42 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     it { is_expected.to respond_to :parent_id }
   end
 
-  describe '#create(name, parent_id, mime_type)' do
-    subject(:create_sync) { described_class.create('name', 'parent-id', 'doc') }
-    let(:instance_of_file_sync_with_file) do
-      instance_double described_class
-    end
+  describe '.create(name:, parent_id:, mime_type:, api_connection:)' do
+    subject(:create_sync) { described_class.create(args) }
+    let(:args) { { name: 'name', parent_id: 'parent-id', mime_type: 'doc' } }
 
-    before do
-      allow(api).to receive(:create_file).and_return 'file'
-      allow(described_class)
-        .to receive(:new)
-        .with(file: 'file')
-        .and_return(instance_of_file_sync_with_file)
-    end
+    before { allow(api).to receive(:create_file).and_return 'file' }
 
     it 'calls API#create_file with args' do
-      expect(api).to receive(:create_file).with('name', 'parent-id', 'doc')
+      expect(api).to receive(:create_file).with(args)
       create_sync
     end
 
     it 'returns new instance of FileSync' do
-      is_expected.to eq instance_of_file_sync_with_file
+      allow(described_class)
+        .to receive(:new)
+        .with(file: 'file', api_connection: api)
+        .and_return('new_instance')
+      is_expected.to eq 'new_instance'
+    end
+
+    context 'when api_connection is passed' do
+      let(:custom_api) { instance_double Providers::GoogleDrive::ApiConnection }
+      before { args.merge!(api_connection: custom_api) }
+      before { allow(custom_api).to receive(:create_file).and_return 'file' }
+
+      it 'calls #create_file on custom api connection' do
+        expect(custom_api).to receive(:create_file)
+        create_sync
+      end
+
+      it 'returns new instance of FileSync with custom api' do
+        allow(described_class)
+          .to receive(:new)
+          .with(hash_including(api_connection: custom_api))
+          .and_return('new_instance')
+        is_expected.to eq 'new_instance'
+      end
     end
   end
 

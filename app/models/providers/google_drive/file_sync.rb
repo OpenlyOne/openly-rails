@@ -4,14 +4,22 @@ module Providers
   module GoogleDrive
     # API Adapter for CRUD operations on Google Drive files
     class FileSync
-      def self.create(name, parent_id, mime_type)
-        created_file = Api.create_file(name, parent_id, mime_type)
-        new(file: created_file)
+      def self.create(name:, parent_id:, mime_type:, api_connection: nil)
+        api_connection ||= default_api_connection
+        created_file = api_connection.create_file(name: name,
+                                                  parent_id: parent_id,
+                                                  mime_type:  mime_type)
+        new(file: created_file, api_connection: api_connection)
+      end
+
+      def self.default_api_connection
+        ApiConnection.default
       end
 
       def initialize(attributes = {})
-        @id       = attributes.delete(:id)
-        @file     = attributes.delete(:file)
+        @id             = attributes.delete(:id)
+        @file           = attributes.delete(:file)
+        @api_connection = attributes.delete(:api_connection)
       end
 
       def id
@@ -28,18 +36,23 @@ module Providers
 
       # Relocate the file to a new parent, optionally removing old parent
       def relocate(to:, from:)
-        @file = Api.update_file_parents(id, add: [to], remove: [from])
+        @file =
+          api_connection.update_file_parents(id, add: [to], remove: [from])
       end
 
       # Rename the file
       def rename(name)
-        @file = Api.update_file_name(id, name)
+        @file = api_connection.update_file_name(id, name)
       end
 
       private
 
       def file
-        @file ||= Api.fetch_file(@id)
+        @file ||= api_connection.fetch_file(@id)
+      end
+
+      def api_connection
+        @api_connection || self.class.default_api_connection
       end
     end
   end

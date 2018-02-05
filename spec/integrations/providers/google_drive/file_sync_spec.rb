@@ -1,29 +1,21 @@
 # frozen_string_literal: true
 
 RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
-  let(:test_folder_id) { @test_folder.id }
-
   # create test folder
-  before do
-    @test_folder =
-      Providers::GoogleDrive::Api.create_file_in_home_folder(
-        "Test @ #{Time.zone.now}",
-        Providers::GoogleDrive::MimeType.folder
-      )
-  end
+  before { create_google_drive_test_folder }
 
   # delete test folder
-  after { Providers::GoogleDrive::Api.delete_file(@test_folder.id) }
+  after { delete_google_drive_test_folder }
 
-  describe '.create(name, parent_id, mime_type)' do
+  describe '.create(name:, parent_id:, mime_type:, api_connection: nil)' do
     subject(:created_file) { @created_file }
 
     before do
       # Create file and get id
       file_sync = described_class.create(
-        'Test File',
-        @test_folder.id,
-        Providers::GoogleDrive::MimeType.document
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
       )
 
       # Fetch created file information
@@ -35,7 +27,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
 
     it 'places file in test folder' do
-      expect(created_file.parent_id).to eq test_folder_id
+      expect(created_file.parent_id).to eq google_drive_test_folder_id
     end
   end
 
@@ -45,9 +37,9 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     before do
       # Create file and get id
       file_sync = described_class.create(
-        'Test File',
-        @test_folder.id,
-        Providers::GoogleDrive::MimeType.document
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
       )
 
       # Rename file to: Renamed Test File
@@ -69,16 +61,16 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     before do
       # Create file and get id
       file_sync = described_class.create(
-        'Test File',
-        @test_folder.id,
-        Providers::GoogleDrive::MimeType.document
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
       )
 
       # Create subfolder
       @subfolder = described_class.create(
-        'Subfolder',
-        @test_folder.id,
-        Providers::GoogleDrive::MimeType.folder
+        name: 'Subfolder',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.folder
       )
 
       # Relocate file to subfolder

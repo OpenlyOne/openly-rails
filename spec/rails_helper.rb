@@ -48,6 +48,7 @@ require Rails.root.join('spec', 'support', 'delayed_job_activator.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
 require Rails.root.join('spec', 'support', 'stubs', 'google_drive.rb')
+require Rails.root.join('spec', 'support', 'helpers', 'google_drive_helper.rb')
 
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
@@ -117,6 +118,7 @@ RSpec.configure do |config|
   config.include FeaturesHelper, type: :feature
 
   # Include GoogleDriveHelper
+  config.include GoogleDriveTestHelper
   config.include GoogleDriveHelper
 
   # Include Paperclip matchers
@@ -144,16 +146,26 @@ VCR.configure do |c|
   # Re-record any cassettes older than 7 days
   c.default_cassette_options = { re_record_interval: 7.days }
 
-  # Filter access & refresh tokens
-  c.filter_sensitive_data('<ACCESS TOKEN FOR TRACKING ACCOUNT>') do
-    Providers::GoogleDrive::Api.send(:drive_service).authorization.access_token
+  # List of Google accounts used in specs
+  google_accounts = {
+    'TRACKING ACCOUNT': ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'],
+    'USER ACCOUNT':     ENV['GOOGLE_DRIVE_USER_ACCOUNT']
+  }
+
+  # transform email values to drive services
+  google_accounts.transform_values! do |email|
+    Providers::GoogleDrive::DriveService.new(email)
   end
 
-  c.filter_sensitive_data('<REFRESH TOKEN FOR TRACKING ACCOUNT>') do
-    CGI.escape(
-      Providers::GoogleDrive::Api.send(:drive_service)
-        .authorization.refresh_token
-    )
+  # Filter access & refresh tokens for each google account
+  google_accounts.each do |account, service|
+    c.filter_sensitive_data("<ACCESS TOKEN FOR #{account}>") do
+      service.reload.authorization.access_token
+    end
+
+    c.filter_sensitive_data("<REFRESH TOKEN FOR #{account}>") do
+      CGI.escape(service.reload.authorization.refresh_token)
+    end
   end
 
   # Filter client ID & secret
@@ -164,7 +176,7 @@ VCR.configure do |c|
 
   # Filter user agent
   c.filter_sensitive_data('<USER AGENT>') do
-    Providers::GoogleDrive::Api.send(:drive_service).send(:user_agent)
+    google_accounts.values.first.send(:user_agent)
   end
 
   # Raise error if OAuth2 request contains unfiltered sensitive data

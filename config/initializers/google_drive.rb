@@ -9,7 +9,6 @@ if Rails.env.development? || Rails.env.production? ||
   require 'googleauth'
   require 'googleauth/stores/file_token_store'
 
-  Providers::GoogleDrive::Api.setup
   # TODO: Remove me once DB implementation is complete
   GoogleDrive.initialize
 end
