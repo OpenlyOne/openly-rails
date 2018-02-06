@@ -129,6 +129,18 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to eq 'permission-id' }
   end
 
+  describe '#refresh_authorization' do
+    subject(:refresh_authorization) { api.refresh_authorization }
+    let(:authorization) { instance_double Google::Auth::UserRefreshCredentials }
+    after { refresh_authorization }
+
+    before do
+      allow(drive_service).to receive(:authorization).and_return authorization
+    end
+
+    it { expect(authorization).to receive(:refresh!) }
+  end
+
   describe '#share_file(id, email, role = :reader)' do
     subject(:share_file) { api.share_file('file-id', 'email@example.com') }
     after { share_file }

@@ -55,6 +55,13 @@ module Providers
         end&.id
       end
 
+      # Refresh the authorization token for the API connection
+      # This is done automatically, so usually there is no need to manually
+      # trigger this
+      def refresh_authorization
+        drive_service.authorization.refresh!
+      end
+
       # Share the file with the given email account
       def share_file(id, email, role = :reader)
         permission = drive_permission.new(email_address: email,

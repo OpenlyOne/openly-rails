@@ -3,6 +3,24 @@
 # GoogleDrive helper methods
 # TODO: Rename to GoogleDriveHelper
 module GoogleDriveTestHelper
+  # Prepares the Google Drive test by refreshing authorization & creating a
+  # test folder
+  # Optionally, pass the API connection which will 'house' the test folder
+  def prepare_google_drive_test(api_connection = nil)
+    # Refresh authorization for default & custom api connection
+    refresh_google_drive_authorization
+    refresh_google_drive_authorization(api_connection) if api_connection
+
+    # Create test folder
+    create_google_drive_test_folder(api_connection)
+  end
+
+  # Tears down the Google Drive test by deleting the test folder
+  # Optionally, pass the API connection that 'houses' the test folder
+  def tear_down_google_drive_test(api_connection = nil)
+    delete_google_drive_test_folder(api_connection)
+  end
+
   # creates a test folder
   def create_google_drive_test_folder(api_connection = nil)
     api_connection ||= default_api_connection
@@ -42,5 +60,12 @@ module GoogleDriveTestHelper
 
   def default_api_connection
     Providers::GoogleDrive::ApiConnection.default
+  end
+
+  # Refresh the authorization token for the api connection
+  def refresh_google_drive_authorization(api_connection = nil)
+    api_connection ||= default_api_connection
+
+    api_connection.refresh_authorization
   end
 end

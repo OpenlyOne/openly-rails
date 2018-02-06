@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
-  # create test folder
-  before { create_google_drive_test_folder }
-
-  # delete test folder
-  after { delete_google_drive_test_folder }
+  before  { prepare_google_drive_test }
+  after   { tear_down_google_drive_test }
 
   describe '.create(name:, parent_id:, mime_type:, api_connection: nil)' do
     subject(:created_file) { @created_file }
