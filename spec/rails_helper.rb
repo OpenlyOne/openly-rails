@@ -47,7 +47,6 @@ require Rails.root.join('spec', 'support', 'database_cleaner.rb')
 require Rails.root.join('spec', 'support', 'delayed_job_activator.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
-require Rails.root.join('spec', 'support', 'stubs', 'google_drive.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'google_drive_helper.rb')
 
 # Checks for pending migration and applies them before tests are run.
@@ -65,11 +64,6 @@ RSpec.configure do |config|
 
   # Randomize order in which tests are run
   config.order = 'random'
-
-  # Do not run live Google Drive tests
-  if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    config.filter_run_excluding live_google_drive_requests: true
-  end
 
   # enable Bullet for avoiding N+1 queries, unused eager loading, and lack of
   # counter cache
@@ -118,7 +112,6 @@ RSpec.configure do |config|
   config.include FeaturesHelper, type: :feature
 
   # Include GoogleDriveHelper
-  config.include GoogleDriveTestHelper
   config.include GoogleDriveHelper
 
   # Include Paperclip matchers
