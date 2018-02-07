@@ -28,3 +28,8 @@ branches:
 env:
   global:
     - CI=true
+    - GOOGLE_DRIVE_TRACKING_ACCOUNT=example.one@gmail.com
+    - GOOGLE_DRIVE_USER_ACCOUNT=example.two@gmail.com
+    - GOOGLE_DRIVE_CLIENT_ID=client_id
+    - GOOGLE_DRIVE_CLIENT_SECRET=client_secret
+    - GOOGLE_DRIVE_CREDENTIALS_PATH='spec/support/fixtures/google_drive/credentials.yml'
