@@ -25,33 +25,6 @@ feature 'Project' do
     expect(page).to have_text 'Project successfully created.'
   end
 
-  scenario 'User can set up project' do
-    mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-
-    # given there is a project
-    project = create(:project, title: 'My Awesome New Project!')
-
-    # and I am signed in as its owner
-    account = project.owner.account
-    sign_in_as account
-
-    # when I visit the project's initialization page
-    visit "/#{project.owner.to_param}/#{project.to_param}/setup"
-    # and fill in the Link to Google Drive Folder
-    fill_in 'project_link_to_google_drive_folder',
-            with: Settings.google_drive_test_folder
-    # and import
-    click_on 'Import'
-
-    # then I should be on the project's page
-    expect(page)
-      .to have_current_path "/#{account.user.to_param}/#{project.to_param}"
-    # and see the new project's title
-    expect(page).to have_text 'My Awesome New Project!'
-    # and see a success message
-    expect(page).to have_text 'Google Drive folder successfully imported.'
-  end
-
   scenario 'User can view project' do
     # given there is a project
     project = create(:project)
