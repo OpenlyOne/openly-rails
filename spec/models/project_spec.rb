@@ -47,18 +47,18 @@ RSpec.describe Project, type: :model do
     end
 
     context 'after save' do
-      subject(:project) { build(:project) }
+      subject(:project)     { build(:project) }
+      let(:link_to_folder)  { 'https://drive.google.com/drive/folders/test' }
+
+      before do
+        allow(subject).to receive(:import_google_drive_folder)
+        allow(subject).to receive(:link_to_google_drive_is_accessible_folder)
+      end
 
       context 'when import_google_drive_folder_on_save is true' do
         before do
-          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-            mock_google_drive_requests
-          end
-        end
-        before do
           project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder =
-            Settings.google_drive_test_folder
+          project.link_to_google_drive_folder = link_to_folder
         end
         after { project.save }
         it    { is_expected.to receive(:import_google_drive_folder) }
@@ -66,15 +66,8 @@ RSpec.describe Project, type: :model do
 
       context 'when import_google_drive_folder_on_save was true' do
         before do
-          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-            mock_google_drive_requests
-          end
-        end
-        before do
-          allow(project).to receive(:import_google_drive_folder)
           project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder =
-            Settings.google_drive_test_folder
+          project.link_to_google_drive_folder = link_to_folder
           project.save
         end
         it { expect(project.import_google_drive_folder_on_save).to be false }
@@ -166,16 +159,16 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when import_google_drive_folder_on_save = true' do
-      before do
-        if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-          mock_google_drive_requests
-        end
-      end
+      let(:file)      { instance_double Google::Apis::DriveV3::File }
+      let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
+      let(:link)      { 'https://drive.google.com/drive/folders/test' }
+
+      before { allow(GoogleDrive).to receive(:get_file).and_return file }
+      before { allow(file).to receive(:mime_type).and_return(mime_type) }
       before { project.import_google_drive_folder_on_save = true }
       before { project.link_to_google_drive_folder = link }
       before { project.valid? }
       context 'when link to google drive folder is valid' do
-        let(:link) { Settings.google_drive_test_folder }
         it 'does not add an error' do
           expect(project.errors[:link_to_google_drive_folder].size)
             .to eq 0
@@ -183,17 +176,21 @@ RSpec.describe Project, type: :model do
       end
       context 'when link to google drive folder is invalid' do
         let(:link) { 'https://invalid-folder-link' }
+
         it 'adds an error' do
           expect(project.errors[:link_to_google_drive_folder])
             .to include 'appears not to be a valid Google Drive link'
         end
       end
       context 'when link to google drive folder is inaccessible' do
-        let(:link) do
-          'https://drive.google.com/drive/u/1/folders/' \
-          '0B4149cktxhmPV0pLQjRVRy1rTEk'
+        before do
+          allow(GoogleDrive)
+            .to receive(:get_file).and_raise(Google::Apis::ClientError, 'error')
         end
+
         it 'adds an error' do
+          project.valid?
+
           expect(project.errors[:link_to_google_drive_folder])
             .to include 'appears to be inaccessible. Have you shared the '\
                         'resource with '\
@@ -201,10 +198,8 @@ RSpec.describe Project, type: :model do
         end
       end
       context 'when link to google drive folder is not a folder' do
-        let(:link) do
-          'https://drive.google.com/drive/u/1/folders/' \
-          '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY'
-        end
+        let(:mime_type) { Providers::GoogleDrive::MimeType.document }
+
         it 'adds an error' do
           expect(project.errors[:link_to_google_drive_folder])
             .to include 'appears not to be a Google Drive folder'
@@ -254,16 +249,28 @@ RSpec.describe Project, type: :model do
   end
 
   describe '#import_google_drive_folder' do
+    subject(:method)    { project.save }
+    let(:id_of_folder)  { 'folder-id' }
+    let(:project)       { create(:project) }
+    let(:file)          { instance_double Google::Apis::DriveV3::File }
+    let(:mime_type)     { Providers::GoogleDrive::MimeType.folder }
+
     before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+      allow(GoogleDrive).to receive(:get_file).and_return(file)
+      allow(file).to receive(:mime_type).and_return(mime_type)
+      allow(file)
+        .to receive(:to_h)
+        .and_return(id: id_of_folder, mime_type: mime_type)
     end
+
+    before do
+      allow(FolderImportJob).to receive(:perform_later)
+    end
+
     before do
       project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
       project.import_google_drive_folder_on_save = true
     end
-    subject(:method)    { project.save }
-    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
-    let(:project)       { create(:project) }
 
     it 'creates a root folder' do
       subject

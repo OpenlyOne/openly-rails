@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 # GoogleDrive helper methods
-# TODO: Rename to GoogleDriveHelper
-module GoogleDriveTestHelper
+module GoogleDriveHelper
   # Prepares the Google Drive test by refreshing authorization & creating a
   # test folder
   # Optionally, pass the API connection which will 'house' the test folder

@@ -10,34 +10,34 @@ class FileUpdateJob < ApplicationJob
     token = args[0][:token]
 
     # retrieve changes since token
-    @change_list = GoogleDrive.list_changes(token)
+    change_list = GoogleDrive.list_changes(token)
 
-    process_changes(@change_list)
+    process_changes(change_list)
 
-    create_new_file_update_job
+    create_new_file_update_job(change_list)
   end
 
   private
 
   # check for new changes in 10 seconds
-  def check_for_changes_later
-    FileUpdateJob
-      .set(wait: 10.seconds)
-      .perform_later(token: @change_list.new_start_page_token)
+  def check_for_changes_later(new_start_page_token)
+    self.class
+        .set(wait: 10.seconds)
+        .perform_later(token: new_start_page_token)
   end
 
   # create a new job
-  def create_new_file_update_job
-    if @change_list.next_page_token.present?
-      list_changes_on_next_page
+  def create_new_file_update_job(change_list)
+    if change_list.next_page_token.present?
+      list_changes_on_next_page(change_list.next_page_token)
     else
-      check_for_changes_later
+      check_for_changes_later(change_list.new_start_page_token)
     end
   end
 
   # fetch the next page of changes immediately
-  def list_changes_on_next_page
-    FileUpdateJob.perform_later(token: @change_list.next_page_token)
+  def list_changes_on_next_page(next_page_token)
+    self.class.perform_later(token: next_page_token)
   end
 
   # Process the fetched changes

@@ -84,11 +84,15 @@ RSpec.describe ProjectsController, type: :controller do
   end
 
   describe 'POST #import' do
+    # mock actual import process
+    # TODO: Refactor import into separate class
     before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+      allow_any_instance_of(Project).to receive(:import_google_drive_folder)
+      allow_any_instance_of(Project)
+        .to receive(:link_to_google_drive_is_accessible_folder)
     end
     let(:add_params)  { { project: { link_to_google_drive_folder: gdfolder } } }
-    let(:gdfolder)    { Settings.google_drive_test_folder }
+    let(:gdfolder)    { 'https://drive.google.com/drive/folders/test' }
     let(:params)      { default_params.merge(add_params) }
     let(:run_request) { post :import, params: params }
     before            { sign_in project.owner.account }
