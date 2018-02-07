@@ -42,146 +42,114 @@ RSpec.shared_examples 'updates file in repo X' do |repo_nr|
 end
 
 RSpec.describe FileUpdateJob, type: :job do
-  subject(:job) { FileUpdateJob.perform_later({}) }
+  subject(:job)     { FileUpdateJob.new }
+  let(:change_list) { instance_double Google::Apis::DriveV3::ChangeList }
+  let(:token)       { 'token' }
 
-  describe 'priority', delayed_job: true do
+  # prevent recursive jobs
+  before { allow(FileUpdateJob).to receive(:perform_later) }
+
+  before do
+    allow(GoogleDrive)
+      .to receive(:list_changes).with(token).and_return change_list
+  end
+
+  describe 'priority' do
     it { expect(subject.priority).to eq 10 }
   end
 
-  describe 'queue', delayed_job: true do
+  describe 'queue' do
     it { expect(subject.queue_name).to eq 'file_update' }
   end
 
   describe '#perform' do
+    subject(:perform) { job.perform(token: 'token') }
+
     before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    end
-    # mock job reschedulers to avoid infinite loops
-    before do
-      allow_any_instance_of(FileUpdateJob).to receive :check_for_changes_later
-      allow_any_instance_of(FileUpdateJob).to receive :list_changes_on_next_page
-    end
-    subject(:method) { FileUpdateJob.perform_later(token: start_page_token) }
-    let(:start_page_token) { 1 }
-    let(:change_list) { GoogleDrive.list_changes(start_page_token, 5) }
-
-    it 'calls #process_changes' do
-      expect_any_instance_of(FileUpdateJob)
-        .to receive(:process_changes)
-        .with(instance_of(Google::Apis::DriveV3::ChangeList))
-      subject
+      allow(job).to receive(:process_changes)
+      allow(job).to receive(:create_new_file_update_job)
     end
 
-    it 'lists changes on consecutive page' do
-      expect_any_instance_of(FileUpdateJob)
-        .to receive(:list_changes_on_next_page)
-      subject
+    it 'calls #list_changes on GoogleDrive with token' do
+      expect(GoogleDrive).to receive(:list_changes).with('token')
+      perform
     end
 
-    context 'when there is no next page' do
-      let(:start_page_token) { 999_999_999 }
+    it 'calls #process_changes with change list returned by Google Drive' do
+      expect(job).to receive(:process_changes).with(change_list)
+      perform
+    end
 
-      it 'checks for changes later' do
-        expect_any_instance_of(FileUpdateJob)
-          .to receive(:check_for_changes_later)
-        subject
-      end
+    it 'calls #create_new_file_update_job' do
+      expect(job).to receive(:create_new_file_update_job)
+      perform
     end
   end
 
-  describe '#check_for_changes_later' do
-    before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    end
-    subject(:method)  { job.send :check_for_changes_later }
-    let(:change_list) { GoogleDrive.list_changes(999_999_999) }
-    let(:job)         { FileUpdateJob.new }
+  describe '#check_for_changes_later(new_start_page_token)' do
+    subject(:method)  { job.send :check_for_changes_later, 'token' }
+    let(:new_job)     { class_double FileUpdateJob }
 
     it 'creates a FileUpdateJob to be run in 10s' do
-      job.instance_variable_set :@change_list, change_list
-      double = class_double('FileUpdateJob')
-      expect(FileUpdateJob).to receive(:set)
-        .with(wait: 10.seconds).and_return(double)
-      expect(double).to receive(:perform_later)
-        .with(token: change_list.new_start_page_token)
-      subject
+      expect(FileUpdateJob)
+        .to receive(:set).with(wait: 10.seconds).and_return new_job
+      expect(new_job).to receive(:perform_later).with(token: 'token')
+      method
     end
   end
 
-  describe '#list_changes_on_next_page' do
+  describe '#create_new_file_update_job(change_list)' do
+    subject(:method) { job.send :create_new_file_update_job, change_list }
+
     before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
+      allow(change_list).to receive(:next_page_token).and_return next_page_token
+      allow(change_list).to receive(:new_start_page_token).and_return 'token'
     end
-    subject(:method)  { job.send :list_changes_on_next_page }
-    let(:change_list) { GoogleDrive.list_changes(1, 5) }
-    let(:job)         { FileUpdateJob.new }
+
+    after { method }
+
+    context 'when next_page_token is present' do
+      let(:next_page_token) { 'next' }
+
+      it { expect(job).to receive(:list_changes_on_next_page).with('next') }
+    end
+
+    context 'when next_page_token is not present' do
+      let(:next_page_token) { nil }
+
+      it { expect(job).to receive(:check_for_changes_later).with('token') }
+    end
+  end
+
+  describe '#list_changes_on_next_page(new_page_token)' do
+    subject(:method) { job.send :list_changes_on_next_page, 'token' }
 
     it 'creates a FileUpdateJob to be run immediately' do
-      job.instance_variable_set :@change_list, change_list
-      expect(FileUpdateJob).to receive(:perform_later)
-        .with(token: change_list.next_page_token)
-      subject
+      expect(FileUpdateJob).to receive(:perform_later).with(token: 'token')
+      method
     end
   end
 
   describe '#process_changes(change_list)' do
-    subject(:method)  { job.send :process_changes, change_list }
-    let(:job)         { FileUpdateJob.new }
-    let(:change_list) { Google::Apis::DriveV3::ChangeList.new }
-    let(:changes)     { [change, change] }
-    let(:change) do
-      build :google_drive_change, :with_file,
-            id: 'file-id',
-            name: 'The Awesome File',
-            parent: 'parent-id',
-            mime_type: 'document',
-            version: 1234,
-            modified_time: Time.new(2007, 1, 1)
+    subject(:process_changes) { job.send :process_changes, change_list }
+    let(:changes)             { %w[change change] }
+
+    before do
+      allow(change_list).to receive(:changes).and_return changes
+      allow(GoogleDrive).to receive(:attributes_from_change_record)
+        .with('change').and_return 'attributes'
     end
-    before  { change_list.changes = changes }
-    after   { method }
+
+    after { process_changes }
 
     it 'calls #update_file_in_any_project for each entry in change list' do
-      expect(job).to receive(:update_file_in_any_project)
-        .twice
-        .with(
-          hash_including(
-            id: 'file-id',
-            parent_id: 'parent-id',
-            name: 'The Awesome File',
-            mime_type: 'document',
-            version: 1234,
-            modified_time: Time.new(2007, 1, 1)
-          )
-        )
-    end
-
-    context 'attribute hash passed to #update_file_in_any_project' do
-      let(:changes) { [change] }
-
-      context 'when removed is true' do
-        before { change.removed = true }
-
-        it 'passes parent_id = nil' do
-          expect(job).to receive(:update_file_in_any_project)
-            .with hash_including(parent_id: nil)
-        end
-      end
-
-      context 'when file.trashed is true' do
-        before { change.file.trashed = true }
-
-        it 'passes parent_id = nil' do
-          expect(job).to receive(:update_file_in_any_project)
-            .with hash_including(parent_id: nil)
-        end
-      end
+      expect(job)
+        .to receive(:update_file_in_any_project).twice.with('attributes')
     end
   end
 
   describe '#update_file_in_any_project(new_attributes)' do
     subject(:method) { job.send :update_file_in_any_project, new_attributes }
-    let(:job) { FileUpdateJob.new }
 
     let(:repo1) { create(:project).repository }
     let(:root1) { create :file, :root,  id: 'root-id', repository: repo1 }

@@ -1,57 +1,61 @@
 # frozen_string_literal: true
 
 RSpec.describe FolderImportJob, type: :job do
-  subject(:job) { FolderImportJob.perform_later({}) }
+  subject(:job) { FolderImportJob.new }
+  let(:project) { instance_double Project }
 
-  describe 'priority', delayed_job: true do
+  before do
+    allow(Project).to receive(:find).and_return project
+  end
+
+  describe 'priority' do
     it { expect(subject.priority).to eq 100 }
   end
 
-  describe 'queue', delayed_job: true do
+  describe 'queue' do
     it { expect(subject.queue_name).to eq 'folder_import' }
   end
 
   describe '#perform' do
-    before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    end
     subject(:method) do
-      FolderImportJob.perform_later(reference: project, folder_id: folder.id)
+      job.perform(reference: project, folder_id: 'folder-id')
     end
-    let(:project) { create :project }
-    let(:root_id) { Settings.google_drive_test_folder_id }
-    let(:folder) do
-      create :file, :root, id: root_id, repository: project.repository
-    end
+    let(:files)   { [file1, file2, file3] }
+    let(:file1)   { instance_double Google::Apis::DriveV3::File }
+    let(:file2)   { instance_double Google::Apis::DriveV3::File }
+    let(:file3)   { instance_double Google::Apis::DriveV3::File }
+    let(:staged_file1)  { instance_double VersionControl::Files::Staged }
+    let(:staged_file2)  { instance_double VersionControl::Files::Staged }
+    let(:staged_file3)  { instance_double VersionControl::Files::Staged }
 
-    it 'creates 3 root-level files' do
-      subject
-      expect(project.files.root.children.size).to eq 3
-    end
-
-    it 'creates 2 files in sub-folder' do
-      subject
-      subfolder = project.files.root.children.find(&:directory?)
-      expect(subfolder.children.size).to eq 2
-    end
-
-    it 'creates 1 file in sub-sub-folder' do
-      subject
-      subfolder     = project.files.root.children.find(&:directory?)
-      subsubfolder  = subfolder.children.find(&:directory?)
-      expect(subsubfolder.children.size).to eq 1
+    before do
+      allow(job).to receive(:create_or_update_file)
+        .and_return(staged_file1, staged_file2, staged_file3)
+      allow(job).to receive(:schedule_folder_import_job_for)
+      allow(GoogleDrive)
+        .to receive(:list_files_in_folder).with('folder-id').and_return files
+      allow(staged_file1).to receive(:id).and_return 'file1'
+      allow(staged_file1).to receive(:directory?).and_return false
+      allow(staged_file2).to receive(:id).and_return 'folder1'
+      allow(staged_file2).to receive(:directory?).and_return true
+      allow(staged_file3).to receive(:id).and_return 'folder2'
+      allow(staged_file3).to receive(:directory?).and_return true
     end
 
-    context 'without recursive FolderImportJobs' do
-      before do
-        allow_any_instance_of(FolderImportJob)
-          .to receive(:schedule_folder_import_job_for)
-      end
+    after { method }
 
-      it 'creates 3 files' do
-        folder
-        expect { subject }.to change { project.files.count }.by(3)
-      end
+    it 'calls #create_or_update_file three times' do
+      expect(job).to receive(:create_or_update_file)
+        .with(file1, 'folder-id', project).and_return staged_file1
+      expect(job).to receive(:create_or_update_file)
+        .with(file2, 'folder-id', project).and_return staged_file2
+      expect(job).to receive(:create_or_update_file)
+        .with(file3, 'folder-id', project).and_return staged_file3
+    end
+
+    it 'recursively creates two FolderImportJobs' do
+      expect(job).to receive(:schedule_folder_import_job_for).with('folder1')
+      expect(job).to receive(:schedule_folder_import_job_for).with('folder2')
     end
   end
 

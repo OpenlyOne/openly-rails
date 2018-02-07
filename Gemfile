@@ -114,6 +114,10 @@ group :test do
       branch: 'rails-5'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
+  # VCR for capturing HTTP requests during tests
+  gem 'vcr', '~> 4.0'
+  # Webmock for VCR to hook into
+  gem 'webmock', '~> 3.3'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
