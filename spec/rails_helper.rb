@@ -159,6 +159,11 @@ VCR.configure do |c|
 
   # Filter access & refresh tokens for each google account
   google_accounts.each do |account, service|
+    # Filter email address
+    c.filter_sensitive_data("<EMAIL ADDRESS FOR #{account}>") do
+      service.google_account
+    end
+
     c.filter_sensitive_data("<ACCESS TOKEN FOR #{account}>") do
       service.reload.authorization.access_token
     end

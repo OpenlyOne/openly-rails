@@ -1,141 +1,268 @@
 # frozen_string_literal: true
 
-feature 'File Update' do
+feature 'File Update', :vcr do
+  let(:api_connection)  { Providers::GoogleDrive::ApiConnection.new(user_acct) }
+  let(:user_acct)       { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+  let(:tracking_acct)   { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
+
+  # create test folder
+  before { prepare_google_drive_test(api_connection) }
+  # share test folder
+  before do
+    api_connection.share_file(google_drive_test_folder_id, tracking_acct)
+  end
+
+  # delete test folder
+  after { tear_down_google_drive_test(api_connection) }
+
   before do
     # avoid infinite loops
     allow_any_instance_of(FileUpdateJob).to receive(:check_for_changes_later)
     allow_any_instance_of(FileUpdateJob).to receive(:list_changes_on_next_page)
   end
-  before do
-    mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-  end
 
   let(:project) do
     create :project,
-           link_to_google_drive_folder: Settings.google_drive_test_folder,
+           link_to_google_drive_folder: link_to_folder,
            import_google_drive_folder_on_save: true
   end
-  let!(:files)    { create_list :file, 3, parent: project.files.root }
-  let(:folder)    { create :file, :folder, parent: project.files.root }
-  let!(:subfile)  { create :file, parent: folder }
-
-  # and the files have been committed
-  before { create :revision, repository: project.repository }
+  let(:link_to_folder) do
+    "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
+  end
+  let!(:token)  { GoogleDrive.get_changes_start_page_token.start_page_token }
+  let(:commit)  { create :revision, repository: project.repository }
 
   scenario 'In Google Drive, user creates file within project folder' do
-    # when I create a file in Google Drive within the project folder
-    when_i_create_a_file_in_google_drive('My New File', project.files.root_id)
+    given_project_is_imported_and_changes_committed
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    # when I create a file in Google Drive within the project folder
+    create_google_drive_file(name: 'My New File',
+                             parent_id: google_drive_test_folder_id,
+                             api_connection: api_connection)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
 
     # then I should see the file among my project's files
     then_i_should_see_file_in_project(name: 'My New File', status: 'added')
   end
 
-  scenario 'In Google Drive, user updates file metadata' do
-    # when I update a file in Google Drive within the project folder
-    when_i_update_a_file_in_google_drive(files.first, 'Updated File')
+  scenario 'In Google Drive, user updates file content' do
+    # given a file within the project folder
+    file_to_modify =
+      create_google_drive_file(
+        name: 'File',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
 
-    # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: 'Updated File', status: 'modified')
+    # when I update the file contents
+    api_connection.update_file_content(file_to_modify.id, 'new file content')
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then I should see the file among my project's files as modified
+    then_i_should_see_file_in_project(name: 'File', status: 'modified')
+  end
+
+  scenario 'In Google Drive, user renames file' do
+    # given a file within the project folder
+    file_to_rename =
+      create_google_drive_file(
+        name: 'File',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
+
+    given_project_is_imported_and_changes_committed
+
+    # when I rename the file
+    file_to_rename.rename('New File Name')
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then I should see the file among my project's files as modified
+    then_i_should_see_file_in_project(name: 'New File Name', status: 'modified')
   end
 
   scenario 'In Google Drive, user moves file within project folder' do
-    # when I update a file in Google Drive within the project folder
-    when_i_move_a_file_in_google_drive(subfile, project.files.root_id)
+    # given a file & folder within the project folder
+    folder =
+      create_google_drive_file(
+        name: 'Folder',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.folder,
+        api_connection: api_connection
+      )
+    file_to_move =
+      create_google_drive_file(
+        name: 'File To Move',
+        parent_id: folder.id,
+        api_connection: api_connection
+      )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
+
+    # when I update a file in Google Drive within the project folder
+    file_to_move.relocate(from: folder.id,
+                          to: google_drive_test_folder_id)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: subfile.name, status: 'moved')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'moved')
   end
 
   scenario 'In Google Drive, user trashes file' do
-    # when I trash a file in Google Drive
-    when_i_trash_a_file_in_google_drive(files.first)
+    # given a file within the project folder
+    file_to_trash =
+      create_google_drive_file(
+        name: 'File To Trash',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
 
-    # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: files.first.name, status: 'deleted')
+    # when I trash the file
+    api_connection.trash_file(file_to_trash.id)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then I should see the file among my project's files as deleted
+    then_i_should_see_file_in_project(name: 'File To Trash', status: 'deleted')
+  end
+
+  scenario 'In Google Drive, user deletes file' do
+    # given a file within the project folder
+    file_to_delete =
+      create_google_drive_file(
+        name: 'File To Delete',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
+
+    given_project_is_imported_and_changes_committed
+
+    # when I delete the file
+    api_connection.delete_file(file_to_delete.id)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then I should see the file among my project's files as deleted
+    then_i_should_see_file_in_project(name: 'File To Delete', status: 'deleted')
   end
 
   scenario 'In Google Drive, user moves file out of project folder' do
-    # when I move a file in Google Drive out of project scope
-    when_i_move_a_file_in_google_drive(files.first, 'id-outsides-our-scope')
+    # given a file within the project folder
+    file_to_move =
+      create_google_drive_file(
+        name: 'File To Move',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
+
+    # create a folder in the user's home
+    out_of_scope_folder =
+      api_connection.create_file_in_home_folder(
+        name: 'out-of-scope-folder',
+        mime_type: Providers::GoogleDrive::MimeType.folder
+      )
+
+    # when I move a file in Google Drive out of project scope
+    file_to_move.relocate(from: google_drive_test_folder_id,
+                          to: out_of_scope_folder.id)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: files.first.name, status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'deleted')
+
+    # cleanup: remove out-of-scope-folder
+    api_connection.delete_file(out_of_scope_folder.id)
   end
 
   scenario 'In Google Drive, user moves file to the root of their drive' do
-    # when I move a file in Google Drive to my root directory
-    when_i_move_a_file_in_google_drive(files.first, nil)
+    # given a file within the project folder
+    file_to_move =
+      create_google_drive_file(
+        name: 'File To Move',
+        parent_id: google_drive_test_folder_id,
+        api_connection: api_connection
+      )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
+
+    # when I move a file in Google Drive to my root directory
+    file_to_move.relocate(from: google_drive_test_folder_id, to: 'root')
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: files.first.name, status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'deleted')
+
+    # cleanup: remove moved file
+    api_connection.delete_file(file_to_move.id)
   end
 
   scenario 'In Google Drive, user stops sharing file' do
-    # when I stop sharing a file in Google Drive
-    when_i_stop_sharing_a_file_in_google_drive(files.first)
+    # given a file within the project folder
+    file_to_unshare = create_google_drive_file(
+      name: 'File',
+      parent_id: google_drive_test_folder_id,
+      api_connection: api_connection
+    )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
 
-    # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: files.first.name, status: 'deleted')
+    # when I unshare the file
+    api_connection.unshare_file(file_to_unshare.id,
+                                ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'])
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then the file should be marked as unshared
+    then_i_should_see_file_in_project(name: 'File', status: 'deleted')
   end
 
   scenario 'In Google Drive, user deletes the project folder' do
-    # when I delete the project folder itself
-    when_i_trash_a_file_in_google_drive(project.files.root)
+    # given a file within the project folder
+    create_google_drive_file(
+      name: 'File',
+      parent_id: google_drive_test_folder_id,
+      api_connection: api_connection
+    )
 
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
+    given_project_is_imported_and_changes_committed
 
-    # then the folder should not removed
+    # when I delete the project folder
+    delete_google_drive_test_folder(api_connection)
+
+    wait_for_google_to_propagate_changes
+    run_file_update_job
+
+    # then the folder should not be removed
     expect(project.reload.files.root).to be_present
-    # and I should be able to see my files and they should be unchanged
-    then_i_should_see_file_in_project(name: files.first.name,
-                                      status: 'unchanged')
-  end
-
-  scenario 'In Google Drive, user deletes a folder within the project folder' do
-    # when I delete the project folder itself
-    when_i_trash_a_file_in_google_drive(project.files.root)
-
-    # and the FileUpdateJob fetches new changes
-    FileUpdateJob.perform_later(token: 1)
-
-    when_i_visit_my_project_files
-
-    # then the folder should not removed
-    expect(project.reload.files.root).to be_present
-    # and I should be able to see my files and they should be unchanged
-    expect(page).not_to have_css '.changed'
+    # and all files should be marked as deleted
+    then_i_should_see_file_in_project(name: 'File', status: 'deleted')
   end
 end
 
-def mock_google_drive_list_changes(change)
-  allow(GoogleDrive).to receive(:list_changes) do
-    Google::Apis::DriveV3::ChangeList.new(
-      new_start_page_token: '2',
-      changes: [change]
-    )
-  end
+def given_project_is_imported_and_changes_committed
+  project
+  commit
 end
 
 def then_i_should_see_file_in_project(params)
@@ -144,48 +271,12 @@ def then_i_should_see_file_in_project(params)
   expect(page).to have_css ".file.#{params[:status]}", text: params[:name]
 end
 
-def when_i_create_a_file_in_google_drive(file_name, folder_id)
-  mock_google_drive_list_changes(
-    build(:google_drive_change, :with_file, name: file_name, parent: folder_id)
-  )
+def run_file_update_job
+  FileUpdateJob.perform_later(token: token)
 end
 
-def when_i_move_a_file_in_google_drive(file, new_parent_id)
-  mock_google_drive_list_changes(
-    build(:google_drive_change, :with_file,
-          id: file.id,
-          name: file.name,
-          parent: new_parent_id,
-          mime_type: file.mime_type,
-          version: file.version + 1)
-  )
-end
-
-def when_i_stop_sharing_a_file_in_google_drive(file)
-  mock_google_drive_list_changes(
-    build(:google_drive_change, id: file.id, removed: true)
-  )
-end
-
-def when_i_trash_a_file_in_google_drive(file)
-  mock_google_drive_list_changes(
-    build(:google_drive_change, :with_file,
-          id: file.id,
-          trashed: true,
-          mime_type: file.mime_type,
-          version: file.version + 1)
-  )
-end
-
-def when_i_update_a_file_in_google_drive(file, new_name)
-  mock_google_drive_list_changes(
-    build(:google_drive_change, :with_file,
-          id: file.id,
-          name: new_name,
-          parent: file.parent_id,
-          version: file.version + 1,
-          modified_time: Time.zone.now.utc)
-  )
+def wait_for_google_to_propagate_changes
+  sleep 60 if VCR.current_cassette.recording?
 end
 
 def when_i_visit_my_project_files

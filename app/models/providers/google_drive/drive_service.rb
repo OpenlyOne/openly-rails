@@ -30,6 +30,8 @@ module Providers
         end
       end
 
+      attr_reader :google_account
+
       # Initialize a new instance of DriveService
       def initialize(google_account)
         super()
@@ -46,10 +48,6 @@ module Providers
 
         self
       end
-
-      private
-
-      attr_reader :google_account
     end
   end
 end
