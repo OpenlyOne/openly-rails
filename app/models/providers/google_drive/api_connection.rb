@@ -38,8 +38,17 @@ module Providers
         drive_service.delete_file(id)
       end
 
-      # Fetch a file by ID
-      def fetch_file(id)
+      # Find a file by ID. Return nil if file not found
+      def find_file(id)
+        find_file!(id)
+      rescue Google::Apis::ClientError => error
+        # only rescue not found errors
+        raise unless error.message.starts_with?('notFound')
+        nil
+      end
+
+      # Find a file by ID. Raise error if file not found
+      def find_file!(id)
         drive_service.get_file(id, fields: default_file_fields)
       end
 

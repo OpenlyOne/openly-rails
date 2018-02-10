@@ -153,16 +153,14 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     context 'when file is not set' do
       let(:file_ivar) { nil }
       before          { file_sync.instance_variable_set :@id, 'id' }
-      before { allow(api).to receive(:fetch_file).and_return 'fetched-file' }
+      before { allow(api).to receive(:find_file!).and_return 'found-file' }
 
-      it 'calls api#fetch_file with @id' do
-        expect(api).to receive(:fetch_file).with('id')
+      it 'calls api#find_file! with @id' do
+        expect(api).to receive(:find_file!).with('id')
         file
       end
 
-      it 'returns fetched file' do
-        is_expected.to eq 'fetched-file'
-      end
+      it { is_expected.to eq 'found-file' }
 
       it 'sets instance variable @file' do
         file

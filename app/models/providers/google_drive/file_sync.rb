@@ -48,7 +48,7 @@ module Providers
       private
 
       def file
-        @file ||= api_connection.fetch_file(@id)
+        @file ||= api_connection.find_file!(@id)
       end
 
       def api_connection

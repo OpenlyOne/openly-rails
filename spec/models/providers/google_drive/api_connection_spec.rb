@@ -98,10 +98,39 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { expect(drive_service).to receive(:delete_file).with('file-id') }
   end
 
-  describe '#fetch_file(id)' do
-    subject(:fetch_file) { api.fetch_file('file-id') }
+  describe '#find_file(id)' do
+    subject(:find_file) { api.find_file('id') }
+    before { allow(api).to receive(:find_file!).with('id').and_return 'file' }
+
+    it { is_expected.to eq 'file' }
+
+    context 'when an error is raised' do
+      before { allow(api).to receive(:find_file!).and_raise error }
+
+      context 'Google::Apis::ClientError, notFound' do
+        let(:error) { Google::Apis::ClientError.new('notFound') }
+
+        it { is_expected.to eq nil }
+      end
+
+      context 'Google::Apis::ClientError of different type' do
+        let(:error) { Google::Apis::ClientError.new('invalid') }
+
+        it { expect { find_file }.to raise_error Google::Apis::ClientError }
+      end
+
+      context 'when it raises a different error' do
+        let(:error) { StandardError.new }
+
+        it { expect { find_file }.to raise_error StandardError }
+      end
+    end
+  end
+
+  describe '#find_file!(id)' do
+    subject(:find_file) { api.find_file!('file-id') }
     before  { allow(api).to receive(:default_file_fields).and_return 'default' }
-    after   { fetch_file }
+    after   { find_file }
 
     it 'calls #get_file on drive service' do
       expect(drive_service)
