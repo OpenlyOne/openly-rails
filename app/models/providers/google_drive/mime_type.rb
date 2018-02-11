@@ -17,6 +17,13 @@ module Providers
             mime_type
           end
         end
+
+        # Define type checkers such as .document?, .folder?, and .spreadsheet?
+        MIME_TYPES.each do |type, mime_type|
+          define_method("#{type}?") do |type_to_check|
+            type_to_check == mime_type
+          end
+        end
       end
     end
   end
