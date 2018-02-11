@@ -43,7 +43,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it 'calls #create_file on drive service' do
       expect(drive_service)
         .to receive(:create_file)
-        .with(instance_of(Google::Apis::DriveV3::File), fields: 'default')
+        .with(kind_of(Google::Apis::DriveV3::File), fields: 'default')
     end
 
     it 'calls #create_file with name' do
@@ -230,7 +230,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       expect(drive_service)
         .to receive(:update_file)
         .with('file-id',
-              instance_of(Google::Apis::DriveV3::File),
+              kind_of(Google::Apis::DriveV3::File),
               fields: 'default')
     end
 
@@ -284,7 +284,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       expect(drive_service)
         .to receive(:update_file)
         .with('file-id',
-              instance_of(Google::Apis::DriveV3::File),
+              kind_of(Google::Apis::DriveV3::File),
               fields: 'default')
     end
 
@@ -320,5 +320,6 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to match 'name' }
     it { is_expected.to match 'mimeType' }
     it { is_expected.to match 'parents' }
+    it { is_expected.to match 'trashed' }
   end
 end

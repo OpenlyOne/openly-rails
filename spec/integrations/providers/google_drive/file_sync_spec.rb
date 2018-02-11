@@ -16,7 +16,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       )
 
       # Fetch created file information
-      @created_file = described_class.new(id: file_sync.id)
+      @created_file = described_class.new(file_sync.id)
     end
 
     it "creates a file named 'Test File'" do
@@ -43,7 +43,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       file_sync.rename('Renamed Test File')
 
       # Fetch renamed file information
-      @renamed_file = described_class.new(id: file_sync.id)
+      @renamed_file = described_class.new(file_sync.id)
     end
 
     it "renames file to 'Renamed Test File'" do
@@ -74,11 +74,57 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       file_sync.relocate(to: @subfolder.id, from: file_sync.parent_id)
 
       # Fetch relocated file information
-      @relocated_file = described_class.new(id: file_sync.id)
+      @relocated_file = described_class.new(file_sync.id)
     end
 
     it 'relocates file to subfolder' do
       expect(relocated_file.parent_id).to eq subfolder_id
     end
+  end
+
+  describe 'trashed file' do
+    subject(:trashed_file) { @trashed_file }
+
+    before do
+      # Create file and get id
+      file_sync = described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
+      )
+
+      # Trash file
+      Providers::GoogleDrive::ApiConnection.default.trash_file(file_sync.id)
+
+      # Fetch trashed file information
+      @trashed_file = described_class.new(file_sync.id)
+    end
+
+    it { expect(trashed_file.name).to eq nil }
+    it { expect(trashed_file.parent_id).to eq nil }
+    it { is_expected.to be_deleted }
+  end
+
+  describe 'deleted file' do
+    subject(:deleted_file) { @deleted_file }
+
+    before do
+      # Create file and get id
+      file_sync = described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
+      )
+
+      # Delete file
+      Providers::GoogleDrive::ApiConnection.default.delete_file(file_sync.id)
+
+      # Fetch trashed file information
+      @deleted_file = described_class.new(file_sync.id)
+    end
+
+    it { expect(deleted_file.name).to eq nil }
+    it { expect(deleted_file.parent_id).to eq nil }
+    it { is_expected.to be_deleted }
   end
 end
