@@ -9,3 +9,13 @@ Metrics/BlockLength:
   Enabled: true
   Exclude:
     - spec/**/*
+
+Metrics/MethodLength:
+  Enabled: true
+  Exclude:
+    - db/migrate/*
+
+Metrics/AbcSize:
+  Enabled: true
+  Exclude:
+    - db/migrate/*
