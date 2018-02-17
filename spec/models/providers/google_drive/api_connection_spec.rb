@@ -10,6 +10,17 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       .to receive(:new).with(account).and_return drive_service
   end
 
+  # Reset class instance variables
+  # This is necessary because the mocked call to .tracking_account sets
+  # the @tracking_account class instance variable to an incorrect value.
+  # In order for ApiConnection to work as expected for subsequent tests,
+  # the value must be reset.
+  after do
+    described_class.instance_variables.each do |ivar|
+      described_class.instance_variable_set(ivar, nil)
+    end
+  end
+
   describe '.default' do
     subject(:method) { described_class.default }
     before { allow(Providers::GoogleDrive::DriveService).to receive(:new) }
