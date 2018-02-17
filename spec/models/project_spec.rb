@@ -20,6 +20,30 @@ RSpec.describe Project, type: :model do
         .to have_and_belong_to_many(:collaborators)
         .class_name('Profiles::User').validate(false)
     end
+    it { is_expected.to have_many(:staged_files).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:file_resources_in_stage)
+        .class_name('FileResource')
+        .through(:staged_files)
+        .source(:file_resource)
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_one(:staged_root_folder)
+        .conditions(is_root: true)
+        .class_name('StagedFile')
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_one(:root_folder)
+        .class_name('FileResource')
+        .through(:staged_root_folder)
+        .source(:file_resource)
+        .dependent(false)
+    end
   end
 
   describe 'attributes' do

@@ -11,6 +11,17 @@ class Project < ApplicationRecord
                                           association_foreign_key: 'profile_id',
                                           validate: false
 
+  has_many :staged_files, dependent: :destroy
+  has_many :file_resources_in_stage, class_name: 'FileResource',
+                                     through: :staged_files,
+                                     source: :file_resource
+  has_one :staged_root_folder,
+          -> { where is_root: true },
+          class_name: 'StagedFile'
+  has_one :root_folder, class_name: 'FileResource',
+                        through: :staged_root_folder,
+                        source: :file_resource
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type

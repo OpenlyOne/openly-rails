@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180212034925) do
+ActiveRecord::Schema.define(version: 20180217223610) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -117,8 +117,21 @@ ActiveRecord::Schema.define(version: 20180212034925) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "staged_files", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.boolean "is_root", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_staged_files_on_file_resource_id"
+    t.index ["project_id", "file_resource_id"], name: "index_staged_files_on_project_id_and_file_resource_id", unique: true
+    t.index ["project_id"], name: "index_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
+  end
+
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
+  add_foreign_key "staged_files", "file_resources"
+  add_foreign_key "staged_files", "projects"
 end
