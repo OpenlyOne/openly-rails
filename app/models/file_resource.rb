@@ -3,6 +3,7 @@
 # FileResource represents a file on GoogleDrive, Dropbox, OneDrive, ...
 class FileResource < ApplicationRecord
   include Syncable
+  include Snapshotable
 
   self.inheritance_column = 'provider_id'
 

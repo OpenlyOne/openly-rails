@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180212022524) do
+ActiveRecord::Schema.define(version: 20180212034925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,8 @@ ActiveRecord::Schema.define(version: 20180212022524) do
     t.boolean "is_deleted", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "current_snapshot_id"
+    t.index ["current_snapshot_id"], name: "index_file_resources_on_current_snapshot_id"
     t.index ["parent_id"], name: "index_file_resources_on_parent_id"
     t.index ["provider_id", "external_id"], name: "index_file_resources_on_provider_id_and_external_id", unique: true
   end
@@ -116,6 +118,7 @@ ActiveRecord::Schema.define(version: 20180212022524) do
   end
 
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
+  add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
 end
