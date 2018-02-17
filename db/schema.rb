@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180211151001) do
+ActiveRecord::Schema.define(version: 20180212022524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,21 @@ ActiveRecord::Schema.define(version: 20180211151001) do
     t.string "delayed_reference_type"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
+  end
+
+  create_table "file_resource_snapshots", force: :cascade do |t|
+    t.bigint "file_resource_id", null: false
+    t.bigint "parent_id"
+    t.text "name", null: false
+    t.text "content_version", null: false
+    t.text "external_id", null: false
+    t.string "mime_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id", "content_version", "mime_type", "name", "parent_id"], name: "index_file_resource_snapshots_on_metadata", unique: true
+    t.index ["external_id", "content_version", "mime_type", "name"], name: "index_file_resource_snapshots_on_metadata_without_parent", unique: true, where: "(parent_id IS NULL)"
+    t.index ["file_resource_id"], name: "index_file_resource_snapshots_on_file_resource_id"
+    t.index ["parent_id"], name: "index_file_resource_snapshots_on_parent_id"
   end
 
   create_table "file_resources", force: :cascade do |t|
@@ -100,6 +115,7 @@ ActiveRecord::Schema.define(version: 20180211151001) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
 end
