@@ -88,6 +88,37 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#content_version' do
+    subject(:content_version)   { file_sync.content_version }
+    let(:content_version_ivar)  { 'version' }
+    before do
+      file_sync.instance_variable_set :@content_version, content_version_ivar
+    end
+
+    it { is_expected.to eq 'version' }
+
+    context 'when @content_version is not is set' do
+      let(:content_version_ivar) { nil }
+      after { content_version }
+
+      it { expect(file_sync).to receive(:fetch_content_version) }
+    end
+  end
+
+  describe '#mime_type' do
+    subject(:mime_type) { file_sync.mime_type }
+    let(:file)          { Google::Apis::DriveV3::File.new(mime_type: 'type') }
+    before              { allow(file_sync).to receive(:file).and_return file }
+
+    it { is_expected.to eq 'type' }
+
+    context 'when file is not is set' do
+      let(:file) { nil }
+
+      it { is_expected.to eq nil }
+    end
+  end
+
   describe '#name' do
     subject(:name)  { file_sync.name }
     let(:file)      { Google::Apis::DriveV3::File.new(name: 'file-name') }

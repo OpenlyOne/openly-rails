@@ -139,6 +139,47 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
   end
 
+  describe '#file_head_revision(id)' do
+    subject(:file_head_revision) { api.file_head_revision('id') }
+    let(:revision) { instance_double Google::Apis::DriveV3::Revision }
+
+    before do
+      allow(drive_service).to receive(:get_revision).and_return revision
+      allow(revision).to receive(:id).and_return '123456789'
+    end
+
+    it { is_expected.to eq 123_456_789 }
+
+    it 'calls #get_revision on drive service' do
+      expect(drive_service).to receive(:get_revision).with('id', 'head')
+      file_head_revision
+    end
+
+    context 'when an error is raised' do
+      before { allow(drive_service).to receive(:get_revision).and_raise error }
+
+      context 'Google::Apis::ClientError, revisionsNotSupported' do
+        let(:error) { Google::Apis::ClientError.new('revisionsNotSupported') }
+
+        it { is_expected.to eq 1 }
+      end
+
+      context 'Google::Apis::ClientError of different type' do
+        let(:error) { Google::Apis::ClientError.new('invalid') }
+
+        it do
+          expect { file_head_revision }.to raise_error Google::Apis::ClientError
+        end
+      end
+
+      context 'when it raises a different error' do
+        let(:error) { StandardError.new }
+
+        it { expect { file_head_revision }.to raise_error StandardError }
+      end
+    end
+  end
+
   describe '#file_permission_id_by_email(id, email)' do
     subject(:file_permission_id) do
       api.file_permission_id_by_email('file-id', 'example@gmail.com')

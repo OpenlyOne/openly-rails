@@ -5,14 +5,15 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
   after   { tear_down_google_drive_test }
 
   describe '.create(name:, parent_id:, mime_type:, api_connection: nil)' do
-    subject(:created_file) { @created_file }
+    subject(:created_file)  { @created_file }
+    let(:document_type)     { Providers::GoogleDrive::MimeType.document }
 
     before do
       # Create file and get id
       file_sync = described_class.create(
         name: 'Test File',
         parent_id: google_drive_test_folder_id,
-        mime_type: Providers::GoogleDrive::MimeType.document
+        mime_type: document_type
       )
 
       # Fetch created file information
@@ -25,6 +26,41 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
 
     it 'places file in test folder' do
       expect(created_file.parent_id).to eq google_drive_test_folder_id
+    end
+
+    it 'sets mime type to document' do
+      expect(created_file.mime_type).to eq document_type
+    end
+  end
+
+  describe '#content_version' do
+    subject(:content_version) do
+      described_class.new(file_sync.id).content_version
+    end
+    let!(:file_sync) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type) { Providers::GoogleDrive::MimeType.document }
+
+    it { is_expected.to eq 1 }
+
+    context 'when file content is updated' do
+      before do
+        Providers::GoogleDrive::ApiConnection
+          .default
+          .update_file_content(file_sync.id, 'new file content')
+      end
+
+      it { is_expected.to be > 1 }
+    end
+
+    context 'when file is folder' do
+      let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
+      it { is_expected.to eq 1 }
     end
   end
 

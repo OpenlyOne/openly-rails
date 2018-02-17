@@ -52,6 +52,15 @@ module Providers
         drive_service.get_file(id, fields: default_file_fields)
       end
 
+      # Get the most recent revision # of this file
+      def file_head_revision(id)
+        drive_service.get_revision(id, 'head').id.to_i
+      rescue Google::Apis::ClientError => error
+        # only rescue revisions not supported errors
+        raise unless error.message.starts_with?('revisionsNotSupported')
+        1
+      end
+
       # Retrieve the permission ID for the email account on the file identified
       # by ID
       def file_permission_id_by_email(id, email)

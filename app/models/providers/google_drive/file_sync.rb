@@ -28,6 +28,14 @@ module Providers
         file&.trashed
       end
 
+      def content_version
+        @content_version ||= fetch_content_version
+      end
+
+      def mime_type
+        file&.mime_type
+      end
+
       def name
         file&.name
       end
@@ -51,6 +59,11 @@ module Providers
 
       def api_connection
         @api_connection || self.class.default_api_connection
+      end
+
+      # Fetch the content version
+      def fetch_content_version
+        api_connection.file_head_revision(id)
       end
 
       # Fetch the file
