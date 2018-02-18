@@ -75,23 +75,12 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
-  describe '#deleted?' do
-    let(:file)      { Google::Apis::DriveV3::File.new }
-    before          { allow(file_sync).to receive(:file).and_return file }
-
-    it { is_expected.not_to be_deleted }
-
-    context 'when file is trashed' do
-      before { file.trashed = true }
-
-      it { is_expected.to be_deleted }
-    end
-  end
-
   describe '#content_version' do
     subject(:content_version)   { file_sync.content_version }
     let(:content_version_ivar)  { 'version' }
+    let(:deleted)               { false }
     before do
+      allow(file_sync).to receive(:deleted?).and_return deleted
       file_sync.instance_variable_set :@content_version, content_version_ivar
     end
 
@@ -102,6 +91,25 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
       after { content_version }
 
       it { expect(file_sync).to receive(:fetch_content_version) }
+    end
+
+    context 'when deleted? returns true' do
+      let(:deleted) { true }
+
+      it { is_expected.to be nil }
+    end
+  end
+
+  describe '#deleted?' do
+    let(:file)      { Google::Apis::DriveV3::File.new }
+    before          { allow(file_sync).to receive(:file).and_return file }
+
+    it { is_expected.not_to be_deleted }
+
+    context 'when file is trashed' do
+      before { file.trashed = true }
+
+      it { is_expected.to be_deleted }
     end
   end
 
