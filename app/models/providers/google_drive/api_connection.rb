@@ -21,9 +21,9 @@ module Providers
 
       # Create a Google Drive file
       def create_file(name:, parent_id:, mime_type:)
-        file = drive_file.new(name: name,
-                              parents: [parent_id],
-                              mime_type: mime_type)
+        file = GoogleDrive::File.new(name: name,
+                                     parents: [parent_id],
+                                     mime_type: mime_type)
 
         drive_service.create_file(file, fields: default_file_fields)
       end
@@ -38,9 +38,27 @@ module Providers
         drive_service.delete_file(id)
       end
 
-      # Fetch a file by ID
-      def fetch_file(id)
+      # Find a file by ID. Return nil if file not found
+      def find_file(id)
+        find_file!(id)
+      rescue Google::Apis::ClientError => error
+        # only rescue not found errors
+        raise unless error.message.starts_with?('notFound')
+        nil
+      end
+
+      # Find a file by ID. Raise error if file not found
+      def find_file!(id)
         drive_service.get_file(id, fields: default_file_fields)
+      end
+
+      # Get the most recent revision # of this file
+      def file_head_revision(id)
+        drive_service.get_revision(id, 'head').id.to_i
+      rescue Google::Apis::ClientError => error
+        # only rescue revisions not supported errors
+        raise unless error.message.starts_with?('revisionsNotSupported')
+        1
       end
 
       # Retrieve the permission ID for the email account on the file identified
@@ -75,7 +93,7 @@ module Providers
       # Trash the file identified by ID
       def trash_file(id)
         drive_service.update_file(id,
-                                  drive_file.new(trashed: 'true'),
+                                  GoogleDrive::File.new(trashed: 'true'),
                                   fields: default_file_fields)
       end
 
@@ -93,7 +111,7 @@ module Providers
       # Update the name of the file identified by ID
       def update_file_name(id, name)
         drive_service.update_file(id,
-                                  drive_file.new(name: name),
+                                  GoogleDrive::File.new(name: name),
                                   fields: default_file_fields)
       end
 
@@ -110,11 +128,6 @@ module Providers
 
       attr_reader :drive_service
 
-      # Class for Google Drive files
-      def drive_file
-        Google::Apis::DriveV3::File
-      end
-
       # Class for Google Drive permissions
       def drive_permission
         Google::Apis::DriveV3::Permission
@@ -122,7 +135,7 @@ module Providers
 
       # The default fields for file query methods
       def default_file_fields
-        %w[id name mimeType parents].join(',')
+        %w[id name mimeType parents trashed].join(',')
       end
     end
   end

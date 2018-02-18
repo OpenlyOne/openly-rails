@@ -4,26 +4,36 @@ module Providers
   module GoogleDrive
     # API Adapter for CRUD operations on Google Drive files
     class FileSync
+      attr_reader :id
+
       def self.create(name:, parent_id:, mime_type:, api_connection: nil)
         api_connection ||= default_api_connection
-        created_file = api_connection.create_file(name: name,
-                                                  parent_id: parent_id,
-                                                  mime_type:  mime_type)
-        new(file: created_file, api_connection: api_connection)
+        file = api_connection.create_file(name: name,
+                                          parent_id: parent_id,
+                                          mime_type: mime_type)
+        new(file.id, file: file, api_connection: api_connection)
       end
 
       def self.default_api_connection
         ApiConnection.default
       end
 
-      def initialize(attributes = {})
-        @id             = attributes.delete(:id)
-        @file           = attributes.delete(:file)
+      def initialize(id, attributes = {})
+        @id             = id
+        self.file       = attributes.delete(:file) if attributes.key?(:file)
         @api_connection = attributes.delete(:api_connection)
       end
 
-      def id
-        @id || file&.id
+      def deleted?
+        file&.trashed
+      end
+
+      def content_version
+        @content_version ||= fetch_content_version
+      end
+
+      def mime_type
+        file&.mime_type
       end
 
       def name
@@ -47,12 +57,35 @@ module Providers
 
       private
 
-      def file
-        @file ||= api_connection.fetch_file(@id)
-      end
-
       def api_connection
         @api_connection || self.class.default_api_connection
+      end
+
+      # Fetch the content version
+      def fetch_content_version
+        api_connection.file_head_revision(id)
+      end
+
+      # Fetch the file
+      def fetch_file
+        self.file = api_connection.find_file(id)
+      end
+
+      # Return file, or fetch file if not yet initialized
+      def file
+        fetch_file unless @file
+        @file
+      end
+
+      # Set @file instance variable to file or to an empty file instance if file
+      # has deleted
+      def file=(file)
+        @file =
+          if GoogleDrive::File.deleted?(file)
+            GoogleDrive::File.new(trashed: true)
+          else
+            file
+          end
       end
     end
   end

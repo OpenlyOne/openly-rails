@@ -28,7 +28,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sat, 10 Feb 2018 04:28:20 GMT
+      - Sat, 10 Feb 2018 04:22:17 GMT
       Vary:
       - Origin
       - X-Origin
@@ -56,14 +56,14 @@ http_interactions:
          "expires_in": 3600
         }
     http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:20 GMT
+  recorded_at: Sat, 10 Feb 2018 04:22:17 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed
     body:
       encoding: UTF-8
       string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-02-10
-        04:28:20 UTC","parents":["root"]}'
+        04:22:17 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -72,7 +72,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sat, 10 Feb 2018 04:28:20 GMT
+      - Sat, 10 Feb 2018 04:22:17 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -89,7 +89,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sat, 10 Feb 2018 04:28:21 GMT
+      - Sat, 10 Feb 2018 04:22:18 GMT
       Vary:
       - Origin
       - X-Origin
@@ -114,8 +114,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf",
-         "name": "Test @ 2018-02-10 04:28:20 UTC",
+         "id": "1QaO-YIyLW3xiFOLvwytuH_-pqEXA4dBl",
+         "name": "Test @ 2018-02-10 04:22:17 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -123,13 +123,13 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:21 GMT
+  recorded_at: Sat, 10 Feb 2018 04:22:18 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.document","name":"Test File","parents":["1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf"]}'
+      string: '{"mimeType":"application/vnd.google-apps.document","name":"Test File","parents":["1QaO-YIyLW3xiFOLvwytuH_-pqEXA4dBl"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -138,7 +138,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sat, 10 Feb 2018 04:28:21 GMT
+      - Sat, 10 Feb 2018 04:22:18 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -155,7 +155,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sat, 10 Feb 2018 04:28:21 GMT
+      - Sat, 10 Feb 2018 04:22:19 GMT
       Vary:
       - Origin
       - X-Origin
@@ -180,149 +180,19 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1KWr_Oq6MF2P3tG07vfsJto84N0gGxcrIYiqZa_AhR3I",
+         "id": "1Av-ZLftaN_lY0-LSNMKqV0CfblT-EzZ0adgvfjinAMc",
          "name": "Test File",
          "mimeType": "application/vnd.google-apps.document",
          "trashed": false,
          "parents": [
-          "1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf"
+          "1QaO-YIyLW3xiFOLvwytuH_-pqEXA4dBl"
          ]
         }
     http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:22 GMT
-- request:
-    method: patch
-    uri: https://www.googleapis.com/drive/v3/files/1KWr_Oq6MF2P3tG07vfsJto84N0gGxcrIYiqZa_AhR3I?fields=id,name,mimeType,parents,trashed
-    body:
-      encoding: UTF-8
-      string: '{"name":"Renamed Test File"}'
-    headers:
-      User-Agent:
-      - "<USER AGENT>"
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
-      Content-Type:
-      - application/json
-      Authorization:
-      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
-      Expires:
-      - Mon, 01 Jan 1990 00:00:00 GMT
-      Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
-      Vary:
-      - Origin
-      - X-Origin
-      Content-Type:
-      - application/json; charset=UTF-8
-      Content-Encoding:
-      - gzip
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      Server:
-      - GSE
-      Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: |
-        {
-         "id": "1KWr_Oq6MF2P3tG07vfsJto84N0gGxcrIYiqZa_AhR3I",
-         "name": "Renamed Test File",
-         "mimeType": "application/vnd.google-apps.document",
-         "trashed": false,
-         "parents": [
-          "1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf"
-         ]
-        }
-    http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:22 GMT
-- request:
-    method: get
-    uri: https://www.googleapis.com/drive/v3/files/1KWr_Oq6MF2P3tG07vfsJto84N0gGxcrIYiqZa_AhR3I?fields=id,name,mimeType,parents,trashed
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      User-Agent:
-      - "<USER AGENT>"
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
-      Authorization:
-      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
-      Content-Type:
-      - application/x-www-form-urlencoded
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Expires:
-      - Sat, 10 Feb 2018 04:28:22 GMT
-      Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
-      Cache-Control:
-      - private, max-age=0, must-revalidate, no-transform
-      Vary:
-      - Origin
-      - X-Origin
-      Content-Type:
-      - application/json; charset=UTF-8
-      Content-Encoding:
-      - gzip
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      Server:
-      - GSE
-      Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: |
-        {
-         "id": "1KWr_Oq6MF2P3tG07vfsJto84N0gGxcrIYiqZa_AhR3I",
-         "name": "Renamed Test File",
-         "mimeType": "application/vnd.google-apps.document",
-         "trashed": false,
-         "parents": [
-          "1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf"
-         ]
-        }
-    http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:22 GMT
+  recorded_at: Sat, 10 Feb 2018 04:22:19 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1y1TVgjSYEJUxYq49giBrpBzl5hB8hZjf
+    uri: https://www.googleapis.com/drive/v3/files/1Av-ZLftaN_lY0-LSNMKqV0CfblT-EzZ0adgvfjinAMc
     body:
       encoding: UTF-8
       string: ''
@@ -334,7 +204,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
+      - Sat, 10 Feb 2018 04:22:19 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -351,7 +221,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sat, 10 Feb 2018 04:28:22 GMT
+      - Sat, 10 Feb 2018 04:22:19 GMT
       Vary:
       - Origin
       - X-Origin
@@ -364,5 +234,120 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Sat, 10 Feb 2018 04:28:22 GMT
+  recorded_at: Sat, 10 Feb 2018 04:22:19 GMT
+- request:
+    method: get
+    uri: https://www.googleapis.com/drive/v3/files/1Av-ZLftaN_lY0-LSNMKqV0CfblT-EzZ0adgvfjinAMc?fields=id,name,mimeType,parents,trashed
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Sat, 10 Feb 2018 04:22:19 GMT
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      Date:
+      - Sat, 10 Feb 2018 04:22:19 GMT
+      Expires:
+      - Sat, 10 Feb 2018 04:22:19 GMT
+      Cache-Control:
+      - private, max-age=0
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
+        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "error": {
+          "errors": [
+           {
+            "domain": "global",
+            "reason": "notFound",
+            "message": "File not found: 1Av-ZLftaN_lY0-LSNMKqV0CfblT-EzZ0adgvfjinAMc.",
+            "locationType": "parameter",
+            "location": "fileId"
+           }
+          ],
+          "code": 404,
+          "message": "File not found: 1Av-ZLftaN_lY0-LSNMKqV0CfblT-EzZ0adgvfjinAMc."
+         }
+        }
+    http_version: 
+  recorded_at: Sat, 10 Feb 2018 04:22:19 GMT
+- request:
+    method: delete
+    uri: https://www.googleapis.com/drive/v3/files/1QaO-YIyLW3xiFOLvwytuH_-pqEXA4dBl
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Sat, 10 Feb 2018 04:22:19 GMT
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Date:
+      - Sat, 10 Feb 2018 04:22:20 GMT
+      Vary:
+      - Origin
+      - X-Origin
+      Server:
+      - GSE
+      Alt-Svc:
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
+        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Sat, 10 Feb 2018 04:22:20 GMT
 recorded_with: VCR 4.0.0

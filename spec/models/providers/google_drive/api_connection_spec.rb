@@ -10,6 +10,17 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       .to receive(:new).with(account).and_return drive_service
   end
 
+  # Reset class instance variables
+  # This is necessary because the mocked call to .tracking_account sets
+  # the @tracking_account class instance variable to an incorrect value.
+  # In order for ApiConnection to work as expected for subsequent tests,
+  # the value must be reset.
+  after do
+    described_class.instance_variables.each do |ivar|
+      described_class.instance_variable_set(ivar, nil)
+    end
+  end
+
   describe '.default' do
     subject(:method) { described_class.default }
     before { allow(Providers::GoogleDrive::DriveService).to receive(:new) }
@@ -32,7 +43,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it 'calls #create_file on drive service' do
       expect(drive_service)
         .to receive(:create_file)
-        .with(instance_of(Google::Apis::DriveV3::File), fields: 'default')
+        .with(kind_of(Google::Apis::DriveV3::File), fields: 'default')
     end
 
     it 'calls #create_file with name' do
@@ -87,15 +98,85 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { expect(drive_service).to receive(:delete_file).with('file-id') }
   end
 
-  describe '#fetch_file(id)' do
-    subject(:fetch_file) { api.fetch_file('file-id') }
+  describe '#find_file(id)' do
+    subject(:find_file) { api.find_file('id') }
+    before { allow(api).to receive(:find_file!).with('id').and_return 'file' }
+
+    it { is_expected.to eq 'file' }
+
+    context 'when an error is raised' do
+      before { allow(api).to receive(:find_file!).and_raise error }
+
+      context 'Google::Apis::ClientError, notFound' do
+        let(:error) { Google::Apis::ClientError.new('notFound') }
+
+        it { is_expected.to eq nil }
+      end
+
+      context 'Google::Apis::ClientError of different type' do
+        let(:error) { Google::Apis::ClientError.new('invalid') }
+
+        it { expect { find_file }.to raise_error Google::Apis::ClientError }
+      end
+
+      context 'when it raises a different error' do
+        let(:error) { StandardError.new }
+
+        it { expect { find_file }.to raise_error StandardError }
+      end
+    end
+  end
+
+  describe '#find_file!(id)' do
+    subject(:find_file) { api.find_file!('file-id') }
     before  { allow(api).to receive(:default_file_fields).and_return 'default' }
-    after   { fetch_file }
+    after   { find_file }
 
     it 'calls #get_file on drive service' do
       expect(drive_service)
         .to receive(:get_file)
         .with('file-id', fields: 'default')
+    end
+  end
+
+  describe '#file_head_revision(id)' do
+    subject(:file_head_revision) { api.file_head_revision('id') }
+    let(:revision) { instance_double Google::Apis::DriveV3::Revision }
+
+    before do
+      allow(drive_service).to receive(:get_revision).and_return revision
+      allow(revision).to receive(:id).and_return '123456789'
+    end
+
+    it { is_expected.to eq 123_456_789 }
+
+    it 'calls #get_revision on drive service' do
+      expect(drive_service).to receive(:get_revision).with('id', 'head')
+      file_head_revision
+    end
+
+    context 'when an error is raised' do
+      before { allow(drive_service).to receive(:get_revision).and_raise error }
+
+      context 'Google::Apis::ClientError, revisionsNotSupported' do
+        let(:error) { Google::Apis::ClientError.new('revisionsNotSupported') }
+
+        it { is_expected.to eq 1 }
+      end
+
+      context 'Google::Apis::ClientError of different type' do
+        let(:error) { Google::Apis::ClientError.new('invalid') }
+
+        it do
+          expect { file_head_revision }.to raise_error Google::Apis::ClientError
+        end
+      end
+
+      context 'when it raises a different error' do
+        let(:error) { StandardError.new }
+
+        it { expect { file_head_revision }.to raise_error StandardError }
+      end
     end
   end
 
@@ -190,7 +271,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       expect(drive_service)
         .to receive(:update_file)
         .with('file-id',
-              instance_of(Google::Apis::DriveV3::File),
+              kind_of(Google::Apis::DriveV3::File),
               fields: 'default')
     end
 
@@ -244,7 +325,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       expect(drive_service)
         .to receive(:update_file)
         .with('file-id',
-              instance_of(Google::Apis::DriveV3::File),
+              kind_of(Google::Apis::DriveV3::File),
               fields: 'default')
     end
 
@@ -280,5 +361,6 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to match 'name' }
     it { is_expected.to match 'mimeType' }
     it { is_expected.to match 'parents' }
+    it { is_expected.to match 'trashed' }
   end
 end
