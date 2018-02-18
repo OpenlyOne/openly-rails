@@ -44,6 +44,14 @@ RSpec.describe Project, type: :model do
         .source(:file_resource)
         .dependent(false)
     end
+    it { is_expected.to have_many(:revisions).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:published_revisions)
+        .class_name('Revision')
+        .conditions(is_published: true)
+        .dependent(false)
+    end
   end
 
   describe 'attributes' do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180217223610) do
+ActiveRecord::Schema.define(version: 20180218205712) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -111,6 +111,22 @@ ActiveRecord::Schema.define(version: 20180217223610) do
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner_type_and_owner_id"
   end
 
+  create_table "revisions", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "parent_id"
+    t.bigint "author_id", null: false
+    t.boolean "is_published", default: false, null: false
+    t.string "title"
+    t.text "summary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_revisions_on_author_id"
+    t.index ["parent_id"], name: "index_revisions_on_parent_id"
+    t.index ["parent_id"], name: "index_revisions_on_published_parent_id", unique: true, where: "(is_published IS TRUE)"
+    t.index ["project_id"], name: "index_revisions_on_project_id"
+    t.index ["project_id"], name: "index_revisions_on_published_root_revision", unique: true, where: "((parent_id IS NULL) AND (is_published IS TRUE))"
+  end
+
   create_table "signups", force: :cascade do |t|
     t.text "email"
     t.datetime "created_at", null: false
@@ -132,6 +148,9 @@ ActiveRecord::Schema.define(version: 20180217223610) do
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
+  add_foreign_key "revisions", "profiles", column: "author_id"
+  add_foreign_key "revisions", "projects"
+  add_foreign_key "revisions", "revisions", column: "parent_id"
   add_foreign_key "staged_files", "file_resources"
   add_foreign_key "staged_files", "projects"
 end

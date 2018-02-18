@@ -22,6 +22,11 @@ class Project < ApplicationRecord
                         through: :staged_root_folder,
                         source: :file_resource
 
+  has_many :revisions, dependent: :destroy
+  has_many :published_revisions,
+           -> { where is_published: true },
+           class_name: 'Revision'
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type
