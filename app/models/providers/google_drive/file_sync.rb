@@ -24,12 +24,13 @@ module Providers
         @api_connection = attributes.delete(:api_connection)
       end
 
-      def deleted?
-        file&.trashed
+      def content_version
+        return nil if deleted?
+        @content_version ||= fetch_content_version
       end
 
-      def content_version
-        @content_version ||= fetch_content_version
+      def deleted?
+        file&.trashed
       end
 
       def mime_type
