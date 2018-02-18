@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryGirl.define do
-  factory :committed_file,
+  factory :git_committed_file,
           class: VersionControl::Files::Committed,
           parent: :file do
     skip_create
