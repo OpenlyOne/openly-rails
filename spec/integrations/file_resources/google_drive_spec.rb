@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'integrations/shared_examples/including_snapshotable_integration.rb'
+require 'integrations/shared_examples/including_stageable_integration.rb'
 require 'integrations/shared_examples/including_syncable_integration.rb'
 
 RSpec.describe FileResources::GoogleDrive, type: :model do
@@ -14,6 +15,11 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     let(:snapshotable) { file }
   end
 
+  it_should_behave_like 'including stageable integration' do
+    let(:stageable) { create :file_resource }
+    let(:parent)    { create :file_resource }
+  end
+
   it_should_behave_like 'including syncable integration' do
     let(:api)      { Providers::GoogleDrive::ApiConnection.default }
     let(:syncable) { file }
@@ -25,7 +31,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     after  { tear_down_google_drive_test }
   end
 
-  describe 'snapshotable + syncable', :vcr do
+  describe 'snapshotable + stageable + syncable', :vcr do
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }
     let!(:file_sync) do
@@ -35,25 +41,37 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
         mime_type: Providers::GoogleDrive::MimeType.document
       )
     end
+    let!(:parent) do
+      described_class.new(external_id: google_drive_test_folder_id)
+    end
+    let(:projects)            { create_list :project, 3 }
     let(:api)                 { Providers::GoogleDrive::ApiConnection.default }
     let(:external_id)         { file_sync.id }
     let(:file_from_database)  { FileResource.find_by_external_id!(external_id) }
     let(:file_attributes)     { file_from_database.attributes }
     let(:snapshot_attributes) { file_from_database.current_snapshot.attributes }
+    let(:staging_projects)    { file_from_database.staging_projects }
     let(:expected_attributes) do
       {
         'name' => 'Test File',
-        'parent_id' => nil,
+        'parent_id' => parent.id,
         'content_version' => '1',
         'mime_type' => Providers::GoogleDrive::MimeType.document,
         'external_id' => external_id
       }
     end
 
+    # Pull parent resource & set staged projects
+    before do
+      parent.pull
+      parent.staging_projects = projects
+    end
+
     it 'can pull a snapshot of a new file' do
       file.pull
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
+      expect(staging_projects).to eq projects
     end
 
     it 'can pull a snapshot of an existing file' do
@@ -63,6 +81,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
       expected_attributes['name'] = 'my new file name'
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
+      expect(staging_projects).to eq projects
     end
 
     it 'can pull a snapshot of a removed file' do
@@ -71,6 +90,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
       file.pull
       expect(file_from_database).to be_deleted
       expect(file_from_database.current_snapshot).to be nil
+      expect(staging_projects).to eq []
     end
   end
 end

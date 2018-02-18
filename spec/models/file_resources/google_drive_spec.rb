@@ -2,6 +2,7 @@
 
 require 'models/shared_examples/being_a_file_resource.rb'
 require 'models/shared_examples/being_snapshotable.rb'
+require 'models/shared_examples/being_stageable.rb'
 require 'models/shared_examples/being_syncable.rb'
 
 RSpec.describe FileResources::GoogleDrive, type: :model do
@@ -13,6 +14,10 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
 
   it_should_behave_like 'being snapshotable' do
     let(:snapshotable) { file }
+  end
+
+  it_should_behave_like 'being stageable' do
+    let(:stageable) { file }
   end
 
   it_should_behave_like 'being syncable' do
