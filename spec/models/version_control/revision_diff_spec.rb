@@ -101,7 +101,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     let!(:file)           { create :file, parent: root }
     let(:root)            { create :file, :root, repository: repository }
     let(:differentiator)  { repository.revisions.last }
-    before { create :revision, repository: repository }
+    before { create :git_revision, repository: repository }
 
     it { is_expected.to be_a VersionControl::FileDiff }
 
@@ -248,7 +248,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     end
 
     context 'when base is revision' do
-      before      { create :revision, repository: repository }
+      before      { create :git_revision, repository: repository }
       let(:base)  { repository.revisions.last }
 
       it_should_behave_like 'not using repository locking' do

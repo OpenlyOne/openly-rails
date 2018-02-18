@@ -80,7 +80,7 @@ feature 'Folder' do
     removed_file                = create :file, parent: folder
     unchanged_file              = create :file, parent: folder
     # and files are committed
-    create :revision, repository: project.repository
+    create :git_revision, repository: project.repository
 
     # when changes are made to files
     added_file = create :file, parent: folder
@@ -120,7 +120,7 @@ feature 'Folder' do
     let!(:code)     { create :file, :folder, name: 'Code',      parent: docs }
     before do
       # and folders are committed
-      create :revision, repository: project.repository
+      create :git_revision, repository: project.repository
     end
     let(:action) do
       # when I visit the code folder

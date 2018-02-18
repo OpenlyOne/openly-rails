@@ -102,7 +102,7 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     end
 
     context 'when previous commits have occurred' do
-      before { create :revision, repository: repository }
+      before { create :git_revision, repository: repository }
 
       it 'changes last_commit' do
         expect { method }
@@ -113,7 +113,7 @@ RSpec.describe VersionControl::Revisions::Drafted, type: :model do
     context 'when commit occurs after revision is built' do
       before { revision }
       before { allow(revision).to receive(:valid?).and_return true }
-      before { create :revision, repository: repository }
+      before { create :git_revision, repository: repository }
 
       it 'raises Rugged::ObjectError' do
         expect { method }.to raise_error(

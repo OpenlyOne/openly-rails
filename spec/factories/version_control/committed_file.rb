@@ -7,7 +7,7 @@ FactoryGirl.define do
     skip_create
 
     initialize_with do
-      create :revision, repository: repository
+      create :git_revision, repository: repository
       new(
         repository.revisions.last.files,
         id: id,

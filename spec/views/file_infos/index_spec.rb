@@ -94,9 +94,9 @@ RSpec.describe 'file_infos/index', type: :view do
     let(:revision_diff2)  { instance_double VersionControl::RevisionDiff }
     let(:revision_diff3)  { instance_double VersionControl::RevisionDiff }
     let(:revisions)       { [revision1, revision2, revision3] }
-    let(:revision1)       { create :revision, repository: repository }
-    let(:revision2)       { create :revision, repository: repository }
-    let(:revision3)       { create :revision, repository: repository }
+    let(:revision1)       { create :git_revision, repository: repository }
+    let(:revision2)       { create :git_revision, repository: repository }
+    let(:revision3)       { create :git_revision, repository: repository }
     let(:repository)      { build :repository }
     let(:file)            { build :file, name: 'File' }
     let(:ancestors)       { [] }

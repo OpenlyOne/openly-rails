@@ -7,7 +7,7 @@ RSpec.describe VersionControl::Files::Staged, type: :model do
   subject(:file)          { build :committed_file }
   let(:root)              { create :file, :root, repository: repository }
   let(:repository)        { build :repository }
-  let(:create_revision)   { create :revision, repository: repository }
+  let(:create_revision)   { create :git_revision, repository: repository }
 
   it_should_behave_like 'being a file'
 

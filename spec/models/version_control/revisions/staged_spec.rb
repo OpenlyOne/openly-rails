@@ -80,7 +80,7 @@ RSpec.describe VersionControl::Revisions::Staged, type: :model do
     end
 
     context 'when a previous revision exists' do
-      before        { create :revision, repository: repository }
+      before        { create :git_revision, repository: repository }
       let(:message) { '1st revision' }
       let(:author)  { { name: 'User', email: '1' } }
 

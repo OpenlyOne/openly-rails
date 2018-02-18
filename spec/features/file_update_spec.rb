@@ -30,7 +30,7 @@ feature 'File Update', :vcr do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
   end
   let!(:token)  { GoogleDrive.get_changes_start_page_token.start_page_token }
-  let(:commit)  { create :revision, repository: project.repository }
+  let(:commit)  { create :git_revision, repository: project.repository }
 
   scenario 'In Google Drive, user creates file within project folder' do
     given_project_is_imported_and_changes_committed

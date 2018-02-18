@@ -5,13 +5,13 @@ RSpec.describe 'revisions/index', type: :view do
   let(:repository)  { project.repository }
   let(:revisions)   { [revision1, revision2, revision3] }
   let(:revision1) do
-    create :revision, repository: repository, author: authors[0]
+    create :git_revision, repository: repository, author: authors[0]
   end
   let(:revision2) do
-    create :revision, repository: repository, author: authors[1]
+    create :git_revision, repository: repository, author: authors[1]
   end
   let(:revision3) do
-    create :revision, repository: repository, author: authors[2]
+    create :git_revision, repository: repository, author: authors[2]
   end
   let(:authors) { create_list :user, 3 }
 
@@ -76,13 +76,13 @@ RSpec.describe 'revisions/index', type: :view do
     let!(:root)       { create :file, :root, repository: project.repository }
     let!(:file1)      { create :file, name: 'File1', parent: root }
     let!(:folder)     { create :file, :folder, name: 'Folder', parent: root }
-    let!(:revision1)  { create :revision, repository: project.repository }
+    let!(:revision1)  { create :git_revision, repository: project.repository }
     let!(:file2)      { create :file, name: 'File2', parent: root }
     before            { file1.update(parent_id: folder.id) }
-    let!(:revision2)  { create :revision, repository: project.repository }
+    let!(:revision2)  { create :git_revision, repository: project.repository }
     before            { file2.destroy }
     before            { file1.update(modified_time: Time.zone.now) }
-    let!(:revision3)  { create :revision, repository: project.repository }
+    let!(:revision3)  { create :git_revision, repository: project.repository }
 
     before { assign(:revisions, [revision3, revision2, revision1]) }
 

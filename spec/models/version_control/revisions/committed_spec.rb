@@ -5,11 +5,11 @@ require 'models/shared_examples/version_control/being_a_revision.rb'
 require 'models/shared_examples/version_control/repository_locking.rb'
 
 RSpec.describe VersionControl::Revisions::Committed, type: :model do
-  subject(:revision)  { create :revision }
+  subject(:revision)  { create :git_revision }
   let(:repository)    { revision.repository }
 
   it_should_behave_like 'being a revision' do
-    subject!(:revision) { create :revision }
+    subject!(:git_revision) { create :git_revision }
   end
 
   describe 'attributes' do
