@@ -11,7 +11,6 @@ class DropDiscussionsAndReplies < ActiveRecord::Migration[5.1]
     remove_column :projects, :questions_count
   end
 
-  # rubocop:disable Metrics/MethodLength, AbcSize
   def down
     create_table :discussions do |t|
       t.string :title, null: false

@@ -2,7 +2,6 @@
 
 # Create table for project files
 class CreateFileItems < ActiveRecord::Migration[5.1]
-  # rubocop:disable Metrics/MethodLength
   def change
     create_table :file_items do |t|
       t.references :project, foreign_key: true, null: false

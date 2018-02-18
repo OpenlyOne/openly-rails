@@ -2,7 +2,6 @@
 
 # Create table for storing Delayed Job background jobs
 class CreateDelayedJobs < ActiveRecord::Migration[5.1]
-  # rubocop:disable Metrics/MethodLength
   def change
     create_table :delayed_jobs, force: true do |t|
       # Allows some jobs to jump to the front of the queue
