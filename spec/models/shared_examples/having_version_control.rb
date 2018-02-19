@@ -65,9 +65,9 @@ RSpec.shared_examples 'having version control' do
       subject.send :files
     end
 
-    it 'delegates revisions to repository' do
+    it 'delegates revisions to repository with prefix :git' do
       expect_any_instance_of(VersionControl::Repository).to receive :revisions
-      subject.send :revisions
+      subject.send :git_revisions
     end
 
     context 'when repository is nil' do
@@ -81,8 +81,8 @@ RSpec.shared_examples 'having version control' do
         expect(subject.send(:files)).to eq nil
       end
 
-      it 'returns nil on calling #revisions' do
-        expect(subject.send(:revisions)).to eq nil
+      it 'returns nil on calling #git_revisions' do
+        expect(subject.send(:git_revisions)).to eq nil
       end
     end
   end
