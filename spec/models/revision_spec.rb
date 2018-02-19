@@ -15,6 +15,7 @@ RSpec.describe Revision, type: :model do
       is_expected
         .to belong_to(:author).class_name('Profiles::User').dependent(false)
     end
+    it { is_expected.to have_many(:committed_files).dependent(:destroy) }
   end
 
   describe 'attributes' do

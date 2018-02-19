@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180218205712) do
+ActiveRecord::Schema.define(version: 20180218233707) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,17 @@ ActiveRecord::Schema.define(version: 20180218205712) do
     t.datetime "updated_at", null: false
     t.datetime "remember_created_at"
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "committed_files", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.bigint "file_resource_snapshot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_committed_files_on_file_resource_id"
+    t.index ["file_resource_snapshot_id"], name: "index_committed_files_on_file_resource_snapshot_id"
+    t.index ["revision_id", "file_resource_id"], name: "index_committed_files_on_revision_id_and_file_resource_id", unique: true
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -144,6 +155,9 @@ ActiveRecord::Schema.define(version: 20180218205712) do
     t.index ["project_id"], name: "index_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
   end
 
+  add_foreign_key "committed_files", "file_resource_snapshots"
+  add_foreign_key "committed_files", "file_resources"
+  add_foreign_key "committed_files", "revisions"
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
