@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'including stageable integration' do
-  subject(:staged_projects) { stageable.staging_projects }
+  subject(:staged_projects) { stageable.staging_projects.to_a }
   let(:p1) { create :project }
   let(:p2) { create :project }
   let(:p3) { create :project }
@@ -18,7 +18,7 @@ RSpec.shared_examples 'including stageable integration' do
 
   describe 'parent is set from nil' do
     before { stageable.update(parent: parent) }
-    it     { is_expected.to eq [p1, p2, p3, p4] }
+    it     { is_expected.to contain_exactly(p1, p2, p3, p4) }
   end
 
   describe 'parent is updated' do
@@ -37,7 +37,7 @@ RSpec.shared_examples 'including stageable integration' do
     describe 'parent is staged in some projects' do
       let(:staging_projects_of_new_parent) { [p3, p4, p5, p6] }
 
-      it { is_expected.to eq [p3, p4, p5, p6] }
+      it { is_expected.to contain_exactly(p3, p4, p5, p6) }
     end
 
     describe 'parent is staged in no projects' do
@@ -58,7 +58,7 @@ RSpec.shared_examples 'including stageable integration' do
 
     it 'does not delete stagings as root' do
       stageable.update(parent: parent)
-      is_expected.to eq [p1, p2, p3, p4, p5, p6]
+      is_expected.to contain_exactly(p1, p2, p3, p4, p5, p6)
     end
   end
 end
