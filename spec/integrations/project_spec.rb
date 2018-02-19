@@ -1,6 +1,36 @@
 # frozen_string_literal: true
 
 RSpec.describe Project, type: :model do
+  subject(:project) { create :project }
+
+  describe 'non_root_file_resources_in_stage#with_current_snapshot' do
+    subject(:method) do
+      project.non_root_file_resources_in_stage.with_current_snapshot
+    end
+    let(:file_resources_with_current_snapshot) { create_list :file_resource, 5 }
+    let(:file_resources_without_current_snapshot) do
+      create_list :file_resource, 5, :deleted
+    end
+
+    before do
+      project.file_resources_in_stage << (
+        file_resources_with_current_snapshot +
+        file_resources_without_current_snapshot
+      )
+    end
+
+    it 'returns file resources where current_snapshot is present' do
+      expect(method.map(&:id))
+        .to eq file_resources_with_current_snapshot.map(&:id)
+    end
+
+    it 'does not return file resources where current_snapshot = nil' do
+      intersection_of_ids =
+        method.map(&:id) & file_resources_without_current_snapshot.map(&:id)
+      expect(intersection_of_ids).not_to be_any
+    end
+  end
+
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
     subject(:method) { Project.where_profile_is_owner_or_collaborator(profile) }
     let(:profile)         { create :user }

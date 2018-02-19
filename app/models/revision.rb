@@ -22,6 +22,26 @@ class Revision < ApplicationRecord
   validate :can_only_have_one_revision_with_parent, if: :parent_id
   validate :can_only_have_one_origin_revision_per_project, unless: :parent_id
 
+  # Create a non-published revision for the project and commit all files staged
+  # in the project
+  def self.create_draft_and_commit_files_for_project!(project, author)
+    create!(project: project,
+            parent: project.published_revisions.last,
+            author: author)
+      .tap(&:commit_all_files_staged_in_project)
+  end
+
+  # Take ID and current snapshot ID of all (non-root) file resources currently
+  # staged in project and import them as committed files for this revision.
+  def commit_all_files_staged_in_project
+    CommittedFile.insert_from_select_query(
+      %i[revision_id file_resource_id file_resource_snapshot_id],
+      project.non_root_file_resources_in_stage  # only commit non-root files
+             .with_current_snapshot             # ignore files without snapshot
+             .select(id, :id, :current_snapshot_id)
+    )
+  end
+
   def published?
     is_published
   end

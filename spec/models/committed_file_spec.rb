@@ -53,4 +53,29 @@ RSpec.describe CommittedFile, type: :model do
       it { expect { destroy }.to raise_error ActiveRecord::ReadOnlyRecord }
     end
   end
+
+  describe '.insert_from_select_query(columns, query)' do
+    subject(:insert)  { described_class.insert_from_select_query(cols, query) }
+    let(:cols)        { %i[col1 col2] }
+    let(:query)       { instance_double ActiveRecord::Relation }
+
+    before do
+      allow(ActiveRecord::Base.connection)
+        .to receive(:execute).and_call_original
+      q = instance_double ActiveRecord::Relation
+      allow(query)
+        .to receive(:select)
+        .with('NOW() AS created_at', 'NOW() AS updated_at')
+        .and_return q
+      allow(q).to receive(:to_sql).and_return 'select-query-to-sql'
+    end
+
+    it 'calls ActiveRecord::Base.connection#execute' do
+      expect(ActiveRecord::Base.connection).to receive(:execute).with(
+        "INSERT INTO committed_files (col1, col2, created_at, updated_at)\n" \
+        'select-query-to-sql'
+      ).and_return true
+      insert
+    end
+  end
 end
