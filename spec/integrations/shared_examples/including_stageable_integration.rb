@@ -22,7 +22,8 @@ RSpec.shared_examples 'including stageable integration' do
   end
 
   describe 'parent is updated' do
-    let(:new_parent) { parent.dup }
+    let(:new_parent) { described_class.new(attributes) }
+    let(:attributes) { parent.dup.attributes.except('current_snapshot_id') }
 
     before do
       # Create new parent with staged projects

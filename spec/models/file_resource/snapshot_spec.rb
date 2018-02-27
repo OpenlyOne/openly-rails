@@ -13,6 +13,10 @@ RSpec.describe FileResource::Snapshot, type: :model do
     end
   end
 
+  describe 'attributes' do
+    it { is_expected.to respond_to(:snapshotable_id) }
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:file_resource_id) }
     it { is_expected.to validate_presence_of(:name) }

@@ -93,7 +93,9 @@ RSpec.shared_examples 'being a file resource' do
       let(:parent) do
         described_class.create!(attributes.merge(external_id: 'parent'))
       end
-      let(:attributes) { file_resource.dup.attributes.except('id') }
+      let(:attributes) do
+        file_resource.dup.attributes.except('id', 'current_snapshot_id')
+      end
 
       before do
         file_resource.update(parent: parent)

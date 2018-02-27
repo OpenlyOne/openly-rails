@@ -13,6 +13,9 @@ module Snapshotable
 
     before_save :clear_snapshot, if: :deleted?
     after_save :snapshot!, if: :saved_changes_to_metadata?, unless: :deleted?
+
+    validate :current_snapshot_must_belong_to_snapshotable,
+             if: :current_snapshot
   end
 
   private
@@ -33,6 +36,12 @@ module Snapshotable
   # Clear the current snapshot association
   def clear_snapshot
     self.current_snapshot = nil
+  end
+
+  # Validate that current snapshot is associated with this snapshotable
+  def current_snapshot_must_belong_to_snapshotable
+    return if current_snapshot.snapshotable_id == id
+    errors.add(:current_snapshot, "must belong to this #{model_name}")
   end
 
   # Has any of the metadata been saved changes to?

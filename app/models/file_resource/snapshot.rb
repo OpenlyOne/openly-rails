@@ -13,6 +13,9 @@ class FileResource
       raise ActiveRecord::ReadOnlyRecord
     end
 
+    # Attributes
+    alias_attribute :snapshotable_id, :file_resource_id
+
     # Validations
     validates :file_resource_id,  presence: true
     validates :name,              presence: true
