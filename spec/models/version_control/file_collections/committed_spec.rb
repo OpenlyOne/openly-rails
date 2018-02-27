@@ -8,7 +8,7 @@ RSpec.describe VersionControl::FileCollections::Committed, type: :model do
     repository.revisions.last.files
   end
   let(:repository)      { build :repository }
-  let(:create_revision) { create :revision, repository: repository }
+  let(:create_revision) { create :git_revision, repository: repository }
   let(:root)            { create :file, :root, repository: repository }
 
   it_should_behave_like 'being a file collection'

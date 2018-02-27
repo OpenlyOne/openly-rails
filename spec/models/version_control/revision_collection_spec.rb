@@ -72,7 +72,7 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
     it                { is_expected.to be nil }
 
     context 'when a previous revision exists' do
-      before            { create :revision, repository: repository }
+      before            { create :git_revision, repository: repository }
       let(:last_commit) { repository.rugged_repository.last_commit }
 
       it do

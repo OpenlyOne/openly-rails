@@ -149,5 +149,5 @@ RSpec.shared_context 'file diff with files' do
   let(:create_files)                  { nil }
   let(:after_file_creation_callback) { create_revision }
   # create revision for the repository as callback
-  let(:create_revision) { create :revision, repository: repository }
+  let(:create_revision) { create :git_revision, repository: repository }
 end

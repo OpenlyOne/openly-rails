@@ -6,9 +6,9 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
 
   describe '#all' do
     subject(:method)        { revision_collection.all }
-    let!(:oldest_revision)  { create :revision, repository: repository }
-    let!(:second_revision)  { create :revision, repository: repository }
-    let!(:newest_revision)  { create :revision, repository: repository }
+    let!(:oldest_revision)  { create :git_revision, repository: repository }
+    let!(:second_revision)  { create :git_revision, repository: repository }
+    let!(:newest_revision)  { create :git_revision, repository: repository }
 
     it 'returns all three revisions' do
       expect(method.map(&:id)).to contain_exactly(
@@ -33,9 +33,9 @@ RSpec.describe VersionControl::RevisionCollection, type: :model do
 
   describe '#all_as_diffs' do
     subject(:method)        { revision_collection.all_as_diffs }
-    let!(:oldest_revision)  { create :revision, repository: repository }
-    let!(:second_revision)  { create :revision, repository: repository }
-    let!(:newest_revision)  { create :revision, repository: repository }
+    let!(:oldest_revision)  { create :git_revision, repository: repository }
+    let!(:second_revision)  { create :git_revision, repository: repository }
+    let!(:newest_revision)  { create :git_revision, repository: repository }
 
     it 'returns three revision diffs' do
       expect(method).to be_an Array

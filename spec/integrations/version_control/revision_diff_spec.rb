@@ -19,7 +19,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     let!(:deleted_file)   { create :file, parent: root }
 
     # commit
-    before                { create :revision, repository: repository }
+    before                { create :git_revision, repository: repository }
 
     # make some changes
     let!(:added_file)     { create :file, :folder, parent: root }
@@ -55,7 +55,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
       # initialize differentiator
       let!(:differentiator) { repository.revisions.last }
       # commit again & initialize base
-      let(:base) { create :revision, repository: repository }
+      let(:base) { create :git_revision, repository: repository }
 
       it 'still returns four FileDiffs' do
         expect(method.map(&:class).uniq).to eq [VersionControl::FileDiff]
@@ -73,10 +73,10 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
 
     context 'when no files have changed' do
       # commit again & initialize differentiator
-      let!(:differentiator) { create :revision, repository: repository }
+      let!(:differentiator) { create :git_revision, repository: repository }
       before { repository.revisions.reload }
       # commit again & initialize base
-      let(:base) { create :revision, repository: repository }
+      let(:base) { create :git_revision, repository: repository }
 
       it { is_expected.to eq [] }
     end
@@ -90,7 +90,7 @@ RSpec.describe VersionControl::RevisionDiff, type: :model do
     context 'when folder with files is moved' do
       let!(:child)        { create :file, parent: folder }
       let!(:other_folder) { create :file, :folder, parent: root }
-      before              { create :revision, repository: repository }
+      before              { create :git_revision, repository: repository }
       # move the folder
       before              { folder.update(parent_id: other_folder.id) }
 

@@ -22,6 +22,30 @@ class Project < ApplicationRecord
                         through: :staged_root_folder,
                         source: :file_resource
 
+  has_many :staged_non_root_files,
+           -> { where is_root: false },
+           class_name: 'StagedFile'
+  has_many :non_root_file_resources_in_stage, class_name: 'FileResource',
+                                              through: :staged_non_root_files,
+                                              source: :file_resource do
+    # Return non root file resources in stage that have a current snapshot
+    def with_current_snapshot
+      where.not(file_resources: { current_snapshot: nil })
+    end
+  end
+
+  has_many :revisions, dependent: :destroy do
+    def create_draft_and_commit_files!(author)
+      ::Revision.create_draft_and_commit_files_for_project!(
+        proxy_association.owner,
+        author
+      )
+    end
+  end
+  has_many :published_revisions,
+           -> { where is_published: true },
+           class_name: 'Revision'
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id, :owner_type

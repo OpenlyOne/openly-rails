@@ -62,7 +62,7 @@ class FileInfosController < ApplicationController
     # TODO: One day this should be @file.versions or Project.find_file_by_id(id)
     # =>    which then returns the last version of the file
     @file_versions =
-      @project.revisions.all_as_diffs.map do |revision_diff|
+      @project.git_revisions.all_as_diffs.map do |revision_diff|
         revision_diff.changed_files_as_diffs.find { |diff| diff.id == @file_id }
       end
 

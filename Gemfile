@@ -75,6 +75,8 @@ group :development, :test do
   gem 'factory_girl_rails', '~> 4.8'
   # Quickly generate fake names, urls, etc
   gem 'faker', '~> 1.8'
+  # ActiveRecord-Import for bulk creation of records
+  gem 'activerecord-import', '~> 0.22'
 end
 
 group :development do

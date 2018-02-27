@@ -4,10 +4,10 @@ require 'models/shared_examples/version_control/being_a_file.rb'
 require 'models/shared_examples/caching_method_call.rb'
 
 RSpec.describe VersionControl::Files::Staged, type: :model do
-  subject(:file)          { build :committed_file }
+  subject(:file)          { build :git_committed_file }
   let(:root)              { create :file, :root, repository: repository }
   let(:repository)        { build :repository }
-  let(:create_revision)   { create :revision, repository: repository }
+  let(:create_revision)   { create :git_revision, repository: repository }
 
   it_should_behave_like 'being a file'
 

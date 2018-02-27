@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 FactoryGirl.define do
-  factory :committed_file,
+  factory :git_committed_file,
           class: VersionControl::Files::Committed,
           parent: :file do
     skip_create
 
     initialize_with do
-      create :revision, repository: repository
+      create :git_revision, repository: repository
       new(
         repository.revisions.last.files,
         id: id,

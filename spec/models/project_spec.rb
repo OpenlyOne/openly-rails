@@ -44,6 +44,29 @@ RSpec.describe Project, type: :model do
         .source(:file_resource)
         .dependent(false)
     end
+    it do
+      is_expected
+        .to have_many(:staged_non_root_files)
+        .conditions(is_root: false)
+        .class_name('StagedFile')
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:non_root_file_resources_in_stage)
+        .class_name('FileResource')
+        .through(:staged_non_root_files)
+        .source(:file_resource)
+        .dependent(false)
+    end
+    it { is_expected.to have_many(:revisions).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:published_revisions)
+        .class_name('Revision')
+        .conditions(is_published: true)
+        .dependent(false)
+    end
   end
 
   describe 'attributes' do
@@ -269,6 +292,19 @@ RSpec.describe Project, type: :model do
           'projects'
         ).cleanpath.to_s
       )
+    end
+  end
+
+  describe 'revisions#create_draft_and_commit_files!' do
+    subject(:method) do
+      project.revisions.create_draft_and_commit_files!('author')
+    end
+
+    it 'calls Revision#create_draft_and_commit_files_for_project!' do
+      expect(Revision)
+        .to receive(:create_draft_and_commit_files_for_project!)
+        .with(project, 'author')
+      method
     end
   end
 

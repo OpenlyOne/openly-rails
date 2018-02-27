@@ -9,7 +9,7 @@ module VersionControl
     # Delegations
     delegate :stage, to: :repository, prefix: :repository, allow_nil: true
     delegate :files, to: :repository_stage, allow_nil: true
-    delegate :revisions, to: :repository, allow_nil: true
+    delegate :revisions, to: :repository, prefix: :git, allow_nil: true
 
     # Callbacks
     # Safely create repository after creating object

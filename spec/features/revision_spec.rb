@@ -13,13 +13,13 @@ feature 'Revision' do
     # =>    a commit is made. If that implementation changes, this spec would
     # =>    still pass.
     first_revision =
-      create :revision, repository: project.repository, author: users[0]
+      create :git_revision, repository: project.repository, author: users[0]
     file.update(modified_time: Time.zone.now)
     second_revision =
-      create :revision, repository: project.repository, author: users[1]
+      create :git_revision, repository: project.repository, author: users[1]
     file.destroy
     third_revision =
-      create :revision, repository: project.repository, author: users[2]
+      create :git_revision, repository: project.repository, author: users[2]
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -85,7 +85,7 @@ feature 'Revision' do
     moved_folder                = create :file, :folder, parent: root
     create_list :file, 5, parent: moved_folder
     # and files are committed
-    create :revision, repository: project.repository
+    create :git_revision, repository: project.repository
     # and I am signed in as its owner
     sign_in_as project.owner.account
 

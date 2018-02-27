@@ -11,5 +11,12 @@ FactoryGirl.define do
     trait :with_parent do
       association :parent, factory: :file_resource
     end
+
+    trait :deleted do
+      name nil
+      content_version nil
+      mime_type nil
+      is_deleted true
+    end
   end
 end

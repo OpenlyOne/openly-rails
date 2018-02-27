@@ -7,7 +7,7 @@ feature 'File Info' do
     # with a committed file
     root = create :file, :root, repository: project.repository
     file = create :file, name: 'File1', parent: root
-    first_revision = create :revision, repository: project.repository
+    first_revision = create :git_revision, repository: project.repository
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -57,9 +57,9 @@ feature 'File Info' do
     # with a committed file that has been deleted
     root = create :file, :root, repository: project.repository
     file = create :file, name: 'File1', parent: root
-    first_revision = create :revision, repository: project.repository
+    first_revision = create :git_revision, repository: project.repository
     file.destroy
-    second_revision = create :revision, repository: project.repository
+    second_revision = create :git_revision, repository: project.repository
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
