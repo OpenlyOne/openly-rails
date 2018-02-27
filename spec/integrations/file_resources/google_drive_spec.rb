@@ -11,8 +11,9 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
   let(:external_id) { 'id' }
 
   it_should_behave_like 'including snapshotable integration' do
-    let(:file) { build :file_resources_google_drive }
-    let(:snapshotable) { file }
+    let(:file)                    { build :file_resources_google_drive }
+    let(:snapshotable)            { file }
+    let(:snapshotable_model_name) { 'FileResources::GoogleDrive' }
   end
 
   it_should_behave_like 'including stageable integration' do
