@@ -12,11 +12,8 @@ class Revision < ApplicationRecord
   attr_readonly :project_id, :parent_id, :author_id
 
   # Validations
-  # Require title and summary for published revisions
-  with_options if: :published? do
-    validates :title, presence: true
-    validates :summary, presence: true
-  end
+  # Require title for published revisions
+  validates :title, presence: true, if: :published?
 
   validate :parent_must_belong_to_same_project, if: :parent_id
   validate :can_only_have_one_revision_with_parent, if: :parent_id

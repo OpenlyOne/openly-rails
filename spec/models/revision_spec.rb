@@ -26,12 +26,11 @@ RSpec.describe Revision, type: :model do
 
   describe 'validations' do
     it { is_expected.not_to validate_presence_of(:title) }
-    it { is_expected.not_to validate_presence_of(:summary) }
 
     context 'when is_published=true' do
       before  { revision.is_published = true }
       it      { is_expected.to validate_presence_of(:title) }
-      it      { is_expected.to validate_presence_of(:summary) }
+      it      { is_expected.not_to validate_presence_of(:summary) }
     end
   end
 
