@@ -18,6 +18,14 @@ RSpec.describe CommittedFile, type: :model do
     end
   end
 
+  describe 'scopes' do
+    it 'has scope: where_snapshot_changed_between_revisions' do
+      expect(described_class)
+        .to respond_to(:where_snapshot_changed_between_revisions)
+        .with(2).arguments
+    end
+  end
+
   describe 'validations' do
     subject(:file) { build :committed_file }
 

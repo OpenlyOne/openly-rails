@@ -15,6 +15,17 @@ class CommittedFile < ApplicationRecord
             }
   validate :file_resource_snapshot_belongs_to_file_resource
 
+  # Scopes
+  # Committed files where snapshot ID changed from revision 1 to revision 2
+  scope :where_snapshot_changed_between_revisions, lambda { |rev1, rev2|
+    select(:file_resource_id,
+           :file_resource_snapshot_id,
+           'min(revision_id) AS revision_id')
+      .where(revision_id: [rev1, rev2].compact)
+      .group(:file_resource_id, :file_resource_snapshot_id)
+      .having('count(*) = 1')
+  }
+
   # Execute INSERT query based on the SELECT query
   # Order of columns must match order of select statements.
   # For example:
