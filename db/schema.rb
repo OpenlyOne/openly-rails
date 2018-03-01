@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180218233707) do
+ActiveRecord::Schema.define(version: 20180227150638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,20 @@ ActiveRecord::Schema.define(version: 20180218233707) do
     t.string "delayed_reference_type"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
+  end
+
+  create_table "file_diffs", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.bigint "current_snapshot_id"
+    t.bigint "previous_snapshot_id"
+    t.text "first_three_ancestors", null: false, array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_snapshot_id"], name: "index_file_diffs_on_current_snapshot_id"
+    t.index ["file_resource_id"], name: "index_file_diffs_on_file_resource_id"
+    t.index ["previous_snapshot_id"], name: "index_file_diffs_on_previous_snapshot_id"
+    t.index ["revision_id", "file_resource_id"], name: "index_file_diffs_on_revision_id_and_file_resource_id", unique: true
   end
 
   create_table "file_resource_snapshots", force: :cascade do |t|
@@ -158,6 +172,10 @@ ActiveRecord::Schema.define(version: 20180218233707) do
   add_foreign_key "committed_files", "file_resource_snapshots"
   add_foreign_key "committed_files", "file_resources"
   add_foreign_key "committed_files", "revisions"
+  add_foreign_key "file_diffs", "file_resource_snapshots", column: "current_snapshot_id"
+  add_foreign_key "file_diffs", "file_resource_snapshots", column: "previous_snapshot_id"
+  add_foreign_key "file_diffs", "file_resources"
+  add_foreign_key "file_diffs", "revisions"
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"

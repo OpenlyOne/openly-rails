@@ -7,6 +7,7 @@ class Revision < ApplicationRecord
   belongs_to :parent, class_name: 'Revision', optional: true, autosave: false
   belongs_to :author, class_name: 'Profiles::User'
   has_many :committed_files, dependent: :destroy
+  has_many :file_diffs, dependent: :destroy
 
   # attributes
   attr_readonly :project_id, :parent_id, :author_id
