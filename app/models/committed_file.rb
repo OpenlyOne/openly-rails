@@ -25,6 +25,12 @@ class CommittedFile < ApplicationRecord
       .group(:file_resource_id, :file_resource_snapshot_id)
       .having('count(*) = 1')
   }
+  scope :distinct_file_resources_between_revisions, lambda { |rev1, rev2|
+    select('DISTINCT ON (committed_files.file_resource_id) ' \
+           'committed_files.file_resource_id')
+      .where(revision_id: [rev1, rev2].compact)
+      .order(:file_resource_id, revision_id: :desc)
+  }
 
   # Execute INSERT query based on the SELECT query
   # Order of columns must match order of select statements.

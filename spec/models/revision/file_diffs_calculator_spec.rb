@@ -20,6 +20,48 @@ RSpec.describe Revision::FileDiffsCalculator, type: :model do
     end
   end
 
+  describe '#ancestor_depth' do
+    subject(:depth) { calculator.send :ancestor_depth }
+    it { is_expected.to eq 3 }
+  end
+
+  describe '#ancestors_names_for(diff)' do
+    subject(:ancestors) { calculator.send :ancestors_names_for, diff }
+    let(:diff)          { { 'file_resource_id' => 1, 'x' => 'y' } }
+    let(:ancestry_tree) { instance_double Revision::FileAncestryTree }
+
+    before do
+      allow(calculator).to receive(:ancestry_tree).and_return ancestry_tree
+      allow(ancestry_tree)
+        .to receive(:ancestors_names_for)
+        .with(1, depth: 'depth')
+        .and_return %w[ancestor1 ancestor2 ancestor3]
+      allow(calculator).to receive(:ancestor_depth).and_return 'depth'
+    end
+
+    it { is_expected.to eq %w[ancestor1 ancestor2 ancestor3] }
+  end
+
+  describe '#ancestry_tree' do
+    let(:raw_diffs) do
+      [{ 'file_resource_id' => 1, 'x' => 'y' },
+       { 'file_resource_id' => 2, 'x' => 'y' },
+       { 'file_resource_id' => 3, 'x' => 'y' }]
+    end
+
+    before do
+      allow(calculator).to receive(:raw_diffs).and_return raw_diffs
+      allow(calculator).to receive(:ancestor_depth).and_return 'depth'
+    end
+
+    it 'generates FileAncestryTree' do
+      expect(Revision::FileAncestryTree)
+        .to receive(:generate)
+        .with(revision: revision, file_ids: [1, 2, 3], depth: 'depth')
+      calculator.send :ancestry_tree
+    end
+  end
+
   describe '#calculate_diffs' do
     subject(:method) { calculator.send :calculate_diffs }
 
@@ -29,18 +71,13 @@ RSpec.describe Revision::FileDiffsCalculator, type: :model do
 
     before do
       allow(calculator).to receive(:raw_diffs).and_return raw_diffs
-      allow(calculator)
-        .to receive(:raw_diff_to_diff)
-        .with('id' => 'raw1')
-        .and_return('id' => 'diff1')
-      allow(calculator)
-        .to receive(:raw_diff_to_diff)
-        .with('id' => 'raw2')
-        .and_return('id' => 'diff2')
-      allow(calculator)
-        .to receive(:raw_diff_to_diff)
-        .with('id' => 'raw3')
-        .and_return('id' => 'diff3')
+      allow(calculator).to receive(:raw_diff_to_diff) do |raw|
+        raw.merge('id' => raw['id'].gsub('raw', 'diff'))
+      end
+      allow(calculator).to receive(:ancestors_names_for) do |raw|
+        id = raw['id'].gsub('raw', '')
+        %W[#{id}.1 #{id}.2 #{id}.3]
+      end
     end
 
     it 'returns raw diffs converted to diffs' do
@@ -53,9 +90,9 @@ RSpec.describe Revision::FileDiffsCalculator, type: :model do
 
     it 'adds first_three_ancestors' do
       is_expected.to contain_exactly(
-        hash_including('first_three_ancestors' => []),
-        hash_including('first_three_ancestors' => []),
-        hash_including('first_three_ancestors' => [])
+        hash_including('first_three_ancestors' => %w[1.1 1.2 1.3]),
+        hash_including('first_three_ancestors' => %w[2.1 2.2 2.3]),
+        hash_including('first_three_ancestors' => %w[3.1 3.2 3.3])
       )
     end
   end

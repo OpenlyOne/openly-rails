@@ -23,12 +23,33 @@ class Revision
 
     attr_accessor :revision
 
+    # Number of ancestors to load for each diff
+    def ancestor_depth
+      3
+    end
+
+    # Return an array of ancestors names for a given diff, up to default depth
+    def ancestors_names_for(diff)
+      ancestry_tree.ancestors_names_for(diff['file_resource_id'],
+                                        depth: ancestor_depth)
+    end
+
+    # Return (or load) ancestry tree for diffs
+    def ancestry_tree
+      @ancestry_tree ||=
+        FileAncestryTree.generate(
+          revision: revision,
+          file_ids: raw_diffs.map { |diff| diff['file_resource_id'] },
+          depth: ancestor_depth
+        )
+    end
+
     # Calculate diffs by converting raw diffs to attribute hashes and adding
     # ancestor names up to default depth
     def calculate_diffs
       raw_diffs.map do |raw_diff|
         raw_diff_to_diff(raw_diff)
-          .merge('first_three_ancestors' => [])
+          .merge('first_three_ancestors' => ancestors_names_for(raw_diff))
       end
     end
 
