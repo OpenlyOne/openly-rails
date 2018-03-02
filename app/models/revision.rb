@@ -27,6 +27,7 @@ class Revision < ApplicationRecord
             parent: project.published_revisions.last,
             author: author)
       .tap(&:commit_all_files_staged_in_project)
+      .tap(&:generate_diffs)
   end
 
   # Take ID and current snapshot ID of all (non-root) file resources currently
@@ -38,6 +39,11 @@ class Revision < ApplicationRecord
              .with_current_snapshot             # ignore files without snapshot
              .select(id, :id, :current_snapshot_id)
     )
+  end
+
+  # Calculate and cache file diffs from parent revision to self
+  def generate_diffs
+    FileDiffsCalculator.new(revision: self).cache_diffs!
   end
 
   def published?

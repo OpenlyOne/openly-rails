@@ -48,6 +48,7 @@ RSpec.describe Revision, type: :model do
     before do
       allow(described_class).to receive(:create!).and_return(draft)
       allow(draft).to receive(:commit_all_files_staged_in_project)
+      allow(draft).to receive(:generate_diffs)
       allow(project).to receive(:published_revisions).and_return revisions
     end
 
@@ -91,6 +92,18 @@ RSpec.describe Revision, type: :model do
         .with(%i[revision_id file_resource_id file_resource_snapshot_id],
               query)
       commit_files
+    end
+  end
+
+  describe '#generate_diffs' do
+    subject(:generate_diffs)  { revision.generate_diffs }
+    let(:calculator)          { instance_double Revision::FileDiffsCalculator }
+
+    it 'calls Revision::FileDiffsCalculator#cache_diffs!' do
+      expect(Revision::FileDiffsCalculator)
+        .to receive(:new).with(revision: revision).and_return calculator
+      expect(calculator).to receive(:cache_diffs!)
+      subject
     end
   end
 end
