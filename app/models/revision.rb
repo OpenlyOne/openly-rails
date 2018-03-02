@@ -7,16 +7,14 @@ class Revision < ApplicationRecord
   belongs_to :parent, class_name: 'Revision', optional: true, autosave: false
   belongs_to :author, class_name: 'Profiles::User'
   has_many :committed_files, dependent: :destroy
+  has_many :file_diffs, dependent: :destroy
 
   # attributes
   attr_readonly :project_id, :parent_id, :author_id
 
   # Validations
-  # Require title and summary for published revisions
-  with_options if: :published? do
-    validates :title, presence: true
-    validates :summary, presence: true
-  end
+  # Require title for published revisions
+  validates :title, presence: true, if: :published?
 
   validate :parent_must_belong_to_same_project, if: :parent_id
   validate :can_only_have_one_revision_with_parent, if: :parent_id
@@ -29,6 +27,7 @@ class Revision < ApplicationRecord
             parent: project.published_revisions.last,
             author: author)
       .tap(&:commit_all_files_staged_in_project)
+      .tap(&:generate_diffs)
   end
 
   # Take ID and current snapshot ID of all (non-root) file resources currently
@@ -40,6 +39,11 @@ class Revision < ApplicationRecord
              .with_current_snapshot             # ignore files without snapshot
              .select(id, :id, :current_snapshot_id)
     )
+  end
+
+  # Calculate and cache file diffs from parent revision to self
+  def generate_diffs
+    FileDiffsCalculator.new(revision: self).cache_diffs!
   end
 
   def published?

@@ -61,6 +61,8 @@ gem 'filelock'
 gem 'rollbar', '~> 2.15'
 # Paperclip for attachments
 gem 'paperclip', '~> 5.2'
+# ActiveRecord-Import for bulk creation of records
+gem 'activerecord-import', '~> 0.22'
 
 group :development, :test do
   # We will use pry rails as our console
@@ -75,8 +77,6 @@ group :development, :test do
   gem 'factory_girl_rails', '~> 4.8'
   # Quickly generate fake names, urls, etc
   gem 'faker', '~> 1.8'
-  # ActiveRecord-Import for bulk creation of records
-  gem 'activerecord-import', '~> 0.22'
 end
 
 group :development do
