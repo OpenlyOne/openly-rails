@@ -6,7 +6,17 @@ RSpec.shared_examples 'being a file resource' do
   describe 'associations' do
     it do
       is_expected
-        .to belong_to(:parent).class_name('FileResource').dependent(false)
+        .to belong_to(:parent)
+        .class_name(described_class.model_name.to_s)
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:children)
+        .class_name(described_class.model_name.to_s)
+        .inverse_of(:parent)
+        .with_foreign_key(:parent_id)
+        .dependent(false)
     end
   end
 

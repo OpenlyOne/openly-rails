@@ -9,7 +9,9 @@ class FileResource < ApplicationRecord
   self.inheritance_column = 'provider_id'
 
   # Associations
-  belongs_to :parent, class_name: 'FileResource', optional: true
+  belongs_to :parent, class_name: model_name, optional: true
+  has_many :children, class_name: model_name, inverse_of: :parent,
+                      foreign_key: :parent_id
 
   # Attributes
   attr_readonly :provider_id
