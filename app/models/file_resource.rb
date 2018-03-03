@@ -74,8 +74,17 @@ class FileResource < ApplicationRecord
     is_deleted
   end
 
+  def folder?
+    Object.const_get("#{provider}::MimeType").folder?(mime_type)
+  end
+
   def provider
     "Providers::#{provider_name}".constantize
+  end
+
+  # Return all children that are folders
+  def subfolders
+    children.select(&:folder?)
   end
 
   private

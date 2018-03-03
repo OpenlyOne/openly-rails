@@ -143,6 +143,45 @@ RSpec.shared_examples 'being a file resource' do
     end
   end
 
+  describe '#folder?' do
+    subject(:folder_check) { file_resource.folder? }
+    before do
+      allow(file_resource).to receive(:mime_type).and_return 'mime-type'
+      allow(mime_type_class)
+        .to receive(:folder?).with('mime-type').and_return is_folder
+    end
+
+    context 'when mime type is a folder' do
+      let(:is_folder) { true }
+      it { is_expected.to be true }
+    end
+
+    context 'when mime type is not a folder' do
+      let(:is_folder) { false }
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#subfolders' do
+    subject(:subfolders)  { file_resource.subfolders }
+    let(:folder1)         { instance_double described_class }
+    let(:folder2)         { instance_double described_class }
+    let(:file1)           { instance_double described_class }
+    let(:file2)           { instance_double described_class }
+
+    before do
+      allow(file_resource)
+        .to receive(:children).and_return [file1, folder1, file2, folder2]
+
+      allow(folder1).to receive(:folder?).and_return true
+      allow(folder2).to receive(:folder?).and_return true
+      allow(file1).to receive(:folder?).and_return false
+      allow(file2).to receive(:folder?).and_return false
+    end
+
+    it { is_expected.to contain_exactly folder1, folder2 }
+  end
+
   describe '#cannot_be_its_own_ancestor' do
     subject(:validation)  { file_resource.send :cannot_be_its_own_ancestor }
     let(:ancestors_ids)   { [] }

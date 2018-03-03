@@ -191,14 +191,17 @@ class Project < ApplicationRecord
   # Import a Google Drive Folder
   def import_google_drive_folder
     # Create the root folder
-    drive_file = GoogleDrive.get_file(google_drive_folder_id)
-    files.create_root(drive_file.to_h)
+    self.root_folder =
+      FileResources::GoogleDrive
+      .find_or_initialize_by(external_id: google_drive_folder_id)
+      .tap(&:pull)
 
     # Start recursive FolderImportJob
-    FolderImportJob.perform_later(reference: self, folder_id: files.root.id)
+    FolderImportJob.perform_later(reference: self,
+                                  file_resource_id: root_folder.id)
   rescue StandardError
     # An error was found -- make sure root is not persisted
-    files.root&.destroy
+    staged_root_folder&.destroy
     # Re-raise original error
     raise
   end
