@@ -8,5 +8,9 @@ FactoryGirl.define do
     name            { Faker::File.file_name('', nil, nil, '') }
     content_version { rand(1..1000) }
     mime_type       { 'application/vnd.google-apps.document' }
+
+    trait :folder do
+      mime_type { 'application/vnd.google-apps.folder' }
+    end
   end
 end

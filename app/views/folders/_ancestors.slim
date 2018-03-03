@@ -15,5 +15,5 @@ nav.breadcrumbs.truncate.gray.lighten-3.black-text.z-depth-0
 
         / print each ancestor
         = render partial: 'ancestor',
-                collection: ancestors.reverse.push(current_folder).drop(1),
+                collection: ancestors.reverse.push(current_folder),
                 locals: { current_folder: current_folder, project: project }

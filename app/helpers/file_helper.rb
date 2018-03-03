@@ -39,12 +39,13 @@ module FileHelper
   # If the file is not a directory, wraps into an external link to Drive.
   def link_to_file(file, project, options = {}, &block)
     # internal link to that folder
-    if file.directory?
-      path = profile_project_folder_path(project.owner, project, file.id)
+    if file.folder?
+      path =
+        profile_project_folder_path(project.owner, project, file.external_id)
 
     # external link to the original file on Google Drive
     else
-      path = external_link_for_file(file)
+      path = file.external_link
       options = options.reverse_merge target: '_blank'
     end
 
@@ -70,7 +71,7 @@ module FileHelper
   def sort_order_for_files(file)
     [
       # put directories first
-      (file.directory? ? 0 : 1),
+      (file.folder? ? 0 : 1),
       # then sort by name in ascending order (case insensitive)
       file.name.downcase
     ]

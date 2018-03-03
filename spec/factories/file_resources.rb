@@ -8,6 +8,10 @@ FactoryGirl.define do
     content_version { rand(1..1000) }
     mime_type       { 'application/vnd.google-apps.document' }
 
+    trait :folder do
+      mime_type { 'application/vnd.google-apps.folder' }
+    end
+
     trait :with_parent do
       association :parent, factory: :file_resource
     end
