@@ -20,14 +20,14 @@ class FileResource < ApplicationRecord
   validates :provider_id, presence: true
   validates :external_id, presence: true
   validates :external_id, uniqueness: { scope: :provider_id },
-                          if: :external_id_changed?
+                          if: :will_save_change_to_external_id?
 
   validate :cannot_be_its_own_parent, if: :parent_association_loaded?
 
   # Only perform validation if no errors have been encountered
   with_options unless: :any_errors? do
     validates_associated :parent, if: :parent_association_loaded?
-    validate :cannot_be_its_own_ancestor, if: :parent_id_changed?
+    validate :cannot_be_its_own_ancestor, if: :will_save_change_to_parent_id?
   end
 
   # Require presence of metadata unless file resource is deleted
