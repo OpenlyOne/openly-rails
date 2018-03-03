@@ -26,7 +26,8 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     let(:syncable) { file }
     let(:parent_id) { google_drive_test_folder_id }
     let(:mime_type) { Providers::GoogleDrive::MimeType.document }
-    let(:file_sync_class) { Providers::GoogleDrive::FileSync }
+    let(:folder_mime_type)  { Providers::GoogleDrive::MimeType.folder }
+    let(:file_sync_class)   { Providers::GoogleDrive::FileSync }
 
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }
@@ -78,7 +79,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     it 'can pull a snapshot of an existing file' do
       file.pull
       file_sync.rename('my new file name')
-      file.pull
+      file.reload.pull
       expected_attributes['name'] = 'my new file name'
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
@@ -88,7 +89,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     it 'can pull a snapshot of a removed file' do
       file.pull
       api.delete_file(file.external_id)
-      file.pull
+      file.reload.pull
       expect(file_from_database).to be_deleted
       expect(file_from_database.current_snapshot).to be nil
       expect(staging_projects).to eq []

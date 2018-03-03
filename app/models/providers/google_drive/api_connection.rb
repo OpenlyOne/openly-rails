@@ -52,6 +52,14 @@ module Providers
         drive_service.get_file(id, fields: default_file_fields)
       end
 
+      # Find files by parent
+      def find_files_by_parent_id(parent_id)
+        drive_service.list_files(
+          q:      "'#{parent_id}' in parents",
+          fields: prefix_fields('files', default_file_fields)
+        ).files
+      end
+
       # Get the most recent revision # of this file
       def file_head_revision(id)
         drive_service.get_revision(id, 'head').id.to_i
@@ -136,6 +144,11 @@ module Providers
       # The default fields for file query methods
       def default_file_fields
         %w[id name mimeType parents trashed].join(',')
+      end
+
+      # Add a prefix to the fields: 'id,name' becomes 'prefix/id,prefix/name'
+      def prefix_fields(prefix, fields)
+        fields.split(',').map { |field| "#{prefix}/#{field}" }.join(',')
       end
     end
   end
