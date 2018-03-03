@@ -49,7 +49,7 @@ RSpec.describe Revision, type: :model do
       allow(described_class).to receive(:create!).and_return(draft)
       allow(draft).to receive(:commit_all_files_staged_in_project)
       allow(draft).to receive(:generate_diffs)
-      allow(project).to receive(:published_revisions).and_return revisions
+      allow(project).to receive(:revisions).and_return revisions
     end
 
     after { create_draft }

@@ -34,7 +34,8 @@ class Project < ApplicationRecord
     end
   end
 
-  has_many :revisions, dependent: :destroy do
+  has_many :all_revisions, class_name: 'Revision', dependent: :destroy
+  has_many :revisions, -> { where is_published: true } do
     def create_draft_and_commit_files!(author)
       ::Revision.create_draft_and_commit_files_for_project!(
         proxy_association.owner,
@@ -42,9 +43,6 @@ class Project < ApplicationRecord
       )
     end
   end
-  has_many :published_revisions,
-           -> { where is_published: true },
-           class_name: 'Revision'
 
   # Attributes
   # Do not allow owner change

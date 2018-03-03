@@ -24,7 +24,7 @@ class Revision < ApplicationRecord
   # in the project
   def self.create_draft_and_commit_files_for_project!(project, author)
     create!(project: project,
-            parent: project.published_revisions.last,
+            parent: project.revisions.last,
             author: author)
       .tap(&:commit_all_files_staged_in_project)
       .tap(&:generate_diffs)
