@@ -28,4 +28,15 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
       expect(type).to be_spreadsheet('application/vnd.google-apps.spreadsheet')
     end
   end
+
+  describe '.to_symbol(mime_type)' do
+    subject         { type.to_symbol(mime_type) }
+    let(:mime_type) { type.document }
+    it              { is_expected.to eq :document }
+
+    context 'when mime type is not defined' do
+      let(:mime_type) { 'other-mime-type' }
+      it              { is_expected.to eq :other }
+    end
+  end
 end

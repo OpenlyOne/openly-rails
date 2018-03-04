@@ -27,6 +27,12 @@ module Providers
             type_to_check == mime_type
           end
         end
+
+        # Define symbolizer that returns :document, :folder, etc...
+        # Return :other if not found
+        def to_symbol(mime_type)
+          MIME_TYPES.key(mime_type) || :other
+        end
       end
     end
   end

@@ -8,6 +8,7 @@ RSpec.describe FileResource::Snapshot, type: :model do
   it_should_behave_like 'being resourceable' do
     let(:resourceable) { snapshot }
     let(:mime_type_class) { Providers::GoogleDrive::MimeType }
+    let(:link_class)      { Providers::GoogleDrive::Link }
   end
 
   describe 'associations' do

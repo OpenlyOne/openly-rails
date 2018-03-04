@@ -16,6 +16,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
   it_should_behave_like 'being resourceable' do
     let(:resourceable) { file }
     let(:mime_type_class) { Providers::GoogleDrive::MimeType }
+    let(:link_class)      { Providers::GoogleDrive::Link }
   end
 
   it_should_behave_like 'being snapshotable' do
