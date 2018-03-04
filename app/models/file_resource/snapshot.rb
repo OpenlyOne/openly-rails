@@ -3,6 +3,8 @@
 class FileResource
   # A unique snapshot of a FileResource's data (name, content, parent, ...)
   class Snapshot < ApplicationRecord
+    include Resourceable
+
     # Associations
     belongs_to :file_resource, autosave: false, optional: false
     belongs_to :parent, class_name: 'FileResource', optional: true
@@ -15,6 +17,7 @@ class FileResource
 
     # Attributes
     alias_attribute :snapshotable_id, :file_resource_id
+    attr_writer :provider
 
     # Validations
     validates :file_resource_id,  presence: true
@@ -28,5 +31,9 @@ class FileResource
                 message: 'already has a snapshot with these attributes'
               },
               if: :new_record?
+
+    def provider
+      @provider ||= file_resource.provider
+    end
   end
 end

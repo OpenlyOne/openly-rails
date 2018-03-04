@@ -2,6 +2,7 @@
 
 # FileResource represents a file on GoogleDrive, Dropbox, OneDrive, ...
 class FileResource < ApplicationRecord
+  include Resourceable
   include Snapshotable
   include Stageable
   include Syncable
