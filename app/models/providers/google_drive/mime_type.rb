@@ -6,7 +6,10 @@ module Providers
     class MimeType
       MIME_TYPES = {
         document: 'application/vnd.google-apps.document',
+        drawing: 'application/vnd.google-apps.drawing',
         folder: 'application/vnd.google-apps.folder',
+        form: 'application/vnd.google-apps.form',
+        presentation: 'application/vnd.google-apps.presentation',
         spreadsheet: 'application/vnd.google-apps.spreadsheet'
       }.freeze
 

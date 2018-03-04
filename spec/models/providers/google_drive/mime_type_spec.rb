@@ -1,11 +1,19 @@
 # frozen_string_literal: true
 
 RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
-  subject(:type) { Providers::GoogleDrive::MimeType.new }
+  subject(:type) { Providers::GoogleDrive::MimeType }
+
+  describe 'MIME_TYPES' do
+    subject { type::MIME_TYPES }
+    it { is_expected.to have_key(:document) }
+    it { is_expected.to have_key(:drawing) }
+    it { is_expected.to have_key(:folder) }
+    it { is_expected.to have_key(:form) }
+    it { is_expected.to have_key(:presentation) }
+    it { is_expected.to have_key(:spreadsheet) }
+  end
 
   describe 'getter methods' do
-    let(:type) { Providers::GoogleDrive::MimeType }
-
     it { expect(type.document).to eq 'application/vnd.google-apps.document' }
     it { expect(type.folder).to   eq 'application/vnd.google-apps.folder' }
     it do
@@ -14,8 +22,6 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
   end
 
   describe 'checker methods' do
-    let(:type) { Providers::GoogleDrive::MimeType }
-
     it { expect(type).to be_document('application/vnd.google-apps.document') }
     it { expect(type).to be_folder('application/vnd.google-apps.folder') }
     it do
