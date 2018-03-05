@@ -4,6 +4,8 @@ module Stage
   # Class for handling diffing of staged File Resources to those of last
   # revision
   class FileDiff
+    include Diffing
+
     attr_accessor :committed_snapshot, :file_resource_id, :project,
                   :staged_snapshot
 
@@ -54,6 +56,22 @@ module Stage
     end
 
     private
+
+    def current_snapshot
+      staged_snapshot
+    end
+
+    def current_snapshot_id
+      staged_snapshot&.id
+    end
+
+    def previous_snapshot
+      committed_snapshot
+    end
+
+    def previous_snapshot_id
+      committed_snapshot&.id
+    end
 
     def set_file_resource_id_from_snapshots
       self.file_resource_id =

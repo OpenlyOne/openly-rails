@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_diffing.rb'
+
 RSpec.describe Stage::FileDiff, type: :model do
   subject(:diff) { build :staged_file_diff }
+
+  it_should_behave_like 'being diffing' do
+    let(:diffing) { diff }
+  end
 
   describe 'attributes' do
     it { should respond_to :project }
