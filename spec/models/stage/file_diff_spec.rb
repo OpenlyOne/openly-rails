@@ -129,4 +129,34 @@ RSpec.describe Stage::FileDiff, type: :model do
       end
     end
   end
+
+  describe '#children_as_diffs' do
+    subject { diff.children_as_diffs }
+
+    before do
+      allow(diff).to receive(:project).and_return 'project'
+      allow(diff).to receive(:file_resource_id).and_return 'file-id'
+
+      children = instance_double Stage::FileDiff::Children
+      allow(Stage::FileDiff::Children)
+        .to receive(:new)
+        .with(project: 'project', parent_id: 'file-id')
+        .and_return children
+      allow(children).to receive(:as_diffs).and_return 'diffs'
+    end
+
+    it { is_expected.to eq 'diffs' }
+  end
+
+  describe '#snapshot_id' do
+    subject { diff.snapshot_id }
+
+    before do
+      allow(diff)
+        .to receive(:current_or_previous_snapshot_id)
+        .and_return 'current-or-previous-snapshot-id'
+    end
+
+    it { is_expected.to eq 'current-or-previous-snapshot-id' }
+  end
 end

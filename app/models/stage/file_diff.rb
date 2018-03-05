@@ -55,6 +55,16 @@ module Stage
       set_file_resource_id_from_snapshots unless file_resource_id.present?
     end
 
+    # Return this file's children as an array of Stage::FileDiff instances
+    def children_as_diffs
+      Children.new(project: project, parent_id: file_resource_id).as_diffs
+    end
+
+    # The ID of the current or previous snapshot
+    def snapshot_id
+      current_or_previous_snapshot_id
+    end
+
     private
 
     def current_snapshot
