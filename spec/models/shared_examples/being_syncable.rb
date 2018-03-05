@@ -7,7 +7,6 @@ RSpec.shared_examples 'being syncable' do
     let(:file_is_deleted) { false }
 
     before do
-      allow(syncable).to receive(:reset_sync_state)
       allow(syncable).to receive(:sync_adapter).and_return sync_adapter
       allow(sync_adapter).to receive(:name).and_return 'name'
       allow(sync_adapter).to receive(:mime_type).and_return 'mime_type'
@@ -18,7 +17,6 @@ RSpec.shared_examples 'being syncable' do
 
     after { syncable.fetch }
 
-    it { expect(syncable).to receive(:reset_sync_state) }
     it { expect(syncable).to receive(:name=).with('name') }
     it { expect(syncable).to receive(:mime_type=).with('mime_type') }
     it { expect(syncable).to receive(:content_version=).with('version') }
@@ -38,6 +36,55 @@ RSpec.shared_examples 'being syncable' do
 
     it { expect(syncable).to receive(:fetch) }
     it { expect(syncable).to receive(:save) }
+  end
+
+  describe '#pull_children' do
+    before do
+      allow(syncable)
+        .to receive(:children_from_sync_adapter).and_return 'children'
+    end
+    after { syncable.pull_children }
+    it    { expect(syncable).to receive(:children=).with('children') }
+  end
+
+  describe '#reload' do
+    before  { allow(described_class).to receive(:find) }
+    after   { syncable.reload }
+    it      { expect(syncable).to receive(:reset_sync_adapter) }
+  end
+
+  describe '#find_by_or_initialize_and_pull(sync_adapter, attributes)' do
+    subject(:method) do
+      syncable.send :find_by_or_initialize_and_pull, 'adapter', x: 'y'
+    end
+    let(:file_in_db) { 'file-in-db' }
+
+    before do
+      allow(described_class)
+        .to receive(:find_by).with(x: 'y').and_return file_in_db
+    end
+
+    it { is_expected.to eq 'file-in-db' }
+
+    context 'when file does not exist in db' do
+      let(:file_in_db)  { nil }
+      let(:new_file)    { instance_double described_class }
+
+      before do
+        allow(described_class).to receive(:new).and_call_original
+        allow(described_class)
+          .to receive(:new)
+          .with(x: 'y', sync_adapter: 'adapter')
+          .and_return new_file
+        allow(new_file).to receive(:pull)
+      end
+
+      it { is_expected.to eq new_file }
+      it 'calls #pull on new file' do
+        expect(new_file).to receive(:pull)
+        subject
+      end
+    end
   end
 
   describe '#external_parent_id=(parent_id)' do

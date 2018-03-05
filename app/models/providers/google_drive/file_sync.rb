@@ -24,6 +24,10 @@ module Providers
         @api_connection = attributes.delete(:api_connection)
       end
 
+      def children
+        @children ||= fetch_children_as_file_syncs
+      end
+
       def content_version
         return nil if deleted?
         @content_version ||= fetch_content_version
@@ -60,6 +64,18 @@ module Providers
 
       def api_connection
         @api_connection || self.class.default_api_connection
+      end
+
+      # Fetch the file's subfiles
+      def fetch_children
+        api_connection.find_files_by_parent_id(id)
+      end
+
+      # Fetch the file's subfiles and convert to FileSync instances
+      def fetch_children_as_file_syncs
+        fetch_children.map do |file|
+          self.class.new(file.id, file: file)
+        end
       end
 
       # Fetch the content version

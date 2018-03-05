@@ -2,6 +2,8 @@
 
 module Providers
   module GoogleDrive
+    # rubocop:disable Metrics/ClassLength
+
     # Wrapper class for Google Drive API
     class ApiConnection
       # Return the default connection
@@ -52,13 +54,37 @@ module Providers
         drive_service.get_file(id, fields: default_file_fields)
       end
 
+      # Find files by parent
+      def find_files_by_parent_id(parent_id)
+        drive_service.list_files(
+          q:      "'#{parent_id}' in parents",
+          fields: prefix_fields('files', default_file_fields)
+        ).files
+      end
+
       # Get the most recent revision # of this file
+      # Return nil if user does not have necessary permission to fetch revision
       def file_head_revision(id)
-        drive_service.get_revision(id, 'head').id.to_i
+        file_head_revision!(id)
       rescue Google::Apis::ClientError => error
-        # only rescue revisions not supported errors
-        raise unless error.message.starts_with?('revisionsNotSupported')
+        # only rescue errors about revisions not being supported/accessible
+        # revisionsNotSupported: raised when querying folders and forms
+        # insufficientFilePermissions: raised when we do not have edit access
+
+        # A longstanding #BUG prevents PDF documents from correctly reporting
+        # their head revision. Querying head revision for a PDF document raises
+        # notFound: Revision not found.
+        # See: https://issuetracker.google.com/issues/36759589
+        raise unless error.message.start_with?('revisionsNotSupported',
+                                               'insufficientFilePermissions',
+                                               'notFound: Revision not found')
         1
+      end
+
+      # Get the most recent revision # of this file.
+      # Raise error if user does not have necessary permission to fetch revision
+      def file_head_revision!(id)
+        drive_service.get_revision(id, 'head').id.to_i
       end
 
       # Retrieve the permission ID for the email account on the file identified
@@ -137,6 +163,13 @@ module Providers
       def default_file_fields
         %w[id name mimeType parents trashed].join(',')
       end
+
+      # Add a prefix to the fields: 'id,name' becomes 'prefix/id,prefix/name'
+      def prefix_fields(prefix, fields)
+        fields.split(',').map { |field| "#{prefix}/#{field}" }.join(',')
+      end
     end
+
+    # rubocop:enable Metrics/ClassLength
   end
 end

@@ -139,8 +139,27 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
   end
 
-  describe '#file_head_revision(id)' do
-    subject(:file_head_revision) { api.file_head_revision('id') }
+  describe '#find_files_by_parent_id(parent_id)' do
+    subject(:find_files)  { api.find_files_by_parent_id('parent-id') }
+    let(:file_list)       { instance_double Google::Apis::DriveV3::FileList }
+    before do
+      allow(api).to receive(:default_file_fields).and_return 'default'
+      allow(api)
+        .to receive(:prefix_fields)
+        .with('files', 'default')
+        .and_return 'files/default'
+      allow(drive_service)
+        .to receive(:list_files)
+        .with(q: "'parent-id' in parents", fields: 'files/default')
+        .and_return file_list
+      allow(file_list).to receive(:files).and_return %w[f1 f2 f3]
+    end
+
+    it { is_expected.to eq %w[f1 f2 f3] }
+  end
+
+  describe '#file_head_revision!(id)' do
+    subject(:file_head_revision) { api.file_head_revision!('id') }
     let(:revision) { instance_double Google::Apis::DriveV3::Revision }
 
     before do
@@ -154,12 +173,37 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       expect(drive_service).to receive(:get_revision).with('id', 'head')
       file_head_revision
     end
+  end
+
+  describe '#file_head_revision(id)' do
+    subject(:file_head_revision) { api.file_head_revision('id') }
+    before do
+      allow(api).to receive(:file_head_revision!).with('id').and_return '12345'
+    end
+
+    it { is_expected.to eq '12345' }
 
     context 'when an error is raised' do
-      before { allow(drive_service).to receive(:get_revision).and_raise error }
+      before { allow(api).to receive(:file_head_revision!).and_raise error }
 
       context 'Google::Apis::ClientError, revisionsNotSupported' do
         let(:error) { Google::Apis::ClientError.new('revisionsNotSupported') }
+
+        it { is_expected.to eq 1 }
+      end
+
+      context 'Google::Apis::ClientError, revisionsNotSupported' do
+        let(:error) do
+          Google::Apis::ClientError.new('insufficientFilePermissions')
+        end
+
+        it { is_expected.to eq 1 }
+      end
+
+      context 'Google::Apis::ClientError, revisionsNotSupported' do
+        let(:error) do
+          Google::Apis::ClientError.new('notFound: Revision not found')
+        end
 
         it { is_expected.to eq 1 }
       end
@@ -362,5 +406,11 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to match 'mimeType' }
     it { is_expected.to match 'parents' }
     it { is_expected.to match 'trashed' }
+  end
+
+  describe '#prefix_fields(prefix, fields)' do
+    subject(:prefix_fields) { api.send(:prefix_fields, 'prefix', 'f1,f2,f3') }
+
+    it { is_expected.to eq 'prefix/f1,prefix/f2,prefix/f3' }
   end
 end

@@ -75,6 +75,21 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#children' do
+    subject(:children)  { file_sync.children }
+    let(:children_ivar) { 'children' }
+    before { file_sync.instance_variable_set :@children, children_ivar }
+
+    it { is_expected.to eq 'children' }
+
+    context 'when @children is not is set' do
+      let(:children_ivar) { nil }
+      after { children }
+
+      it { expect(file_sync).to receive(:fetch_children_as_file_syncs) }
+    end
+  end
+
   describe '#content_version' do
     subject(:content_version)   { file_sync.content_version }
     let(:content_version_ivar)  { 'version' }
