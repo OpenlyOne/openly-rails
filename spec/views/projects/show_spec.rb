@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe 'projects/show', type: :view do
-  let(:project)       { create(:project) }
-  let(:root_folder)   { nil }
-  let(:has_revisions) { false }
+  let(:project)       { build_stubbed(:project) }
   let(:collaborators) { [] }
 
   before do
     assign(:project, project)
-    assign(:root_folder, root_folder)
-    assign(:has_revisions, has_revisions)
     assign(:collaborators, collaborators)
   end
 
@@ -79,7 +75,8 @@ RSpec.describe 'projects/show', type: :view do
   end
 
   context 'when a root folder exists' do
-    let(:root_folder) { create :file, :root, repository: project.repository }
+    let(:root) { build_stubbed :file_resource }
+    before { allow(project).to receive(:root_folder).and_return root }
 
     it 'renders a link to the project files' do
       render
@@ -92,14 +89,13 @@ RSpec.describe 'projects/show', type: :view do
     it 'renders a link to open that folder in Google Drive' do
       render
       expect(rendered).to have_link(
-        'Open in Drive',
-        href: view.external_link_for_file(root_folder)
+        'Open in Drive', href: root.external_link
       )
     end
   end
 
   context 'when at least one revision exists' do
-    let(:has_revisions) { true }
+    before { allow(project).to receive(:revisions).and_return %w[r1 r2 r3] }
 
     it 'renders a link to the project revisions' do
       render
