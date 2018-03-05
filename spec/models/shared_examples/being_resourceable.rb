@@ -38,6 +38,20 @@ RSpec.shared_examples 'being resourceable' do
     it { is_expected.to eq 'external-link-to-file' }
   end
 
+  describe '#icon' do
+    subject { resourceable.icon }
+
+    before do
+      allow(resourceable)
+        .to receive(:provider_icon_class).and_return icon_class
+      allow(resourceable).to receive(:mime_type).and_return 'type'
+      allow(icon_class)
+        .to receive(:for).with(mime_type: 'type').and_return 'icon.png'
+    end
+
+    it { is_expected.to eq 'icon.png' }
+  end
+
   describe '#symbolic_mime_type' do
     subject { resourceable.symbolic_mime_type }
 
@@ -50,6 +64,11 @@ RSpec.shared_examples 'being resourceable' do
     end
 
     it { is_expected.to eq :symbol }
+  end
+
+  describe '#provider_icon_class' do
+    subject { resourceable.send(:provider_icon_class) }
+    it      { is_expected.to eq icon_class }
   end
 
   describe '#provider_link_class' do
