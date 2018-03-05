@@ -21,7 +21,7 @@ RSpec.describe Project, type: :model do
 
     it 'returns file resources where current_snapshot is present' do
       expect(method.map(&:id))
-        .to eq file_resources_with_current_snapshot.map(&:id)
+        .to contain_exactly(*file_resources_with_current_snapshot.map(&:id))
     end
 
     it 'does not return file resources where current_snapshot = nil' do
