@@ -9,7 +9,8 @@ feature 'File Update', :vcr do
   before { prepare_google_drive_test(api_connection) }
   # share test folder
   before do
-    api_connection.share_file(google_drive_test_folder_id, tracking_acct)
+    api_connection
+      .share_file(google_drive_test_folder_id, tracking_acct, :writer)
   end
 
   # delete test folder
@@ -29,8 +30,11 @@ feature 'File Update', :vcr do
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
   end
-  let!(:token)  { GoogleDrive.get_changes_start_page_token.start_page_token }
-  let(:commit)  { create :git_revision, repository: project.repository }
+  let!(:token) { GoogleDrive.get_changes_start_page_token.start_page_token }
+  let(:create_revision) do
+    r = project.revisions.create_draft_and_commit_files!(project.owner)
+    r.update(is_published: true, title: 'origin revision')
+  end
 
   scenario 'In Google Drive, user creates file within project folder' do
     given_project_is_imported_and_changes_committed
@@ -86,7 +90,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files as modified
-    then_i_should_see_file_in_project(name: 'New File Name', status: 'modified')
+    then_i_should_see_file_in_project(name: 'New File Name', status: 'renamed')
   end
 
   scenario 'In Google Drive, user moves file within project folder' do
@@ -253,16 +257,14 @@ feature 'File Update', :vcr do
     wait_for_google_to_propagate_changes
     run_file_update_job
 
-    # then the folder should not be removed
-    expect(project.reload.files.root).to be_present
-    # and all files should be marked as deleted
+    # then all files should be marked as deleted
     then_i_should_see_file_in_project(name: 'File', status: 'deleted')
   end
 end
 
 def given_project_is_imported_and_changes_committed
   project
-  commit
+  create_revision
 end
 
 def then_i_should_see_file_in_project(params)

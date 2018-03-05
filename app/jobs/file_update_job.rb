@@ -10,7 +10,8 @@ class FileUpdateJob < ApplicationJob
     token = args[0][:token]
 
     # retrieve changes since token
-    change_list = GoogleDrive.list_changes(token)
+    change_list =
+      Providers::GoogleDrive::ApiConnection.default.list_changes(token)
 
     process_changes(change_list)
 
@@ -44,26 +45,9 @@ class FileUpdateJob < ApplicationJob
   def process_changes(change_list)
     # Iterate through each change
     change_list.changes.each do |change|
-      # Search for file/parent in each project and update/create if applicable
-      update_file_in_any_project(
-        # Transform change item to attribute hash
-        GoogleDrive.attributes_from_change_record(change)
-      )
-    end
-  end
-
-  # Search all project repositories for file or parent and create/update
-  def update_file_in_any_project(new_attributes)
-    Project.find_each_repository(:lock) do |repository|
-      file_id = new_attributes[:id]
-      parent_id = new_attributes[:parent_id]
-
-      # Check whether file or parent exists
-      if repository.stage.files.exists?([file_id, parent_id]).any? { |_, v| v }
-
-        # File or parent exists, create_or_update file
-        repository.stage.files.create_or_update(new_attributes)
-      end
+      FileResources::GoogleDrive
+        .find_or_initialize_by(external_id: change.file_id)
+        .pull
     end
   end
 end
