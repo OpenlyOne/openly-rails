@@ -59,6 +59,17 @@ module FileDiffHelper
     "#{scheme.first}-text text-#{scheme.last}"
   end
 
+  def text_for_file_diff_change(change, diff, ancestor_path)
+    case change
+    when :added then "added to #{ancestor_path}"
+    when :moved then "moved to #{ancestor_path}"
+    when :renamed
+      "renamed from '#{diff.previous_name}' in #{ancestor_path}"
+    when :modified then "modified in #{ancestor_path}"
+    when :deleted then "deleted from #{ancestor_path}"
+    end
+  end
+
   # Get a tooltip for the change made to the file
   def tooltip_for_file_diff_change(file_diff_change)
     case file_diff_change

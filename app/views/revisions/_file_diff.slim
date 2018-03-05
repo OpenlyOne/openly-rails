@@ -3,7 +3,7 @@
 = render partial: 'revisions/file_diff_change',
          collection: file_diff.changes,
          locals: { file_diff: file_diff,
-                   ancestors: file_diff.ancestors_of_file,
+                   ancestors: file_diff.first_three_ancestors,
                    project: project,
                    show_link_to_file_info: show_link_to_file_info,
                    all_links_in_new_tab: all_links_in_new_tab }

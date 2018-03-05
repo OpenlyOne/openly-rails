@@ -2,21 +2,21 @@
 
   .spacing.v32px
 
-  - (@revisions + [nil]).each_cons(2) do |this_revision, previous_revision|
+  - @revisions.each do |revision|
 
-    - revision_diff = this_revision.diff(previous_revision)
+    - file_diffs = revision.file_diffs.to_a
+    - file_diffs.each do |diff|
+      -  diff.provider = @project.root_folder.provider
 
-    / TODO: BUG: The call to profiles below is triggering an N+1 query. Needs fixing!
     = render partial: 'revision_with_diff',
-             object: this_revision,
+             object: revision,
              locals: { project: @project,
-                       profile: Profiles::User.find_by_id(this_revision.author_email),
-                       file_diffs: revision_diff.changed_files_as_diffs,
+                       profile: revision.author,
+                       file_diffs: file_diffs,
                        show_link_to_file_info: true }
 
-    - if previous_revision.present?
-      .spacing.v16px
-      .divider
-      .spacing.v16px
+    .spacing.v16px
+    .divider
+    .spacing.v16px
 
 .spacing.v48px
