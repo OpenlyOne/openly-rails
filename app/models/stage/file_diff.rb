@@ -55,9 +55,27 @@ module Stage
       set_file_resource_id_from_snapshots unless file_resource_id.present?
     end
 
+    # Return the ancestors (as snapshots) of this diff
+    def ancestors_in_project
+      return [] if current_or_previous_snapshot.nil?
+
+      Ancestry.for(file_resource_snapshot: current_or_previous_snapshot,
+                   project: project)
+    end
+
     # Return this file's children as an array of Stage::FileDiff instances
     def children_as_diffs
       Children.new(project: project, parent_id: file_resource_id).as_diffs
+    end
+
+    # Return the first three ancestors (names only) of this diff
+    def first_three_ancestors
+      return [] if current_or_previous_snapshot.nil?
+
+      Ancestry
+        .for(file_resource_snapshot: current_or_previous_snapshot,
+             project: project, depth: 3)
+        .map(&:name)
     end
 
     # The ID of the current or previous snapshot

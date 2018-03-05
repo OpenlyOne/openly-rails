@@ -130,6 +130,23 @@ RSpec.describe Stage::FileDiff, type: :model do
     end
   end
 
+  describe '#ancestors_in_project' do
+    subject { diff.ancestors_in_project }
+
+    before do
+      allow(diff).to receive(:project).and_return 'project'
+      allow(diff)
+        .to receive(:current_or_previous_snapshot).and_return 'snapshot'
+
+      allow(Stage::FileDiff::Ancestry)
+        .to receive(:for)
+        .with(project: 'project', file_resource_snapshot: 'snapshot')
+        .and_return %w[ancestor1 ancestor2 ancestor3]
+    end
+
+    it { is_expected.to eq %w[ancestor1 ancestor2 ancestor3] }
+  end
+
   describe '#children_as_diffs' do
     subject { diff.children_as_diffs }
 
@@ -146,6 +163,30 @@ RSpec.describe Stage::FileDiff, type: :model do
     end
 
     it { is_expected.to eq 'diffs' }
+  end
+
+  describe '#first_three_ancestors' do
+    subject { diff.first_three_ancestors }
+    let(:a1) { instance_double FileResource::Snapshot }
+    let(:a2) { instance_double FileResource::Snapshot }
+    let(:a3) { instance_double FileResource::Snapshot }
+
+    before do
+      allow(diff).to receive(:project).and_return 'project'
+      allow(diff)
+        .to receive(:current_or_previous_snapshot).and_return 'snapshot'
+
+      allow(Stage::FileDiff::Ancestry)
+        .to receive(:for)
+        .with(project: 'project', file_resource_snapshot: 'snapshot', depth: 3)
+        .and_return [a1, a2, a3]
+
+      allow(a1).to receive(:name).and_return 'anc1'
+      allow(a2).to receive(:name).and_return 'anc2'
+      allow(a3).to receive(:name).and_return 'anc3'
+    end
+
+    it { is_expected.to eq %w[anc1 anc2 anc3] }
   end
 
   describe '#snapshot_id' do
