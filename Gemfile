@@ -44,9 +44,6 @@ gem 'cancancan', '~> 2.0'
 gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
 gem 'config', '~> 1.4'
-# Rugged for Git integration
-gem 'rugged', '~> 0.26',
-    git: 'https://github.com/libgit2/rugged.git', submodules: true
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
@@ -55,8 +52,6 @@ gem 'google-api-client', '~> 0.17'
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
 gem 'daemons', '~> 1.2'
-# Filelock for extended file locking (simple timeout and wait)
-gem 'filelock'
 # Error-tracking with Rollbar
 gem 'rollbar', '~> 2.15'
 # Paperclip for attachments

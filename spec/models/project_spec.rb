@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/having_version_control.rb'
-
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
   it 'has a valid factory' do
     is_expected.to be_valid
-  end
-
-  it_should_behave_like 'having version control' do
-    subject(:object) { build(:project) }
   end
 
   describe 'associations' do
@@ -216,55 +210,6 @@ RSpec.describe Project, type: :model do
         is_expected.to be_invalid
       end
     end
-
-    context 'when import_google_drive_folder_on_save = true' do
-      let(:file)      { instance_double Google::Apis::DriveV3::File }
-      let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
-      let(:link)      { 'https://drive.google.com/drive/folders/test' }
-
-      before { allow(GoogleDrive).to receive(:get_file).and_return file }
-      before { allow(file).to receive(:mime_type).and_return(mime_type) }
-      before { project.import_google_drive_folder_on_save = true }
-      before { project.link_to_google_drive_folder = link }
-      before { project.valid? }
-      context 'when link to google drive folder is valid' do
-        it 'does not add an error' do
-          expect(project.errors[:link_to_google_drive_folder].size)
-            .to eq 0
-        end
-      end
-      context 'when link to google drive folder is invalid' do
-        let(:link) { 'https://invalid-folder-link' }
-
-        it 'adds an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears not to be a valid Google Drive link'
-        end
-      end
-      context 'when link to google drive folder is inaccessible' do
-        before do
-          allow(GoogleDrive)
-            .to receive(:get_file).and_raise(Google::Apis::ClientError, 'error')
-        end
-
-        it 'adds an error' do
-          project.valid?
-
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears to be inaccessible. Have you shared the '\
-                        'resource with '\
-                        "#{Settings.google_drive_tracking_account}?"
-        end
-      end
-      context 'when link to google drive folder is not a folder' do
-        let(:mime_type) { Providers::GoogleDrive::MimeType.document }
-
-        it 'adds an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears not to be a Google Drive folder'
-        end
-      end
-    end
   end
 
   describe '.find' do
@@ -291,19 +236,6 @@ RSpec.describe Project, type: :model do
       it 'finds project by ID' do
         is_expected.to eq project
       end
-    end
-  end
-
-  describe '.repository_folder_path' do
-    subject(:method) { Project.repository_folder_path }
-
-    it do
-      is_expected.to eq(
-        Rails.root.join(
-          Settings.file_storage,
-          'projects'
-        ).cleanpath.to_s
-      )
     end
   end
 
@@ -475,26 +407,6 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
-    end
-  end
-
-  describe '#repository_file_path' do
-    subject(:repo_path) { project.send(:repository_file_path) }
-    let(:project)       { build_stubbed(:project) }
-
-    it do
-      is_expected.to eq(
-        Rails.root.join(
-          Settings.file_storage,
-          'projects',
-          project.id_in_database.to_s
-        ).cleanpath.to_s
-      )
-    end
-
-    context 'when id_in_database is nil' do
-      before { allow(project).to receive(:id_in_database).and_return(nil) }
-      it { is_expected.to be nil }
     end
   end
 end

@@ -125,6 +125,10 @@ module Providers
                                         send_notification_email: 'false')
       end
 
+      def start_token_for_listing_changes
+        drive_service.get_changes_start_page_token.start_page_token
+      end
+
       # Trash the file identified by ID
       def trash_file(id)
         drive_service.update_file(id,

@@ -56,7 +56,6 @@ set :rollbar_role, (proc { :app })
 set :linked_dirs,
     %W[public/.well-known
        tmp/pids
-       #{Settings.file_storage}
        #{Settings.attachment_storage}]
 
 namespace :puma do

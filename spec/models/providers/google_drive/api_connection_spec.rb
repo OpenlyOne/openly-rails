@@ -320,6 +320,18 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
   end
 
+  describe '#start_token_for_listing_changes' do
+    subject(:start_token) { api.start_token_for_listing_changes }
+    before do
+      token = instance_double Google::Apis::DriveV3::StartPageToken
+      allow(drive_service)
+        .to receive(:get_changes_start_page_token).and_return token
+      allow(token).to receive(:start_page_token).and_return 'start-page-token'
+    end
+
+    it { is_expected.to eq 'start-page-token' }
+  end
+
   describe '#trash_file(id)' do
     subject(:trash_file) { api.trash_file('file-id') }
     before  { allow(api).to receive(:default_file_fields).and_return 'default' }

@@ -20,7 +20,7 @@ class ProjectsController < ApplicationController
   end
 
   def setup
-    return if @project.files.root.nil?
+    return if @project.root_folder.nil?
 
     # Redirect to project page if set up has been completed
     redirect_to [@project.owner, @project],

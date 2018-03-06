@@ -1,11 +1,4 @@
 GIT
-  remote: https://github.com/libgit2/rugged.git
-  revision: 88104e8f64c9bbc3c2804726d1f0a29d1c9f3bf9
-  submodules: true
-  specs:
-    rugged (0.26.0)
-
-GIT
   remote: https://github.com/thoughtbot/shoulda-matchers.git
   revision: 4b160bd19ecca7f97d7ac22dccd5fde9b0da5a9f
   branch: rails-5
@@ -159,7 +152,6 @@ GEM
     ffi (1.9.18)
     figaro (1.1.1)
       thor (~> 0.14)
-    filelock (1.1.1)
     formatador (0.2.5)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
@@ -444,7 +436,6 @@ DEPENDENCIES
   factory_girl_rails (~> 4.8)
   faker (~> 1.8)
   figaro (~> 1.1)
-  filelock
   google-api-client (~> 0.17)
   guard-rspec (~> 4.7)
   jbuilder (~> 2.5)
@@ -461,7 +452,6 @@ DEPENDENCIES
   rails_real_favicon
   rollbar (~> 2.15)
   rspec-rails (~> 3.5)
-  rugged (~> 0.26)!
   sass-rails (~> 5.0)
   sequenced (~> 3.1)
   shoulda-matchers (~> 3.1)!
