@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'factory_girl'
-
 desc 'Performance: Commit all files staged in project: Prepare'
 namespace :performance do
   namespace :commit_all_files_staged_in_project do

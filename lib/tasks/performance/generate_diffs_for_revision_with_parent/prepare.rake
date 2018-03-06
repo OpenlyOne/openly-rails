@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'factory_girl'
-
 desc 'Performance: Generate diffs for revision with parent: Prepare'
 namespace :performance do
   namespace :generate_diffs_for_revision_with_parent do

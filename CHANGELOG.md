@@ -1,5 +1,12 @@
 # CHANGELOG
 
+
+## v0.13.1 (March 6, 2018)
+
+**Fixes:**
+- Remove `require 'factory_girl'` statement from rake tasks
+
+
 ## v0.13 (March 6, 2018)
 
 **New Features:**
