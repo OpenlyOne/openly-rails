@@ -11,16 +11,18 @@ class Project < ApplicationRecord
                                           association_foreign_key: 'profile_id',
                                           validate: false
 
+  has_one :staged_root_folder,
+          -> { where is_root: true },
+          class_name: 'StagedFile',
+          dependent: :delete
+  has_one :root_folder, class_name: 'FileResource',
+                        through: :staged_root_folder,
+                        source: :file_resource
+
   has_many :staged_files, dependent: :destroy
   has_many :file_resources_in_stage, class_name: 'FileResource',
                                      through: :staged_files,
                                      source: :file_resource
-  has_one :staged_root_folder,
-          -> { where is_root: true },
-          class_name: 'StagedFile'
-  has_one :root_folder, class_name: 'FileResource',
-                        through: :staged_root_folder,
-                        source: :file_resource
 
   has_many :staged_non_root_files,
            -> { where is_root: false },
@@ -34,7 +36,8 @@ class Project < ApplicationRecord
     end
   end
 
-  has_many :revisions, dependent: :destroy do
+  has_many :all_revisions, class_name: 'Revision', dependent: :destroy
+  has_many :revisions, -> { where is_published: true } do
     def create_draft_and_commit_files!(author)
       ::Revision.create_draft_and_commit_files_for_project!(
         proxy_association.owner,
@@ -42,9 +45,6 @@ class Project < ApplicationRecord
       )
     end
   end
-  has_many :published_revisions,
-           -> { where is_published: true },
-           class_name: 'Revision'
 
   # Attributes
   # Do not allow owner change
