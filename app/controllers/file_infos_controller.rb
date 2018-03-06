@@ -2,20 +2,13 @@
 
 # Controller for project file infos
 class FileInfosController < ApplicationController
-  include CanSetProjectContext
-  include ProjectLockable
-
-  # Execute without lock or render/redirect delay
   before_action :set_project
-
-  around_action :wrap_action_in_project_lock
-
-  # Execute with lock and render/redirect delay
-  before_action :set_project_context
-  before_action :set_file_id
-  before_action :set_current_file_diff
-  before_action :set_file_versions
+  before_action :set_staged_file_diff
+  before_action :set_committed_file_diffs
   before_action :set_file
+  # TODO: Find way to not manually set provider for all children while still
+  #       avoiding N+1 query
+  before_action :set_provider_committed_file_diffs
 
   def index; end
 
@@ -23,50 +16,49 @@ class FileInfosController < ApplicationController
 
   # Attempt to find the file diff of stage (base) and last revision
   # (differentiator)
-  def set_current_file_diff
-    @current_file_diff = @project.repository
-                                 .stage
-                                 .diff(@project.repository.revisions.last)
-                                 .diff_file(@file_id)
-    # preload ancestors while in lock
-    @current_file_diff.ancestors_of_file
+  def set_staged_file_diff
+    @staged_file_diff = Stage::FileDiff.find_by!(external_id: params[:id],
+                                                 project: @project)
   rescue ActiveRecord::RecordNotFound
-    @current_file_diff = nil
+    @staged_file_diff = nil
   end
 
-  # Set @file_id from params
-  def set_file_id
-    @file_id = params[:id]
+  def file_resource_id
+    @file_resource_id ||=
+      FileResource.find_by!(external_id: params[:id]).id
   end
 
   # Find file in stage or version history
   def set_file
-    # Set the file from current_file_diff OR
-    @file = @current_file_diff&.file_is_or_was
+    # Set the file from staged_file_diff OR
+    @file = @staged_file_diff&.current_or_previous_snapshot
 
     # Set file to most recent version (unless it's already been set because it
     # exists in stage)
-    @file ||= @file_versions&.first&.file_is_or_was
+    @file ||= @committed_file_diffs&.first&.current_or_previous_snapshot
 
     # Raise error if file has not been found in either stage or history
     raise ActiveRecord::RecordNotFound if @file.nil?
   end
 
   # Load file history
-  def set_file_versions
-    # Find past versions of file
-    # TODO@performance: PRELOAD revision diffs, file diffs, and ancestors of
-    # =>                files. Loading those in the view is bad practice and
-    # =>                unnecessary N+1 queries.
-    # TODO: Exclude files that were not 'changed?'
-    # TODO: One day this should be @file.versions or Project.find_file_by_id(id)
-    # =>    which then returns the last version of the file
-    @file_versions =
-      @project.revisions.all_as_diffs.map do |revision_diff|
-        revision_diff.changed_files_as_diffs.find { |diff| diff.id == @file_id }
-      end
+  def set_committed_file_diffs
+    @committed_file_diffs =
+      FileDiff
+      .includes(:current_snapshot, :previous_snapshot, revision: [:author])
+      .where(revisions: { project: @project, is_published: true },
+             file_resource_id: file_resource_id)
+      .merge(Revision.order(id: :desc))
+  end
 
-    # Eliminate nil values
-    @file_versions.compact!
+  # Find and set project. Raise 404 if project does not exist
+  def set_project
+    @project = Project.find(params[:profile_handle], params[:project_slug])
+  end
+
+  def set_provider_committed_file_diffs
+    @committed_file_diffs.each do |diff|
+      diff.provider = @project.root_folder.provider
+    end
   end
 end

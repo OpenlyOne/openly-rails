@@ -2,19 +2,10 @@
 
 # Controller for projects
 class ProjectsController < ApplicationController
-  include CanSetProjectContext
-  include ProjectLockable
-
-  # Execute without lock or render/redirect delay
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
   before_action :set_project, only: %i[setup import show edit update destroy]
   before_action :authorize_action, only: %i[setup import edit update destroy]
-
-  around_action :wrap_action_in_project_lock, only: :show
-
-  # Execute with lock and render/redirect delay
-  before_action :set_project_context, only: :show
 
   def new; end
 
@@ -29,7 +20,7 @@ class ProjectsController < ApplicationController
   end
 
   def setup
-    return if @project.files.root.nil?
+    return if @project.root_folder.nil?
 
     # Redirect to project page if set up has been completed
     redirect_to [@project.owner, @project],

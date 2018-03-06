@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/having_version_control.rb'
-
 RSpec.describe Project, type: :model do
   subject(:project) { build(:project) }
 
   it 'has a valid factory' do
     is_expected.to be_valid
-  end
-
-  it_should_behave_like 'having version control' do
-    subject(:object) { build(:project) }
   end
 
   describe 'associations' do
@@ -19,6 +13,65 @@ RSpec.describe Project, type: :model do
       is_expected
         .to have_and_belong_to_many(:collaborators)
         .class_name('Profiles::User').validate(false)
+    end
+    it do
+      is_expected
+        .to have_one(:staged_root_folder)
+        .conditions(is_root: true)
+        .class_name('StagedFile')
+        .dependent(:delete)
+    end
+    it do
+      is_expected
+        .to have_one(:root_folder)
+        .class_name('FileResource')
+        .through(:staged_root_folder)
+        .source(:file_resource)
+        .dependent(false)
+    end
+    it { is_expected.to have_many(:staged_files).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:file_resources_in_stage)
+        .class_name('FileResource')
+        .through(:staged_files)
+        .source(:file_resource)
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:staged_non_root_files)
+        .conditions(is_root: false)
+        .class_name('StagedFile')
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:non_root_file_resources_in_stage)
+        .class_name('FileResource')
+        .through(:staged_non_root_files)
+        .source(:file_resource)
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:non_root_file_snapshots_in_stage)
+        .class_name('FileResource::Snapshot')
+        .through(:non_root_file_resources_in_stage)
+        .source(:current_snapshot)
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to have_many(:all_revisions)
+        .class_name('Revision')
+        .dependent(:destroy)
+    end
+    it do
+      is_expected
+        .to have_many(:revisions)
+        .conditions(is_published: true)
+        .dependent(false)
     end
   end
 
@@ -47,18 +100,18 @@ RSpec.describe Project, type: :model do
     end
 
     context 'after save' do
-      subject(:project) { build(:project) }
+      subject(:project)     { build(:project) }
+      let(:link_to_folder)  { 'https://drive.google.com/drive/folders/test' }
+
+      before do
+        allow(subject).to receive(:import_google_drive_folder)
+        allow(subject).to receive(:link_to_google_drive_is_accessible_folder)
+      end
 
       context 'when import_google_drive_folder_on_save is true' do
         before do
-          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-            mock_google_drive_requests
-          end
-        end
-        before do
           project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder =
-            Settings.google_drive_test_folder
+          project.link_to_google_drive_folder = link_to_folder
         end
         after { project.save }
         it    { is_expected.to receive(:import_google_drive_folder) }
@@ -66,15 +119,8 @@ RSpec.describe Project, type: :model do
 
       context 'when import_google_drive_folder_on_save was true' do
         before do
-          if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-            mock_google_drive_requests
-          end
-        end
-        before do
-          allow(project).to receive(:import_google_drive_folder)
           project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder =
-            Settings.google_drive_test_folder
+          project.link_to_google_drive_folder = link_to_folder
           project.save
         end
         it { expect(project.import_google_drive_folder_on_save).to be false }
@@ -164,53 +210,6 @@ RSpec.describe Project, type: :model do
         is_expected.to be_invalid
       end
     end
-
-    context 'when import_google_drive_folder_on_save = true' do
-      before do
-        if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-          mock_google_drive_requests
-        end
-      end
-      before { project.import_google_drive_folder_on_save = true }
-      before { project.link_to_google_drive_folder = link }
-      before { project.valid? }
-      context 'when link to google drive folder is valid' do
-        let(:link) { Settings.google_drive_test_folder }
-        it 'does not add an error' do
-          expect(project.errors[:link_to_google_drive_folder].size)
-            .to eq 0
-        end
-      end
-      context 'when link to google drive folder is invalid' do
-        let(:link) { 'https://invalid-folder-link' }
-        it 'adds an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears not to be a valid Google Drive link'
-        end
-      end
-      context 'when link to google drive folder is inaccessible' do
-        let(:link) do
-          'https://drive.google.com/drive/u/1/folders/' \
-          '0B4149cktxhmPV0pLQjRVRy1rTEk'
-        end
-        it 'adds an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears to be inaccessible. Have you shared the '\
-                        'resource with '\
-                        "#{Settings.google_drive_tracking_account}?"
-        end
-      end
-      context 'when link to google drive folder is not a folder' do
-        let(:link) do
-          'https://drive.google.com/drive/u/1/folders/' \
-          '1uRT5v2xaAYaL41Fv9nYf3f85iadX2A-KAIEQIFPzKNY'
-        end
-        it 'adds an error' do
-          expect(project.errors[:link_to_google_drive_folder])
-            .to include 'appears not to be a Google Drive folder'
-        end
-      end
-    end
   end
 
   describe '.find' do
@@ -240,86 +239,72 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '.repository_folder_path' do
-    subject(:method) { Project.repository_folder_path }
+  describe 'revisions#create_draft_and_commit_files!' do
+    subject(:method) do
+      project.revisions.create_draft_and_commit_files!('author')
+    end
 
-    it do
-      is_expected.to eq(
-        Rails.root.join(
-          Settings.file_storage,
-          'projects'
-        ).cleanpath.to_s
-      )
+    it 'calls Revision#create_draft_and_commit_files_for_project!' do
+      expect(Revision)
+        .to receive(:create_draft_and_commit_files_for_project!)
+        .with(project, 'author')
+      method
     end
   end
 
-  describe '#import_google_drive_folder' do
-    before do
-      mock_google_drive_requests if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    end
-    before do
-      project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
-      project.import_google_drive_folder_on_save = true
-    end
-    subject(:method)    { project.save }
-    let(:id_of_folder)  { Settings.google_drive_test_folder_id }
-    let(:project)       { create(:project) }
+  describe '#import_google_drive_folder', isolated_unit_test: true do
+    subject(:method)    { project.send :import_google_drive_folder }
+    let(:project)       { build_stubbed(:project) }
+    let(:file)          { instance_double Google::Apis::DriveV3::File }
+    let(:mime_type)     { Providers::GoogleDrive::MimeType.folder }
+    let(:root_folder)   { instance_double FileResource }
 
-    it 'creates a root folder' do
+    before do
+      allow(project).to receive(:google_drive_folder_id).and_return 'folder-id'
+      allow(project).to receive(:root_folder=)
+      allow(FileResources::GoogleDrive)
+        .to receive(:find_or_initialize_by)
+        .with(external_id: 'folder-id')
+        .and_return(root_folder)
+      allow(root_folder).to receive(:pull)
+      allow(project).to receive(:root_folder).and_return root_folder
+      allow(root_folder).to receive(:id).and_return 'the-id'
+      allow(FolderImportJob).to receive(:perform_later)
+    end
+
+    it 'calls #pull on root folder' do
+      expect(root_folder).to receive(:pull)
       subject
-      expect(project.reload.files.root).to be_a VersionControl::File
+    end
+
+    it 'sets root folder' do
+      expect(project).to receive(:root_folder=).with(root_folder)
+      subject
     end
 
     it 'creates a FolderImportJob' do
       expect(FolderImportJob).to receive(:perform_later)
-        .with(
-          reference: project,
-          folder_id: id_of_folder
-        )
+        .with(reference: project, file_resource_id: 'the-id')
       subject
     end
 
-    context 'when save fails' do
-      before { allow(project).to receive(:save).and_return(false) }
+    context 'when error is raised' do
+      let(:staged_root_folder) { instance_double StagedFile }
 
-      it 'does not persist root folder' do
-        subject
-        expect(project.reload.files.root).to be nil
-      end
-
-      it 'does not start a FolderImportJob' do
-        expect(FolderImportJob).not_to receive(:perform_later)
-        subject
-      end
-    end
-
-    context 'when root folder already exists' do
-      before { create :file, :root, repository: project.repository }
-      before { project.reload }
-
-      it { is_expected.to be false }
-
-      it 'does not persist changes to project' do
-        project.title = 'My New Title'
-        method
-        expect(project.reload.title).not_to eq 'My New Title'
-      end
-    end
-
-    context 'when any error occurs' do
       before do
-        allow(FolderImportJob).to receive(:perform_later).and_raise('error')
+        allow(project).to receive(:root_folder).and_raise StandardError
+        allow(project)
+          .to receive(:staged_root_folder).and_return staged_root_folder
+        allow(staged_root_folder).to receive(:destroy)
       end
 
-      it 'does not persist root folder' do
-        expect { method }.to raise_error RuntimeError
-        expect(project.reload.files.root).to be nil
+      it 'calls #destroy on staged root folder' do
+        expect(staged_root_folder).to receive(:destroy)
+        expect { subject }.to raise_error StandardError
       end
 
-      it 'does not persist changes to project' do
-        project.title = 'My New Title'
-        expect { method }.to raise_error RuntimeError
-        expect(project.reload.title).not_to eq 'My New Title'
+      it 're-raises the error' do
+        expect { subject }.to raise_error StandardError
       end
     end
   end
@@ -422,26 +407,6 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
-    end
-  end
-
-  describe '#repository_file_path' do
-    subject(:repo_path) { project.send(:repository_file_path) }
-    let(:project)       { build_stubbed(:project) }
-
-    it do
-      is_expected.to eq(
-        Rails.root.join(
-          Settings.file_storage,
-          'projects',
-          project.id_in_database.to_s
-        ).cleanpath.to_s
-      )
-    end
-
-    context 'when id_in_database is nil' do
-      before { allow(project).to receive(:id_in_database).and_return(nil) }
-      it { is_expected.to be nil }
     end
   end
 end

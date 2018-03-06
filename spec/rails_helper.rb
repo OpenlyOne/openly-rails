@@ -3,9 +3,7 @@
 # Start coverage analysis
 if ENV['CI'] == 'true' || ENV['COVERAGE'] == 'true'
   require 'simplecov'
-  SimpleCov.start 'rails' do
-    add_filter 'app/models/google_drive.rb'
-  end
+  SimpleCov.start 'rails'
 end
 
 # Report coverage to codecov during CI
@@ -27,6 +25,7 @@ require 'shoulda/matchers'
 require 'paperclip/matchers'
 require 'faker'
 require 'database_cleaner'
+require 'vcr'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
@@ -45,8 +44,9 @@ require 'database_cleaner'
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
 require Rails.root.join('spec', 'support', 'delayed_job_activator.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')
+require Rails.root.join('spec', 'support', 'vcr_configuration.rb')
 require Rails.root.join('spec', 'support', 'helpers', 'features_helper.rb')
-require Rails.root.join('spec', 'support', 'stubs', 'google_drive.rb')
+require Rails.root.join('spec', 'support', 'helpers', 'google_drive_helper.rb')
 
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
@@ -63,11 +63,6 @@ RSpec.configure do |config|
 
   # Randomize order in which tests are run
   config.order = 'random'
-
-  # Do not run live Google Drive tests
-  if ENV['MOCK_GOOGLE_DRIVE_REQUESTS'] == 'true'
-    config.filter_run_excluding live_google_drive_requests: true
-  end
 
   # enable Bullet for avoiding N+1 queries, unused eager loading, and lack of
   # counter cache

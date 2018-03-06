@@ -1,25 +1,27 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
+  let(:project) { create :project }
+  let(:root)    { create :file_resource, :folder }
+  before { project.root_folder = root }
+  let(:create_revision) do
+    r = project.revisions.create_draft_and_commit_files!(project.owner)
+    r.update(is_published: true, title: 'origin revision')
+  end
+
   scenario 'User can see past revisions' do
-    # given there is a project
-    project = create :project
-    # with three revisions and a file added/modified/destroyed in between
-    root = create :file, :root, repository: project.repository
-    file = create :file, name: 'File1', parent: root
+    # given there is a file
+    file = create :file_resource, name: 'File1', parent: root
+    # with three revisions made by three different users
     users = create_list :user, 3
-    # TODO: This is not a complete feature test because it relies on the
-    # =>    assumption that the author's ID is stored in the email field when
-    # =>    a commit is made. If that implementation changes, this spec would
-    # =>    still pass.
-    first_revision =
-      create :revision, repository: project.repository, author: users[0]
-    file.update(modified_time: Time.zone.now)
-    second_revision =
-      create :revision, repository: project.repository, author: users[1]
-    file.destroy
-    third_revision =
-      create :revision, repository: project.repository, author: users[2]
+    first_revision = project.revisions.create_draft_and_commit_files!(users[0])
+    first_revision.update(is_published: true, title: 'rev1')
+    file.update(content_version: 'v2')
+    second_revision = project.revisions.create_draft_and_commit_files!(users[1])
+    second_revision.update(is_published: true, title: 'rev2')
+    file.update(is_deleted: true)
+    third_revision = project.revisions.create_draft_and_commit_files!(users[2])
+    third_revision.update(is_published: true, title: 'rev3')
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -34,18 +36,16 @@ feature 'Revision' do
       .to eq [users.last.name, users.second.name, users.first.name]
     # and see file changes for each revision
     expect(page.find_all('.revision .name-and-description').map(&:text)).to eq(
-      ['File1 deleted from Home', 'File1 modified', 'File1 added to Home']
+      ['File1 deleted from Home', 'File1 modified in Home',
+       'File1 added to Home']
     )
   end
 
   scenario 'User can create revision' do
-    # given there is a project
-    project = create :project
-    # and I am signed in as its owner
+    # given I am signed in as the project owner
     sign_in_as project.owner.account
-    # with some files and folders
-    root = create :file, :root, repository: project.repository
-    create_list :file, 5, parent: root
+    # and the project has some files
+    create_list :file_resource, 5, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -65,39 +65,36 @@ feature 'Revision' do
     # and see a success message
     expect(page).to have_text 'Revision successfully created.'
     # and have the revision persisted to the repository
-    expect(project.repository.revisions.last).to be_present
+    expect(project.revisions.last).to be_present
     # and see no file modification icons
     expect(page).to have_css '.file.unchanged', count: 5
   end
 
   scenario 'User can review changes' do
-    # given there is a project
-    project = create :project
-    # with some files and folders
-    root = create :file, :root, repository: project.repository
-    create_list :file, 5, name: 'unchanged', parent: root
-    folder                      = create :file, :folder, parent: root
-    modified_file               = create :file, parent: folder
-    moved_out_file              = create :file, parent: folder
-    moved_in_file               = create :file, parent: root
-    moved_in_and_modified_file  = create :file, parent: root
-    removed_file                = create :file, parent: folder
-    moved_folder                = create :file, :folder, parent: root
-    create_list :file, 5, parent: moved_folder
+    # given there are some files
+    create_list :file_resource, 5, name: 'unchanged', parent: root
+    folder                      = create :file_resource, :folder, parent: root
+    modified_file               = create :file_resource, parent: folder
+    moved_out_file              = create :file_resource, parent: folder
+    moved_in_file               = create :file_resource, parent: root
+    moved_in_and_modified_file  = create :file_resource, parent: root
+    removed_file                = create :file_resource, parent: folder
+    moved_folder                = create :file_resource, :folder, parent: root
+    create_list :file_resource, 5, parent: moved_folder
     # and files are committed
-    create :revision, repository: project.repository
+    create_revision
     # and I am signed in as its owner
     sign_in_as project.owner.account
 
     # when changes are made to files
-    added_file = create :file, parent: folder
-    modified_file.update(modified_time: Time.zone.now)
-    moved_out_file.update(parent_id: root.id)
-    moved_in_file.update(parent_id: folder.id)
-    moved_in_and_modified_file.update(parent_id: folder.id,
-                                      modified_time: Time.zone.now)
-    removed_file.update(parent_id: nil)
-    moved_folder.update(parent_id: folder.id)
+    added_file = create :file_resource, parent: folder
+    modified_file.update(content_version: 'new-version')
+    moved_out_file.update(parent: root)
+    moved_in_file.update(parent: folder)
+    moved_in_and_modified_file.update(parent: folder,
+                                      content_version: 'new-v')
+    removed_file.update(is_deleted: true)
+    moved_folder.update(parent: folder)
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"

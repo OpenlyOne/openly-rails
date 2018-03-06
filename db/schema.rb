@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180128221502) do
+ActiveRecord::Schema.define(version: 20180227150638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,17 @@ ActiveRecord::Schema.define(version: 20180128221502) do
     t.datetime "updated_at", null: false
     t.datetime "remember_created_at"
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "committed_files", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.bigint "file_resource_snapshot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_committed_files_on_file_resource_id"
+    t.index ["file_resource_snapshot_id"], name: "index_committed_files_on_file_resource_snapshot_id"
+    t.index ["revision_id", "file_resource_id"], name: "index_committed_files_on_revision_id_and_file_resource_id", unique: true
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -41,6 +52,51 @@ ActiveRecord::Schema.define(version: 20180128221502) do
     t.string "delayed_reference_type"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
     t.index ["queue"], name: "index_delayed_jobs_on_queue"
+  end
+
+  create_table "file_diffs", force: :cascade do |t|
+    t.bigint "revision_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.bigint "current_snapshot_id"
+    t.bigint "previous_snapshot_id"
+    t.text "first_three_ancestors", null: false, array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_snapshot_id"], name: "index_file_diffs_on_current_snapshot_id"
+    t.index ["file_resource_id"], name: "index_file_diffs_on_file_resource_id"
+    t.index ["previous_snapshot_id"], name: "index_file_diffs_on_previous_snapshot_id"
+    t.index ["revision_id", "file_resource_id"], name: "index_file_diffs_on_revision_id_and_file_resource_id", unique: true
+  end
+
+  create_table "file_resource_snapshots", force: :cascade do |t|
+    t.bigint "file_resource_id", null: false
+    t.bigint "parent_id"
+    t.text "name", null: false
+    t.text "content_version", null: false
+    t.text "external_id", null: false
+    t.string "mime_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id", "content_version", "mime_type", "name", "parent_id"], name: "index_file_resource_snapshots_on_metadata", unique: true
+    t.index ["external_id", "content_version", "mime_type", "name"], name: "index_file_resource_snapshots_on_metadata_without_parent", unique: true, where: "(parent_id IS NULL)"
+    t.index ["file_resource_id"], name: "index_file_resource_snapshots_on_file_resource_id"
+    t.index ["parent_id"], name: "index_file_resource_snapshots_on_parent_id"
+  end
+
+  create_table "file_resources", force: :cascade do |t|
+    t.integer "provider_id", null: false
+    t.text "external_id", null: false
+    t.bigint "parent_id"
+    t.text "name"
+    t.text "content_version"
+    t.string "mime_type"
+    t.boolean "is_deleted", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "current_snapshot_id"
+    t.index ["current_snapshot_id"], name: "index_file_resources_on_current_snapshot_id"
+    t.index ["parent_id"], name: "index_file_resources_on_parent_id"
+    t.index ["provider_id", "external_id"], name: "index_file_resources_on_provider_id_and_external_id", unique: true
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -80,11 +136,53 @@ ActiveRecord::Schema.define(version: 20180128221502) do
     t.index ["owner_type", "owner_id"], name: "index_projects_on_owner_type_and_owner_id"
   end
 
+  create_table "revisions", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "parent_id"
+    t.bigint "author_id", null: false
+    t.boolean "is_published", default: false, null: false
+    t.string "title"
+    t.text "summary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_revisions_on_author_id"
+    t.index ["parent_id"], name: "index_revisions_on_parent_id"
+    t.index ["parent_id"], name: "index_revisions_on_published_parent_id", unique: true, where: "(is_published IS TRUE)"
+    t.index ["project_id"], name: "index_revisions_on_project_id"
+    t.index ["project_id"], name: "index_revisions_on_published_root_revision", unique: true, where: "((parent_id IS NULL) AND (is_published IS TRUE))"
+  end
+
   create_table "signups", force: :cascade do |t|
     t.text "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  create_table "staged_files", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.boolean "is_root", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_staged_files_on_file_resource_id"
+    t.index ["project_id", "file_resource_id"], name: "index_staged_files_on_project_id_and_file_resource_id", unique: true
+    t.index ["project_id"], name: "index_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
+  end
+
+  add_foreign_key "committed_files", "file_resource_snapshots"
+  add_foreign_key "committed_files", "file_resources"
+  add_foreign_key "committed_files", "revisions"
+  add_foreign_key "file_diffs", "file_resource_snapshots", column: "current_snapshot_id"
+  add_foreign_key "file_diffs", "file_resource_snapshots", column: "previous_snapshot_id"
+  add_foreign_key "file_diffs", "file_resources"
+  add_foreign_key "file_diffs", "revisions"
+  add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
+  add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
+  add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
+  add_foreign_key "revisions", "profiles", column: "author_id"
+  add_foreign_key "revisions", "projects"
+  add_foreign_key "revisions", "revisions", column: "parent_id"
+  add_foreign_key "staged_files", "file_resources"
+  add_foreign_key "staged_files", "projects"
 end

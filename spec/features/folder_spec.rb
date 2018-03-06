@@ -1,13 +1,20 @@
 # frozen_string_literal: true
 
 feature 'Folder' do
-  scenario 'User can view root-folder' do
-    # given there is a project
-    project = create :project
-    # with some files and folders
-    root = create :file, :root, repository: project.repository
-    files = create_list :file, 5, parent: root
+  let(:project) { create :project }
+  let(:root)    { create :file_resource, :folder }
+  let(:files)   { create_list :file_resource, 5, parent: root }
+  let(:create_revision) do
+    r = project.revisions.create_draft_and_commit_files!(project.owner)
+    r.update(is_published: true, title: 'origin revision')
+  end
 
+  before do
+    project.root_folder = root
+    files
+  end
+
+  scenario 'User can view root-folder' do
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
     # and click on Files
@@ -24,13 +31,10 @@ feature 'Folder' do
   end
 
   scenario 'User can view sub-folder' do
-    # given there is a project
-    project = create :project
-    # with some files and folders
-    root = create :file, :root, repository: project.repository
-    create_list :file, 5, parent: root
-    subfolder = create :file, :folder, name: 'A Unique Subfolder', parent: root
-    subfiles = create_list :file, 5, parent: subfolder
+    # given there is a subfolder
+    subfolder =
+      create :file_resource, :folder, name: 'A Unique Subfolder', parent: root
+    subfiles = create_list :file_resource, 5, parent: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -41,7 +45,8 @@ feature 'Folder' do
 
     # then I should be on the project's subfolder page
     expect(page).to have_current_path(
-      "/#{project.owner.to_param}/#{project.to_param}/folders/#{subfolder.id}"
+      "/#{project.owner.to_param}/#{project.to_param}/" \
+      "folders/#{subfolder.external_id}"
     )
     # and see the files in the project subfolder
     subfiles.each do |file|
@@ -50,12 +55,7 @@ feature 'Folder' do
   end
 
   scenario 'User can see files in correct order' do
-    # given there is a project
-    project = create :project
-    # with some files and folders
-    root        = create :file, :root, repository: project.repository
-    directories = create_list :file, 5, :folder, parent: root
-    files       = create_list :file, 5, parent: root
+    folders = create_list :file_resource, 5, :folder, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -63,33 +63,29 @@ feature 'Folder' do
     click_on 'Files'
 
     # then I should see files in the correct order
-    file_order = directories.map(&:name).sort + files.map(&:name).sort
+    file_order = folders.map(&:name).sort + files.map(&:name).sort
     expect(page.all('.file').map(&:text)).to eq file_order
   end
 
   scenario 'User can see diffs in folder' do
-    # given there is a project
-    project = create :project
-    # with some files and folders
-    root = create :file, :root, repository: project.repository
-    folder                      = create :file, :folder, parent: root
-    modified_file               = create :file, parent: folder
-    moved_out_file              = create :file, parent: folder
-    moved_in_file               = create :file, parent: root
-    moved_in_and_modified_file  = create :file, parent: root
-    removed_file                = create :file, parent: folder
-    unchanged_file              = create :file, parent: folder
+    folder                      = create :file_resource, :folder, parent: root
+    modified_file               = create :file_resource, parent: folder
+    moved_out_file              = create :file_resource, parent: folder
+    moved_in_file               = create :file_resource, parent: root
+    moved_in_and_modified_file  = create :file_resource, parent: root
+    removed_file                = create :file_resource, parent: folder
+    unchanged_file              = create :file_resource, parent: folder
     # and files are committed
-    create :revision, repository: project.repository
+    create_revision
 
     # when changes are made to files
-    added_file = create :file, parent: folder
-    modified_file.update(modified_time: Time.zone.now)
-    moved_out_file.update(parent_id: root.id)
-    moved_in_file.update(parent_id: folder.id)
-    moved_in_and_modified_file.update(parent_id: folder.id,
-                                      modified_time: Time.zone.now)
-    removed_file.update(parent_id: nil)
+    added_file = create :file_resource, parent: folder
+    modified_file.update(content_version: 'new-version')
+    moved_out_file.update(parent: root)
+    moved_in_file.update(parent: folder)
+    moved_in_and_modified_file.update(parent: folder,
+                                      content_version: 'new-version')
+    removed_file.update(is_deleted: true)
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -112,26 +108,25 @@ feature 'Folder' do
   end
 
   context 'User can see correct ancestry path for folders' do
-    let!(:project)  { create :project }
-    let!(:repo)     { project.repository }
-    let!(:root)     { create :file, :root,   name: 'Root', repository: repo }
-    let!(:folder)   { create :file, :folder, name: 'Folder',    parent: root }
-    let!(:docs)     { create :file, :folder, name: 'Documents', parent: folder }
-    let!(:code)     { create :file, :folder, name: 'Code',      parent: docs }
+    let(:folder) { create :file_resource, :folder, name: 'Fol', parent: root }
+    let(:docs) { create :file_resource, :folder, name: 'Docs', parent: folder }
+    let(:code) { create :file_resource, :folder, name: 'Code', parent: docs }
+    let(:init_folders) { [folder, docs, code] }
     before do
-      # and folders are committed
-      create :revision, repository: project.repository
+      init_folders
+      create_revision
     end
     let(:action) do
       # when I visit the code folder
-      visit "#{project.owner.to_param}/#{project.to_param}/folders/#{code.id}"
+      visit "#{project.owner.to_param}/#{project.to_param}/" \
+            "folders/#{code.external_id}"
     end
 
     context 'when code folder exists' do
       before  { action }
 
       it 'then ancestry path is root > folder > documents > code' do
-        expect(page.find('.breadcrumbs').text).to eq 'Folder Documents Code'
+        expect(page.find('.breadcrumbs').text).to eq 'Fol Docs Code'
       end
     end
 
@@ -140,7 +135,7 @@ feature 'Folder' do
       before  { action }
 
       it 'then ancestry path is root > folder > documents > code' do
-        expect(page.find('.breadcrumbs').text).to eq 'Folder Documents Code'
+        expect(page.find('.breadcrumbs').text).to eq 'Fol Docs Code'
       end
     end
 

@@ -6,7 +6,6 @@ class DropTableFileItems < ActiveRecord::Migration[5.1]
     drop_table 'file_items'
   end
 
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def down
     create_table 'file_items' do |t|
       t.bigint 'project_id', null: false
@@ -29,5 +28,4 @@ class DropTableFileItems < ActiveRecord::Migration[5.1]
     add_foreign_key 'file_items', 'file_items', column: 'parent_id'
     add_foreign_key 'file_items', 'projects'
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 end

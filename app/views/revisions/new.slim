@@ -1,4 +1,4 @@
-= form_for(@revision, as: :revision, url: profile_project_revisions_path(@project.owner, @project)) do |f|
+= form_for(@revision, as: :revision, method: :post, url: profile_project_revisions_path(@project.owner, @project)) do |f|
 
   .page-subheading.gray.lighten-3
     .container
@@ -8,8 +8,6 @@
 
   .container
     - if @revision.errors.any?
-      / if errors include :last_revision_id, then replace with detailed explanation
-      - format_revision_errors!(@revision, url_for(action: :new))
       .row
         .col.s12
           .validation-errors
@@ -17,7 +15,7 @@
                      collection: @revision.errors.full_messages,
                      as: :error
 
-    = f.hidden_field :tree_id
+    = f.hidden_field :id
 
     .row
       .col.s12.l12
@@ -42,11 +40,9 @@
     .spacing.v1
 
     h3: span Review Changes
-    // TODO: This is probably not the right place to generate a diff
-    - revision_diff = @revision.diff(@project.repository.revisions.last)
     = render partial: 'revision_diff',
              locals: { project: @project,
-                       file_diffs: revision_diff.changed_files_as_diffs,
+                       file_diffs: @file_diffs,
                        show_link_to_file_info: true,
                        all_links_in_new_tab: true }
 

@@ -25,4 +25,5 @@ production:
   GOOGLE_DRIVE_CREDENTIALS_PATH: '/var/apps/app-name/shared/credentials/google-drive.yaml'
 
 test:
-  MOCK_GOOGLE_DRIVE_REQUESTS: 'false' # set to 'true' to mock requests
+  GOOGLE_DRIVE_TRACKING_ACCOUNT: <optionally, use a different account for tracking file changes in test environment>
+  GOOGLE_DRIVE_USER_ACCOUNT: <account to use for simulating user actions in Google Drive>

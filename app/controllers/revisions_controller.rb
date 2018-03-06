@@ -2,35 +2,33 @@
 
 # Controller for project revisions
 class RevisionsController < ApplicationController
-  include CanSetProjectContext
-  include ProjectLockable
-
-  # Execute without lock or render/redirect delay
   before_action :authenticate_account!, except: :index
   before_action :set_project
   before_action :authorize_action, except: :index
-
-  around_action :wrap_action_in_project_lock
-
-  # Execute with lock and render/redirect delay
-  before_action :set_project_context
-  before_action :build_revision, only: %i[new create]
+  before_action :build_revision, only: :new
+  before_action :find_revision, only: :create
   before_action :set_file_diffs, only: :new
+  # TODO: Find way to not manually set provider for all file diffs while still
+  #       avoiding N+1 query
+  before_action :set_provider_for_file_diffs, only: :new
+  # TODO: Sort children in query, not manually afterwards
+  before_action :sort_file_diffs, only: :new
 
   def index
     # TODO: Raise 404 if no revisions exist or redirect
-    # TODO: Refactor to @project.revisions.all
-    # TODO@performance: PRELOAD revision diffs, file diffs, and ancestors of
-    # =>                files. Loading those in the view is bad practice and
-    # =>                unnecessary N+1 queries.
-    @revisions = @project.repository.revisions.all
+    @revisions =
+      @project
+      .revisions
+      .order(id: :desc)
+      .includes(:author, file_diffs: %i[current_snapshot previous_snapshot])
   end
 
   def new; end
 
   def create
-    if @revision.commit(revision_params[:title], revision_params[:summary],
-                        revision_author)
+    if @revision.update(title: revision_params[:title],
+                        summary: revision_params[:summary],
+                        is_published: true)
       redirect_with_success_to(
         profile_project_root_folder_path(@project.owner, @project)
       )
@@ -51,41 +49,36 @@ class RevisionsController < ApplicationController
   end
 
   def build_revision
-    tree_id = revision_params[:tree_id] if params[:revision]
-    @revision = @project.repository.build_revision(tree_id)
+    @revision = @project.revisions.create_draft_and_commit_files!(current_user)
   end
 
-  def revision_author
-    # current_user.to_revision_author
-    { name: current_user.handle, email: current_user.id.to_s }
-  end
-
-  # TODO@performance: Improve N+1 query by bulk preloading ancestors
-  def set_ancestors_of_file_diffs
-    @ancestors_of_file_diffs =
-      @file_diffs.index_by(&:id).transform_values!(&:ancestors_of_file)
+  def find_revision
+    @revision = Revision.find_by!(id: revision_params[:id],
+                                  project: @project,
+                                  author: current_user)
   end
 
   def set_file_diffs
-    # TODO@performance: PRELOAD ancestors of files. Loading those in the view is
-    #                   bad practice and unnecessary N+1 queries.
-    @file_diffs = @revision.diff(@project.repository.revisions.last)
-                           .changed_files_as_diffs
+    @file_diffs =
+      @revision.file_diffs.includes(:current_snapshot, :previous_snapshot).to_a
+  end
 
-    _filter_out_unchanged_file_diffs
-    set_ancestors_of_file_diffs
-
+  def sort_file_diffs
     helpers.sort_file_diffs!(@file_diffs)
   end
 
-  def revision_params
-    params.require(:revision).permit(:title, :summary, :tree_id)
+  def set_provider_for_file_diffs
+    @file_diffs.each do |diff|
+      diff.provider = @project.root_folder.provider
+    end
   end
 
-  # TODO@refactor: This should not be the controller's responsibility. Ideally,
-  # =>             take care of this at source (i.e.:
-  # =>             VersionControl::RevisionDiff#_rugged_deltas)
-  def _filter_out_unchanged_file_diffs
-    @file_diffs.select!(&:changed?)
+  # Find and set project. Raise 404 if project does not exist
+  def set_project
+    @project = Project.find(params[:profile_handle], params[:project_slug])
+  end
+
+  def revision_params
+    params.require(:revision).permit(:title, :summary, :id)
   end
 end

@@ -3,13 +3,51 @@
 # Handles projects that belong to a profile (owner)
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
-  include VersionControl
-
   # Associations
   belongs_to :owner, polymorphic: true
   has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
                                           association_foreign_key: 'profile_id',
                                           validate: false
+
+  has_one :staged_root_folder,
+          -> { where is_root: true },
+          class_name: 'StagedFile',
+          dependent: :delete
+  has_one :root_folder, class_name: 'FileResource',
+                        through: :staged_root_folder,
+                        source: :file_resource
+
+  has_many :staged_files, dependent: :destroy
+  has_many :file_resources_in_stage, class_name: 'FileResource',
+                                     through: :staged_files,
+                                     source: :file_resource
+
+  has_many :staged_non_root_files,
+           -> { where is_root: false },
+           class_name: 'StagedFile'
+  has_many :non_root_file_resources_in_stage, class_name: 'FileResource',
+                                              through: :staged_non_root_files,
+                                              source: :file_resource do
+    # Return non root file resources in stage that have a current snapshot
+    def with_current_snapshot
+      where.not(file_resources: { current_snapshot: nil })
+    end
+  end
+
+  has_many :non_root_file_snapshots_in_stage,
+           class_name: 'FileResource::Snapshot',
+           through: :non_root_file_resources_in_stage,
+           source: :current_snapshot
+
+  has_many :all_revisions, class_name: 'Revision', dependent: :destroy
+  has_many :revisions, -> { where is_published: true } do
+    def create_draft_and_commit_files!(author)
+      ::Revision.create_draft_and_commit_files_for_project!(
+        proxy_association.owner,
+        author
+      )
+    end
+  end
 
   # Attributes
   # Do not allow owner change
@@ -93,18 +131,10 @@ class Project < ApplicationRecord
     end
   end
 
-  # The base path for version controlled repositories of Project instances
-  def self.repository_folder_path
-    Rails.root.join(
-      Settings.file_storage,
-      'projects'
-    ).cleanpath.to_s
-  end
-
   # The absolute link to the Google Drive root folder
   def link_to_google_drive_folder=(link)
     @link_to_google_drive_folder = link
-    @google_drive_folder_id = GoogleDrive.link_to_id(link)
+    @google_drive_folder_id = folder_link_to_id(link)
   end
 
   # List of tags, separated by comma
@@ -132,6 +162,12 @@ class Project < ApplicationRecord
 
   private
 
+  # Parse a link to a Google Drive folder into its ID
+  def folder_link_to_id(link_to_file)
+    matches = link_to_file.match(%r{\/folders\/?(.+)})
+    matches ? matches[1] : nil
+  end
+
   # Generate the project slug from the title by replacing whitespace with
   # dashes and removing all non-alphanumeric characters
   def generate_slug_from_title
@@ -145,20 +181,23 @@ class Project < ApplicationRecord
 
   # The ID of the Google Drive folder associated with this project
   def google_drive_folder_id
-    @google_drive_folder_id ||= files&.root&.google_drive_id
+    @google_drive_folder_id ||= root_folder&.external_id
   end
 
   # Import a Google Drive Folder
   def import_google_drive_folder
     # Create the root folder
-    drive_file = GoogleDrive.get_file(google_drive_folder_id)
-    files.create_root(drive_file.to_h)
+    self.root_folder =
+      FileResources::GoogleDrive
+      .find_or_initialize_by(external_id: google_drive_folder_id)
+      .tap(&:pull)
 
     # Start recursive FolderImportJob
-    FolderImportJob.perform_later(reference: self, folder_id: files.root.id)
+    FolderImportJob.perform_later(reference: self,
+                                  file_resource_id: root_folder.id)
   rescue StandardError
     # An error was found -- make sure root is not persisted
-    files.root&.destroy
+    staged_root_folder&.destroy
     # Re-raise original error
     raise
   end
@@ -174,7 +213,8 @@ class Project < ApplicationRecord
   # Validation: Is the link to the Google Drive folder accessible and a folder?
   def link_to_google_drive_is_accessible_folder
     return if google_drive_folder_id.nil?
-    file = GoogleDrive.get_file(google_drive_folder_id)
+    file = Providers::GoogleDrive::ApiConnection
+           .default.find_file!(google_drive_folder_id)
 
     validate_folder_mime_type(file)
   rescue Google::Apis::ClientError => _e
@@ -185,18 +225,9 @@ class Project < ApplicationRecord
     )
   end
 
-  # The file path for the project instance's version controlled repository
-  def repository_file_path
-    return nil unless id_in_database.present?
-
-    Pathname.new(self.class.repository_folder_path)
-            .join(id_in_database.to_s)
-            .cleanpath.to_s
-  end
-
   # Validation: Is the file a folder?
   def validate_folder_mime_type(folder)
-    return if VersionControl::File.directory_type? folder.mime_type
+    return if Providers::GoogleDrive::MimeType.folder?(folder.mime_type)
     errors.add(
       :link_to_google_drive_folder,
       'appears not to be a Google Drive folder'

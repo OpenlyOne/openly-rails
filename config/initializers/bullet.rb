@@ -17,4 +17,7 @@ if defined? Bullet
     Bullet.bullet_logger = true
     Bullet.raise = true
   end
+
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
+                       association: :previous_snapshot
 end

@@ -1,19 +1,19 @@
 / render a single file with diff/change indicator
 
-div.file[class=type_of_file(file_diff.file_is_or_was)
+div.file[class=file_diff.symbolic_mime_type
          class=html_class_for_file_diff_changes(file_diff.changes)]
 
   = render partial: 'link_to_file_info',
-           locals: { file_id: file_diff.id, project: project }
+           locals: { file_id: file_diff.external_id, project: project }
 
-  = link_to_file(file_diff.file_is_or_was, project) do
+  = link_to_file(file_diff, project) do
 
 
     div.indicators
       = render partial: 'file_diff_indicator',
-             collection: file_diff.changes
+               collection: file_diff.changes
 
-    = image_tag icon_for_file(file_diff.file_is_or_was),
+    = image_tag file_diff.icon,
                 alt: 'File icon',
                 size: '100',
                 class: 'img-responsive'

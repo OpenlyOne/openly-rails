@@ -44,9 +44,6 @@ gem 'cancancan', '~> 2.0'
 gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
 gem 'config', '~> 1.4'
-# Rugged for Git integration
-gem 'rugged', '~> 0.26',
-    git: 'https://github.com/libgit2/rugged.git', submodules: true
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
@@ -55,12 +52,12 @@ gem 'google-api-client', '~> 0.17'
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
 gem 'daemons', '~> 1.2'
-# Filelock for extended file locking (simple timeout and wait)
-gem 'filelock'
 # Error-tracking with Rollbar
 gem 'rollbar', '~> 2.15'
 # Paperclip for attachments
 gem 'paperclip', '~> 5.2'
+# ActiveRecord-Import for bulk creation of records
+gem 'activerecord-import', '~> 0.22'
 
 group :development, :test do
   # We will use pry rails as our console
@@ -114,6 +111,10 @@ group :test do
       branch: 'rails-5'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
+  # VCR for capturing HTTP requests during tests
+  gem 'vcr', '~> 4.0'
+  # Webmock for VCR to hook into
+  gem 'webmock', '~> 3.3'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

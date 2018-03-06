@@ -10,6 +10,7 @@ module FileDiffHelper
     when :added     then 'green darken-2'
     when :modified  then 'amber darken-4'
     when :moved     then 'purple darken-2'
+    when :renamed   then 'blue darken-2'
     when :deleted   then 'red darken-2'
     end
   end
@@ -34,6 +35,8 @@ module FileDiffHelper
     when :moved
       'M14,18V15H10V11H14V8L19,13M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,'\
       '2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z'
+    when :renamed
+      'M3,12H6V19H9V12H12V9H3M9,4V7H14V19H17V7H22V4H9Z'
     when :deleted
       'M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,'\
       '0 18,19V7H6V19Z'
@@ -44,7 +47,7 @@ module FileDiffHelper
   # Sort files according to sort order (see FileHelper#sort_order_for_files)
   def sort_file_diffs!(file_diffs)
     file_diffs.sort_by! do |file_diff|
-      sort_order_for_files(file_diff.file_is_or_was)
+      sort_order_for_files(file_diff.current_or_previous_snapshot)
     end
   end
 
@@ -56,12 +59,24 @@ module FileDiffHelper
     "#{scheme.first}-text text-#{scheme.last}"
   end
 
+  def text_for_file_diff_change(change, diff, ancestor_path)
+    case change
+    when :added then "added to #{ancestor_path}"
+    when :moved then "moved to #{ancestor_path}"
+    when :renamed
+      "renamed from '#{diff.previous_name}' in #{ancestor_path}"
+    when :modified then "modified in #{ancestor_path}"
+    when :deleted then "deleted from #{ancestor_path}"
+    end
+  end
+
   # Get a tooltip for the change made to the file
   def tooltip_for_file_diff_change(file_diff_change)
     case file_diff_change
     when :added     then 'File has been added'
     when :modified  then 'File has been modified'
     when :moved     then 'File has been moved'
+    when :renamed   then 'File has been renamed'
     when :deleted   then 'File has been deleted'
     end
   end
