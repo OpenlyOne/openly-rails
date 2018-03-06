@@ -26,6 +26,11 @@ RSpec.describe FileDiffHelper, type: :helper do
       it { is_expected.to eq 'purple darken-2' }
     end
 
+    context 'when diff change is :renamed' do
+      let(:file_diff_change) { :renamed }
+      it { is_expected.to eq 'blue darken-2' }
+    end
+
     context 'when diff change is :deleted' do
       let(:file_diff_change) { :deleted }
       it { is_expected.to eq 'red darken-2' }
@@ -60,6 +65,11 @@ RSpec.describe FileDiffHelper, type: :helper do
       it { is_expected.to eq 'changed modified moved' }
     end
 
+    context 'when diff changes are [:modified, :moved, :renamed]' do
+      let(:file_diff_changes) { %i[modified moved renamed] }
+      it { is_expected.to eq 'changed modified moved renamed' }
+    end
+
     context 'when diff changes are []' do
       let(:file_diff_changes) { [] }
       it { is_expected.to eq 'unchanged' }
@@ -84,68 +94,34 @@ RSpec.describe FileDiffHelper, type: :helper do
       it { is_expected.to be_a String }
     end
 
+    context 'when diff change is :renamed' do
+      let(:file_diff_change) { :renamed }
+      it { is_expected.to be_a String }
+    end
+
     context 'when diff change is :deleted' do
       let(:file_diff_change) { :deleted }
       it { is_expected.to be_a String }
     end
   end
 
-  describe '#sort_file_diffs(file_diffs)' do
-    subject(:method) { sort_file_diffs!(file_diffs) }
-    let(:file_diffs) do
-      [
-        VersionControl::FileDiff.new(nil, dir1,   dir1),
-        VersionControl::FileDiff.new(nil, dir2,   nil),
-        VersionControl::FileDiff.new(nil, nil,    dir3),
-        VersionControl::FileDiff.new(nil, file1,  file1),
-        VersionControl::FileDiff.new(nil, file2,  nil),
-        VersionControl::FileDiff.new(nil, nil,    file3)
-      ].shuffle
-    end
-    let(:dir1)        { build :file, :folder, name: 'A Folder' }
-    let(:dir2)        { build :file, :folder, name: 'homework' }
-    let(:dir3)        { build :file, :folder, name: 'Something Great' }
-    let(:file1)       { build :file, name: 'A Funny File' }
-    let(:file2)       { build :file, name: 'financials' }
-    let(:file3)       { build :file, name: 'Potato Soup Recipe' }
+  describe '#sort_file_diff!s(file_diffs)' do
+    subject(:method)  { helper.sort_file_diffs!(diffs) }
+    let(:diffs)       { [d1, d2, d3] }
+    let(:d1)          { instance_double FileDiff }
+    let(:d2)          { instance_double FileDiff }
+    let(:d3)          { instance_double FileDiff }
 
-    it 'sorts file diffs in correct order' do
-      expect(method.map(&:file_is_or_was))
-        .to eq [dir1, dir2, dir3, file1, file2, file3]
+    before do
+      allow(d1).to receive(:current_or_previous_snapshot).and_return 's1'
+      allow(d2).to receive(:current_or_previous_snapshot).and_return 's2'
+      allow(d3).to receive(:current_or_previous_snapshot).and_return 's3'
+      allow(helper).to receive(:sort_order_for_files).with('s1').and_return 3
+      allow(helper).to receive(:sort_order_for_files).with('s2').and_return 2
+      allow(helper).to receive(:sort_order_for_files).with('s3').and_return 1
     end
 
-    it 'modifies the files parameter' do
-      expect { subject }.to(change { file_diffs })
-    end
-
-    it 'puts directories first' do
-      subject
-      expect(file_diffs[0..2].map(&:directory?)).to eq [true, true, true]
-      expect(file_diffs[3..5].map(&:directory?)).to eq [false, false, false]
-    end
-
-    it 'puts file diffs in alphabetical order (case insensitive)' do
-      subject
-      last_file_diff = file_diffs[0]
-      file_diffs[1..2].each do |file_diff|
-        # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name.downcase > last_file_diff.name.downcase)
-          .to be true
-
-        # set last_file_diffs to current file_diffs for next comparison
-        last_file_diff = file_diff
-      end
-
-      last_file_diff = file_diffs[3]
-      file_diffs[4..5].each do |file_diff|
-        # expect file name to come later (alphabetically) than last file's name
-        expect(file_diff.name.downcase > last_file_diff.name.downcase)
-          .to be true
-
-        # set last_file_diffs to current file_diffs for next comparison
-        last_file_diff = file_diff
-      end
-    end
+    it { is_expected.to eq [d3, d2, d1] }
   end
 
   describe '#text_color_for_file_diff_change(file_diff_change)' do
@@ -166,6 +142,11 @@ RSpec.describe FileDiffHelper, type: :helper do
       it { is_expected.to eq 'purple-text text-darken-2' }
     end
 
+    context 'when diff change is :renamed' do
+      let(:file_diff_change) { :renamed }
+      it { is_expected.to eq 'blue-text text-darken-2' }
+    end
+
     context 'when diff change is :deleted' do
       let(:file_diff_change) { :deleted }
       it { is_expected.to eq 'red-text text-darken-2' }
@@ -179,6 +160,40 @@ RSpec.describe FileDiffHelper, type: :helper do
     context 'when diff change is nil' do
       let(:file_diff_change) { nil }
       it { is_expected.to eq nil }
+    end
+  end
+
+  describe '#text_for_file_diff_change(change, diff, ancestor_path)' do
+    subject(:method) { text_for_file_diff_change(change, diff, ancestor_path) }
+
+    let(:diff)          { instance_double FileDiff }
+    let(:ancestor_path) { 'ancestor-path' }
+
+    before { allow(diff).to receive(:previous_name).and_return 'previous' }
+
+    context 'when diff change is :added' do
+      let(:change) { :added }
+      it { is_expected.to eq 'added to ancestor-path' }
+    end
+
+    context 'when diff change is :modified' do
+      let(:change) { :modified }
+      it { is_expected.to eq 'modified in ancestor-path' }
+    end
+
+    context 'when diff change is :moved' do
+      let(:change) { :moved }
+      it { is_expected.to eq 'moved to ancestor-path' }
+    end
+
+    context 'when diff change is :renamed' do
+      let(:change) { :renamed }
+      it { is_expected.to eq "renamed from 'previous' in ancestor-path" }
+    end
+
+    context 'when diff change is :deleted' do
+      let(:change) { :deleted }
+      it { is_expected.to eq 'deleted from ancestor-path' }
     end
   end
 
@@ -198,6 +213,11 @@ RSpec.describe FileDiffHelper, type: :helper do
     context 'when diff change is :moved' do
       let(:file_diff_change) { :moved }
       it { is_expected.to eq 'File has been moved' }
+    end
+
+    context 'when diff change is :renamed' do
+      let(:file_diff_change) { :renamed }
+      it { is_expected.to eq 'File has been renamed' }
     end
 
     context 'when diff change is :deleted' do
