@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'models/shared_examples/being_a_file_resource.rb'
+require 'models/shared_examples/being_resourceable.rb'
 require 'models/shared_examples/being_snapshotable.rb'
 require 'models/shared_examples/being_stageable.rb'
 require 'models/shared_examples/being_syncable.rb'
@@ -10,6 +11,13 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
 
   it_should_behave_like 'being a file resource' do
     let(:file_resource) { file }
+  end
+
+  it_should_behave_like 'being resourceable' do
+    let(:resourceable) { file }
+    let(:icon_class)      { Providers::GoogleDrive::Icon }
+    let(:link_class)      { Providers::GoogleDrive::Link }
+    let(:mime_type_class) { Providers::GoogleDrive::MimeType }
   end
 
   it_should_behave_like 'being snapshotable' do

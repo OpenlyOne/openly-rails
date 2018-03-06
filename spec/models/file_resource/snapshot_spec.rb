@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_resourceable.rb'
+
 RSpec.describe FileResource::Snapshot, type: :model do
   subject(:snapshot) { build :file_resource_snapshot }
+
+  it_should_behave_like 'being resourceable' do
+    let(:resourceable) { snapshot }
+    let(:icon_class)      { Providers::GoogleDrive::Icon }
+    let(:link_class)      { Providers::GoogleDrive::Link }
+    let(:mime_type_class) { Providers::GoogleDrive::MimeType }
+  end
+
   describe 'associations' do
     it do
       is_expected.to belong_to(:file_resource).validate(false).dependent(false)
@@ -15,6 +25,7 @@ RSpec.describe FileResource::Snapshot, type: :model do
 
   describe 'attributes' do
     it { is_expected.to respond_to(:snapshotable_id) }
+    it { is_expected.to respond_to(:provider=) }
   end
 
   describe 'validations' do
@@ -61,6 +72,27 @@ RSpec.describe FileResource::Snapshot, type: :model do
     context 'on destroy' do
       let(:snapshot) { create :file_resource_snapshot }
       it { expect { snapshot.destroy }.not_to raise_error }
+    end
+  end
+
+  describe '#provider' do
+    subject(:provider)  { snapshot.provider }
+    let(:provider_ivar) { 'provider-ivar' }
+
+    before { snapshot.instance_variable_set :@provider, provider_ivar }
+
+    it { is_expected.to eq 'provider-ivar' }
+
+    context 'when @provider is nil' do
+      let(:provider_ivar) { nil }
+
+      before do
+        file_resource = instance_double FileResource
+        allow(snapshot).to receive(:file_resource).and_return file_resource
+        allow(file_resource).to receive(:provider).and_return 'provider-of-file'
+      end
+
+      it { is_expected.to eq 'provider-of-file' }
     end
   end
 end
