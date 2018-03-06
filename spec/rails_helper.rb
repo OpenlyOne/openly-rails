@@ -3,9 +3,7 @@
 # Start coverage analysis
 if ENV['CI'] == 'true' || ENV['COVERAGE'] == 'true'
   require 'simplecov'
-  SimpleCov.start 'rails' do
-    add_filter 'app/models/google_drive.rb'
-  end
+  SimpleCov.start 'rails'
 end
 
 # Report coverage to codecov during CI

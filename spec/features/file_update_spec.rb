@@ -30,7 +30,10 @@ feature 'File Update', :vcr do
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
   end
-  let!(:token) { GoogleDrive.get_changes_start_page_token.start_page_token }
+  let!(:token) do
+    Providers::GoogleDrive::ApiConnection
+      .default.start_token_for_listing_changes
+  end
   let(:create_revision) do
     r = project.revisions.create_draft_and_commit_files!(project.owner)
     r.update(is_published: true, title: 'origin revision')
