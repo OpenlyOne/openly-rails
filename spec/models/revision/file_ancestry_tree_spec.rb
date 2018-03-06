@@ -9,7 +9,7 @@ RSpec.describe Revision::FileAncestryTree, type: :model do
 
   describe '.generate(revision:, file_ids:, depth:)' do
     subject(:generate)  { described_class.generate attributes }
-    let(:attributes)    { { revision: 'r', file_ids: 'ids', depth: 'd' } }
+    let(:attributes)    { { revision: 'r', file_ids: 'ids', depth: 3 } }
     let(:new_tree)      { instance_double described_class }
 
     before do
@@ -17,13 +17,15 @@ RSpec.describe Revision::FileAncestryTree, type: :model do
         .to receive(:new)
         .with(revision: 'r', file_ids: 'ids')
         .and_return new_tree
-      allow(new_tree).to receive(:recursively_load_parents).with(depth: 'd')
+      allow(new_tree)
+        .to receive(:recursively_load_generations).with(depth: 3 + 1)
     end
 
     it { is_expected.to eq new_tree }
 
-    it 'recursively_load_parents depth-times' do
-      expect(new_tree).to receive(:recursively_load_parents).with(depth: 'd')
+    it 'recursively_load_generations depth-times' do
+      expect(new_tree)
+        .to receive(:recursively_load_generations).with(depth: 3 + 1)
       generate
     end
   end
@@ -48,7 +50,7 @@ RSpec.describe Revision::FileAncestryTree, type: :model do
     it { is_expected.to eq %w[parent1 parent2 parent3] }
   end
 
-  describe '#load_parents' do
+  describe '#load_generation' do
     subject(:tree)    { ancestry_tree.send :tree }
     let(:nil_entries) { { 1 => nil, 2 => nil, 3 => nil } }
     let(:records) do
@@ -68,7 +70,7 @@ RSpec.describe Revision::FileAncestryTree, type: :model do
       allow(ancestry_tree).to receive(:add_nil_entries)
     end
 
-    after { ancestry_tree.send :load_parents }
+    after { ancestry_tree.send :load_generation }
 
     it 'adds entries for new records' do
       expect(ancestry_tree).to receive(:add_entries).with(records)
@@ -92,10 +94,10 @@ RSpec.describe Revision::FileAncestryTree, type: :model do
     end
   end
 
-  describe '#recursively_load_parents(depth:)' do
-    subject { ancestry_tree.send :recursively_load_parents, depth: 7 }
+  describe '#recursively_load_generations(depth:)' do
+    subject { ancestry_tree.send :recursively_load_generations, depth: 7 }
     after   { subject }
-    it { expect(ancestry_tree).to receive(:load_parents).exactly(7).times }
+    it { expect(ancestry_tree).to receive(:load_generation).exactly(7).times }
   end
 
   describe 'add_entries(entries)' do

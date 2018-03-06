@@ -6,7 +6,9 @@ class Revision
     # Initialize and generate tree
     def self.generate(revision:, file_ids:, depth:)
       tree = new(revision: revision, file_ids: file_ids)
-      tree.recursively_load_parents(depth: depth)
+      # Load generations depth + 1 times because 1st generation is just current
+      # files
+      tree.recursively_load_generations(depth: depth + 1)
       tree
     end
 
@@ -30,8 +32,8 @@ class Revision
       ancestor_names
     end
 
-    # Load parent records for all nil entries
-    def load_parents
+    # Load records for all nil entries
+    def load_generation
       return unless nil_entries.any?
 
       parents = fetch_records_for(nil_entries.keys)
@@ -47,10 +49,10 @@ class Revision
       add_nil_entries(parents.map { |parent| parent[:parent] }.compact)
     end
 
-    # Recursively call #load_parents depth number of times
-    def recursively_load_parents(depth:)
+    # Recursively call #load_generation depth number of times
+    def recursively_load_generations(depth:)
       depth.times do
-        load_parents
+        load_generation
       end
     end
 
