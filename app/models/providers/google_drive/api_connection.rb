@@ -99,6 +99,15 @@ module Providers
         end&.id
       end
 
+      # Lists file changes that have happened since the page token
+      def list_changes(token, page_size = 100)
+        drive_service.list_changes(
+          token,
+          page_size: page_size,
+          fields: %w[nextPageToken newStartPageToken changes/file_id].join(',')
+        )
+      end
+
       # Refresh the authorization token for the API connection
       # This is done automatically, so usually there is no need to manually
       # trigger this

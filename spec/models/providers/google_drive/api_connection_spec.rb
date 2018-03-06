@@ -254,6 +254,20 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to eq 'permission-id' }
   end
 
+  describe '#list_changes(token, page_size = 100)' do
+    subject(:list_changes) { api.list_changes('token') }
+    let(:fields) { 'nextPageToken,newStartPageToken,changes/file_id' }
+
+    before do
+      allow(drive_service)
+        .to receive(:list_changes)
+        .with('token', page_size: 100, fields: fields)
+        .and_return 'change-list'
+    end
+
+    it { is_expected.to eq 'change-list' }
+  end
+
   describe '#refresh_authorization' do
     subject(:refresh_authorization) { api.refresh_authorization }
     let(:authorization) { instance_double Google::Auth::UserRefreshCredentials }

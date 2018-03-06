@@ -1,19 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe 'revisions/index', type: :view do
-  let(:project)     { create(:project) }
-  let(:repository)  { project.repository }
-  let(:revisions)   { [revision1, revision2, revision3] }
-  let(:revision1) do
-    create :git_revision, repository: repository, author: authors[0]
-  end
-  let(:revision2) do
-    create :git_revision, repository: repository, author: authors[1]
-  end
-  let(:revision3) do
-    create :git_revision, repository: repository, author: authors[2]
-  end
-  let(:authors) { create_list :user, 3 }
+  let(:project)     { build_stubbed :project }
+  let(:revisions)   { build_stubbed_list :revision, 3 }
 
   before do
     assign(:project, project)
@@ -44,7 +33,7 @@ RSpec.describe 'revisions/index', type: :view do
 
   it 'renders the author of each revision with link' do
     render
-    authors.each do |author|
+    revisions.map(&:author).each do |author|
       expect(rendered).to have_css '.revision .profile', text: author.name
       expect(rendered).to have_link author.name, href: profile_path(author)
     end
@@ -72,75 +61,39 @@ RSpec.describe 'revisions/index', type: :view do
   end
 
   context 'when file diffs exist' do
-    let(:revisions)   { nil }
-    let!(:root)       { create :file, :root, repository: project.repository }
-    let!(:file1)      { create :file, name: 'File1', parent: root }
-    let!(:folder)     { create :file, :folder, name: 'Folder', parent: root }
-    let!(:revision1)  { create :git_revision, repository: project.repository }
-    let!(:file2)      { create :file, name: 'File2', parent: root }
-    before            { file1.update(parent_id: folder.id) }
-    let!(:revision2)  { create :git_revision, repository: project.repository }
-    before            { file2.destroy }
-    before            { file1.update(modified_time: Time.zone.now) }
-    let!(:revision3)  { create :git_revision, repository: project.repository }
+    let(:diffs) do
+      build_stubbed_list(:file_resource_snapshot, 3).map do |snapshot|
+        FileDiff.new(file_resource_id: 12,
+                     current_snapshot: snapshot,
+                     first_three_ancestors: ancestors)
+      end
+    end
 
-    before { assign(:revisions, [revision3, revision2, revision1]) }
+    let(:ancestors) { [] }
+
+    before do
+      root = instance_double FileResource
+      allow(project).to receive(:root_folder).and_return root
+      allow(root).to receive(:provider).and_return Providers::GoogleDrive
+      allow(revisions.first).to receive(:file_diffs).and_return diffs
+    end
 
     it 'renders a link to infos for each file' do
       render
-      [file1, folder, file2].each do |file|
-        link = profile_project_file_infos_path(project.owner, project, file.id)
+      diffs.each do |diff|
+        link = profile_project_file_infos_path(project.owner,
+                                               project,
+                                               diff.external_id)
         expect(rendered).to have_link(text: 'More', href: link)
       end
     end
 
-    context 'under revision 1' do
-      it 'it lists file1 as added' do
-        render
+    it 'it lists files as added' do
+      render
+      diffs.each do |diff|
         expect(rendered).to have_css(
-          ".revision[id='#{revision1.id}'] .file.added",
-          text: 'File1 added to Home'
-        )
-      end
-      it 'it lists folder as added' do
-        render
-        expect(rendered).to have_css(
-          ".revision[id='#{revision1.id}'] .file.added",
-          text: 'Folder added to Home'
-        )
-      end
-    end
-
-    context 'under revision 2' do
-      it 'it lists file2 as added' do
-        render
-        expect(rendered).to have_css(
-          ".revision[id='#{revision2.id}'] .file.added",
-          text: 'File2 added to Home'
-        )
-      end
-      it 'it lists file1 as moved' do
-        render
-        expect(rendered).to have_css(
-          ".revision[id='#{revision2.id}'] .file.moved",
-          text: 'File1 moved to Home > Folder'
-        )
-      end
-    end
-
-    context 'under revision 3' do
-      it 'it lists file2 as deleted' do
-        render
-        expect(rendered).to have_css(
-          ".revision[id='#{revision3.id}'] .file.deleted",
-          text: 'File2 deleted from Home'
-        )
-      end
-      it 'it lists file1 as modified' do
-        render
-        expect(rendered).to have_css(
-          ".revision[id='#{revision3.id}'] .file.modified",
-          text: 'File1 modified'
+          ".revision[id='#{revisions.first.id}'] .file.added",
+          text: "#{diff.name} added"
         )
       end
     end

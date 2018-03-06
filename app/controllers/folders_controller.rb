@@ -2,18 +2,15 @@
 
 # Controller for project folders
 class FoldersController < ApplicationController
-  include CanSetProjectContext
-  include ProjectLockable
-
-  # Execute without lock or render/redirect delay
   before_action :set_project
-
-  around_action :wrap_action_in_project_lock
-
-  # Execute with lock and render/redirect delay
-  before_action :set_project_context
-  before_action :set_folder_diff
-  before_action :set_file_diffs
+  before_action :set_folder_from_param, only: :show
+  before_action :set_folder_from_root, only: :root
+  before_action :set_children
+  # TODO: Find way to not manually set provider for all children while still
+  #       avoiding N+1 query
+  before_action :set_provider_for_children
+  # TODO: Sort children in query, not manually afterwards
+  before_action :sort_children
   before_action :set_ancestors
   before_action :set_user_can_commit_changes
 
@@ -26,27 +23,43 @@ class FoldersController < ApplicationController
   private
 
   def set_ancestors
-    @ancestors = @folder_diff.ancestors_of_file
+    @ancestors = @folder&.ancestors_in_project.to_a
   end
 
-  def set_file_diffs
-    @file_diffs = @folder_diff.children_as_diffs
-
-    helpers.sort_file_diffs!(@file_diffs)
+  def set_children
+    @children = @folder.children_as_diffs
   end
 
-  def set_folder_diff
-    # Load the folder. If ID param is not set, load root folder.
-    @folder_diff = @project.repository
-                           .stage
-                           .diff(@project.repository.revisions.last)
-                           .diff_file(params[:id] || @project.files.root_id)
+  def set_folder_from_param
+    @folder = Stage::FileDiff.find_by!(external_id: params[:id],
+                                       project: @project)
 
-    # Raise error if folder is not a directory
-    raise ActiveRecord::RecordNotFound unless @folder_diff.directory?
+    raise ActiveRecord::RecordNotFound unless @folder.folder?
+  end
+
+  def set_folder_from_root
+    raise ActiveRecord::RecordNotFound unless @project.root_folder.present?
+
+    @folder = Stage::FileDiff.new(file_resource_id: @project.root_folder.id,
+                                  project: @project)
+  end
+
+  # Find and set project. Raise 404 if project does not exist
+  def set_project
+    @project = Project.find(params[:profile_handle], params[:project_slug])
+  end
+
+  def set_provider_for_children
+    @children.each do |child|
+      child.provider = @project.root_folder.provider
+    end
   end
 
   def set_user_can_commit_changes
     @user_can_commit_changes = can?(:new, :revision, @project)
+  end
+
+  def sort_children
+    helpers.sort_file_diffs!(@children)
   end
 end

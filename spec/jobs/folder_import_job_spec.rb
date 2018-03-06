@@ -2,128 +2,68 @@
 
 RSpec.describe FolderImportJob, type: :job do
   subject(:job) { FolderImportJob.new }
-  let(:project) { instance_double Project }
 
-  before do
-    allow(Project).to receive(:find).and_return project
-  end
-
-  describe 'priority' do
-    it { expect(subject.priority).to eq 100 }
-  end
-
-  describe 'queue' do
-    it { expect(subject.queue_name).to eq 'folder_import' }
-  end
+  it { expect(subject.priority).to eq 100 }
+  it { expect(subject.queue_name).to eq 'folder_import' }
 
   describe '#perform' do
-    subject(:method) do
-      job.perform(reference: project, folder_id: 'folder-id')
-    end
-    let(:files)   { [file1, file2, file3] }
-    let(:file1)   { instance_double Google::Apis::DriveV3::File }
-    let(:file2)   { instance_double Google::Apis::DriveV3::File }
-    let(:file3)   { instance_double Google::Apis::DriveV3::File }
-    let(:staged_file1)  { instance_double VersionControl::Files::Staged }
-    let(:staged_file2)  { instance_double VersionControl::Files::Staged }
-    let(:staged_file3)  { instance_double VersionControl::Files::Staged }
+    subject(:method)  { job.perform(x: 'y') }
+    let(:file)        { instance_double FileResources::GoogleDrive }
 
     before do
-      allow(job).to receive(:create_or_update_file)
-        .and_return(staged_file1, staged_file2, staged_file3)
-      allow(job).to receive(:schedule_folder_import_job_for)
-      allow(GoogleDrive)
-        .to receive(:list_files_in_folder).with('folder-id').and_return files
-      allow(staged_file1).to receive(:id).and_return 'file1'
-      allow(staged_file1).to receive(:directory?).and_return false
-      allow(staged_file2).to receive(:id).and_return 'folder1'
-      allow(staged_file2).to receive(:directory?).and_return true
-      allow(staged_file3).to receive(:id).and_return 'folder2'
-      allow(staged_file3).to receive(:directory?).and_return true
+      allow(job).to receive(:variables_from_arguments).with(x: 'y')
+      allow(job).to receive(:file_resource_id).and_return 'file-id'
+      allow(FileResources::GoogleDrive)
+        .to receive(:find).with('file-id').and_return file
+      allow(file).to receive(:children).and_return []
+      allow(file).to receive(:pull_children)
+      allow(file).to receive(:subfolders).and_return []
     end
 
-    after { method }
-
-    it 'calls #create_or_update_file three times' do
-      expect(job).to receive(:create_or_update_file)
-        .with(file1, 'folder-id', project).and_return staged_file1
-      expect(job).to receive(:create_or_update_file)
-        .with(file2, 'folder-id', project).and_return staged_file2
-      expect(job).to receive(:create_or_update_file)
-        .with(file3, 'folder-id', project).and_return staged_file3
+    it 'stages existing children' do
+      expect(file).to receive(:children).and_return %w[c1 c2 c3]
+      project = instance_double Project
+      expect(job).to receive(:project).exactly(3).times.and_return project
+      staged_files = class_double StagedFile
+      expect(project)
+        .to receive(:staged_files).exactly(3).times.and_return staged_files
+      expect(staged_files).to receive(:create).with(file_resource: 'c1')
+      expect(staged_files).to receive(:create).with(file_resource: 'c2')
+      expect(staged_files).to receive(:create).with(file_resource: 'c3')
+      subject
     end
 
-    it 'recursively creates two FolderImportJobs' do
-      expect(job).to receive(:schedule_folder_import_job_for).with('folder1')
-      expect(job).to receive(:schedule_folder_import_job_for).with('folder2')
+    it 'calls #pull children' do
+      expect(file).to receive(:pull_children)
+      subject
+    end
+
+    it 'creates a new import job for every subfolder' do
+      expect(file).to receive(:subfolders).and_return %w[sub1 sub2 sub3]
+      expect(job).to receive(:schedule_folder_import_job_for).with('sub1')
+      expect(job).to receive(:schedule_folder_import_job_for).with('sub2')
+      expect(job).to receive(:schedule_folder_import_job_for).with('sub3')
+      subject
     end
   end
 
-  describe '#create_or_update_file' do
-    subject(:method) do
-      FolderImportJob.new.send :create_or_update_file, file, parent.id, project
-    end
-    let(:file) { build :google_drive_file, :with_id, :with_version_and_time }
-    let(:parent)      { create :file, :root, repository: project.repository }
-    let(:project)     { create :project }
-    let(:saved_file)  { project.files.find(file.id) }
+  describe '#schedule_folder_import_job_for(file_resource)' do
+    subject { job.send :schedule_folder_import_job_for, file_resource }
+    let(:file_resource) { instance_double FileResource }
 
-    context 'when file does not exist' do
-      before { method }
-
-      it 'creates the file' do
-        expect(saved_file).to have_attributes(
-          id: file.id,
-          name: file.name,
-          mime_type: file.mime_type,
-          parent_id: parent.id,
-          version: file.version,
-          modified_time: file.modified_time
-        )
-      end
+    before do
+      allow(job).to receive(:reference_id).and_return 'ref-id'
+      allow(job).to receive(:reference_type).and_return 'ref-type'
+      allow(file_resource).to receive(:id).and_return 'file-id'
     end
 
-    context 'when file already exists' do
-      let(:existing_file) do
-        build :google_drive_file, :with_id, :with_version_and_time,
-              id: file.id, mime_type: file.mime_type
-      end
-      before do
-        FolderImportJob.new.send :create_or_update_file, existing_file,
-                                 parent.id, project
-      end
-
-      context 'when version is newer than existing file' do
-        before { file.version = existing_file.version + 5 }
-        before { method }
-
-        it 'updates file attributes' do
-          expect(saved_file).to have_attributes(
-            id: file.id,
-            name: file.name,
-            mime_type: file.mime_type,
-            parent_id: parent.id,
-            version: file.version,
-            modified_time: file.modified_time
-          )
-        end
-      end
-
-      context 'when version is older than existing file' do
-        before { file.version = existing_file.version - 5 }
-        before { method }
-
-        it 'does not update file attributes' do
-          expect(saved_file).to have_attributes(
-            id: existing_file.id,
-            name: existing_file.name,
-            mime_type: existing_file.mime_type,
-            parent_id: parent.id,
-            version: existing_file.version,
-            modified_time: existing_file.modified_time
-          )
-        end
-      end
+    it 'calls .perform_later' do
+      expect(FolderImportJob)
+        .to receive(:perform_later)
+        .with(reference_id: 'ref-id',
+              reference_type: 'ref-type',
+              file_resource_id: 'file-id')
+      subject
     end
   end
 end

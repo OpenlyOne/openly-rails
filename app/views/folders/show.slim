@@ -1,20 +1,19 @@
-- if @ancestors.present?
+- unless action_name == 'root'
   = render partial: 'ancestors',
            object: @ancestors,
-           locals: { current_folder: @folder_diff.file_is_or_was,
-                     project: @project }
+           locals: { current_folder: @folder, project: @project }
 
 .spacing.v48px
 
 .container
   .row
-    - @file_diffs.each_slice(2) do |slice|
+    - @children.each_slice(2) do |slice|
 
-      - slice.each do |file_diff|
+      - slice.each do |child|
 
         .col.s6.m3.l2.center-align
           = render partial: 'file_diff',
-                   object: file_diff,
+                   object: child,
                    locals: { project: @project }
 
       div class=cycle('hide-on-med-and-up',

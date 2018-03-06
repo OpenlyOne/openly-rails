@@ -320,85 +320,59 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '#import_google_drive_folder' do
-    subject(:method)    { project.save }
-    let(:id_of_folder)  { 'folder-id' }
-    let(:project)       { create(:project) }
+  describe '#import_google_drive_folder', isolated_unit_test: true do
+    subject(:method)    { project.send :import_google_drive_folder }
+    let(:project)       { build_stubbed(:project) }
     let(:file)          { instance_double Google::Apis::DriveV3::File }
     let(:mime_type)     { Providers::GoogleDrive::MimeType.folder }
+    let(:root_folder)   { instance_double FileResource }
 
     before do
-      allow(GoogleDrive).to receive(:get_file).and_return(file)
-      allow(file).to receive(:mime_type).and_return(mime_type)
-      allow(file)
-        .to receive(:to_h)
-        .and_return(id: id_of_folder, mime_type: mime_type)
-    end
-
-    before do
+      allow(project).to receive(:google_drive_folder_id).and_return 'folder-id'
+      allow(project).to receive(:root_folder=)
+      allow(FileResources::GoogleDrive)
+        .to receive(:find_or_initialize_by)
+        .with(external_id: 'folder-id')
+        .and_return(root_folder)
+      allow(root_folder).to receive(:pull)
+      allow(project).to receive(:root_folder).and_return root_folder
+      allow(root_folder).to receive(:id).and_return 'the-id'
       allow(FolderImportJob).to receive(:perform_later)
     end
 
-    before do
-      project.instance_variable_set(:@google_drive_folder_id, id_of_folder)
-      project.import_google_drive_folder_on_save = true
+    it 'calls #pull on root folder' do
+      expect(root_folder).to receive(:pull)
+      subject
     end
 
-    it 'creates a root folder' do
+    it 'sets root folder' do
+      expect(project).to receive(:root_folder=).with(root_folder)
       subject
-      expect(project.reload.files.root).to be_a VersionControl::File
     end
 
     it 'creates a FolderImportJob' do
       expect(FolderImportJob).to receive(:perform_later)
-        .with(
-          reference: project,
-          folder_id: id_of_folder
-        )
+        .with(reference: project, file_resource_id: 'the-id')
       subject
     end
 
-    context 'when save fails' do
-      before { allow(project).to receive(:save).and_return(false) }
+    context 'when error is raised' do
+      let(:staged_root_folder) { instance_double StagedFile }
 
-      it 'does not persist root folder' do
-        subject
-        expect(project.reload.files.root).to be nil
-      end
-
-      it 'does not start a FolderImportJob' do
-        expect(FolderImportJob).not_to receive(:perform_later)
-        subject
-      end
-    end
-
-    context 'when root folder already exists' do
-      before { create :file, :root, repository: project.repository }
-      before { project.reload }
-
-      it { is_expected.to be false }
-
-      it 'does not persist changes to project' do
-        project.title = 'My New Title'
-        method
-        expect(project.reload.title).not_to eq 'My New Title'
-      end
-    end
-
-    context 'when any error occurs' do
       before do
-        allow(FolderImportJob).to receive(:perform_later).and_raise('error')
+        allow(project).to receive(:root_folder).and_raise StandardError
+        allow(project)
+          .to receive(:staged_root_folder).and_return staged_root_folder
+        allow(staged_root_folder).to receive(:destroy)
       end
 
-      it 'does not persist root folder' do
-        expect { method }.to raise_error RuntimeError
-        expect(project.reload.files.root).to be nil
+      it 'calls #destroy on staged root folder' do
+        expect(staged_root_folder).to receive(:destroy)
+        expect { subject }.to raise_error StandardError
       end
 
-      it 'does not persist changes to project' do
-        project.title = 'My New Title'
-        expect { method }.to raise_error RuntimeError
-        expect(project.reload.title).not_to eq 'My New Title'
+      it 're-raises the error' do
+        expect { subject }.to raise_error StandardError
       end
     end
   end
