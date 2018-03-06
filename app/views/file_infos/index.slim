@@ -3,7 +3,7 @@
     .row.no-margin-bottom
       .col.s12
         h2
-          = image_tag icon_for_file(@file),
+          = image_tag @file.icon,
                       alt: 'File icon',
                       size: '56',
                       class: 'img-responsive left'
@@ -12,10 +12,11 @@
 .container
 
   = render partial: 'file_status',
-           locals: { current_file_diff: @current_file_diff,
+           locals: { staged_file_diff: @staged_file_diff,
                      project: @project }
 
   = render partial: 'file_version_history',
-           locals: { project: @project, file_versions: @file_versions }
+           locals: { project: @project,
+                     committed_file_diffs: @committed_file_diffs }
 
   .spacing.v48px
