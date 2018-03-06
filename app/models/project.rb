@@ -36,6 +36,11 @@ class Project < ApplicationRecord
     end
   end
 
+  has_many :non_root_file_snapshots_in_stage,
+           class_name: 'FileResource::Snapshot',
+           through: :non_root_file_resources_in_stage,
+           source: :current_snapshot
+
   has_many :all_revisions, class_name: 'Revision', dependent: :destroy
   has_many :revisions, -> { where is_published: true } do
     def create_draft_and_commit_files!(author)

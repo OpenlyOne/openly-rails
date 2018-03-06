@@ -61,6 +61,14 @@ RSpec.describe Project, type: :model do
     end
     it do
       is_expected
+        .to have_many(:non_root_file_snapshots_in_stage)
+        .class_name('FileResource::Snapshot')
+        .through(:non_root_file_resources_in_stage)
+        .source(:current_snapshot)
+        .dependent(false)
+    end
+    it do
+      is_expected
         .to have_many(:all_revisions)
         .class_name('Revision')
         .dependent(:destroy)
