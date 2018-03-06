@@ -3,8 +3,6 @@
 # Handles projects that belong to a profile (owner)
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
-  include VersionControl
-
   # Associations
   belongs_to :owner, polymorphic: true
   has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
@@ -133,18 +131,10 @@ class Project < ApplicationRecord
     end
   end
 
-  # The base path for version controlled repositories of Project instances
-  def self.repository_folder_path
-    Rails.root.join(
-      Settings.file_storage,
-      'projects'
-    ).cleanpath.to_s
-  end
-
   # The absolute link to the Google Drive root folder
   def link_to_google_drive_folder=(link)
     @link_to_google_drive_folder = link
-    @google_drive_folder_id = GoogleDrive.link_to_id(link)
+    @google_drive_folder_id = folder_link_to_id(link)
   end
 
   # List of tags, separated by comma
@@ -172,6 +162,12 @@ class Project < ApplicationRecord
 
   private
 
+  # Parse a link to a Google Drive folder into its ID
+  def folder_link_to_id(link_to_file)
+    matches = link_to_file.match(%r{\/folders\/?(.+)})
+    matches ? matches[1] : nil
+  end
+
   # Generate the project slug from the title by replacing whitespace with
   # dashes and removing all non-alphanumeric characters
   def generate_slug_from_title
@@ -185,7 +181,7 @@ class Project < ApplicationRecord
 
   # The ID of the Google Drive folder associated with this project
   def google_drive_folder_id
-    @google_drive_folder_id ||= files&.root&.google_drive_id
+    @google_drive_folder_id ||= root_folder&.external_id
   end
 
   # Import a Google Drive Folder
@@ -217,7 +213,8 @@ class Project < ApplicationRecord
   # Validation: Is the link to the Google Drive folder accessible and a folder?
   def link_to_google_drive_is_accessible_folder
     return if google_drive_folder_id.nil?
-    file = GoogleDrive.get_file(google_drive_folder_id)
+    file = Providers::GoogleDrive::ApiConnection
+           .default.find_file!(google_drive_folder_id)
 
     validate_folder_mime_type(file)
   rescue Google::Apis::ClientError => _e
@@ -228,18 +225,9 @@ class Project < ApplicationRecord
     )
   end
 
-  # The file path for the project instance's version controlled repository
-  def repository_file_path
-    return nil unless id_in_database.present?
-
-    Pathname.new(self.class.repository_folder_path)
-            .join(id_in_database.to_s)
-            .cleanpath.to_s
-  end
-
   # Validation: Is the file a folder?
   def validate_folder_mime_type(folder)
-    return if VersionControl::File.directory_type? folder.mime_type
+    return if Providers::GoogleDrive::MimeType.folder?(folder.mime_type)
     errors.add(
       :link_to_google_drive_folder,
       'appears not to be a Google Drive folder'
