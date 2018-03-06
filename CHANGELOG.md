@@ -1,6 +1,20 @@
 # CHANGELOG
 
-## v0.12 (January 29, 2017)
+## v0.13 (March 6, 2018)
+
+**New Features:**
+- Tracking of file renaming
+
+**Enhancements:**
+- Version control is supported by the database (PostgreSQL) rather than the file
+  system (Git)
+
+**Fixes:**
+- Modification tracking is now limited to actual file changes. Previously, any
+  type of action on a file (such as sharing it with someone) would result in it
+  being shown as modified.
+
+## v0.12 (January 29, 2018)
 
 **New Features:**
 - Users can add an about text to their profiles
@@ -15,7 +29,7 @@
 - Upgrade 'paperclip' gem to v5.2.1 to patch vulnerability
 
 
-## v0.11 (January 25, 2017)
+## v0.11 (January 25, 2018)
 
 **New Features:**
 - Users can edit their profile and upload custom profile pictures.
@@ -25,18 +39,18 @@
 **Fixes:**
 - Labels no longer overlap their textareas even when Grammarly is used
 
-## v0.10 (January 14, 2017)
+## v0.10 (January 14, 2018)
 
 **Internal:**
 - Track errors in application and background jobs (in production) with Rollbar
 
-## v0.9.1 (January 13, 2017)
+## v0.9.1 (January 13, 2018)
 
 **Fixes:**
 - Links correctly open in current tab unless otherwise intended
 - Upgrade 'nokogiri' gem to v1.8.1 to patch vulnerability
 
-## v0.9 (January 13, 2017)
+## v0.9 (January 13, 2018)
 
 **New Features**:
 - Files have an info page that shows their new changes as well as a revision
@@ -49,13 +63,13 @@
 - Labels no longer be overlap their textareas
 - Tab text is no longer be truncated
 
-## v0.8.1 (January 10, 2017)
+## v0.8.1 (January 10, 2018)
 
 **Fix**:
 - Delete migration related to dropping notification channels.
 
 
-## v0.8 (January 10, 2017)
+## v0.8 (January 10, 2018)
 
 **New Features**:
 - Users can commit changes in projects.
