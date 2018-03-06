@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.13.1 (March 6, 2018)
+
+**Fixes:**
+- Reference ::File class in DriveService (not Providers::GoogleDrive::File)
 
 ## v0.13.1 (March 6, 2018)
 
