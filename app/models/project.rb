@@ -137,6 +137,10 @@ class Project < ApplicationRecord
     @google_drive_folder_id = folder_link_to_id(link)
   end
 
+  def public?
+    is_public
+  end
+
   # List of tags, separated by comma
   def tag_list
     tags.join(', ')

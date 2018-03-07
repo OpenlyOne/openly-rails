@@ -3,6 +3,7 @@
 require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
+require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe ProjectsController, type: :controller do
@@ -126,11 +127,14 @@ RSpec.describe ProjectsController, type: :controller do
   end
 
   describe 'GET #show' do
-    let(:params)      { default_params }
-    let(:run_request) { get :show, params: params }
+    let(:params)          { default_params }
+    let(:run_request)     { get :show, params: params }
+    let(:current_account) { project.owner.account }
+    before                { sign_in current_account }
 
     include_examples 'raise 404 if non-existent', Profiles::Base
     include_examples 'raise 404 if non-existent', Project
+    it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
       run_request

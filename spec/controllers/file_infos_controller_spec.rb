@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/authorizing_project_access.rb'
 
 RSpec.describe FileInfosController, type: :controller do
   let(:root)    { create :file_resource, :folder }
@@ -13,8 +14,9 @@ RSpec.describe FileInfosController, type: :controller do
       id:             folder.external_id
     }
   end
-
-  before { project.root_folder = root }
+  let(:current_account) { project.owner.account }
+  before                { sign_in current_account }
+  before                { project.root_folder = root }
 
   describe 'GET #index' do
     let(:params)      { default_params }
@@ -26,6 +28,7 @@ RSpec.describe FileInfosController, type: :controller do
       # when file does not exist and never has
       before { default_params[:id] = 'some-nonexistent-id' }
     end
+    it_should_behave_like 'authorizing project access'
 
     context 'when id is of root folder' do
       before      { params[:id] = root.external_id }

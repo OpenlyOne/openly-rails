@@ -4,6 +4,8 @@
 RSpec.shared_examples 'an authorized action' do
   let(:has_ability) { false }
   before do
+    allow(controller).to receive(:authorize!).and_call_original
+    allow(controller).to receive(:authorize!).with(:access, any_args)
     allow_any_instance_of(Ability).to receive(:can?).and_return has_ability
     run_request
   end

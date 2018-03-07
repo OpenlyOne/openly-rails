@@ -4,11 +4,24 @@
 class Ability
   include CanCan::Ability
 
+  # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
   def initialize(user)
+    # Users can view public projects and private projects they are collaborators
+    # of
+    can %i[access], Project do |project|
+      project.public? || can?(:collaborate, project)
+    end
+
+    # ALL METHODS BELOW THIS LINE REQUIRE AUTHENTICATION
     return unless user
 
     # Users can manage their own profiles
     can :manage, Profiles::User, id: user.id
+
+    # Users can collaborate on projects that they own or are a collaborator of
+    can :collaborate, Project do |project|
+      can?(:edit, project) || project.collaborators.exists?(user.id)
+    end
 
     # Users can edit the projects of profiles that they can manage
     can %i[setup import edit update destroy], Project do |project|
@@ -18,7 +31,7 @@ class Ability
     # User can commit changes for projects of profiles that they can manage
     # or of which they are a collaborator
     can %i[new create], :revision do |_revision, project|
-      can?(:edit, project) || project.collaborators.exists?(user.id)
+      can?(:collaborate, project)
     end
 
     # Define abilities for the passed in user here. For example:
@@ -48,4 +61,5 @@ class Ability
     # See the wiki for details:
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
   end
+  # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 end
