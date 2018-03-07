@@ -13,6 +13,7 @@ module Profiles
 
     # Associations
     belongs_to :account
+    has_many :visits, class_name: 'Ahoy::Visit'
 
     # Attributes
     # Do not allow account change

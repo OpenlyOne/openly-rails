@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_default_request_format
 
+  after_action :track_action
+
   # override sign in redirect (Devise)
   def after_sign_in_path_for(resource)
     stored_location_for(resource) || url_for(resource.user)
@@ -59,5 +61,11 @@ class ApplicationController < ActionController::Base
   # other endings that are normally parsed by Rails.
   def set_default_request_format
     request.format = :html unless params[:format]
+  end
+
+  # Track the page action
+  def track_action
+    ahoy.track "#{params[:controller]}##{params[:action]}",
+               request.path_parameters
   end
 end
