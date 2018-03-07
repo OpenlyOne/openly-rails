@@ -31,6 +31,8 @@ feature 'Project' do
     # with two collaborators
     collaborators = create_list :user, 2
     project.collaborators << collaborators
+    # and I am signed in as the project owner
+    sign_in_as project.owner.account
 
     # when I visit the project's owner
     visit "/#{project.owner.to_param}"

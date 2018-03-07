@@ -10,7 +10,9 @@ feature 'Revision' do
   end
 
   scenario 'User can see past revisions' do
-    # given there is a file
+    # given I am signed in as the project owner
+    sign_in_as project.owner.account
+    # and there is a file
     file = create :file_resource, name: 'File1', parent: root
     # with three revisions made by three different users
     users = create_list :user, 3

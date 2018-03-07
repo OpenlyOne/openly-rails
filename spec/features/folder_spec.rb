@@ -14,6 +14,8 @@ feature 'Folder' do
     files
   end
 
+  before { sign_in_as project.owner.account }
+
   scenario 'User can view root-folder' do
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
