@@ -1,6 +1,10 @@
 / render list of current file changes, if any
 
-h3.with-separator: span New Changes (uncommitted)
+h3.with-separator
+  span
+    ' New Changes
+    small
+      | (since last revision)
 
 - if staged_file_diff.changes.any?
 

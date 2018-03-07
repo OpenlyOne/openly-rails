@@ -65,7 +65,7 @@ RSpec.describe 'file_infos/index', type: :view do
 
     it 'renders that the file has been unchanged since the last revision' do
       render
-      expect(rendered).to have_text 'New Changes (uncommitted)'
+      expect(rendered).to have_text 'New Changes (since last revision)'
       expect(rendered).to have_text(
         'No changes have been made to this file since the last revision'
       )
@@ -90,14 +90,14 @@ RSpec.describe 'file_infos/index', type: :view do
       end
     end
 
-    context 'when staged file diff has uncommitted changes' do
+    context 'when staged file diff has uncaptured changes' do
       before do
         allow(staged_file_diff).to receive(:changes)
           .and_return %i[added modified moved renamed deleted]
         allow(staged_file_diff).to receive(:ancestor_path).and_return 'Home'
       end
 
-      it 'renders uncommitted changes' do
+      it 'renders uncaptured changes' do
         render
         expect(rendered).to have_text 'My Document added to Home'
         expect(rendered).to have_text(

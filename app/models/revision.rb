@@ -66,9 +66,9 @@ class Revision < ApplicationRecord
   def can_only_have_one_revision_with_parent
     return unless published_revision_with_parent_exists?
     errors.add(:base,
-               'Someone has committed changes to this project since you ' \
+               'Someone has captured changes to this project since you ' \
                'started reviewing changes. To prevent you and your team from ' \
-               "overwriting each other's changes, you cannot commit the " \
+               "overwriting each other's changes, you cannot capture the " \
                'changes you are currently reviewing.')
   end
 

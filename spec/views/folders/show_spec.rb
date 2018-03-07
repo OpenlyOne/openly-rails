@@ -78,10 +78,10 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
-  it 'does not have a button to commit changes' do
+  it 'does not have a button to capture changes' do
     render
     expect(rendered).not_to have_link(
-      'Commit Changes',
+      'Capture Changes',
       href: new_profile_project_revision_path(project.owner, project)
     )
   end
@@ -89,10 +89,10 @@ RSpec.describe 'folders/show', type: :view do
   context 'when current user can edit project' do
     before { assign(:user_can_commit_changes, true) }
 
-    it 'has a button to commit changes' do
+    it 'has a button to capture changes' do
       render
       expect(rendered).to have_link(
-        'Commit Changes',
+        'Capture Changes',
         href: new_profile_project_revision_path(project.owner, project)
       )
     end
