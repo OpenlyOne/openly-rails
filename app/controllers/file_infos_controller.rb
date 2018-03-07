@@ -12,6 +12,7 @@ class FileInfosController < ApplicationController
   # TODO: Find way to not manually set provider for all children while still
   #       avoiding N+1 query
   before_action :set_provider_committed_file_diffs
+  before_action :set_user_can_force_sync_files
 
   def index; end
 
@@ -58,5 +59,9 @@ class FileInfosController < ApplicationController
     @committed_file_diffs.each do |diff|
       diff.provider = @project.root_folder.provider
     end
+  end
+
+  def set_user_can_force_sync_files
+    @user_can_force_sync_files = can?(:force_sync, @project)
   end
 end
