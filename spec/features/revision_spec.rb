@@ -53,12 +53,12 @@ feature 'Revision' do
     visit "#{project.owner.to_param}/#{project.to_param}"
     # and click on Files
     click_on 'Files'
-    # and click on Commit Changes
-    click_on 'Commit Changes'
+    # and click on Capture Changes
+    click_on 'Capture Changes'
     # and enter a revision title
-    fill_in 'Title', with: 'Initial Commit'
-    # and click on 'Commit'
-    click_on 'Commit'
+    fill_in 'Title', with: 'Initial Capture'
+    # and click on 'Capture'
+    click_on 'Capture'
 
     # then I should be on the project's files page
     expect(page).to have_current_path(
@@ -102,8 +102,8 @@ feature 'Revision' do
     visit "#{project.owner.to_param}/#{project.to_param}"
     # and click on Files
     click_on 'Files'
-    # and click on Commit Changes
-    click_on 'Commit Changes'
+    # and click on Capture Changes
+    click_on 'Capture Changes'
 
     # then I can see the changes I am about to commit
     expect(page).to have_css '.file.added',     text: added_file.name
