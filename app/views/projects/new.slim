@@ -7,19 +7,26 @@
           h1 New Project
 
   .container
-   - if @project.errors.any?
-     .row
-       .col.s12
-         .validation-errors
-           = render partial: "error", collection: @project.errors.full_messages, as: :error
+    - if @project.errors.any?
+      .row
+        .col.s12
+          .validation-errors
+            = render partial: "error", collection: @project.errors.full_messages, as: :error
 
-   .row
-     .col.s12.l12
-       .input-field
-         h2.no-margin
-          = f.text_field :title, placeholder: 'Title', class: 'inherit'
+    .row
+      .col.s12.l12
+        .input-field
+          h2.no-margin
+            = f.text_field :title, placeholder: 'Title', class: 'inherit'
+    .row
+      .col.s12
+        p
+          | Projects are private by default. Only you (and any collaborators
+            you add to your projects) will be able to see files, changes, and
+            summaries.
+        .spacing.v16px
 
-   .row
-     .col.s12
-       button action='submit' class="btn-large primary-color primary-color-text"
-         | Create
+    .row
+      .col.s12
+        button action='submit' class="btn-large primary-color primary-color-text"
+          | Create

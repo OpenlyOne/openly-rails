@@ -25,6 +25,11 @@ RSpec.describe 'projects/new', type: :view do
     expect(rendered).to have_css 'input#project_title'
   end
 
+  it 'informs user that projects are private' do
+    render
+    expect(rendered).to have_text 'Projects are private'
+  end
+
   it 'has a button to create the project' do
     render
     expect(rendered)
