@@ -2,7 +2,10 @@
 
 # Controller for project folders
 class FoldersController < ApplicationController
+  include CanSetProjectContext
+
   before_action :set_project
+  before_action :authorize_project_access
   before_action :set_folder_from_param, only: :show
   before_action :set_folder_from_root, only: :root
   before_action :set_children
@@ -42,11 +45,6 @@ class FoldersController < ApplicationController
 
     @folder = Stage::FileDiff.new(file_resource_id: @project.root_folder.id,
                                   project: @project)
-  end
-
-  # Find and set project. Raise 404 if project does not exist
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:project_slug])
   end
 
   def set_provider_for_children

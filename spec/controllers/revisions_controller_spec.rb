@@ -3,6 +3,7 @@
 require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
+require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
@@ -14,6 +15,8 @@ RSpec.describe RevisionsController, type: :controller do
       project_slug:   project.slug
     }
   end
+  let(:current_account) { project.owner.account }
+  before                { sign_in current_account }
 
   describe 'GET #index' do
     let(:params)      { default_params }
@@ -21,6 +24,7 @@ RSpec.describe RevisionsController, type: :controller do
 
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
       run_request
@@ -31,7 +35,6 @@ RSpec.describe RevisionsController, type: :controller do
   describe 'GET #new' do
     let(:params)      { default_params }
     let(:run_request) { get :new, params: params }
-    before            { sign_in project.owner.account }
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
@@ -42,6 +45,7 @@ RSpec.describe RevisionsController, type: :controller do
         'You are not authorized to commit changes for this project.'
       end
     end
+    it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
       run_request
@@ -51,10 +55,9 @@ RSpec.describe RevisionsController, type: :controller do
 
   describe 'POST #create' do
     let!(:revision_draft) { create :revision, project: project, author: author }
-    let(:author)          { project.owner }
+    let(:author)          { current_account.user }
     let(:params)          { default_params.merge(add_params) }
     let(:run_request)     { post :create, params: params }
-    before                { sign_in project.owner.account }
     let(:add_params) do
       {
         revision: {
@@ -79,6 +82,7 @@ RSpec.describe RevisionsController, type: :controller do
         profile_project_root_folder_path(project.owner, project)
       end
     end
+    it_should_behave_like 'authorizing project access'
 
     it 'publishes the revision' do
       expect_any_instance_of(Revision)
