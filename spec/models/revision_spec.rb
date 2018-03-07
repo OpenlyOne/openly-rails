@@ -15,7 +15,15 @@ RSpec.describe Revision, type: :model do
       is_expected
         .to belong_to(:author).class_name('Profiles::User').dependent(false)
     end
-    it { is_expected.to have_many(:committed_files).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:children)
+        .class_name('Revision')
+        .with_foreign_key(:parent_id)
+        .dependent(:destroy)
+    end
+
+    it { is_expected.to have_many(:committed_files).dependent(:delete_all) }
     it { is_expected.to have_many(:file_diffs).dependent(:destroy) }
   end
 

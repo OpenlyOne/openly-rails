@@ -6,7 +6,10 @@ class Revision < ApplicationRecord
   belongs_to :project
   belongs_to :parent, class_name: 'Revision', optional: true, autosave: false
   belongs_to :author, class_name: 'Profiles::User'
-  has_many :committed_files, dependent: :destroy
+  has_many :children, class_name: 'Revision',
+                      foreign_key: :parent_id,
+                      dependent: :destroy
+  has_many :committed_files, dependent: :delete_all
   has_many :committed_file_snapshots, class_name: 'FileResource::Snapshot',
                                       through: :committed_files,
                                       source: :file_resource_snapshot
