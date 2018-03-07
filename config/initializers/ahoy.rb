@@ -10,3 +10,6 @@ Ahoy.api = false
 
 # set low priority for geocoding jobs
 Ahoy.job_queue = :low_priority
+
+# disable geocoding in tests
+Ahoy.geocode = false if Rails.env.test?
