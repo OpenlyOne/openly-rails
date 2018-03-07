@@ -28,6 +28,11 @@ class Ability
       can? :manage, project.owner
     end
 
+    # User can force sync files for projects in which they collaborate
+    can %i[force_sync], Project do |project|
+      can?(:collaborate, project)
+    end
+
     # User can commit changes for projects of profiles that they can manage
     # or of which they are a collaborator
     can %i[new create], :revision do |_revision, project|

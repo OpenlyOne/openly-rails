@@ -80,6 +80,18 @@ RSpec.describe 'file_infos/index', type: :view do
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 
+    it 'does not have a button to force sync the file' do
+      render
+      sync_path =
+        profile_project_force_syncs_path(project.owner, project,
+                                         staged_file_diff.external_id)
+      expect(rendered).not_to have_css(
+        'form'\
+        "[action='#{sync_path}']"\
+        "[method='post']"
+      )
+    end
+
     context 'when parent is root folder' do
       let(:parent) { root }
 
@@ -106,6 +118,23 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_text 'My Document modified in Home'
         expect(rendered).to have_text 'My Document moved to Home'
         expect(rendered).to have_text 'My Document deleted from Home'
+      end
+    end
+
+    context 'when current user can force sync files in project' do
+      before { assign(:user_can_force_sync_files, true) }
+
+      it 'has a button to force sync the file' do
+        render
+        sync_path =
+          profile_project_force_syncs_path(project.owner, project,
+                                           staged_file_diff.external_id)
+        expect(rendered).to have_css(
+          'form'\
+          "[action='#{sync_path}']"\
+          "[method='post']",
+          text: 'Force Sync'
+        )
       end
     end
   end
