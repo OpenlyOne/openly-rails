@@ -58,6 +58,8 @@ gem 'rollbar', '~> 2.15'
 gem 'paperclip', '~> 5.2'
 # ActiveRecord-Import for bulk creation of records
 gem 'activerecord-import', '~> 0.22'
+# Ahoy for tracking page visits
+gem 'ahoy_matey', '~> 2.0'
 
 group :development, :test do
   # We will use pry rails as our console
