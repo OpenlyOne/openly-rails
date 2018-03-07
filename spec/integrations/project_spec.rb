@@ -3,6 +3,38 @@
 RSpec.describe Project, type: :model do
   subject(:project) { create :project }
 
+  describe 'deleteable' do
+    before do
+      # add collaborators
+      project.collaborators = create_list :user, 2
+
+      # add root folder
+      project.root_folder = create :file_resource
+
+      # add staged files
+      project.file_resources_in_stage = create_list :file_resource, 2
+
+      # add drafted revisions with committed files and file diffs
+      revisions = create_list :revision, 2, project: project
+      revisions.each do |revision|
+        revision.committed_files = create_list :committed_file, 2
+        revision.file_diffs = create_list :file_diff, 2
+      end
+
+      # add published revisions
+      revision1 = create :revision, project: project
+      revision2 = create :revision, project: project, parent: revision1
+      [revision1, revision2].each do |revision|
+        revision.committed_files = create_list :committed_file, 2
+        revision.file_diffs = create_list :file_diff, 2
+      end
+      revision1.update!(is_published: true, title: 'origin')
+      revision2.update!(is_published: true, title: 'second revision')
+    end
+
+    it { expect { project.destroy }.not_to raise_error }
+  end
+
   describe 'non_root_file_resources_in_stage#with_current_snapshot' do
     subject(:method) do
       project.non_root_file_resources_in_stage.with_current_snapshot
