@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/an_authenticated_action.rb'
+require 'controllers/shared_examples/an_authorized_action.rb'
+require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 
 RSpec.describe ForceSyncsController, type: :controller do
@@ -14,7 +17,9 @@ RSpec.describe ForceSyncsController, type: :controller do
     }
   end
 
-  before { project.root_folder = root }
+  let(:current_account) { project.owner.account }
+  before                { sign_in current_account }
+  before                { project.root_folder = root }
 
   describe 'POST #create' do
     let(:params)      { default_params }
@@ -25,12 +30,22 @@ RSpec.describe ForceSyncsController, type: :controller do
       allow_any_instance_of(FileResource).to receive(:pull_children)
     end
 
+    it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'raise 404 if non-existent', nil do
       # when file does not exist and never has
       before { default_params[:id] = 'some-nonexistent-id' }
     end
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_file_infos_path(project.owner, project, params[:id])
+      end
+      let(:unauthorized_message) do
+        'You are not authorized to force sync files of this project.'
+      end
+    end
+    it_should_behave_like 'authorizing project access'
 
     it 'redirects to file infos page with success message' do
       run_request
