@@ -13,6 +13,7 @@ RSpec.describe Profiles::User, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
+    it { is_expected.to have_many(:visits).class_name('Ahoy::Visit') }
   end
 
   describe 'attributes' do
