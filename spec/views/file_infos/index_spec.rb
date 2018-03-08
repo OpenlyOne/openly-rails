@@ -65,7 +65,7 @@ RSpec.describe 'file_infos/index', type: :view do
 
     it 'renders that the file has been unchanged since the last revision' do
       render
-      expect(rendered).to have_text 'New Changes (uncommitted)'
+      expect(rendered).to have_text 'New Changes (since last revision)'
       expect(rendered).to have_text(
         'No changes have been made to this file since the last revision'
       )
@@ -80,6 +80,18 @@ RSpec.describe 'file_infos/index', type: :view do
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 
+    it 'does not have a button to force sync the file' do
+      render
+      sync_path =
+        profile_project_force_syncs_path(project.owner, project,
+                                         staged_file_diff.external_id)
+      expect(rendered).not_to have_css(
+        'form'\
+        "[action='#{sync_path}']"\
+        "[method='post']"
+      )
+    end
+
     context 'when parent is root folder' do
       let(:parent) { root }
 
@@ -90,14 +102,14 @@ RSpec.describe 'file_infos/index', type: :view do
       end
     end
 
-    context 'when staged file diff has uncommitted changes' do
+    context 'when staged file diff has uncaptured changes' do
       before do
         allow(staged_file_diff).to receive(:changes)
           .and_return %i[added modified moved renamed deleted]
         allow(staged_file_diff).to receive(:ancestor_path).and_return 'Home'
       end
 
-      it 'renders uncommitted changes' do
+      it 'renders uncaptured changes' do
         render
         expect(rendered).to have_text 'My Document added to Home'
         expect(rendered).to have_text(
@@ -106,6 +118,23 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_text 'My Document modified in Home'
         expect(rendered).to have_text 'My Document moved to Home'
         expect(rendered).to have_text 'My Document deleted from Home'
+      end
+    end
+
+    context 'when current user can force sync files in project' do
+      before { assign(:user_can_force_sync_files, true) }
+
+      it 'has a button to force sync the file' do
+        render
+        sync_path =
+          profile_project_force_syncs_path(project.owner, project,
+                                           staged_file_diff.external_id)
+        expect(rendered).to have_css(
+          'form'\
+          "[action='#{sync_path}']"\
+          "[method='post']",
+          text: 'Force Sync'
+        )
       end
     end
   end

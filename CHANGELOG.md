@@ -1,6 +1,22 @@
 # CHANGELOG
 
-## v0.13.1 (March 6, 2018)
+## v0.14 (March 7, 2018)
+
+**New Features:**
+- Projects are private (viewable and accessible to owner and collaborators only)
+  by default
+- Analytics now keep track of page visits
+- Files can be force synced from the files info page
+
+**Enhancements:**
+- Committing of changes is now referred to as 'Capturing Changes'
+- Redid the project setup page to provide clearer and more detailed instructions
+
+**Fixes:**
+- Deleting projects now succeeds and no longer causes an error
+- Error pages on post requests are now correctly displayed
+
+## v0.13.2 (March 6, 2018)
 
 **Fixes:**
 - Reference ::File class in DriveService (not Providers::GoogleDrive::File)

@@ -2,13 +2,17 @@
 
 # Controller for project file infos
 class FileInfosController < ApplicationController
+  include CanSetProjectContext
+
   before_action :set_project
+  before_action :authorize_project_access
   before_action :set_staged_file_diff
   before_action :set_committed_file_diffs
   before_action :set_file
   # TODO: Find way to not manually set provider for all children while still
   #       avoiding N+1 query
   before_action :set_provider_committed_file_diffs
+  before_action :set_user_can_force_sync_files
 
   def index; end
 
@@ -51,14 +55,13 @@ class FileInfosController < ApplicationController
       .merge(Revision.order(id: :desc))
   end
 
-  # Find and set project. Raise 404 if project does not exist
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:project_slug])
-  end
-
   def set_provider_committed_file_diffs
     @committed_file_diffs.each do |diff|
       diff.provider = @project.root_folder.provider
     end
+  end
+
+  def set_user_can_force_sync_files
+    @user_can_force_sync_files = can?(:force_sync, @project)
   end
 end

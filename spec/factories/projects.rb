@@ -9,5 +9,6 @@ FactoryGirl.define do
     tags            { Faker::Lorem.words }
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user) }
+    is_public       { false }
   end
 end

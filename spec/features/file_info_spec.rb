@@ -4,6 +4,7 @@ feature 'File Info' do
   let(:project) { create :project }
   let(:root)    { create :file_resource, :folder }
   before { project.root_folder = root }
+  before { sign_in_as project.owner.account }
 
   scenario 'User can see file info' do
     # given there is a file and it is committed

@@ -18,6 +18,39 @@ RSpec.describe Ability, type: :model do
   subject(:ability) { Ability.new(user) }
   let(:user) { create(:user) }
 
+  context 'Project Access' do
+    actions = %i[access]
+    let(:object)  { project }
+    let(:project) { build_stubbed(:project) }
+
+    context 'when project is public' do
+      let(:user) { nil }
+      before { project.is_public = true }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not signed in' do
+      let(:user) { nil }
+      it_should_behave_like 'not having authorization', actions
+    end
+
+    context 'when user is not project owner or collaborator' do
+      before { project.owner = build_stubbed(:user) }
+      before { project.collaborators = [] }
+      it_should_behave_like 'not having authorization', actions
+    end
+
+    context 'when user is project owner' do
+      before { project.owner = user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is collaborator' do
+      before { project.collaborators << user }
+      it_should_behave_like 'having authorization', actions
+    end
+  end
+
   context 'Users' do
     actions = %i[manage]
     let(:object) { build_stubbed(:user) }
@@ -44,6 +77,28 @@ RSpec.describe Ability, type: :model do
 
     context 'when user is not owner' do
       before { object.owner = build_stubbed(:user) }
+      it_should_behave_like 'not having authorization', actions
+    end
+  end
+
+  describe 'Force sync files in projects' do
+    actions = %i[force_sync]
+    let(:object)  { project }
+    let(:project) { build_stubbed(:project) }
+
+    context 'when user is project owner' do
+      before { project.owner = user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is collaborator' do
+      before { project.collaborators << user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not project owner or collaborator' do
+      before { project.owner = build_stubbed(:user) }
+      before { project.collaborators = [] }
       it_should_behave_like 'not having authorization', actions
     end
   end

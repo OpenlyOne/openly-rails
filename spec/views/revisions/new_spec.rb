@@ -46,10 +46,10 @@ RSpec.describe 'revisions/new', type: :view do
     expect(rendered).to have_css 'textarea#revision_summary'
   end
 
-  it 'has a button to commit changes' do
+  it 'has a button to capture changes' do
     render
     expect(rendered)
-      .to have_css "button[action='submit']", text: 'Commit Changes'
+      .to have_css "button[action='submit']", text: 'Capture Changes'
   end
 
   it 'lets the user know that there are no changes to review' do

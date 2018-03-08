@@ -2,10 +2,13 @@
 
 # Controller for projects
 class ProjectsController < ApplicationController
+  include CanSetProjectContext
+
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
   before_action :set_project, only: %i[setup import show edit update destroy]
   before_action :authorize_action, only: %i[setup import edit update destroy]
+  before_action :authorize_project_access, only: :show
 
   def new; end
 
@@ -65,7 +68,7 @@ class ProjectsController < ApplicationController
   private
 
   rescue_from CanCan::AccessDenied do |exception|
-    redirect_to [@project.owner, @project], alert: exception.message
+    can_can_access_denied(exception)
   end
 
   def authorize_action
@@ -76,8 +79,12 @@ class ProjectsController < ApplicationController
     @project = current_user.projects.build
   end
 
-  def set_project
-    @project = Project.find(params[:profile_handle], params[:slug])
+  def can_can_access_denied(exception)
+    super || redirect_to([@project.owner, @project], alert: exception.message)
+  end
+
+  def profile_slug
+    params[:slug]
   end
 
   def project_params

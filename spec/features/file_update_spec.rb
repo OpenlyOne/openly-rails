@@ -39,6 +39,8 @@ feature 'File Update', :vcr do
     r.update(is_published: true, title: 'origin revision')
   end
 
+  before { sign_in_as project.owner.account }
+
   scenario 'In Google Drive, user creates file within project folder' do
     given_project_is_imported_and_changes_committed
 
