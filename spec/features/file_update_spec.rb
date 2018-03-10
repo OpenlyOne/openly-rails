@@ -22,10 +22,12 @@ feature 'File Update', :vcr do
     allow_any_instance_of(FileUpdateJob).to receive(:list_changes_on_next_page)
   end
 
+  let(:current_account) { create :account }
   let(:project) do
     create :project,
            link_to_google_drive_folder: link_to_folder,
-           import_google_drive_folder_on_save: true
+           import_google_drive_folder_on_save: true,
+           owner: current_account.user
   end
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
@@ -39,7 +41,7 @@ feature 'File Update', :vcr do
     r.update(is_published: true, title: 'origin revision')
   end
 
-  before { sign_in_as project.owner.account }
+  before { sign_in_as current_account }
 
   scenario 'In Google Drive, user creates file within project folder' do
     given_project_is_imported_and_changes_committed
