@@ -14,6 +14,7 @@ RSpec.describe Project, type: :model do
         .to have_and_belong_to_many(:collaborators)
         .class_name('Profiles::User').validate(false)
     end
+    it { is_expected.to have_one(:setup).dependent(:destroy) }
     it do
       is_expected
         .to have_one(:staged_root_folder)

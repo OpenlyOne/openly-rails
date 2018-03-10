@@ -9,6 +9,8 @@ class Project < ApplicationRecord
                                           association_foreign_key: 'profile_id',
                                           validate: false
 
+  has_one :setup, class_name: 'Project::Setup', dependent: :destroy
+
   has_one :staged_root_folder,
           -> { where is_root: true },
           class_name: 'StagedFile',
