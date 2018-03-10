@@ -38,6 +38,73 @@ RSpec.describe Project::Setup, type: :model do
     end
   end
 
+  describe '#check_if_complete' do
+    let(:persisted) { false }
+    let(:jobs)      { %w[j1 j2 j3] }
+
+    before do
+      allow(setup).to receive(:persisted?).and_return persisted
+      allow(setup).to receive(:folder_import_jobs).and_return jobs
+      allow(setup).to receive(:complete)
+    end
+
+    after { setup.check_if_complete }
+
+    it { is_expected.not_to receive(:complete) }
+
+    context 'when persisted' do
+      let(:persisted) { true }
+      it { is_expected.not_to receive(:complete) }
+    end
+
+    context 'when no folder import jobs' do
+      let(:jobs) { [] }
+      it { is_expected.not_to receive(:complete) }
+    end
+
+    context 'when persisted and no folder import jobs' do
+      let(:persisted) { true }
+      let(:jobs)      { [] }
+      it              { is_expected.to receive(:complete) }
+    end
+  end
+
+  describe '#complete' do
+    before do
+      allow(setup).to receive(:create_origin_revision_in_project)
+      allow(setup).to receive(:update)
+    end
+
+    after { setup.send :complete }
+
+    it { is_expected.to receive(:create_origin_revision_in_project) }
+    it { is_expected.to receive(:update).with(is_completed: true) }
+  end
+
+  describe '#create_origin_revision_in_project' do
+    let(:revision) { instance_double Revision }
+
+    before do
+      project = instance_double Project
+      allow(setup).to receive(:project).and_return project
+      allow(project).to receive(:owner).and_return 'author'
+      allow(project)
+        .to receive_message_chain(:revisions, :create_draft_and_commit_files!)
+        .with('author')
+        .and_return revision
+      allow(revision).to receive(:update)
+    end
+
+    after { setup.send :create_origin_revision_in_project }
+
+    it 'publishes revision' do
+      expect(revision)
+        .to receive(:update)
+        .with(is_published: true, title: 'Import Files',
+              summary: 'Import Files from Google Drive.')
+    end
+  end
+
   describe '#id_from_link' do
     subject(:id)  { setup.send :id_from_link }
     before        { setup.link = link }

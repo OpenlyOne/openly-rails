@@ -21,13 +21,48 @@ class Project
     # Validations
     validates :project_id, uniqueness: { message: 'has already been set up' }
 
+    # Check if the setup process has finished and mark setup as completed, if so
+    def check_if_complete
+      complete if persisted? && folder_import_jobs.none?
+    end
+
+    # Return true if the setup has been completed
+    def completed?
+      is_completed
+    end
+
+    # Return all folder import jobs that belong to this setup process
     def folder_import_jobs
       Delayed::Job.where(queue: 'folder_import',
                          delayed_reference_id: id,
                          delayed_reference_type: model_name.param_key)
     end
 
+    # Return true if setup has been started, but not completed
+    def in_progress?
+      persisted? && !completed?
+    end
+
+    # Return true if the setup has not yet been started
+    def not_started?
+      new_record?
+    end
+
     private
+
+    # Mark setup as completed
+    def complete
+      create_origin_revision_in_project
+      update(is_completed: true)
+    end
+
+    def create_origin_revision_in_project
+      author    = project.owner
+      revision  = project.revisions.create_draft_and_commit_files!(author)
+      revision.update(is_published: true,
+                      title: 'Import Files',
+                      summary: 'Import Files from Google Drive.')
+    end
 
     # Get the ID from the link
     def id_from_link

@@ -18,4 +18,25 @@ RSpec.describe Project::Setup, type: :model do
       expect(setup.folder_import_jobs.count).to eq 1
     end
   end
+
+  describe '#check_if_complete', :delayed_job do
+    let(:hook) { nil }
+
+    before { setup.begin(link: link) }
+    before { hook }
+    before { setup.check_if_complete }
+
+    it { expect(setup).not_to be_completed }
+
+    context 'when all FileImportJobs are gone (processed)' do
+      let(:hook) { setup.folder_import_jobs.delete_all }
+
+      it { expect(setup).to be_completed }
+
+      it 'creates an origin revision' do
+        expect(project.revisions).to be_any
+        expect(project.revisions.first.title).to eq 'Import Files'
+      end
+    end
+  end
 end
