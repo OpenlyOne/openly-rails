@@ -33,9 +33,7 @@ class Project
 
     # Return all folder import jobs that belong to this setup process
     def folder_import_jobs
-      Delayed::Job.where(queue: 'folder_import',
-                         delayed_reference_id: id,
-                         delayed_reference_type: model_name.param_key)
+      jobs.where(queue: FolderImportJob.queue_name)
     end
 
     # Return true if setup has been started, but not completed
@@ -46,6 +44,18 @@ class Project
     # Return true if the setup has not yet been started
     def not_started?
       new_record?
+    end
+
+    # Schedule a job to check for the completion of the setup process
+    def schedule_setup_completion_check_job
+      SetupCompletionCheckJob
+        .set(wait: 3.seconds)
+        .perform_later(reference: self)
+    end
+
+    # Return all setup completion check jobs that belong to this setup process
+    def setup_completion_check_jobs
+      jobs.where(queue: SetupCompletionCheckJob.queue_name)
     end
 
     private
@@ -70,10 +80,18 @@ class Project
       matches ? matches[1] : nil
     end
 
-    # Set a Google Drive Folder as root and begin folder import process
+    # Return the delayed jobs that belong to this setup process
+    def jobs
+      Delayed::Job.where(delayed_reference_id: id,
+                         delayed_reference_type: model_name.param_key)
+    end
+
+    # Set a Google Drive Folder as root, begin folder import process, and
+    # schedule a check for the completion of this setup process
     def set_root_and_import_files
       set_root_folder
       start_folder_import_job_for_root_folder
+      schedule_setup_completion_check_job
     end
 
     # Set the root folder by finding an existing file resource or creating a

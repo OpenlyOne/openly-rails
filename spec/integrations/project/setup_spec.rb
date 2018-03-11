@@ -17,6 +17,10 @@ RSpec.describe Project::Setup, type: :model do
     it 'creates a FolderImportJob' do
       expect(setup.folder_import_jobs.count).to eq 1
     end
+
+    it 'creates a SetupCompletionCheckJob' do
+      expect(setup.setup_completion_check_jobs.count).to eq 1
+    end
   end
 
   describe '#check_if_complete', :delayed_job do
