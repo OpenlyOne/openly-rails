@@ -22,10 +22,19 @@ RSpec.describe Project::Setup, type: :model do
   end
 
   describe 'callbacks' do
-    subject(:setup) { build :project_setup }
-    after           { setup.save(validate: false) }
+    context 'after create' do
+      subject(:setup) { build :project_setup }
+      after           { setup.save(validate: false) }
 
-    it { is_expected.to receive(:set_root_and_import_files) }
+      it { is_expected.to receive(:set_root_and_import_files) }
+    end
+
+    context 'after destroy', :delayed_job do
+      subject(:setup) { create :project_setup }
+      after           { setup.destroy }
+
+      it { is_expected.to receive(:destroy_all_jobs) }
+    end
   end
 
   describe 'validations', :delayed_job do

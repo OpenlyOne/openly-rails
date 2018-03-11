@@ -17,6 +17,7 @@ class Project
 
     # Callbacks
     after_create :set_root_and_import_files
+    after_destroy :destroy_all_jobs
 
     # Validations
     validates :project_id, uniqueness: { message: 'has already been set up' }
@@ -84,6 +85,11 @@ class Project
       revision.update(is_published: true,
                       title: 'Import Files',
                       summary: 'Import Files from Google Drive.')
+    end
+
+    # Destroy all jobs related to this setup process
+    def destroy_all_jobs
+      jobs.destroy_all
     end
 
     # Validation: File behind link is accessible by tracking account

@@ -3,8 +3,8 @@
 RSpec.describe Project::Setup, type: :model do
   subject(:setup) { build :project_setup }
   let(:project)   { setup.project }
-  let(:file)  { create :file_resource, :folder }
-  let(:link)  { "https://drive.google.com/drive/folders/#{file.external_id}" }
+  let(:file)      { create :file_resource, :folder }
+  let(:link)      { file.external_link }
 
   describe '#begin(attributes)', :delayed_job do
     before { setup.begin(link: link) }
@@ -41,6 +41,15 @@ RSpec.describe Project::Setup, type: :model do
         expect(project.revisions).to be_any
         expect(project.revisions.first.title).to eq 'Import Files'
       end
+    end
+  end
+
+  describe '#destroy', :delayed_job do
+    before { setup.begin(link: link) }
+    before { setup.destroy }
+
+    it 'destroys all jobs' do
+      expect(Delayed::Job.count).to eq 0
     end
   end
 
