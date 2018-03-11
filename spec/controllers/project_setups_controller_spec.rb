@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/an_authenticated_action.rb'
+require 'controllers/shared_examples/an_authorized_action.rb'
+require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
-RSpec.describe ProjectSetupsController, type: :controller do
+RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
   let!(:project)      { create :project }
   let(:file_resource) { create :file_resource, :folder }
   let(:link)          { file_resource.external_link }
@@ -13,13 +16,23 @@ RSpec.describe ProjectSetupsController, type: :controller do
       project_slug:   project.slug
     }
   end
+  let(:current_account) { project.owner.account }
+  before                { sign_in current_account }
 
   describe 'GET #new' do
     let(:params)      { default_params }
     let(:run_request) { get :new, params: params }
 
+    it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'authorizing project access'
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:unauthorized_message) do
+        'You are not authorized to set up this project.'
+      end
+    end
 
     it 'returns http success' do
       run_request
@@ -27,7 +40,7 @@ RSpec.describe ProjectSetupsController, type: :controller do
     end
   end
 
-  describe 'POST #create', :delayed_job do
+  describe 'POST #create' do
     let(:params)      { default_params.merge(add_params) }
     let(:run_request) { post :create, params: params }
     let(:add_params) do
@@ -38,8 +51,16 @@ RSpec.describe ProjectSetupsController, type: :controller do
       }
     end
 
+    it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'authorizing project access'
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:unauthorized_message) do
+        'You are not authorized to set up this project.'
+      end
+    end
 
     it 'redirects to project setup page with success message' do
       run_request
@@ -68,8 +89,11 @@ RSpec.describe ProjectSetupsController, type: :controller do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }
 
+    before { project.create_setup(link: link) }
+
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
       run_request

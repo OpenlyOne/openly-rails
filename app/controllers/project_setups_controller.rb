@@ -4,7 +4,10 @@
 class ProjectSetupsController < ApplicationController
   include CanSetProjectContext
 
+  before_action :authenticate_account!, except: :show
   before_action :set_project
+  before_action :authorize_project_access
+  before_action :authorize_action, except: :show
   before_action :build_setup, only: %i[new create]
   before_action :set_setup
 
@@ -23,8 +26,20 @@ class ProjectSetupsController < ApplicationController
 
   private
 
+  rescue_from CanCan::AccessDenied do |exception|
+    can_can_access_denied(exception)
+  end
+
+  def authorize_action
+    authorize! :setup, @project
+  end
+
   def build_setup
     @project.build_setup
+  end
+
+  def can_can_access_denied(exception)
+    super || redirect_to([@project.owner, @project], alert: exception.message)
   end
 
   def project_setup_params
