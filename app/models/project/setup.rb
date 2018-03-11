@@ -21,6 +21,13 @@ class Project
     # Validations
     validates :project_id, uniqueness: { message: 'has already been set up' }
 
+    with_options on: :create do
+      validates :link, presence: true
+      validate :link_is_valid, unless: :any_errors?
+      validate :file_is_accessible, unless: :any_errors?
+      validate :file_is_folder, unless: :any_errors?
+    end
+
     # Check if the setup process has finished and mark setup as completed, if so
     def check_if_complete
       complete if persisted? && folder_import_jobs.none?
@@ -60,6 +67,11 @@ class Project
 
     private
 
+    # Return true if one ore more validation errors have occurred
+    def any_errors?
+      errors.any?
+    end
+
     # Mark setup as completed
     def complete
       create_origin_revision_in_project
@@ -74,16 +86,45 @@ class Project
                       summary: 'Import Files from Google Drive.')
     end
 
+    # Validation: File behind link is accessible by tracking account
+    def file_is_accessible
+      return unless file.deleted?
+      errors.add(:link, 'appears to be inaccessible. Have you shared the ' \
+                        'resource with ' \
+                        "#{Settings.google_drive_tracking_account}?")
+    end
+
+    # Validation: File behind link is a folder
+    def file_is_folder
+      return if file.folder?
+      errors.add(:link, 'appears not to be a Google Drive folder')
+    end
+
     # Get the ID from the link
     def id_from_link
       matches = link.match(%r{\/folders\/?(.+)})
       matches ? matches[1] : nil
     end
 
+    # Set file by finding an existing file resource or creating a new one from
+    # the ID from link
+    def file
+      @file ||=
+        FileResources::GoogleDrive
+        .find_or_initialize_by(external_id: id_from_link) # Find or initialize
+        .tap { |file| file.pull if file.new_record? }     # Pull if new record
+    end
+
     # Return the delayed jobs that belong to this setup process
     def jobs
       Delayed::Job.where(delayed_reference_id: id,
                          delayed_reference_type: model_name.param_key)
+    end
+
+    # Validation: Link points to a Google Drive folder
+    def link_is_valid
+      return if id_from_link.present?
+      errors.add(:link, 'appears not to be a valid Google Drive link')
     end
 
     # Set a Google Drive Folder as root, begin folder import process, and
@@ -94,14 +135,9 @@ class Project
       schedule_setup_completion_check_job
     end
 
-    # Set the root folder by finding an existing file resource or creating a
-    # new one
+    # Set the root folder to file
     def set_root_folder
-      self.root_folder = FileResources::GoogleDrive
-                         .find_or_initialize_by(external_id: id_from_link)
-
-      # Pull root folder if it is a new record
-      root_folder.pull if root_folder.new_record?
+      self.root_folder = file
     end
 
     # Start a (recursive) FolderImportJob for the root_folder

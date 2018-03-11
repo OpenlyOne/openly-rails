@@ -23,7 +23,7 @@ RSpec.describe Project::Setup, type: :model do
 
   describe 'callbacks' do
     subject(:setup) { build :project_setup }
-    after           { setup.save }
+    after           { setup.save(validate: false) }
 
     it { is_expected.to receive(:set_root_and_import_files) }
   end
@@ -118,23 +118,31 @@ RSpec.describe Project::Setup, type: :model do
     end
   end
 
-  describe '#set_root_folder' do
-    subject(:set_root)  { setup.send :set_root_folder }
-    let(:root_folder)   { instance_double FileResources::GoogleDrive }
+  describe '#file' do
+    subject(:get_file)  { setup.send :file }
+    let(:file)          { instance_double FileResources::GoogleDrive }
+    let(:is_new_record) { false }
 
     before do
-      allow(setup).to receive(:id_from_link)
-      allow(setup).to receive(:root_folder=)
-      allow(FileResources::GoogleDrive).to receive(:find_or_initialize_by)
-      allow(setup).to receive(:root_folder).and_return root_folder
+      allow(setup).to receive(:id_from_link).and_return 'FILE-ID'
+      allow(FileResources::GoogleDrive)
+        .to receive(:find_or_initialize_by)
+        .with(external_id: 'FILE-ID')
+        .and_return file
+      allow(file).to receive(:new_record?).and_return is_new_record
+      allow(file).to receive(:pull)
     end
 
-    context 'when root folder is a new record' do
-      before { allow(root_folder).to receive(:new_record?).and_return true }
+    it { is_expected.to eq file }
 
-      it 'calls #pull on root folder' do
-        expect(root_folder).to receive(:pull)
-        set_root
+    context 'when file is a new record' do
+      let(:is_new_record) { true }
+
+      it { is_expected.to eq file }
+
+      it 'calls #pull on file' do
+        expect(file).to receive(:pull)
+        get_file
       end
     end
   end
