@@ -8,6 +8,9 @@ class ProjectSetupsController < ApplicationController
   before_action :set_project
   before_action :authorize_project_access
   before_action :authorize_action, except: :show
+  before_action :redirect_to_show_if_setup_started_or_done, only: %i[new create]
+  before_action :redirect_to_new_if_setup_not_started,      only: :show
+  before_action :redirect_to_project_if_setup_complete,     only: :show
   before_action :build_setup, only: %i[new create]
   before_action :set_setup
 
@@ -44,6 +47,23 @@ class ProjectSetupsController < ApplicationController
 
   def project_setup_params
     params.require(:project_setup).permit(:link)
+  end
+
+  def redirect_to_show_if_setup_started_or_done
+    return if @project.setup_not_started?
+    redirect_to(profile_project_setup_path(@project.owner, @project),
+                notice: 'Files are already being imported...')
+  end
+
+  def redirect_to_new_if_setup_not_started
+    return unless @project.setup_not_started?
+    redirect_to(new_profile_project_setup_path(@project.owner, @project))
+  end
+
+  def redirect_to_project_if_setup_complete
+    return unless @project.setup_completed?
+    redirect_to([@project.owner, @project],
+                notice: 'Setup has been completed.')
   end
 
   def set_setup

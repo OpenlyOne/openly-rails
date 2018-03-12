@@ -38,6 +38,21 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
       run_request
       expect(response).to have_http_status :success
     end
+
+    context 'when project setup has started or is done' do
+      before { project.create_setup(link: link) }
+
+      it 'redirects to :show with notice' do
+        run_request
+        expect(response).to have_http_status :redirect
+        expect(controller).to redirect_to(
+          profile_project_setup_path(project.owner, project)
+        )
+        is_expected.to set_flash[:notice].to(
+          'Files are already being imported...'
+        )
+      end
+    end
   end
 
   describe 'POST #create' do
@@ -83,6 +98,21 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
 
       it_should_behave_like 'successfully rendering view'
     end
+
+    context 'when project setup has started or is done' do
+      before { project.create_setup!(link: link) }
+
+      it 'redirects to :show with notice' do
+        run_request
+        expect(response).to have_http_status :redirect
+        expect(controller).to redirect_to(
+          profile_project_setup_path(project.owner, project)
+        )
+        is_expected.to set_flash[:notice].to(
+          'Files are already being imported...'
+        )
+      end
+    end
   end
 
   describe 'GET #show' do
@@ -98,6 +128,34 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     it 'returns http success' do
       run_request
       expect(response).to have_http_status :success
+    end
+
+    context 'when project setup has not started' do
+      before { project.setup.destroy }
+
+      it 'redirects to :new without notice' do
+        run_request
+        expect(response).to have_http_status :redirect
+        expect(controller).to redirect_to(
+          new_profile_project_setup_path(project.owner, project)
+        )
+        is_expected.not_to set_flash[:notice]
+      end
+    end
+
+    context 'when project setup has completed' do
+      before { project.setup.update(is_completed: true) }
+
+      it 'redirects to project with notice' do
+        run_request
+        expect(response).to have_http_status :redirect
+        expect(controller).to redirect_to(
+          profile_project_path(project.owner, project)
+        )
+        is_expected.to set_flash[:notice].to(
+          'Setup has been completed.'
+        )
+      end
     end
   end
 end

@@ -82,6 +82,21 @@ RSpec.describe Project, type: :model do
     it { is_expected.to have_readonly_attribute(:owner_type) }
   end
 
+  describe 'delegations' do
+    it do
+      is_expected
+        .to delegate_method(:in_progress?)
+        .to(:setup)
+        .with_prefix
+    end
+    it do
+      is_expected
+        .to delegate_method(:completed?)
+        .to(:setup)
+        .with_prefix
+    end
+  end
+
   describe 'callbacks' do
     context 'before validation' do
       subject(:project) { build(:project, slug: '') }
@@ -266,6 +281,27 @@ RSpec.describe Project, type: :model do
       it 're-raises the error' do
         expect { subject }.to raise_error StandardError
       end
+    end
+  end
+
+  describe '#setup_not_started?' do
+    subject(:setup_started) { project.setup_not_started? }
+    let(:not_started)       { false }
+    let(:setup)             { instance_double Project::Setup }
+
+    before do
+      allow(project).to receive(:setup).and_return setup
+      allow(setup).to receive(:not_started?).and_return(not_started) if setup
+    end
+
+    context 'when setup is nil' do
+      let(:setup) { nil }
+      it          { is_expected.to eq true }
+    end
+
+    context 'when setup is present' do
+      let(:not_started) { 'value' }
+      it                { is_expected.to eq 'value' }
     end
   end
 

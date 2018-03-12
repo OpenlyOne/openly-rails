@@ -59,6 +59,9 @@ class Project < ApplicationRecord
   attr_reader :link_to_google_drive_folder
   attr_accessor :import_google_drive_folder_on_save
 
+  # Delegations
+  delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
+
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
@@ -139,6 +142,11 @@ class Project < ApplicationRecord
 
   def public?
     is_public
+  end
+
+  # Return true if the setup process for this project has not started
+  def setup_not_started?
+    setup.nil? ? true : setup.not_started?
   end
 
   # List of tags, separated by comma
