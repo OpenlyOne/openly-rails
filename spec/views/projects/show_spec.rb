@@ -74,9 +74,38 @@ RSpec.describe 'projects/show', type: :view do
     end
   end
 
-  context 'when a root folder exists' do
+  context 'when setup has not started' do
+    before { allow(project).to receive(:setup_not_started?).and_return true }
+
+    it 'renders a link to start the project setup' do
+      render
+      expect(rendered).to have_link(
+        'Setup',
+        href: new_profile_project_setup_path(project.owner, project.slug)
+      )
+    end
+  end
+
+  context 'when setup is in progress' do
+    before { allow(project).to receive(:setup_not_started?).and_return false }
+    before { allow(project).to receive(:setup_in_progress?).and_return true }
+
+    it 'renders a link to the setup status' do
+      render
+      expect(rendered).to have_link(
+        'Setup',
+        href: profile_project_setup_path(project.owner, project.slug)
+      )
+    end
+  end
+
+  context 'when setup is complete' do
     let(:root) { build_stubbed :file_resource }
     before { allow(project).to receive(:root_folder).and_return root }
+
+    before { allow(project).to receive(:setup_not_started?).and_return false }
+    before { allow(project).to receive(:setup_in_progress?).and_return false }
+    before { allow(project).to receive(:setup_completed?).and_return true }
 
     it 'renders a link to the project files' do
       render
@@ -86,22 +115,18 @@ RSpec.describe 'projects/show', type: :view do
       )
     end
 
-    it 'renders a link to open that folder in Google Drive' do
-      render
-      expect(rendered).to have_link(
-        'Open in Drive', href: root.external_link
-      )
-    end
-  end
-
-  context 'when at least one revision exists' do
-    before { allow(project).to receive(:revisions).and_return %w[r1 r2 r3] }
-
     it 'renders a link to the project revisions' do
       render
       expect(rendered).to have_link(
         'Revisions',
         href: profile_project_revisions_path(project.owner, project.slug)
+      )
+    end
+
+    it 'renders a link to open that folder in Google Drive' do
+      render
+      expect(rendered).to have_link(
+        'Open in Drive', href: root.external_link
       )
     end
   end

@@ -1,0 +1,32 @@
+.page-subheading.gray.lighten-3
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h3 Files are being imported...
+
+.container
+
+  .spacing.v16px
+
+  .row
+    .col.s12
+      h4.no-margin-bottom
+        .file-import-count
+          => @project.staged_non_root_files.count
+        .file-import-count-description files imported so far.
+
+  .spacing.v48px
+
+  .row.no-margin-bottom
+    .col.s12
+      = link_to 'Refresh',
+                profile_project_setup_path(@project.owner, @project),
+                class: 'btn-large primary-color primary-color-text'
+
+  .row
+    .col.s12
+      p.gray-text
+        ' Page does
+        b
+          ' not
+        ' refresh automatically.

@@ -10,5 +10,11 @@ FactoryGirl.define do
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user) }
     is_public       { false }
+
+    trait :setup_complete do
+      after(:create) do |project|
+        create(:project_setup, :completed, project: project)
+      end
+    end
   end
 end

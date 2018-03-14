@@ -1,28 +1,30 @@
 # frozen_string_literal: true
 
-RSpec.describe 'projects/setup', type: :view do
-  let(:project) { create(:project) }
+RSpec.describe 'project_setups/new', type: :view do
+  let(:setup)   { build_stubbed(:project_setup) }
+  let(:project) { setup.project }
 
   before { assign(:project, project) }
+  before { assign(:setup, setup) }
 
-  it 'renders a form with import_profile_project_path action' do
+  it 'renders a form with profile_project_setup_path action' do
     render
     expect(rendered).to have_css(
       'form'\
-      "[action='#{import_profile_project_path(project.owner, project)}']"\
+      "[action='#{profile_project_setup_path(project.owner, project)}']"\
       "[method='post']"
     )
   end
 
   it 'renders errors' do
-    project.errors.add(:base, 'mock error')
+    setup.errors.add(:base, 'mock error')
     render
     expect(rendered).to have_css '.validation-errors', text: 'mock error'
   end
 
   it 'has an input field for link to Google Drive folder' do
     render
-    expect(rendered).to have_css 'input#project_link_to_google_drive_folder'
+    expect(rendered).to have_css 'input#project_setup_link'
   end
 
   it 'has a button to import the folder' do

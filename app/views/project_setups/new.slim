@@ -1,16 +1,10 @@
-= form_for @project, url: import_profile_project_path(@project.owner, @project), method: :post do |f|
-
-  .page-heading.primary-color.primary-color-text.z-depth-1.no-margin
-    .container
-      .row.no-margin-bottom
-        .col.s12
-          h1 = @project.title
+= form_for @setup, url: profile_project_setup_path(@project.owner, @project) do |f|
 
   .page-subheading.gray.lighten-3
     .container
       .row.no-margin-bottom
         .col.s12
-          h2 Import Google Drive Folder
+          h3 Import Google Drive Folder
 
   .container
     .row
@@ -29,17 +23,17 @@
 
           .spacing.v32px
 
-          - if @project.errors.any?
+          - if @setup.errors.any?
             .row.no-margin-bottom
               .col.s12
                 .validation-errors
-                  = render partial: "error", collection: @project.errors.full_messages, as: :error
+                  = render partial: "error", collection: @setup.errors.full_messages, as: :error
 
           .row
             .col.s12.l12
               .input-field
-                = f.text_field :link_to_google_drive_folder, placeholder: 'https://drive.google.com/drive/folders/...'
-                = f.label :link_to_google_drive_folder, 'Link to Google Drive Folder'
+                = f.text_field :link, placeholder: 'https://drive.google.com/drive/folders/...'
+                = f.label :link, 'Link to Google Drive Folder'
 
           .row
             .col.s12

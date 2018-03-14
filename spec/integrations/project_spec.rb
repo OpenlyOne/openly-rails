@@ -3,13 +3,13 @@
 RSpec.describe Project, type: :model do
   subject(:project) { create :project }
 
-  describe 'deleteable' do
+  describe 'deleteable', :delayed_job do
     before do
       # add collaborators
       project.collaborators = create_list :user, 2
 
-      # add root folder
-      project.root_folder = create :file_resource
+      # add setup
+      create :project_setup, :with_link, project: project
 
       # add staged files
       project.file_resources_in_stage = create_list :file_resource, 2
@@ -33,6 +33,7 @@ RSpec.describe Project, type: :model do
     end
 
     it { expect { project.destroy }.not_to raise_error }
+    it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
   end
 
   describe 'non_root_file_resources_in_stage#with_current_snapshot' do
@@ -104,79 +105,43 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe 'validations when import_google_drive_folder_on_save = true', :vcr do
-    before  { prepare_google_drive_test(api_connection) }
-    after   { tear_down_google_drive_test(api_connection) }
+  describe 'scope: :where_setup_is_complete' do
+    subject(:method)             { Project.where_setup_is_complete }
+    let!(:with_complete_setup)   { create_list :project, 2 }
+    let!(:with_incomplete_setup) { create_list :project, 2 }
+    let!(:with_no_setup)         { create_list :project, 2 }
 
-    subject                 { create(:project) }
-    let(:mime_type)         { folder_type }
-    let(:folder_type)       { Providers::GoogleDrive::MimeType.folder }
-    let(:document_type)     { Providers::GoogleDrive::MimeType.document }
-    let(:user_acct)         { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-    let(:tracking_acct)     { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
-    let(:api_connection) do
-      Providers::GoogleDrive::ApiConnection.new(user_acct)
-    end
-    let(:share_folder) do
-      api_connection
-        .share_file(google_drive_test_folder_id, tracking_acct)
-    end
-    let(:link) do
-      Providers::GoogleDrive::Link.for(external_id: @created_file.id,
-                                       mime_type: folder_type)
-    end
-
-    # share test folder
-    before { share_folder }
-
-    # Create folder
     before do
-      @created_file = Providers::GoogleDrive::FileSync.create(
-        name: 'Test File',
-        parent_id: google_drive_test_folder_id,
-        mime_type: mime_type,
-        api_connection: api_connection
-      )
-    end
-
-    before { project.import_google_drive_folder_on_save = true }
-    before { project.link_to_google_drive_folder = link }
-    before { project.valid? }
-
-    context 'when link to google drive folder is valid' do
-      it 'does not add an error' do
-        expect(project.errors[:link_to_google_drive_folder].size)
-          .to eq 0
+      with_complete_setup.each do |project|
+        create :project_setup, :completed, project: project
+      end
+      with_incomplete_setup.each do |project|
+        create :project_setup,
+               :skip_validation, project: project, is_completed: false
       end
     end
 
-    context 'when link to google drive folder is invalid' do
-      let(:link) { 'https://invalid-folder-link' }
+    it 'returns projects with complete setup' do
+      expect(method.map(&:id)).to match_array with_complete_setup.map(&:id)
+    end
+  end
 
-      it 'adds an error' do
-        expect(project.errors[:link_to_google_drive_folder])
-          .to include 'appears not to be a valid Google Drive link'
-      end
+  describe 'scope: :find_by_handle_and_slug!(handle, slug)' do
+    subject(:method)  { Project.find_by_handle_and_slug!(handle, slug) }
+    let(:handle)      { project.owner.handle }
+    let(:slug)        { project.slug }
+    let(:project)     { create :project }
+
+    it { is_expected.to eq project }
+
+    context 'when handle does not exist' do
+      let(:handle) { 'does-not-exist' }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
     end
 
-    context 'when link to google drive folder is inaccessible' do
-      let(:share_folder) { nil }
-
-      it 'adds an error' do
-        expect(project.errors[:link_to_google_drive_folder])
-          .to include 'appears to be inaccessible. Have you shared the '\
-                      'resource with '\
-                      "#{Settings.google_drive_tracking_account}?"
-      end
-    end
-
-    context 'when link to google drive folder is not a folder' do
-      let(:mime_type) { document_type }
-
-      it 'adds an error' do
-        expect(project.errors[:link_to_google_drive_folder])
-          .to include 'appears not to be a Google Drive folder'
-      end
+    context 'when slug does not exist' do
+      let(:slug) { 'does-not-exist' }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
     end
   end
 end

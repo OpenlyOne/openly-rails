@@ -22,11 +22,9 @@ feature 'File Update', :vcr do
     allow_any_instance_of(FileUpdateJob).to receive(:list_changes_on_next_page)
   end
 
-  let(:project) do
-    create :project,
-           link_to_google_drive_folder: link_to_folder,
-           import_google_drive_folder_on_save: true
-  end
+  let(:current_account) { create :account }
+  let(:project) { create :project, owner: current_account.user }
+  let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
   end
@@ -34,12 +32,8 @@ feature 'File Update', :vcr do
     Providers::GoogleDrive::ApiConnection
       .default.start_token_for_listing_changes
   end
-  let(:create_revision) do
-    r = project.revisions.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'origin revision')
-  end
 
-  before { sign_in_as project.owner.account }
+  before { sign_in_as current_account }
 
   scenario 'In Google Drive, user creates file within project folder' do
     given_project_is_imported_and_changes_committed
@@ -268,8 +262,7 @@ feature 'File Update', :vcr do
 end
 
 def given_project_is_imported_and_changes_committed
-  project
-  create_revision
+  setup
 end
 
 def then_i_should_see_file_in_project(params)

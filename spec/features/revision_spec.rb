@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
-  let(:project) { create :project }
+  let(:project) { create :project, :setup_complete }
   let(:root)    { create :file_resource, :folder }
   before { project.root_folder = root }
   let(:create_revision) do

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.15 (March 14, 2018)
+
+**New Features:**
+- When setting up project & importing files, show progress (# of files already
+  imported) and commit all imported files at the end of the process.
+
 ## v0.14 (March 7, 2018)
 
 **New Features:**

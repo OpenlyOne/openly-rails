@@ -17,7 +17,7 @@ feature 'Project' do
 
     # then I should be on the project page
     expect(page).to have_current_path(
-      "/#{account.user.to_param}/my-awesome-new-project/setup"
+      "/#{account.user.to_param}/my-awesome-new-project/setup/new"
     )
     # and see the new project's title
     expect(page).to have_text 'My Awesome New Project!'

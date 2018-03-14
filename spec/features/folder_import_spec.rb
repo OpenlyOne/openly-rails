@@ -35,19 +35,18 @@ feature 'Folder Import', :vcr do
     # when I visit the project's initialization page
     visit "/#{project.owner.to_param}/#{project.to_param}/setup"
     # and fill in the Link to Google Drive Folder
-    fill_in 'project_link_to_google_drive_folder',
+    fill_in 'project_setup_link',
             with: 'https://drive.google.com/drive/folders/' \
                   "#{google_drive_test_folder_id}"
     # and import
     click_on 'Import'
 
-    # and go to files
+    # then I should see all the files, marked unchanged
     click_on 'Files'
+    expect(page).to have_css '.file.unchanged', count: 3
 
-    # then I should see all the files
-    expect(page).to have_css '.file', count: 3
-
-    # and see file modification icons
-    expect(page).to have_css '.file.changed.added', count: 3
+    # and I should see one revision
+    click_on 'Revisions'
+    expect(page).to have_text 'Import Files'
   end
 end

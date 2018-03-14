@@ -52,16 +52,14 @@ RSpec.describe FolderImportJob, type: :job do
     let(:file_resource) { instance_double FileResource }
 
     before do
-      allow(job).to receive(:reference_id).and_return 'ref-id'
-      allow(job).to receive(:reference_type).and_return 'ref-type'
+      allow(job).to receive(:setup).and_return 'setup'
       allow(file_resource).to receive(:id).and_return 'file-id'
     end
 
     it 'calls .perform_later' do
       expect(FolderImportJob)
         .to receive(:perform_later)
-        .with(reference_id: 'ref-id',
-              reference_type: 'ref-type',
+        .with(reference: 'setup',
               file_resource_id: 'file-id')
       subject
     end
