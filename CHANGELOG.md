@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.15.1 (March 14, 2018)
+
+**Enhancements:**
+- Can now create accounts by importing data from a CSV file.
+
 ## v0.15 (March 14, 2018)
 
 **New Features:**
