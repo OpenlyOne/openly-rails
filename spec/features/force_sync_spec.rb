@@ -17,18 +17,10 @@ feature 'Force Sync', :vcr do
   after { tear_down_google_drive_test(api_connection) }
 
   let(:current_account) { create :account }
-  let(:project) do
-    create :project,
-           link_to_google_drive_folder: link_to_folder,
-           import_google_drive_folder_on_save: true,
-           owner: current_account.user
-  end
+  let(:project) { create :project, owner: current_account.user }
+  let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
-  end
-  let(:create_revision) do
-    r = project.revisions.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'origin revision')
   end
 
   before { sign_in_as current_account }
@@ -49,8 +41,7 @@ feature 'Force Sync', :vcr do
     )
 
     # given project is imported and changes committed
-    project
-    create_revision
+    setup
 
     # when I update the file
     file.rename('Doc ABC')
