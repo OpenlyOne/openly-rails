@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
+require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe FoldersController, type: :controller do
   let(:root)    { create :file_resource, :folder }
   let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project }
+  let(:project) { create :project, :setup_complete }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -22,8 +23,7 @@ RSpec.describe FoldersController, type: :controller do
     let(:params)          { default_params.except :id }
     let(:run_request)     { get :root, params: params }
 
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
       before { StagedFile.delete_all }
     end
@@ -39,8 +39,7 @@ RSpec.describe FoldersController, type: :controller do
     let(:params)          { default_params }
     let(:run_request)     { get :show, params: params }
 
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
       before { StagedFile.delete_all }
     end

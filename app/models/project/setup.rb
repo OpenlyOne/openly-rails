@@ -16,7 +16,7 @@ class Project
     delegate :root_folder, :root_folder=, to: :project
 
     # Callbacks
-    after_create :set_root_and_import_files
+    after_create :set_root_and_import_files, if: :id_from_link
     after_destroy :destroy_all_jobs
 
     # Validations

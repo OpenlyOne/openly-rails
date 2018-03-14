@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 feature 'Folder' do
-  let(:project) { create :project }
+  let(:project) { create :project, :setup_complete }
   let(:root)    { create :file_resource, :folder }
   let(:files)   { create_list :file_resource, 5, parent: root }
   let(:create_revision) do

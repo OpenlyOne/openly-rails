@@ -104,6 +104,46 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe 'scope: :where_setup_is_complete' do
+    subject(:method)             { Project.where_setup_is_complete }
+    let!(:with_complete_setup)   { create_list :project, 2 }
+    let!(:with_incomplete_setup) { create_list :project, 2 }
+    let!(:with_no_setup)         { create_list :project, 2 }
+
+    before do
+      with_complete_setup.each do |project|
+        create :project_setup, :completed, project: project
+      end
+      with_incomplete_setup.each do |project|
+        create :project_setup,
+               :skip_validation, project: project, is_completed: false
+      end
+    end
+
+    it 'returns projects with complete setup' do
+      expect(method.map(&:id)).to match_array with_complete_setup.map(&:id)
+    end
+  end
+
+  describe 'scope: :find_by_handle_and_slug!(handle, slug)' do
+    subject(:method)  { Project.find_by_handle_and_slug!(handle, slug) }
+    let(:handle)      { project.owner.handle }
+    let(:slug)        { project.slug }
+    let(:project)     { create :project }
+
+    it { is_expected.to eq project }
+
+    context 'when handle does not exist' do
+      let(:handle) { 'does-not-exist' }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
+    end
+
+    context 'when slug does not exist' do
+      let(:slug) { 'does-not-exist' }
+      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
+    end
+  end
+
   describe 'validations when import_google_drive_folder_on_save = true', :vcr do
     before  { prepare_google_drive_test(api_connection) }
     after   { tear_down_google_drive_test(api_connection) }

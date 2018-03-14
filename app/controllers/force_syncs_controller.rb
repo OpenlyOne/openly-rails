@@ -5,7 +5,7 @@ class ForceSyncsController < ApplicationController
   include CanSetProjectContext
 
   before_action :authenticate_account!
-  before_action :set_project
+  before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
   before_action :authorize_action
   before_action :set_staged_file_diff

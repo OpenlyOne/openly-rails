@@ -74,12 +74,19 @@ class Project < ApplicationRecord
   # Scopes
   # Projects where profile is owner or collaborator
   scope :where_profile_is_owner_or_collaborator, lambda { |profile|
-    Project
-      .left_joins(:collaborators)
+    left_joins(:collaborators)
       .where('owner_id = :profile_id ' \
              'OR profiles_projects.profile_id = :profile_id',
              profile_id: profile.id)
       .distinct
+  }
+  # Projects where setup has been completed
+  scope :where_setup_is_complete, lambda {
+    joins(:setup).where(project_setups: { is_completed: true })
+  }
+  # Find project by profile handle and slug
+  scope :find_by_handle_and_slug!, lambda { |handle, slug|
+    joins(:owner).find_by!(profiles: { handle: handle }, slug: slug)
   }
 
   # Validations
@@ -120,19 +127,6 @@ class Project < ApplicationRecord
   validate :link_to_google_drive_folder_is_valid,
            :link_to_google_drive_is_accessible_folder,
            if: proc { |project| project.import_google_drive_folder_on_save }
-
-  # Find a project by profile handle and project slug
-  # Also allows finding by ID, so that #reload still works
-  def self.find(id_or_profile_handle, project_slug = nil)
-    if project_slug.nil?
-      # find by ID
-      find_by_id! id_or_profile_handle
-    else
-      # find by handle and slug
-      Profiles::Base.find_by!(handle: id_or_profile_handle)
-                    .projects.find_by_slug!(project_slug)
-    end
-  end
 
   # The absolute link to the Google Drive root folder
   def link_to_google_drive_folder=(link)

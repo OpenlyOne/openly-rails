@@ -18,7 +18,7 @@ RSpec.describe ProfilesController, type: :controller do
     let(:params)      { default_params }
     let(:run_request) { get :show, params: params }
 
-    include_examples 'raise 404 if non-existent', Profiles::Base
+    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
 
     it 'returns http success' do
       run_request
@@ -32,7 +32,7 @@ RSpec.describe ProfilesController, type: :controller do
     before            { sign_in profile.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Profiles::Base
+    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_path(profile) }
       let(:unauthorized_message) do
@@ -53,7 +53,7 @@ RSpec.describe ProfilesController, type: :controller do
     before            { sign_in profile.account }
 
     it_should_behave_like 'an authenticated action'
-    include_examples 'raise 404 if non-existent', Profiles::Base
+    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_path(profile) }
     end

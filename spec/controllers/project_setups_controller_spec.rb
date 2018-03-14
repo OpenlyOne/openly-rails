@@ -3,7 +3,7 @@
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
-require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
@@ -24,8 +24,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     let(:run_request) { get :new, params: params }
 
     it_should_behave_like 'an authenticated action'
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project'
     it_should_behave_like 'authorizing project access'
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -67,8 +66,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     end
 
     it_should_behave_like 'an authenticated action'
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project'
     it_should_behave_like 'authorizing project access'
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -121,8 +119,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
 
     before { project.create_setup(link: link) }
 
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project'
     it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do

@@ -187,33 +187,6 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '.find' do
-    let!(:project) { create(:project) }
-    subject(:method) { Project.find(project.owner.to_param, project.slug) }
-
-    it 'finds project by profile handle and slug' do
-      is_expected.to eq project
-    end
-
-    context 'when profile does not exist' do
-      before { project.owner.destroy }
-      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
-    end
-
-    context 'when project does not exist' do
-      before { project.destroy }
-      it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
-    end
-
-    context 'when project slug is not passed' do
-      subject(:method) { Project.find(project.id) }
-
-      it 'finds project by ID' do
-        is_expected.to eq project
-      end
-    end
-  end
-
   describe 'revisions#create_draft_and_commit_files!' do
     subject(:method) do
       project.revisions.create_draft_and_commit_files!('author')
