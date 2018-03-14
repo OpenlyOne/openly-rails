@@ -4,7 +4,7 @@
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   # Associations
-  belongs_to :owner, polymorphic: true
+  belongs_to :owner, class_name: 'Profiles::Base'
   has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
                                           association_foreign_key: 'profile_id',
                                           validate: false
@@ -78,10 +78,8 @@ class Project < ApplicationRecord
   }
 
   # Validations
-  # Owner type must be user
-  validates :owner_type, inclusion: { in: %w[Profiles::Base] }
+  # Title & slug must be present
   validates :title, presence: true, length: { maximum: 50 }
-  # Slug must be present
   validates :slug, presence: true
   # Conduct validations only if slug is present
   with_options if: :slug? do
@@ -111,7 +109,7 @@ class Project < ApplicationRecord
   validates :slug,
             uniqueness: {
               case_sensitive: true,
-              scope: %i[owner_type owner_id]
+              scope: :owner_id
             },
             unless: proc { |project| project.errors[:slug].any? }
   validate :link_to_google_drive_folder_is_valid,
