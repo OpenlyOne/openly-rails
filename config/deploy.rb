@@ -84,6 +84,17 @@ namespace :paperclip do
   end
 end
 
+desc 'Invoke a rake command on the remote server'
+task :invoke, [:command] => 'deploy:set_rails_env' do |_task, args|
+  on roles(:app) do
+    within release_path do
+      with rails_env: fetch(:rails_env) do
+        rake args[:command]
+      end
+    end
+  end
+end
+
 namespace :deploy do
   desc 'Make sure local git is in sync with remote.'
   task :check_revision do
