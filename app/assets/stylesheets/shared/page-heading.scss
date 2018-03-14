@@ -18,7 +18,11 @@
 
   // Heading should not have any margins
   h1,
-  h2 {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin: 0;
   }
 
@@ -26,6 +30,13 @@
   .tabs {
     margin-top: 16px;
   }
+}
+
+// Layer heading above subheading and breadcrumbs to allow for displaying of
+// drop shadow (z-depth)
+.page-heading {
+  position: relative;
+  z-index: 100;
 }
 
 

@@ -5,7 +5,7 @@ class RevisionsController < ApplicationController
   include CanSetProjectContext
 
   before_action :authenticate_account!, except: :index
-  before_action :set_project
+  before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
   before_action :authorize_action, except: :index
   before_action :build_revision, only: :new

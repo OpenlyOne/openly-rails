@@ -4,11 +4,12 @@ require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe ForceSyncsController, type: :controller do
   let(:root)    { create :file_resource, :folder }
   let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project }
+  let(:project) { create :project, :setup_complete }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -31,8 +32,7 @@ RSpec.describe ForceSyncsController, type: :controller do
     end
 
     it_should_behave_like 'an authenticated action'
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
-    it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
       # when file does not exist and never has
       before { default_params[:id] = 'some-nonexistent-id' }

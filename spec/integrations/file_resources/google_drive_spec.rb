@@ -73,7 +73,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
       file.pull
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
-      expect(staging_projects).to eq projects
+      expect(staging_projects).to match_array projects
     end
 
     it 'can pull a snapshot of an existing file' do
@@ -83,7 +83,7 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
       expected_attributes['name'] = 'my new file name'
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
-      expect(staging_projects).to eq projects
+      expect(staging_projects).to match_array projects
     end
 
     it 'can pull a snapshot of a removed file' do

@@ -4,7 +4,7 @@
 class FileInfosController < ApplicationController
   include CanSetProjectContext
 
-  before_action :set_project
+  before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
   before_action :set_staged_file_diff
   before_action :set_committed_file_diffs

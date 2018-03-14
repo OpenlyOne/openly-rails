@@ -5,11 +5,12 @@ require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
+require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe RevisionsController, type: :controller do
-  let!(:project)        { create :project }
-  let(:default_params)  do
+  let!(:project) { create :project, :setup_complete }
+  let(:default_params) do
     {
       profile_handle: project.owner.to_param,
       project_slug:   project.slug
@@ -22,7 +23,6 @@ RSpec.describe RevisionsController, type: :controller do
     let(:params)      { default_params }
     let(:run_request) { get :index, params: params }
 
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'authorizing project access'
 
@@ -37,7 +37,6 @@ RSpec.describe RevisionsController, type: :controller do
     let(:run_request) { get :new, params: params }
 
     it_should_behave_like 'an authenticated action'
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -68,7 +67,6 @@ RSpec.describe RevisionsController, type: :controller do
     end
 
     it_should_behave_like 'an authenticated action'
-    it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) { profile_project_path(project.owner, project) }
@@ -92,6 +90,7 @@ RSpec.describe RevisionsController, type: :controller do
 
     context 'when creation fails' do
       before do
+        project.root_folder = create(:file_resource, :folder)
         allow_any_instance_of(Revision).to receive(:update).and_return false
       end
 

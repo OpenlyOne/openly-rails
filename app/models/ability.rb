@@ -24,7 +24,7 @@ class Ability
     end
 
     # Users can edit the projects of profiles that they can manage
-    can %i[setup import edit update destroy], Project do |project|
+    can %i[setup edit update destroy], Project do |project|
       can? :manage, project.owner
     end
 

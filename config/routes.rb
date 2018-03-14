@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
-
 Rails.application.routes.draw do
   # Error routing
   match '/404', to: 'errors#not_found', via: :all
@@ -58,8 +56,9 @@ Rails.application.routes.draw do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
-      get  'setup'  => 'projects#setup',  on: :member
-      post 'import' => 'projects#import', on: :member
+      # Routes for setup
+      resource :project_setup, as: 'setup', only: %i[new create show],
+                               path: 'setup'
       # Routes for folders
       get 'files' => 'folders#root', as: :root_folder
       resources :folders, only: :show

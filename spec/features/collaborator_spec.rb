@@ -37,7 +37,7 @@ feature 'Collaborators' do
 
   scenario 'As a collaborator, I can create a new revision' do
     # given there is a project
-    project = create :project
+    project = create :project, :setup_complete
     # and I am signed in as a user
     me = create :user
     sign_in_as me.account

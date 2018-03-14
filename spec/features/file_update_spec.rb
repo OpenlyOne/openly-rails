@@ -23,22 +23,14 @@ feature 'File Update', :vcr do
   end
 
   let(:current_account) { create :account }
-  let(:project) do
-    create :project,
-           link_to_google_drive_folder: link_to_folder,
-           import_google_drive_folder_on_save: true,
-           owner: current_account.user
-  end
+  let(:project) { create :project, owner: current_account.user }
+  let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do
     "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
   end
   let!(:token) do
     Providers::GoogleDrive::ApiConnection
       .default.start_token_for_listing_changes
-  end
-  let(:create_revision) do
-    r = project.revisions.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'origin revision')
   end
 
   before { sign_in_as current_account }
@@ -270,8 +262,7 @@ feature 'File Update', :vcr do
 end
 
 def given_project_is_imported_and_changes_committed
-  project
-  create_revision
+  setup
 end
 
 def then_i_should_see_file_in_project(params)
