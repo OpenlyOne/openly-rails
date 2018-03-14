@@ -3,13 +3,13 @@
 RSpec.describe Project, type: :model do
   subject(:project) { create :project }
 
-  describe 'deleteable' do
+  describe 'deleteable', :delayed_job do
     before do
       # add collaborators
       project.collaborators = create_list :user, 2
 
-      # add root folder
-      project.root_folder = create :file_resource
+      # add setup
+      create :project_setup, :with_link, project: project
 
       # add staged files
       project.file_resources_in_stage = create_list :file_resource, 2
@@ -33,6 +33,7 @@ RSpec.describe Project, type: :model do
     end
 
     it { expect { project.destroy }.not_to raise_error }
+    it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
   end
 
   describe 'non_root_file_resources_in_stage#with_current_snapshot' do
