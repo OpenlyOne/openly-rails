@@ -78,8 +78,6 @@ RSpec.describe Project, type: :model do
 
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:owner_id) }
-    it { is_expected.to have_readonly_attribute(:owner_type) }
-    it { is_expected.to have_readonly_attribute(:owner_type) }
   end
 
   describe 'delegations' do
@@ -112,34 +110,6 @@ RSpec.describe Project, type: :model do
       context 'when slug is set' do
         subject(:project) { build(:project, slug: 'project-slug') }
         it { is_expected.not_to receive(:generate_slug_from_title) }
-      end
-    end
-
-    context 'after save' do
-      subject(:project)     { build(:project) }
-      let(:link_to_folder)  { 'https://drive.google.com/drive/folders/test' }
-
-      before do
-        allow(subject).to receive(:import_google_drive_folder)
-        allow(subject).to receive(:link_to_google_drive_is_accessible_folder)
-      end
-
-      context 'when import_google_drive_folder_on_save is true' do
-        before do
-          project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder = link_to_folder
-        end
-        after { project.save }
-        it    { is_expected.to receive(:import_google_drive_folder) }
-      end
-
-      context 'when import_google_drive_folder_on_save was true' do
-        before do
-          project.import_google_drive_folder_on_save = true
-          project.link_to_google_drive_folder = link_to_folder
-          project.save
-        end
-        it { expect(project.import_google_drive_folder_on_save).to be false }
       end
     end
   end
@@ -197,63 +167,6 @@ RSpec.describe Project, type: :model do
         .to receive(:create_draft_and_commit_files_for_project!)
         .with(project, 'author')
       method
-    end
-  end
-
-  describe '#import_google_drive_folder', isolated_unit_test: true do
-    subject(:method)    { project.send :import_google_drive_folder }
-    let(:project)       { build_stubbed(:project) }
-    let(:file)          { instance_double Google::Apis::DriveV3::File }
-    let(:mime_type)     { Providers::GoogleDrive::MimeType.folder }
-    let(:root_folder)   { instance_double FileResource }
-
-    before do
-      allow(project).to receive(:google_drive_folder_id).and_return 'folder-id'
-      allow(project).to receive(:root_folder=)
-      allow(FileResources::GoogleDrive)
-        .to receive(:find_or_initialize_by)
-        .with(external_id: 'folder-id')
-        .and_return(root_folder)
-      allow(root_folder).to receive(:pull)
-      allow(project).to receive(:root_folder).and_return root_folder
-      allow(root_folder).to receive(:id).and_return 'the-id'
-      allow(FolderImportJob).to receive(:perform_later)
-    end
-
-    it 'calls #pull on root folder' do
-      expect(root_folder).to receive(:pull)
-      subject
-    end
-
-    it 'sets root folder' do
-      expect(project).to receive(:root_folder=).with(root_folder)
-      subject
-    end
-
-    it 'creates a FolderImportJob' do
-      expect(FolderImportJob).to receive(:perform_later)
-        .with(reference: project, file_resource_id: 'the-id')
-      subject
-    end
-
-    context 'when error is raised' do
-      let(:staged_root_folder) { instance_double StagedFile }
-
-      before do
-        allow(project).to receive(:root_folder).and_raise StandardError
-        allow(project)
-          .to receive(:staged_root_folder).and_return staged_root_folder
-        allow(staged_root_folder).to receive(:destroy)
-      end
-
-      it 'calls #destroy on staged root folder' do
-        expect(staged_root_folder).to receive(:destroy)
-        expect { subject }.to raise_error StandardError
-      end
-
-      it 're-raises the error' do
-        expect { subject }.to raise_error StandardError
-      end
     end
   end
 
