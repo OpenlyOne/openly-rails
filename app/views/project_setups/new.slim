@@ -1,0 +1,41 @@
+= form_for @setup, url: profile_project_setup_path(@project.owner, @project) do |f|
+
+  .page-subheading.gray.lighten-3
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h3 Import Google Drive Folder
+
+  .container
+    .row
+      .col.s12
+        ol
+          h4: li = "Share your Google Drive folder with #{Settings.google_drive_tracking_account}"
+          p
+            ' In order to track changes made to file content, you must grant
+            b
+              ' edit permissions
+            ' to
+            = Settings.google_drive_tracking_account
+          = image_tag 'projects/sharing-settings.jpg', class: 'img-responsive', alt: 'Sharing Settings'
+          h4: li Copy and paste your Google Drive folder's URL below
+          = image_tag 'projects/copy-link.jpg', class: 'img-responsive', alt: 'Sharing Settings'
+
+          .spacing.v32px
+
+          - if @setup.errors.any?
+            .row.no-margin-bottom
+              .col.s12
+                .validation-errors
+                  = render partial: "error", collection: @setup.errors.full_messages, as: :error
+
+          .row
+            .col.s12.l12
+              .input-field
+                = f.text_field :link, placeholder: 'https://drive.google.com/drive/folders/...'
+                = f.label :link, 'Link to Google Drive Folder'
+
+          .row
+            .col.s12
+              button action='submit' class="btn-large primary-color primary-color-text"
+                | Import

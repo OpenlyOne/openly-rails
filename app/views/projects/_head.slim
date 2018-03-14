@@ -18,15 +18,21 @@
             div.tab
               = link_to 'Overview', [project.owner, project],
                 class: ('active' if active_tab == :overview)
-            - if project.root_folder.present?
+            - if project.setup_not_started?
+              div.tab
+                = link_to 'Setup', new_profile_project_setup_path(project.owner, project),
+                          class: ('active' if active_tab == :setup)
+            - elsif project.setup_in_progress?
+              div.tab
+                = link_to 'Setup', profile_project_setup_path(project.owner, project),
+                          class: ('active' if active_tab == :setup)
+            - elsif project.setup_completed?
               div.tab
                 = link_to 'Files', profile_project_root_folder_path(project.owner, project),
                           class: ('active' if active_tab == :files)
-            - if project.revisions.any?
               div.tab
                 = link_to 'Revisions', profile_project_revisions_path(project.owner, project),
                           class: ('active' if active_tab == :revisions)
-            - if project.root_folder.present?
               div.tab
                 = link_to project.root_folder.external_link, target: '_blank' do
                   svg style="width:24px;height:24px" viewBox="0 0 24 24" class="left"
