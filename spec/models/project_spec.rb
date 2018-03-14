@@ -8,7 +8,7 @@ RSpec.describe Project, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to belong_to(:owner) }
+    it { is_expected.to belong_to(:owner).class_name('Profiles::Base') }
     it do
       is_expected
         .to have_and_belong_to_many(:collaborators)
@@ -132,56 +132,15 @@ RSpec.describe Project, type: :model do
     it do
       is_expected.to validate_presence_of(:owner).with_message 'must exist'
     end
-    it do
-      is_expected
-        .to validate_inclusion_of(:owner_type).in_array %w[Profiles::Base]
-    end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
 
     context 'when validating slug' do
-      # Test does not work with polymorphic associations, use custom test below
-      # instead
-      # it do
-      #   is_expected
-      #     .to validate_uniqueness_of(:slug)
-      #     .case_insensitive
-      #     .scoped_to(:owner_type, :owner_id)
-      # end
-      context 'uniqueness of slug scoped to owner type + ID' do
-        let!(:first_project)      { create :project, slug: slug, owner: owner }
-        let(:slug)  { 'my-slug' }
-        let(:owner) { create(:user) }
-
-        context 'when owner type is identical but ID is different' do
-          subject(:second_project)  { build :project, slug: slug }
-          before                    { second_project.valid? }
-          it 'does not add a :slug error' do
-            expect(second_project.errors[:slug])
-              .not_to include 'has already been taken'
-          end
-        end
-
-        context 'when owner ID is identical but type is different' do
-          subject(:second_project) { build :project, slug: slug, owner: owner }
-          before do
-            second_project.owner_type = 'Project'
-            second_project.valid?
-          end
-          it 'does not add a :slug error' do
-            expect(second_project.errors[:slug])
-              .not_to include 'has already been taken'
-          end
-        end
-
-        context 'when owner ID + type are identical' do
-          subject(:second_project)  { build :project, slug: slug, owner: owner }
-          before                    { second_project.valid? }
-          it 'adds a :slug error' do
-            expect(second_project.errors[:slug])
-              .to include 'has already been taken'
-          end
-        end
+      it do
+        is_expected
+          .to validate_uniqueness_of(:slug)
+          .scoped_to(:owner_id)
+          .case_insensitive
       end
 
       it do

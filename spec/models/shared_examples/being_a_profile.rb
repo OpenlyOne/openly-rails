@@ -12,7 +12,11 @@ RSpec.shared_examples 'being a profile' do
 
   describe 'associations' do
     it do
-      is_expected.to have_many(:projects).dependent(:destroy).inverse_of :owner
+      is_expected
+        .to have_many(:projects)
+        .with_foreign_key(:owner_id)
+        .dependent(:destroy)
+        .inverse_of(:owner)
     end
     it do
       is_expected
