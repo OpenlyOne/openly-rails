@@ -107,9 +107,12 @@ class Project
     end
 
     # Get the ID from the link
+    # HACK: Just checking for a word with more than 25 characters is not a good
+    #       approach to solving this problem and can result in false positives
+    # TODO: Outsource link-to-ID parsing to Providers::GoogleDrive::Link
     def id_from_link
-      matches = link.match(%r{\/folders\/?(.+)})
-      matches ? matches[1] : nil
+      matches = link.match(/[-\w]{25,}/)
+      matches ? matches[0] : nil
     end
 
     # Set file by finding an existing file resource or creating a new one from
