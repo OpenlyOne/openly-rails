@@ -35,6 +35,27 @@ feature 'Collaborators' do
     )
   end
 
+  scenario 'As a collaborator, I can setup a project' do
+    # given there is a project
+    project = create :project
+    # and I am signed in as a user
+    me = create :user
+    sign_in_as me.account
+    # who is added to that project's Collaborators
+    project.collaborators << me
+
+    # when I visit the project page
+    visit "#{project.owner.to_param}/#{project.to_param}"
+
+    # and click on 'Setup'
+    click_on 'Setup'
+
+    # then I should be on the setup page
+    expect(page).to have_current_path(
+      "/#{project.owner.to_param}/#{project.to_param}/setup/new"
+    )
+  end
+
   scenario 'As a collaborator, I can create a new revision' do
     # given there is a project
     project = create :project, :setup_complete

@@ -67,7 +67,7 @@ RSpec.describe Ability, type: :model do
   end
 
   context 'Projects' do
-    actions = %i[setup edit update destroy]
+    actions = %i[edit update destroy]
     let(:object) { build_stubbed(:project) }
 
     context 'when user is owner' do
@@ -81,8 +81,8 @@ RSpec.describe Ability, type: :model do
     end
   end
 
-  describe 'Force sync files in projects' do
-    actions = %i[force_sync]
+  describe 'Collaborators of projects' do
+    actions = %i[force_sync setup]
     let(:object)  { project }
     let(:project) { build_stubbed(:project) }
 
