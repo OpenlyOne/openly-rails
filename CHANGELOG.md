@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.15.2 (March 15, 2018)
+
+**Fixes:**
+- In project setup, support different formats for Google Drive folder links
+
 ## v0.15.1 (March 14, 2018)
 
 **Enhancements:**
