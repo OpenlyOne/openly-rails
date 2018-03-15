@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.15.3 (March 15, 2018)
+
+**Fixes:**
+- Collaborators can initiate project setup process
+
 ## v0.15.2 (March 15, 2018)
 
 **Fixes:**
