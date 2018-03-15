@@ -116,14 +116,35 @@ RSpec.describe Project::Setup, type: :model do
 
   describe '#id_from_link' do
     subject(:id)  { setup.send :id_from_link }
+    let(:file_id) { '1234567890abcdefghijklmnopqrstuvwxyz' }
     before        { setup.link = link }
 
-    let(:link)    { 'https://drive.google.com/drive/folders/ID-FROM-LINK' }
-    it            { is_expected.to eq 'ID-FROM-LINK' }
+    let(:link)    { "https://drive.google.com/drive/folders/#{file_id}" }
+    it            { is_expected.to eq file_id }
 
     context 'when link is not a folder link' do
-      let(:link)  { 'https://docs.google.com/drawings/d/ID-FROM-LINK' }
-      it          { is_expected.to be nil }
+      let(:link)  { "https://docs.google.com/drawings/d/#{file_id}" }
+      it          { is_expected.to eq file_id }
+    end
+
+    context 'when link ends with parameters' do
+      let(:link) { "https://drive.google.com/drive/folders/#{file_id}?a=b" }
+      it 'ignores the parameters' do
+        is_expected.to eq file_id
+      end
+    end
+
+    context 'when link is google.com/open?=id...' do
+      let(:link) { "https://drive.google.com/open?id=#{file_id}" }
+      it { is_expected.to eq file_id }
+    end
+
+    context 'when link is google.com/open?=id... with parameters' do
+      let(:link) { "https://drive.google.com/open?a=b&id=#{file_id}&c=d" }
+
+      it 'ignores the parameters' do
+        is_expected.to eq file_id
+      end
     end
   end
 

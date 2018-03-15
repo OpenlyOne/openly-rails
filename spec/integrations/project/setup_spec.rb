@@ -95,6 +95,26 @@ RSpec.describe Project::Setup, type: :model do
       end
     end
 
+    context 'when link ends with ?usp=sharing' do
+      let(:raw_link) do
+        Providers::GoogleDrive::Link.for(external_id: @created_file.id,
+                                         mime_type: folder_type)
+      end
+      let(:link) { "#{raw_link}?usp=sharing" }
+
+      it 'is valid' do
+        is_expected.to be_valid
+      end
+    end
+
+    context 'when link is drive.google.com/open?id=...' do
+      let(:link) { "https://drive.google.com/open?id=#{@created_file.id}" }
+
+      it 'is valid' do
+        is_expected.to be_valid
+      end
+    end
+
     context 'when link to google drive folder is invalid' do
       let(:link) { 'https://invalid-folder-link' }
 
@@ -117,8 +137,22 @@ RSpec.describe Project::Setup, type: :model do
       end
     end
 
-    context 'when link to google drive folder is not a folder' do
+    context 'when link looks like google drive folder but has ID of doc' do
       let(:mime_type) { document_type }
+
+      it 'adds an error' do
+        is_expected.to be_invalid
+        expect(setup.errors[:link])
+          .to include 'appears not to be a Google Drive folder'
+      end
+    end
+
+    context 'when link is a google drive doc' do
+      let(:mime_type) { document_type }
+      let(:link) do
+        Providers::GoogleDrive::Link.for(external_id: @created_file.id,
+                                         mime_type: mime_type)
+      end
 
       it 'adds an error' do
         is_expected.to be_invalid
