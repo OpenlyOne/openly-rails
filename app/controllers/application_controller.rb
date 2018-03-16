@@ -6,12 +6,18 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_default_request_format
+  before_action :store_account_location!, if: :storable_location?
 
   after_action :track_action
 
   # override sign in redirect (Devise)
   def after_sign_in_path_for(resource)
-    stored_location_for(resource) || url_for(resource.user)
+    location = stored_location_for(resource) || url_for(resource.user)
+
+    # Redirect to profile page if stored location is root path
+    return url_for(resource.user) if location.eql?('/')
+
+    location
   end
 
   # Get the current user
@@ -61,6 +67,26 @@ class ApplicationController < ActionController::Base
   # other endings that are normally parsed by Rails.
   def set_default_request_format
     request.format = :html unless params[:format]
+  end
+
+  # Return true if the location is storable.
+  # Its important that the location is NOT stored if:
+  # - The request method is not GET (non idempotent)
+  # - The request is handled by a Devise controller such as
+  #   Devise::SessionsController as that could cause an infinite redirect loop.
+  # - The request is an Ajax request as this can lead to very unexpected
+  #   behavior
+  def storable_location?
+    request.get? &&
+      is_navigational_format? &&
+      !devise_controller? &&
+      !request.xhr?
+  end
+
+  # Store the current path for the current user/account to allow redirect after
+  # login
+  def store_account_location!
+    store_location_for(:account, request.fullpath)
   end
 
   # Track the page action
