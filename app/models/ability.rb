@@ -24,12 +24,12 @@ class Ability
     end
 
     # Users can edit the projects of profiles that they can manage
-    can %i[setup edit update destroy], Project do |project|
+    can %i[edit update destroy], Project do |project|
       can? :manage, project.owner
     end
 
-    # User can force sync files for projects in which they collaborate
-    can %i[force_sync], Project do |project|
+    # User can force sync files & setup for projects in which they collaborate
+    can %i[force_sync setup], Project do |project|
       can?(:collaborate, project)
     end
 
