@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'being resourceable' do
+  describe 'associations' do
+    it do
+      is_expected
+        .to belong_to(:thumbnail)
+        .class_name('FileResource::Thumbnail')
+        .dependent(false)
+    end
+  end
+
   describe '#folder?' do
     before do
       allow(resourceable)

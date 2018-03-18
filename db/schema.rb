@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180317221419) do
+ActiveRecord::Schema.define(version: 20180317221933) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -115,10 +115,12 @@ ActiveRecord::Schema.define(version: 20180317221419) do
     t.string "mime_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "thumbnail_id"
     t.index ["external_id", "content_version", "mime_type", "name", "parent_id"], name: "index_file_resource_snapshots_on_metadata", unique: true
     t.index ["external_id", "content_version", "mime_type", "name"], name: "index_file_resource_snapshots_on_metadata_without_parent", unique: true, where: "(parent_id IS NULL)"
     t.index ["file_resource_id"], name: "index_file_resource_snapshots_on_file_resource_id"
     t.index ["parent_id"], name: "index_file_resource_snapshots_on_parent_id"
+    t.index ["thumbnail_id"], name: "index_file_resource_snapshots_on_thumbnail_id"
   end
 
   create_table "file_resource_thumbnails", force: :cascade do |t|
@@ -145,9 +147,11 @@ ActiveRecord::Schema.define(version: 20180317221419) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "current_snapshot_id"
+    t.bigint "thumbnail_id"
     t.index ["current_snapshot_id"], name: "index_file_resources_on_current_snapshot_id"
     t.index ["parent_id"], name: "index_file_resources_on_parent_id"
     t.index ["provider_id", "external_id"], name: "index_file_resources_on_provider_id_and_external_id", unique: true
+    t.index ["thumbnail_id"], name: "index_file_resources_on_thumbnail_id"
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -235,8 +239,10 @@ ActiveRecord::Schema.define(version: 20180317221419) do
   add_foreign_key "file_diffs", "file_resource_snapshots", column: "previous_snapshot_id"
   add_foreign_key "file_diffs", "file_resources"
   add_foreign_key "file_diffs", "revisions"
+  add_foreign_key "file_resource_snapshots", "file_resource_thumbnails", column: "thumbnail_id"
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
+  add_foreign_key "file_resources", "file_resource_thumbnails", column: "thumbnail_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
