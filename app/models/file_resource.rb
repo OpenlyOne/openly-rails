@@ -87,6 +87,13 @@ class FileResource < ApplicationRecord
     children.select(&:folder?)
   end
 
+  # This method must be defined on subclasses
+  def thumbnail_version_id
+    raise(
+      '#thumbnail_version_id must not be called from super class FileResource'
+    )
+  end
+
   private
 
   def any_errors?

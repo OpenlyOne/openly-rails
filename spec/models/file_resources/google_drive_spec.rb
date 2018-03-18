@@ -36,4 +36,22 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
   describe '#provider' do
     it { expect(file.provider).to be Providers::GoogleDrive }
   end
+
+  describe '#thumbnail_version_id' do
+    subject(:thumbnail_version) { file.thumbnail_version_id }
+    let(:sync_adapter) { nil }
+
+    before { allow(file).to receive(:sync_adapter).and_return sync_adapter }
+
+    it { is_expected.to be nil }
+
+    context 'when sync adapter is present' do
+      let(:sync_adapter) { instance_double Providers::GoogleDrive::FileSync }
+      before do
+        allow(sync_adapter).to receive(:thumbnail_version).and_return 'version'
+      end
+
+      it { is_expected.to eq 'version' }
+    end
+  end
 end

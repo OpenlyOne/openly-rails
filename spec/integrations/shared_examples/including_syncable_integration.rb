@@ -13,15 +13,26 @@ RSpec.shared_examples 'including syncable integration', :vcr do
     subject(:fetch)         { syncable.fetch }
     let(:external_id)       { file_sync.id }
     let(:before_fetch_hook) { nil }
+    let(:update_content) do
+      Providers::GoogleDrive::ApiConnection
+        .default
+        .update_file_content(file_sync.id, 'new file content')
+    end
 
+    # Generate thumbnail and wait
+    before { update_content }
+    before { sleep 5 if VCR.current_cassette.recording? }
     before { before_fetch_hook }
     before { fetch }
 
-    it { expect(syncable.name).to eq 'Test File' }
-    it { expect(syncable.mime_type).to eq mime_type }
-    it { expect(syncable.content_version).to eq '1' }
-    it { expect(syncable.parent).to eq nil }
-    it { expect(syncable).not_to be_deleted }
+    it 'sets correct attributes' do
+      expect(syncable.name).to eq 'Test File'
+      expect(syncable.mime_type).to eq mime_type
+      expect(syncable.content_version.to_i).to be > 1
+      expect(syncable.parent).to eq nil
+      expect(syncable.thumbnail).to be_present
+      expect(syncable).not_to be_deleted
+    end
 
     context 'when file is trashed' do
       let(:before_fetch_hook) { api.trash_file(file_sync.id) }
@@ -41,15 +52,26 @@ RSpec.shared_examples 'including syncable integration', :vcr do
     let(:syncable_from_db) do
       described_class.find_by!(external_id: file_sync.id)
     end
+    let(:update_content) do
+      Providers::GoogleDrive::ApiConnection
+        .default
+        .update_file_content(file_sync.id, 'new file content')
+    end
 
+    # Generate thumbnail and wait
+    before { update_content }
+    before { sleep 5 if VCR.current_cassette.recording? }
     before { before_pull_hook }
     before { pull }
 
-    it { expect(syncable_from_db.name).to eq 'Test File' }
-    it { expect(syncable_from_db.mime_type).to eq mime_type }
-    it { expect(syncable_from_db.content_version).to eq '1' }
-    it { expect(syncable_from_db.parent).to eq nil }
-    it { expect(syncable_from_db).not_to be_deleted }
+    it 'sets correct attributes' do
+      expect(syncable_from_db.name).to eq 'Test File'
+      expect(syncable_from_db.mime_type).to eq mime_type
+      expect(syncable_from_db.content_version.to_i).to be > 1
+      expect(syncable_from_db.parent).to eq nil
+      expect(syncable_from_db.thumbnail).to be_present
+      expect(syncable_from_db).not_to be_deleted
+    end
 
     context 'when file is trashed' do
       let(:before_pull_hook) { api.trash_file(file_sync.id) }
@@ -58,6 +80,7 @@ RSpec.shared_examples 'including syncable integration', :vcr do
         expect(syncable_from_db.mime_type).to eq nil
         expect(syncable_from_db.content_version).to eq nil
         expect(syncable_from_db.parent).to eq nil
+        expect(syncable_from_db.thumbnail).to eq nil
         expect(syncable).to be_deleted
       end
     end
@@ -69,6 +92,7 @@ RSpec.shared_examples 'including syncable integration', :vcr do
         expect(syncable_from_db.mime_type).to eq nil
         expect(syncable_from_db.content_version).to eq nil
         expect(syncable_from_db.parent).to eq nil
+        expect(syncable_from_db.thumbnail).to eq nil
         expect(syncable).to be_deleted
       end
     end

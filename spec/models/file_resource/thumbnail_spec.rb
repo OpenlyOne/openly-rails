@@ -43,4 +43,69 @@ RSpec.describe FileResource::Thumbnail, type: :model do
       it { expect { thumbnail.destroy }.not_to raise_error }
     end
   end
+
+  describe '.attributes_from_file_resource(file_resource)' do
+    subject     { described_class.attributes_from_file_resource(file) }
+    let(:file)  { instance_double FileResource }
+
+    before do
+      allow(file).to receive(:provider_id).and_return 'provider-id'
+      allow(file).to receive(:external_id).and_return 'external-id'
+      allow(file).to receive(:thumbnail_version_id).and_return 'version-id'
+    end
+
+    it do
+      is_expected.to eq(
+        provider_id: 'provider-id',
+        external_id: 'external-id',
+        version_id: 'version-id'
+      )
+    end
+  end
+
+  describe '.find_or_initialize_by_file_resource(file_resource)' do
+    subject { described_class.find_or_initialize_by_file_resource('file') }
+
+    before do
+      allow(FileResource::Thumbnail)
+        .to receive(:attributes_from_file_resource)
+        .with('file').and_return 'attributes'
+    end
+
+    it 'calls #find_or_initialize_by with attributes' do
+      expect(FileResource::Thumbnail)
+        .to receive(:find_or_initialize_by).with('attributes')
+      subject
+    end
+  end
+
+  describe '#file_resource=(file_resource)' do
+    subject(:set_file_resource) { thumbnail.file_resource = 'file' }
+
+    before do
+      allow(FileResource::Thumbnail)
+        .to receive(:attributes_from_file_resource)
+        .with('file').and_return 'attributes'
+    end
+
+    it 'calls #assign_attributes with attributes' do
+      expect(thumbnail).to receive(:assign_attributes).with('attributes')
+      set_file_resource
+    end
+  end
+
+  describe '#raw_image=(raw_image)' do
+    subject(:raw_image) { thumbnail.raw_image = raw }
+    let(:raw)           { proc { 'RAW-IMAGE'.downcase } }
+
+    before do
+      allow(StringIO)
+        .to receive(:new).with('raw-image').and_return 'stringio-image'
+    end
+
+    it 'sets image' do
+      expect(thumbnail).to receive(:image=).with('stringio-image')
+      raw_image
+    end
+  end
 end
