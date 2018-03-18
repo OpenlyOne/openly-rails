@@ -209,6 +209,64 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#thumbnail' do
+    subject(:thumbnail)   { file_sync.thumbnail }
+    let(:thumbnail_ivar)  { 'thumbnail' }
+    let(:has_thumbnail)   { true }
+    before do
+      allow(file_sync).to receive(:thumbnail?).and_return has_thumbnail
+      file_sync.instance_variable_set :@thumbnail, thumbnail_ivar
+    end
+
+    it { is_expected.to eq 'thumbnail' }
+
+    context 'when @thumbnail is not is set' do
+      let(:thumbnail_ivar) { nil }
+      after { thumbnail }
+
+      it { expect(file_sync).to receive(:fetch_thumbnail) }
+    end
+
+    context 'when thumbnail? returns false' do
+      let(:has_thumbnail) { false }
+
+      it { is_expected.to be nil }
+    end
+  end
+
+  describe '#thumbnail_version' do
+    subject(:thumbnail_version) { file_sync.thumbnail_version }
+    let(:file) { Google::Apis::DriveV3::File.new(thumbnail_version: 'v1') }
+    before     { allow(file_sync).to receive(:file).and_return file }
+
+    it { is_expected.to eq 'v1' }
+
+    context 'when file is not is set' do
+      let(:file)  { nil }
+      it          { is_expected.to eq nil }
+    end
+  end
+
+  describe '#thumbnail?' do
+    subject(:thumbnail) { file_sync.thumbnail? }
+    let(:link)          { 'link' }
+    let(:deleted)       { false }
+    before     { allow(file_sync).to receive(:deleted?).and_return deleted }
+    before     { allow(file_sync).to receive(:thumbnail_link).and_return link }
+
+    it { is_expected.to be true }
+
+    context 'when thumbnail_link is nil' do
+      let(:link)  { nil }
+      it          { is_expected.to be false }
+    end
+
+    context 'when deleted? returns true' do
+      let(:deleted) { true }
+      it            { is_expected.to be false }
+    end
+  end
+
   describe '#fetch_file' do
     subject(:fetch_file)  { file_sync.send(:fetch_file) }
     after                 { fetch_file }
