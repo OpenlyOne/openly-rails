@@ -15,6 +15,7 @@ GOOGLE_DRIVE_CLIENT_SECRET: <client secret from credentials.json>
 GOOGLE_DRIVE_CREDENTIALS_PATH: '/home/user/credentials/google.yaml'
 GOOGLE_DRIVE_TRACKING_ACCOUNT: <account used for tracking changes to files>
 ROLLBAR_ACCESS_TOKEN: <access token from rollbar: post_server_item>
+THUMBNAIL_HASH_SECRET: <token for thumbnail path obfuscation>
 
 production:
   DEPLOY_USER: <username of user for deployment>
@@ -23,6 +24,7 @@ production:
   UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
   UPSHIFT_DATABASE_PASSWORD: <your postgres user's password>
   GOOGLE_DRIVE_CREDENTIALS_PATH: '/var/apps/app-name/shared/credentials/google-drive.yaml'
+  THUMBNAIL_HASH_SECRET: <token for thumbnail path obfuscation
 
 test:
   GOOGLE_DRIVE_TRACKING_ACCOUNT: <optionally, use a different account for tracking file changes in test environment>

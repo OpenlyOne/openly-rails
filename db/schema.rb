@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180314031010) do
+ActiveRecord::Schema.define(version: 20180317221419) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -119,6 +119,19 @@ ActiveRecord::Schema.define(version: 20180314031010) do
     t.index ["external_id", "content_version", "mime_type", "name"], name: "index_file_resource_snapshots_on_metadata_without_parent", unique: true, where: "(parent_id IS NULL)"
     t.index ["file_resource_id"], name: "index_file_resource_snapshots_on_file_resource_id"
     t.index ["parent_id"], name: "index_file_resource_snapshots_on_parent_id"
+  end
+
+  create_table "file_resource_thumbnails", force: :cascade do |t|
+    t.integer "provider_id", null: false
+    t.text "external_id", null: false
+    t.text "version_id", null: false
+    t.string "image_file_name", null: false
+    t.string "image_content_type", null: false
+    t.integer "image_file_size", null: false
+    t.datetime "image_updated_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider_id", "external_id", "version_id"], name: "index_thumbnails_on_file_resource_identifier", unique: true
   end
 
   create_table "file_resources", force: :cascade do |t|
