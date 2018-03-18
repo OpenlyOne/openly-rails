@@ -59,7 +59,8 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
         'parent_id' => parent.id,
         'content_version' => '1',
         'mime_type' => Providers::GoogleDrive::MimeType.document,
-        'external_id' => external_id
+        'external_id' => external_id,
+        'thumbnail_id' => nil
       }
     end
 
@@ -79,8 +80,16 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     it 'can pull a snapshot of an existing file' do
       file.pull
       file_sync.rename('my new file name')
+
+      # Update file content for thumbnail
+      Providers::GoogleDrive::ApiConnection
+        .default.update_file_content(file_sync.id, 'new file content')
+      sleep 5 if VCR.current_cassette.recording?
+
       file.reload.pull
       expected_attributes['name'] = 'my new file name'
+      expected_attributes.delete('content_version')
+      expected_attributes['thumbnail_id'] = FileResource::Thumbnail.first.id
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
       expect(staging_projects).to match_array projects
