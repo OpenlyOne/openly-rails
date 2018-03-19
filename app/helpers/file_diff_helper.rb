@@ -12,6 +12,7 @@ module FileDiffHelper
     when :moved     then 'purple darken-2'
     when :renamed   then 'blue darken-2'
     when :deleted   then 'red darken-2'
+    else 'black base'
     end
   end
 
@@ -53,6 +54,7 @@ module FileDiffHelper
 
   # Return the text color class for the change that has been made to the file
   def text_color_for_file_diff_change(file_diff_change)
+    # return 'black-text' if file_diff_change.nil?
     scheme = color_for_file_diff_change(file_diff_change)&.split(' ')
     return nil if scheme.nil?
 

@@ -16,7 +16,7 @@ feature 'File Info' do
     # and click on Files
     click_on 'Files'
     # and click on the file info button
-    find('.file .info').click
+    find('.file-info').click
 
     # then I should be on the file's info page
     expect(page).to have_current_path(
@@ -41,7 +41,7 @@ feature 'File Info' do
     # and click on Files
     click_on 'Files'
     # and click on the file info button
-    find('.file .info').click
+    find('.file-info').click
 
     # then I should be on the file's info page
     expect(page).to have_current_path(

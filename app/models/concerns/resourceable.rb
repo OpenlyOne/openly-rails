@@ -24,6 +24,14 @@ module Resourceable
     provider_mime_type_class.to_symbol(mime_type)
   end
 
+  def thumbnail_image
+    thumbnail&.image
+  end
+
+  def thumbnail_image_or_fallback
+    thumbnail_image || FileResource::Thumbnail.new.image
+  end
+
   private
 
   def provider_icon_class
