@@ -53,6 +53,21 @@ class FileResource
       )
     end
 
+    # Preload thumbnail for the given objects
+    def self.preload_for(objects)
+      # Fetch all thumbnails that belong to objects
+      records = where(id: objects.map(&:thumbnail_id).compact.uniq)
+
+      # Associate thumbnails with the owning objects
+      objects.each do |owner|
+        record = records.find { |r| r.id == owner.thumbnail_id }
+
+        association = owner.association(:thumbnail)
+        association.target = record
+        association.set_inverse_instance(record)
+      end
+    end
+
     # Set provider ID, external ID, and version ID from the given file resource
     def file_resource=(file_resource)
       assign_attributes(

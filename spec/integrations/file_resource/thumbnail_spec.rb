@@ -37,4 +37,24 @@ RSpec.describe FileResource::Thumbnail, type: :model do
       expect(File).to be_exists("#{Rails.root}/public#{url}")
     end
   end
+
+  describe '.preload_for(objects)' do
+    let(:file1) { create :file_resource, :with_thumbnail }
+    let(:file2) { create :file_resource, :with_thumbnail }
+    let(:file3) { create :file_resource, :with_thumbnail }
+
+    before { [file1, file2, file3].each(&:reload) }
+
+    it 'preloads all thumbnails' do
+      expect(file1.association(:thumbnail)).not_to be_loaded
+      expect(file2.association(:thumbnail)).not_to be_loaded
+      expect(file3.association(:thumbnail)).not_to be_loaded
+
+      FileResource::Thumbnail.preload_for([file1, file2, file3])
+
+      expect(file1.association(:thumbnail)).to be_loaded
+      expect(file2.association(:thumbnail)).to be_loaded
+      expect(file3.association(:thumbnail)).to be_loaded
+    end
+  end
 end

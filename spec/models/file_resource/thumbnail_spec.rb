@@ -79,6 +79,34 @@ RSpec.describe FileResource::Thumbnail, type: :model do
     end
   end
 
+  describe '.preload_for(objects)' do
+    let(:file1)     { build_stubbed :file_resource, thumbnail_id: 1 }
+    let(:file2)     { build_stubbed :file_resource, thumbnail_id: 2 }
+    let(:file3)     { build_stubbed :file_resource, thumbnail_id: 1 }
+    let(:file4)     { build_stubbed :file_resource, thumbnail_id: nil }
+    let(:thumbnail1) { instance_double FileResource::Thumbnail }
+    let(:thumbnail2) { instance_double FileResource::Thumbnail }
+
+    before do
+      allow(FileResource::Thumbnail)
+        .to receive(:where)
+        .with(id: [1, 2])
+        .and_return [thumbnail1, thumbnail2]
+
+      allow(thumbnail1).to receive(:id).and_return 1
+      allow(thumbnail2).to receive(:id).and_return 2
+    end
+
+    it 'sets thumbnail on files' do
+      FileResource::Thumbnail.preload_for([file1, file2, file3, file4])
+
+      expect(file1.thumbnail).to eq thumbnail1
+      expect(file2.thumbnail).to eq thumbnail2
+      expect(file3.thumbnail).to eq thumbnail1
+      expect(file4.thumbnail).to be nil
+    end
+  end
+
   describe '#file_resource=(file_resource)' do
     subject(:set_file_resource) { thumbnail.file_resource = 'file' }
 

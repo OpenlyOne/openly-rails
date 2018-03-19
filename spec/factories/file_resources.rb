@@ -16,6 +16,10 @@ FactoryGirl.define do
       association :parent, factory: :file_resource
     end
 
+    trait :with_thumbnail do
+      association :thumbnail, factory: :file_resource_thumbnail
+    end
+
     trait :deleted do
       name nil
       content_version nil
