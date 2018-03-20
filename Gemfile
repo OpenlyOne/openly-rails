@@ -14,7 +14,7 @@ gem 'pg', '~> 0.21'
 # Use Puma as the app server
 gem 'puma', '3.8.1'
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0'
+gem 'sass-rails', '~> 5.0.7'
 # Autoprefix CSS rules using values from Can I Use
 gem 'autoprefixer-rails', '~> 7.1'
 # Use Uglifier as compressor for JavaScript assets
@@ -31,7 +31,7 @@ gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 # Material Design
-gem 'materialize-sass', '~> 0.100'
+gem 'materialize-sass', '~> 1.0.0alpha'
 # MaterializeCSS requires JQuery
 gem 'jquery-rails', '~> 4.3'
 # Use figaro for managing ENV variables

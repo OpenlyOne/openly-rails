@@ -2,22 +2,24 @@
 
 RSpec.shared_examples 'including snapshotable integration' do
   describe 'callbacks' do
-    let(:create)        { snapshotable.save }
+    let(:creation)        { snapshotable.save }
     let(:from_database) { snapshotable.class.find(snapshotable.id) }
 
-    describe 'create' do
-      it { expect { create }.to change { FileResource::Snapshot.count }.by(1) }
+    describe 'creation' do
+      it do
+        expect { creation }.to change { FileResource::Snapshot.count }.by(1)
+      end
     end
 
     describe 'update' do
       subject(:method)  { from_database.update(name: 'name', mime_type: 'doc') }
-      before            { create }
+      before            { creation }
       it { expect { method }.to change { FileResource::Snapshot.count }.by(1) }
     end
 
     describe 'is_deleted = true' do
       subject(:method)    { from_database.update(is_deleted: true) }
-      before              { create }
+      before              { creation }
       it { expect { method }.not_to(change { FileResource::Snapshot.count }) }
       it { expect { method }.not_to(change { FileResource.count }) }
     end
@@ -46,6 +48,17 @@ RSpec.shared_examples 'including snapshotable integration' do
         expect { snapshotable.save }
           .to change(snapshotable, :current_snapshot_id)
           .to(original_snapshot_id)
+      end
+
+      context 'when supplemental attributes change' do
+        let(:thumbnail) { create :file_resource_thumbnail }
+        let(:snapshot)  { FileResource::Snapshot.order(:created_at).first }
+        before          { snapshotable.thumbnail = thumbnail }
+
+        it 'updates thumbnail on the snapshot' do
+          expect { snapshotable.save }
+            .to change { snapshot.reload.thumbnail_id }.from(nil)
+        end
       end
     end
   end

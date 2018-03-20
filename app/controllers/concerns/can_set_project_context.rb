@@ -20,7 +20,7 @@ module CanSetProjectContext
   def can_can_access_denied(exception)
     return unless exception.action == :access
     flash.now.alert = exception.message
-    render 'errors/not_found', layout: 'application', status: 403
+    render 'projects/access_unauthorized', layout: 'application', status: 403
   end
 
   # Find and set project. Raise 404 if project does not exist

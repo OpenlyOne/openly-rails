@@ -20,4 +20,9 @@ if defined? Bullet
 
   Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
                        association: :previous_snapshot
+
+  # Bullet complains because we're manually preloading thumbnail associations
+  Bullet.add_whitelist type: :n_plus_one_query,
+                       class_name: 'FileResource::Snapshot',
+                       association: :thumbnail
 end

@@ -7,7 +7,8 @@ module Diffing
   # Delegations
   delegate :id, to: :current_or_previous_snapshot, prefix: true
   delegate :external_id, :external_link, :folder?, :icon, :mime_type, :name,
-           :provider, :provider=, :symbolic_mime_type,
+           :provider, :provider=, :symbolic_mime_type, :thumbnail_id,
+           :thumbnail_image, :thumbnail_image_or_fallback,
            to: :current_or_previous_snapshot
 
   delegate_methods = %i[content_version name parent_id]
@@ -31,6 +32,11 @@ module Diffing
     when 3
       first_three_ancestors.reverse.drop(1).unshift('..').join(' > ')
     end
+  end
+
+  def association(association_name)
+    return super unless association_name == :thumbnail
+    current_or_previous_snapshot.association(association_name)
   end
 
   def changed?

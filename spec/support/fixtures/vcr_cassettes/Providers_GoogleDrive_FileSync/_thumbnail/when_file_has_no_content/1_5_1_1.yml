@@ -28,7 +28,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Tue, 06 Mar 2018 17:56:11 GMT
+      - Sun, 18 Mar 2018 19:56:13 GMT
       Vary:
       - Origin
       - X-Origin
@@ -43,8 +43,8 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
+        ma=2592000; v="41,39,35"
       Transfer-Encoding:
       - chunked
     body:
@@ -56,14 +56,14 @@ http_interactions:
          "expires_in": 3600
         }
     http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:11 GMT
+  recorded_at: Sun, 18 Mar 2018 19:56:13 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-03-06
-        17:56:11 UTC","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-03-18
+        19:56:13 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -72,7 +72,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 06 Mar 2018 17:56:11 GMT
+      - Sun, 18 Mar 2018 19:56:13 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -89,7 +89,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Tue, 06 Mar 2018 17:56:12 GMT
+      - Sun, 18 Mar 2018 19:56:14 GMT
       Vary:
       - Origin
       - X-Origin
@@ -106,30 +106,31 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
+        ma=2592000; v="41,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "14wGtG6UyOyURw9bkhpjs5kLrd5pM45Tl",
-         "name": "Test @ 2018-03-06 17:56:11 UTC",
+         "id": "1KhPq37mLDFyt9qusbDWD9TDQ9jle3g5-",
+         "name": "Test @ 2018-03-18 19:56:13 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
           "0AIeK5UAEPQfeUk9PVA"
-         ]
+         ],
+         "thumbnailVersion": "0"
         }
     http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:12 GMT
+  recorded_at: Sun, 18 Mar 2018 19:56:14 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.document","name":"Test File","parents":["14wGtG6UyOyURw9bkhpjs5kLrd5pM45Tl"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test File","parents":["1KhPq37mLDFyt9qusbDWD9TDQ9jle3g5-"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -138,7 +139,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 06 Mar 2018 17:56:12 GMT
+      - Sun, 18 Mar 2018 19:56:14 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -155,7 +156,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Tue, 06 Mar 2018 17:56:13 GMT
+      - Sun, 18 Mar 2018 19:56:14 GMT
       Vary:
       - Origin
       - X-Origin
@@ -172,27 +173,28 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
+        ma=2592000; v="41,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1QHCGbC9QkPuXB9tcE3p1ypY4QkoJSvRvLcMLBhcgeNo",
+         "id": "1GHJxy-c9yqa8eOq5HnBzECHOYhcMl1TJ",
          "name": "Test File",
-         "mimeType": "application/vnd.google-apps.document",
+         "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "14wGtG6UyOyURw9bkhpjs5kLrd5pM45Tl"
-         ]
+          "1KhPq37mLDFyt9qusbDWD9TDQ9jle3g5-"
+         ],
+         "thumbnailVersion": "0"
         }
     http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:14 GMT
+  recorded_at: Sun, 18 Mar 2018 19:56:14 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1QHCGbC9QkPuXB9tcE3p1ypY4QkoJSvRvLcMLBhcgeNo?fields=id,name,mimeType,parents,trashed
+    uri: https://www.googleapis.com/drive/v3/files/1GHJxy-c9yqa8eOq5HnBzECHOYhcMl1TJ?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -204,7 +206,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 06 Mar 2018 17:56:14 GMT
+      - Sun, 18 Mar 2018 19:56:19 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -215,9 +217,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Tue, 06 Mar 2018 17:56:14 GMT
+      - Sun, 18 Mar 2018 19:56:19 GMT
       Date:
-      - Tue, 06 Mar 2018 17:56:14 GMT
+      - Sun, 18 Mar 2018 19:56:19 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -236,88 +238,28 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
+        ma=2592000; v="41,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1QHCGbC9QkPuXB9tcE3p1ypY4QkoJSvRvLcMLBhcgeNo",
+         "id": "1GHJxy-c9yqa8eOq5HnBzECHOYhcMl1TJ",
          "name": "Test File",
-         "mimeType": "application/vnd.google-apps.document",
+         "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "14wGtG6UyOyURw9bkhpjs5kLrd5pM45Tl"
-         ]
+          "1KhPq37mLDFyt9qusbDWD9TDQ9jle3g5-"
+         ],
+         "thumbnailVersion": "0"
         }
     http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:14 GMT
-- request:
-    method: get
-    uri: https://www.googleapis.com/drive/v3/files/1QHCGbC9QkPuXB9tcE3p1ypY4QkoJSvRvLcMLBhcgeNo/revisions/head
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      User-Agent:
-      - "<USER AGENT>"
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Tue, 06 Mar 2018 17:56:14 GMT
-      Authorization:
-      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
-      Content-Type:
-      - application/x-www-form-urlencoded
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Expires:
-      - Tue, 06 Mar 2018 17:56:14 GMT
-      Date:
-      - Tue, 06 Mar 2018 17:56:14 GMT
-      Cache-Control:
-      - private, max-age=0, must-revalidate, no-transform
-      Vary:
-      - Origin
-      - X-Origin
-      Content-Type:
-      - application/json; charset=UTF-8
-      Content-Encoding:
-      - gzip
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      Server:
-      - GSE
-      Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: |
-        {
-         "kind": "drive#revision",
-         "id": "1",
-         "mimeType": "application/vnd.google-apps.document",
-         "modifiedTime": "2018-03-06T17:56:13.195Z"
-        }
-    http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:14 GMT
+  recorded_at: Sun, 18 Mar 2018 19:56:19 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/14wGtG6UyOyURw9bkhpjs5kLrd5pM45Tl
+    uri: https://www.googleapis.com/drive/v3/files/1KhPq37mLDFyt9qusbDWD9TDQ9jle3g5-
     body:
       encoding: UTF-8
       string: ''
@@ -329,7 +271,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 06 Mar 2018 17:56:14 GMT
+      - Sun, 18 Mar 2018 19:56:19 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -346,18 +288,18 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Tue, 06 Mar 2018 17:56:15 GMT
+      - Sun, 18 Mar 2018 19:56:20 GMT
       Vary:
       - Origin
       - X-Origin
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303338; quic=51303337;
-        quic=51303335,quic=":443"; ma=2592000; v="41,39,38,37,35"
+      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
+        ma=2592000; v="41,39,35"
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Tue, 06 Mar 2018 17:56:15 GMT
+  recorded_at: Sun, 18 Mar 2018 19:56:20 GMT
 recorded_with: VCR 4.0.0

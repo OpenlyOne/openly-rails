@@ -35,6 +35,16 @@ RSpec.describe FileDiffHelper, type: :helper do
       let(:file_diff_change) { :deleted }
       it { is_expected.to eq 'red darken-2' }
     end
+
+    context 'when diff change is :other' do
+      let(:file_diff_change) { :other }
+      it { is_expected.to eq 'black base' }
+    end
+
+    context 'when diff change is nil' do
+      let(:file_diff_change) { nil }
+      it { is_expected.to eq 'black base' }
+    end
   end
 
   describe '#html_class_for_file_diff_changes(file_diff_changes)' do
@@ -154,12 +164,12 @@ RSpec.describe FileDiffHelper, type: :helper do
 
     context 'when diff change is other' do
       let(:file_diff_change) { :other }
-      it { is_expected.to eq nil }
+      it { is_expected.to eq 'black-text text-base' }
     end
 
     context 'when diff change is nil' do
       let(:file_diff_change) { nil }
-      it { is_expected.to eq nil }
+      it { is_expected.to eq 'black-text text-base' }
     end
   end
 

@@ -4,6 +4,10 @@
 module Resourceable
   extend ActiveSupport::Concern
 
+  included do
+    belongs_to :thumbnail, class_name: 'FileResource::Thumbnail', optional: true
+  end
+
   def folder?
     provider_mime_type_class.folder?(mime_type)
   end
@@ -18,6 +22,14 @@ module Resourceable
 
   def symbolic_mime_type
     provider_mime_type_class.to_symbol(mime_type)
+  end
+
+  def thumbnail_image
+    thumbnail&.image
+  end
+
+  def thumbnail_image_or_fallback
+    thumbnail_image || FileResource::Thumbnail.new.image
   end
 
   private

@@ -41,6 +41,30 @@ feature 'Session' do
     expect(page).to have_current_path edit_account_path
   end
 
+  scenario 'User is redirected back after choosing to log in' do
+    # given I have an account but I am not logged in
+    account = create :account
+    # and there is a project that I want to visit
+    project = create :project, owner: account.user
+
+    # when I visit a project page
+    visit profile_project_path(project.owner, project)
+    # and I click on 'Login'
+    within 'nav' do
+      click_on 'Login'
+    end
+    # and I log in
+    fill_in 'Email', with: account.email
+    fill_in 'Password', with: account.password
+    click_on 'Log in'
+
+    # then I should be signed in
+    expect(page).to have_text 'Signed in successfully'
+    # and I should be back to the project page
+    expect(page)
+      .to have_current_path profile_project_path(project.owner, project)
+  end
+
   scenario 'User can log out' do
     # given I am a signed-in user
     account = create(:account)

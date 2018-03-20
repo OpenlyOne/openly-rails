@@ -17,6 +17,7 @@ module Syncable
     self.mime_type = sync_adapter.mime_type
     self.content_version = sync_adapter.content_version
     self.external_parent_id = sync_adapter.parent_id
+    thumbnail_from_sync_adapter
     self.is_deleted = sync_adapter.deleted?
   end
 
@@ -76,5 +77,16 @@ module Syncable
 
   def sync_adapter_class
     Object.const_get "#{provider}::FileSync"
+  end
+
+  # Set thumbnail from sync adapter, either by finding an existing thumbnail for
+  # this file and its thumbnail version id or by creating a new one and fetching
+  # the thumbnail
+  def thumbnail_from_sync_adapter
+    return unless sync_adapter.thumbnail?
+    self.thumbnail =
+      FileResource::Thumbnail
+      .create_with(raw_image: proc { sync_adapter.thumbnail })
+      .find_or_initialize_by_file_resource(self)
   end
 end

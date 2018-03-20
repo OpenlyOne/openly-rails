@@ -332,6 +332,29 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to eq 'start-page-token' }
   end
 
+  describe '#thumbnail(url, size: 350)' do
+    subject(:thumbnail) { api.thumbnail('url') }
+
+    before do
+      allow(api)
+        .to receive(:add_query_parameters_to_url)
+        .with('url', 'sz' => 's350')
+        .and_return 'url-with-params'
+    end
+
+    it 'calls execute_api_command with :get and url with query params' do
+      expect(api).to receive(:execute_api_command).with(:get, 'url-with-params')
+      thumbnail
+    end
+
+    context 'when a Google::Apis::ClientError is raised' do
+      before { allow(api).to receive(:execute_api_command).and_raise error }
+      let(:error) { Google::Apis::ClientError.new('notFound') }
+
+      it { is_expected.to eq nil }
+    end
+  end
+
   describe '#trash_file(id)' do
     subject(:trash_file) { api.trash_file('file-id') }
     before  { allow(api).to receive(:default_file_fields).and_return 'default' }
@@ -425,6 +448,24 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
   end
 
+  describe '#add_query_parameters_to_url' do
+    subject(:add) { api.send(:add_query_parameters_to_url, url, params) }
+    let(:url)     { 'http://test.com/page?a=1&b=2&c=3' }
+    let(:params)  { { 'd' => '4', 'e' => '5' } }
+
+    it 'adds new params' do
+      is_expected.to eq 'http://test.com/page?a=1&b=2&c=3&d=4&e=5'
+    end
+
+    context 'when params already exist in URL' do
+      let(:params) { { 'a' => 'new', 'b' => 'new2' } }
+
+      it 'overrides existing params' do
+        is_expected.to eq 'http://test.com/page?a=new&b=new2&c=3'
+      end
+    end
+  end
+
   describe '#default_file_fields' do
     subject(:default_file_fields) { api.send(:default_file_fields) }
     it { is_expected.to match 'id' }
@@ -432,6 +473,32 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { is_expected.to match 'mimeType' }
     it { is_expected.to match 'parents' }
     it { is_expected.to match 'trashed' }
+    it { is_expected.to match 'thumbnailLink' }
+    it { is_expected.to match 'thumbnailVersion' }
+  end
+
+  describe '#execute_api_command(method, url)' do
+    subject(:execute) { api.send(:execute_api_command, 'method', 'url') }
+    let(:command)     { instance_double Google::Apis::Core::ApiCommand }
+
+    before do
+      allow(Google::Apis::Core::ApiCommand)
+        .to receive(:new).with('method', 'url').and_return command
+      allow(command).to receive(:options=)
+      allow(drive_service).to receive(:request_options).and_return 'request-ops'
+      allow(command).to receive(:execute)
+      allow(drive_service).to receive(:client).and_return 'client'
+    end
+
+    after { execute }
+
+    it 'sets request_options on command' do
+      expect(command).to receive(:options=).with 'request-ops'
+    end
+
+    it 'calls execute with drive service client on command' do
+      expect(command).to receive(:execute).with('client')
+    end
   end
 
   describe '#prefix_fields(prefix, fields)' do
