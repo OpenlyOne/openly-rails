@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  // Body color should be a slight gray
+  // Background color should be a slight gray
   background-color: $background-color;
 
   // Flex body so that we can have a sticky footer
@@ -17,6 +17,8 @@ body {
 
   // Main should grow so that footer is sticky
   > main {
+    // Background color should be a slight gray
+    background-color: $background-color;
     flex: 1 0 auto;
   }
 }
