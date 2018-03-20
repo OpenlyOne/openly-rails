@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.16 (March 20, 2018)
+
+**Enhancements:**
+- In file view, display thumbnails of files
+- When trying to accessing a project without authorization, show custom error
+  page
+- When logging in, user is redirect back to previous page after successful
+  authentication
+
+**Fixes:**
+- Background color is now gray lighten-4 on all browsers
+
 ## v0.15.3 (March 15, 2018)
 
 **Fixes:**
