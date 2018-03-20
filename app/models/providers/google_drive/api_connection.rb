@@ -129,6 +129,18 @@ module Providers
         drive_service.get_changes_start_page_token.start_page_token
       end
 
+      # Get the thumbnail for a file by its url with the given size in pixels
+      # Return nil if thumbnail is not found
+      def thumbnail(url, size: 350)
+        # Set size on thumbnail
+        url = add_query_parameters_to_url(url, 'sz' => "s#{size}")
+
+        # Download thumbnail
+        execute_api_command(:get, url)
+      rescue Google::Apis::ClientError
+        nil
+      end
+
       # Trash the file identified by ID
       def trash_file(id)
         drive_service.update_file(id,
@@ -167,6 +179,15 @@ module Providers
 
       attr_reader :drive_service
 
+      # Add/Overwrite the given query parameters to the given URL
+      def add_query_parameters_to_url(url, parameters)
+        uri = URI.parse(url)
+        query = Rack::Utils.parse_query(uri.query)
+        query.merge!(parameters)
+        uri.query = Rack::Utils.build_query(query)
+        uri.to_s
+      end
+
       # Class for Google Drive permissions
       def drive_permission
         Google::Apis::DriveV3::Permission
@@ -174,7 +195,16 @@ module Providers
 
       # The default fields for file query methods
       def default_file_fields
-        %w[id name mimeType parents trashed].join(',')
+        %w[id name mimeType parents trashed thumbnailLink
+           thumbnailVersion].join(',')
+      end
+
+      # Run a simple command of the given method against the given URL and pass
+      # authorization tokens along
+      def execute_api_command(method, url)
+        command = Google::Apis::Core::ApiCommand.new(method, url)
+        command.options = drive_service.request_options
+        command.execute(drive_service.client)
       end
 
       # Add a prefix to the fields: 'id,name' becomes 'prefix/id,prefix/name'

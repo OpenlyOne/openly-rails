@@ -60,6 +60,23 @@ module Providers
         @file = api_connection.update_file_name(id, name)
       end
 
+      # Return the file's thumbnail
+      def thumbnail
+        return nil unless thumbnail?
+        @thumbnail ||= fetch_thumbnail
+      end
+
+      # Return the version of the file's thumbnail
+      def thumbnail_version
+        file&.thumbnail_version
+      end
+
+      # Return true if the file has a thumbnail
+      def thumbnail?
+        return false if deleted?
+        thumbnail_link.present?
+      end
+
       private
 
       def api_connection
@@ -88,6 +105,11 @@ module Providers
         self.file = api_connection.find_file(id)
       end
 
+      # Fetch the thumbnail
+      def fetch_thumbnail
+        api_connection.thumbnail(thumbnail_link)
+      end
+
       # Return file, or fetch file if not yet initialized
       def file
         fetch_file unless @file
@@ -103,6 +125,11 @@ module Providers
           else
             file
           end
+      end
+
+      # The link to the file's thumbnail
+      def thumbnail_link
+        file&.thumbnail_link
       end
     end
   end

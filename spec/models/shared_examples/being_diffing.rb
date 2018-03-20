@@ -16,6 +16,11 @@ RSpec.shared_examples 'being diffing' do
     it { is_expected.to delegate_method(:provider).to(snapshot) }
     it { is_expected.to respond_to(:provider=) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(snapshot) }
+    it { is_expected.to delegate_method(:thumbnail_id).to(snapshot) }
+    it { is_expected.to delegate_method(:thumbnail_image).to(snapshot) }
+    it do
+      is_expected.to delegate_method(:thumbnail_image_or_fallback).to(snapshot)
+    end
 
     it do
       is_expected
@@ -92,6 +97,23 @@ RSpec.shared_examples 'being diffing' do
     context 'when first_three_ancestors = [anc1 anc2 anc3]' do
       let(:ancestors) { %w[anc1 anc2 anc3] }
       it { is_expected.to eq '.. > anc2 > anc1' }
+    end
+  end
+
+  describe '#association(association_name)' do
+    let(:snapshot) { instance_double FileResource::Snapshot }
+
+    before do
+      allow(diffing)
+        .to receive(:current_or_previous_snapshot).and_return snapshot
+    end
+
+    after { diffing.association(association_name) }
+
+    context 'when association name is thumbnail' do
+      let(:association_name) { :thumbnail }
+
+      it { expect(snapshot).to receive(:association).with(:thumbnail) }
     end
   end
 

@@ -118,6 +118,46 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
   end
 
+  describe '#thumbnail' do
+    subject(:thumbnail) do
+      described_class.new(file_sync.id).thumbnail
+    end
+    let!(:file_sync) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type) { Providers::GoogleDrive::MimeType.document }
+    # Sleep 5 seconds to ensure that Google has had time to generate the
+    # thumbnail
+    let(:wait)      { sleep 5 if VCR.current_cassette.recording? }
+
+    context 'when file has no content' do
+      let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
+      before          { wait }
+      it              { is_expected.to eq nil }
+    end
+
+    context 'when file has content' do
+      before do
+        Providers::GoogleDrive::ApiConnection
+          .default
+          .update_file_content(file_sync.id, 'new file content')
+        wait
+      end
+
+      it { expect(subject[0, 4]).to eq "\x89PNG".b }
+    end
+
+    context 'when file is folder' do
+      let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
+      before          { wait }
+      it              { is_expected.to eq nil }
+    end
+  end
+
   describe 'trashed file' do
     subject(:trashed_file) { @trashed_file }
 
@@ -136,9 +176,12 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       @trashed_file = described_class.new(file_sync.id)
     end
 
-    it { expect(trashed_file.name).to eq nil }
-    it { expect(trashed_file.parent_id).to eq nil }
-    it { is_expected.to be_deleted }
+    it 'is marked as deleted and returns nil values' do
+      is_expected.to be_deleted
+      expect(trashed_file.name).to eq nil
+      expect(trashed_file.parent_id).to eq nil
+      expect(trashed_file.thumbnail).to eq nil
+    end
   end
 
   describe 'deleted file' do
@@ -159,8 +202,11 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       @deleted_file = described_class.new(file_sync.id)
     end
 
-    it { expect(deleted_file.name).to eq nil }
-    it { expect(deleted_file.parent_id).to eq nil }
-    it { is_expected.to be_deleted }
+    it 'is marked as deleted and returns nil values' do
+      is_expected.to be_deleted
+      expect(deleted_file.name).to eq nil
+      expect(deleted_file.parent_id).to eq nil
+      expect(deleted_file.thumbnail).to eq nil
+    end
   end
 end

@@ -1,82 +1,192 @@
 // Styling for ProfilesController
 
 .c-folders {
-
-  // show file info icon on hover
-  .file:hover .info {
-    display: block;
-  }
-
+  // Wrapper for an individual file
   .file {
-    // scss-lint:disable NestingDepth
+    display: inline-block;
+    margin-bottom: 16px;
+    margin-left: 8px;
+    margin-right: 8px;
+    position: relative;
+    // on mobile, show 2 files
+    width: calc(50% - 20px);
+    z-index: 0;
 
-    .info {
-      height: 24px;
-      margin-left: -24px;
-      width: 24px;
-
-      // on mobile and tablet, hide info icon by default
-      @media #{$large-and-up} {
-        display: none;
-      }
-
-      // black color for icon on hover
-      &:hover {
-        // scss-lint:disable ImportantRule
-        color: color('shades', 'black') !important;
-      }
+    // on tablet, show 4 files
+    @media #{$medium-and-up} {
+      width: calc(25% - 20px);
     }
 
-    // links should take up full width of column
-    a:not(.info) {
-      display: block;
+    // on desktop, show 5 files
+    @media #{$large-and-up} {
+      width: calc(20% - 20px);
     }
 
-    // reduce opacity for deleted files
-    &.changed.deleted {
-      opacity: .5;
+    // on xl screen, show 6 files
+    @media #{$extra-large-and-up} {
+      width: calc(16.666666% - 20px);
     }
 
-    // bolden file name if file has been modified
+    // pre-render z-depth-3, but hide it
+    &::after {
+      // scss-lint:disable PlaceholderInExtend
+      @extend .z-depth-3;
+      content: '';
+      height: 100%;
+      left: 0;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      transition: opacity .3s ease-in-out;
+      width: 100%;
+      z-index: -1;
+    }
+
+    // bolden changed files
     &.changed .file-name {
       font-weight: bold;
     }
 
-    // specify positioning of indicators
-    .indicators {
-      top: -8px;
-      width: 120px;
-    }
+    // reduce opacity for deleted files
+    &.changed.deleted {
+      // scss-lint:disable NestingDepth
+      opacity: .5;
+      transition: opacity .3s;
 
-    // for docs, sheets, and such, use different height & width settings
-    &.document,
-    &.spreadsheet,
-    &.presentation,
-    &.drawing,
-    &.form {
-      .indicators {
-        top: 0;
-        width: 90px;
+      // show deleted files on hover
+      &:hover {
+        opacity: 1;
       }
     }
+  }
 
-    &.folder {
-      .indicators {
-        top: 4px;
-        width: 114px;
-      }
+  .file:hover {
+    // show box shadow
+    &::after {
+      opacity: 1;
     }
 
+    // white text with background color of div (green for added, orange for
+    // modified, etc...)
+    .file-title {
+      background-color: inherit;
+      color: color('shades', 'white');
+    }
+
+    // show file info icon on hover
+    .info {
+      display: block;
+    }
+  }
+
+  // The icon for accessing more information about a file
+  .file-info {
+    border-bottom-left-radius: 50%;
+    height: 24px;
+    margin-left: -24px;
+    opacity: .3;
+    position: relative;
+    transition: opacity .3s;
+    width: 24px;
+    z-index: 100;
+
+    // on desktop, hide info icon by default
+    @media #{$large-and-up} {
+      display: none;
+    }
+
+    // black color for icon on hover
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // links should take up full width of column
+  .file-link {
+    background-color: inherit;
+    color: inherit;
+    display: block;
+    overflow: hidden;
+    position: relative;
+  }
+
+  // the thumbnail is full size
+  .file-thumbnail {
+    display: block;
+    width: 100%;
+  }
+
+  // the fallback thumbnail lays on top of the thumbnail
+  .file-thumbnail-fallback {
+    height: 100%;
+    left: 0;
+    padding-bottom: 48px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    img {
+      height: auto;
+      margin: auto;
+      width: 50%;
+    }
+  }
+
+  // The wrapper for file icon and name
+  .file-title {
+    background-color: color('gray', 'lighten-5');
+    line-height: 48px;
+    margin-bottom: -48px;
+    overflow: hidden;
+    position: relative;
+    top: -48px;
+  }
+
+  // The name of the file
+  .file-name {
+    display: inline-block;
+    padding-right: 12px;
+    position: relative;
+    vertical-align: top;
+    width: calc(100% - 48px);
+  }
+
+  // The icon inside the file title that indicates whether the file is a doc,
+  // spreadsheet, or other
+  .file-icon {
+    height: 16px;
+    margin: 16px;
+    position: relative;
+    width: 16px;
+
+    img {
+      position: relative;
+      vertical-align: top;
+    }
+
+    // Light circle surrounding icon, visible on hover
+    &::before {
+      background: color('gray', 'lighten-5');
+      border-radius: 50%;
+      content: '';
+      display: block;
+      height: 30px;
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+    }
   }
 
   // contains the various file indicators (modification, etc...)
   .indicators {
-
     display: block;
     height: 0;
-    margin: auto;
+    left: 5px;
     position: relative;
     text-align: left;
+    top: 5px;
     z-index: 100;
 
     svg {

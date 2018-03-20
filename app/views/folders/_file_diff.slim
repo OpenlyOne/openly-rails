@@ -1,24 +1,31 @@
 / render a single file with diff/change indicator
 
-div.file[class=file_diff.symbolic_mime_type
-         class=html_class_for_file_diff_changes(file_diff.changes)]
+.file.z-depth-1[class=file_diff.symbolic_mime_type
+                class=html_class_for_file_diff_changes(file_diff.changes)
+                class=text_color_for_file_diff_change(file_diff.changes.first)
+                class=color_for_file_diff_change(file_diff.changes.first)
+                title=file_diff.name]
 
   = render partial: 'link_to_file_info',
            locals: { file_id: file_diff.external_id, project: project }
 
-  = link_to_file(file_diff, project) do
+  = link_to_file(file_diff, project, class: 'file-link') do
 
 
-    div.indicators
+    .indicators
       = render partial: 'file_diff_indicator',
                collection: file_diff.changes
 
-    = image_tag file_diff.icon,
+    = image_tag file_diff.thumbnail_image_or_fallback.url,
                 alt: 'File icon',
-                size: '100',
-                class: 'img-responsive'
-    br
-    span.file-name.truncate[
-      class=text_color_for_file_diff_change(file_diff.changes.first)
-    ]
-      = file_diff.name
+                size: '200',
+                class: 'file-thumbnail responsive-img'
+
+    - unless file_diff.thumbnail_image.present?
+      .file-thumbnail-fallback.valign-wrapper
+        = image_tag file_diff.icon, size: '100'
+
+    .file-title
+      .file-icon.left
+        = image_tag file_diff.icon, class: 'responsive-img'
+      .file-name.truncate = file_diff.name

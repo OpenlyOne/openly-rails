@@ -12,6 +12,7 @@ class FoldersController < ApplicationController
   # TODO: Find way to not manually set provider for all children while still
   #       avoiding N+1 query
   before_action :set_provider_for_children
+  before_action :preload_thumbnails_for_children
   # TODO: Sort children in query, not manually afterwards
   before_action :sort_children
   before_action :set_ancestors
@@ -24,6 +25,10 @@ class FoldersController < ApplicationController
   def show; end
 
   private
+
+  def preload_thumbnails_for_children
+    FileResource::Thumbnail.preload_for(@children)
+  end
 
   def set_ancestors
     @ancestors = @folder&.ancestors_in_project.to_a

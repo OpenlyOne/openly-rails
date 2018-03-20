@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'being resourceable' do
+  describe 'associations' do
+    it do
+      is_expected
+        .to belong_to(:thumbnail)
+        .class_name('FileResource::Thumbnail')
+        .dependent(false)
+    end
+  end
+
   describe '#folder?' do
     before do
       allow(resourceable)
@@ -64,6 +73,41 @@ RSpec.shared_examples 'being resourceable' do
     end
 
     it { is_expected.to eq :symbol }
+  end
+
+  describe '#thumbnail_image' do
+    subject(:thumbnail_image) { resourceable.thumbnail_image }
+    let(:thumbnail)           { nil }
+
+    before { allow(resourceable).to receive(:thumbnail).and_return thumbnail }
+
+    it { is_expected.to be nil }
+
+    context 'when thumbnail is present' do
+      let(:thumbnail) { instance_double FileResource::Thumbnail }
+      before { allow(thumbnail).to receive(:image).and_return 'image' }
+      it { is_expected.to eq 'image' }
+    end
+  end
+
+  describe '#thumbnail_image_or_fallback' do
+    subject(:thumbnail_image) { resourceable.thumbnail_image_or_fallback }
+    let(:image)               { 'image' }
+    let(:thumbnail)           { instance_double FileResource::Thumbnail }
+
+    before do
+      allow(resourceable).to receive(:thumbnail_image).and_return image
+      allow(FileResource::Thumbnail).to receive(:new).and_return thumbnail
+      allow(thumbnail).to receive(:image).and_return 'fallback-image'
+    end
+
+    it { is_expected.to eq 'image' }
+
+    context 'when image thumbnail_image is nil' do
+      let(:image) { nil }
+
+      it { is_expected.to eq 'fallback-image' }
+    end
   end
 
   describe '#provider_icon_class' do

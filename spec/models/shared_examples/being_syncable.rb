@@ -12,6 +12,7 @@ RSpec.shared_examples 'being syncable' do
       allow(sync_adapter).to receive(:mime_type).and_return 'mime_type'
       allow(sync_adapter).to receive(:content_version).and_return 'version'
       allow(sync_adapter).to receive(:parent_id).and_return 'parent_id'
+      allow(syncable).to receive(:thumbnail_from_sync_adapter)
       allow(sync_adapter).to receive(:deleted?).and_return false
     end
 
@@ -21,6 +22,7 @@ RSpec.shared_examples 'being syncable' do
     it { expect(syncable).to receive(:mime_type=).with('mime_type') }
     it { expect(syncable).to receive(:content_version=).with('version') }
     it { expect(syncable).to receive(:external_parent_id=).with('parent_id') }
+    it { expect(syncable).to receive(:thumbnail_from_sync_adapter) }
     it { expect(syncable).to receive(:is_deleted=).with(false) }
   end
 
@@ -102,6 +104,35 @@ RSpec.shared_examples 'being syncable' do
       let(:before_hook)     { existing_record.update(external_id: parent_id) }
 
       it { expect(syncable.parent).to eq existing_record }
+    end
+  end
+
+  describe '#thumbnail_from_sync_adapter' do
+    subject(:set_thumbnail) { syncable.send(:thumbnail_from_sync_adapter) }
+    let(:sync_adapter)  { instance_double syncable.send(:sync_adapter_class) }
+    let(:has_thumbnail) { true }
+
+    before do
+      allow(syncable).to receive(:sync_adapter).and_return sync_adapter
+      allow(sync_adapter).to receive(:thumbnail?).and_return has_thumbnail
+    end
+
+    it 'finds or initializes thumbnail by file resource' do
+      stub      = class_double FileResource::Thumbnail
+      thumbnail = instance_double FileResource::Thumbnail
+      expect(FileResource::Thumbnail)
+        .to receive(:create_with).with(raw_image: anything).and_return stub
+      expect(stub)
+        .to receive(:find_or_initialize_by_file_resource)
+        .with(syncable)
+        .and_return thumbnail
+      expect(syncable).to receive(:thumbnail=).with(thumbnail)
+      set_thumbnail
+    end
+
+    context 'when sync_adapter#thumbnail? is false' do
+      let(:has_thumbnail) { false }
+      it                  { is_expected.to be nil }
     end
   end
 end

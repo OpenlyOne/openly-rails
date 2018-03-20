@@ -40,6 +40,20 @@ RSpec.describe 'folders/show', type: :view do
     end
   end
 
+  it 'renders the thumbnails of files and folders' do
+    thumbnail = create :file_resource_thumbnail
+    children.each do |child|
+      allow(child.current_or_previous_snapshot)
+        .to receive(:thumbnail).and_return thumbnail
+    end
+
+    render
+
+    children.each do |child|
+      expect(rendered).to have_css "img[src='#{child.thumbnail_image.url}']"
+    end
+  end
+
   it 'renders the icons of files and folders' do
     render
     children.each do |child|
