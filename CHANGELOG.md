@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.16.1 (March 20, 2018)
+
+**Fixes:**
+- Show file infos icon when hovering files
+
 ## v0.16 (March 20, 2018)
 
 **Enhancements:**
