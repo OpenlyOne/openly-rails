@@ -125,7 +125,7 @@ namespace :deploy do
 
   before :starting,       :check_revision
   after  :finishing,      :compile_assets
-  after  :compile_assets, 'paperclip:build_missing_styles'
+  after  :migrate,        'paperclip:build_missing_styles'
   after  :finishing,      :cleanup
   after  :published,      :generate_500_html
 end
