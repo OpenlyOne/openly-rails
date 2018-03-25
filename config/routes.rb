@@ -44,6 +44,9 @@ Rails.application.routes.draw do
   # Redirect to login path when user is unauthenticated
   get '/login' => 'devise/sessions#new', :as => :new_account_session
 
+  # Routes for notifications
+  resources :notifications, only: %i[index show]
+
   # Routes for creating new projects
   get   '/projects/new' => 'projects#new',    as: :new_project
   post  '/projects/new' => 'projects#create', as: :projects

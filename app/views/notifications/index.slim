@@ -1,0 +1,16 @@
+.page-heading.primary-color.primary-color-text.z-depth-1
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h1 Notifications
+
+.container
+  .row
+    .col.s12
+      - if @notifications.present?
+        ul.collection.notifications.white
+          = render(partial: 'notification', collection: @notifications)
+      - else
+         p.flow-text You do not have any notifications.
+
+.spacing.v32px

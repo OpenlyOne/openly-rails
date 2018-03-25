@@ -8,21 +8,30 @@ module Notifying
     acts_as_notifiable :accounts,
                        targets: :notification_recipients,
                        notifier: :notification_source,
-                       dependent_notifications: :update_group_and_delete_all
+                       dependent_notifications: :update_group_and_delete_all,
+                       notifiable_path: :path_to_notifying_object
   end
 
   private
 
   def notification_recipients
-    Notification::Recipients.send(notification_method_name, self)
+    notification_helper.recipients
   end
 
   def notification_source
-    Notification::Source.send(notification_method_name, self)
+    notification_helper.source
   end
 
-  def notification_method_name
-    "for_#{model_name.singular}"
+  def path_to_notifying_object
+    notification_helper.path
+  end
+
+  def notification_helper
+    @notification_helper ||= notification_helper_class.new(self)
+  end
+
+  def notification_helper_class
+    "Notification::#{model_name}".constantize
   end
 
   def trigger_notifications

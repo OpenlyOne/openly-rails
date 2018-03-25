@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-RSpec.describe Notification::Recipients, type: :model do
-  describe '.for_revision(revision)' do
-    subject(:recipients)  { described_class.for_revision(revision) }
-    let(:revision)        { create(:revision, :drafted) }
+RSpec.describe Notification::Revision, type: :model do
+  subject(:notification)  { described_class.new(revision) }
+  let(:revision)          { create(:revision, :drafted) }
+
+  describe '#recipients' do
+    subject(:recipients)  { notification.recipients }
     let(:author)          { revision.author }
     let(:project)         { revision.project }
     let(:owner)           { project.owner }

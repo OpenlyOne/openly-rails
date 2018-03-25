@@ -1,0 +1,17 @@
+// Styling for NotificationsController
+
+.c-notifications {
+
+  .notification.collection-item {
+    min-height: 90px;
+  }
+
+  @media #{$medium-and-down} {
+    .notification .chip {
+      left: 12px;
+      margin: 0;
+      position: absolute;
+      top: 55px;
+    }
+  }
+}
