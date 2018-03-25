@@ -9,6 +9,12 @@ RSpec.describe Account, type: :model do
 
   describe 'associations' do
     it { is_expected.to have_one(:user).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:notifications)
+        .class_name('Notification')
+        .dependent(:delete_all)
+    end
   end
 
   describe 'attributes' do

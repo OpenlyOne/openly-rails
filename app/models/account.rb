@@ -7,6 +7,10 @@ class Account < ApplicationRecord
 
   # Associations
   has_one :user, class_name: 'Profiles::User', dependent: :destroy
+  # Override notification association with our own class name
+  has_many :notifications, class_name: 'Notification',
+                           as: :target,
+                           dependent: :delete_all
 
   # Devise
   devise :database_authenticatable, :registerable, :rememberable

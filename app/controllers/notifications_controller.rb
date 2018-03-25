@@ -19,6 +19,6 @@ class NotificationsController < ApplicationController
   private
 
   def notifications
-    current_account.notifications
+    Notification.where(target: current_account)
   end
 end
