@@ -1,0 +1,23 @@
+= link_to new_project_path do
+  .container
+    span New Project
+
+= link_to notifications_path do
+  .container
+    span
+      | Notifications
+      - notification_count = current_account.unopened_notification_count
+      - if notification_count.nonzero?
+        span.badge.primary-color.primary-color-text = notification_count
+
+= link_to profile_path(current_account.user) do
+  .container
+    span Profile
+
+= link_to edit_account_path do
+  .container
+    span Settings
+
+= link_to destroy_session_path do
+  .container
+    span Log Out
