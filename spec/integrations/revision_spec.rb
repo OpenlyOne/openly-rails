@@ -3,6 +3,48 @@
 RSpec.describe Revision, type: :model do
   subject(:revision) { build(:revision) }
 
+  describe 'notifications' do
+    subject(:revision) do
+      create(:revision, :drafted, project: project, author: author)
+    end
+    let(:project)       { create :project }
+    let(:owner)         { project.owner }
+    let(:collaborator1) { create :user }
+    let(:collaborator2) { create :user }
+    let(:collaborator3) { create :user }
+    let(:author)        { collaborator1 }
+    let(:publish)       { true }
+
+    before do
+      project.collaborators << [collaborator1, collaborator2, collaborator3]
+      revision.update(is_published: publish, title: 'Revision')
+    end
+
+    it 'creates a notification for owner + collaborators, except the author' do
+      expect(Notification.count).to eq 3
+      expect(Notification.all.map(&:target))
+        .to match_array [owner, collaborator2, collaborator3].map(&:account)
+      expect(Notification.all.map(&:notifier).uniq)
+        .to contain_exactly author
+      expect(Notification.all.map(&:notifiable).uniq)
+        .to contain_exactly revision
+    end
+
+    context 'when revision is not published' do
+      let(:publish) { false }
+
+      it 'does not create notifications' do
+        expect(Notification).to be_none
+      end
+    end
+
+    context 'when revision is destroyed' do
+      it 'deletes all notifications' do
+        expect { revision.destroy }.to change(Notification, :count).to(0)
+      end
+    end
+  end
+
   describe 'validation: parent must belong to same project' do
     let(:parent)        { create(:revision) }
     before              { revision.parent = parent }

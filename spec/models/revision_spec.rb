@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_notifying.rb'
+
 RSpec.describe Revision, type: :model do
   subject(:revision) { build_stubbed :revision }
+
+  it_should_behave_like 'being notifying' do
+    let(:notifying) { revision }
+  end
+
   describe 'associations' do
     it { is_expected.to belong_to(:project).dependent(false) }
     it do

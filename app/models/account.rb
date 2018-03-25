@@ -3,6 +3,8 @@
 # Top level model responsible for registration, authentication, settings, ...
 # Is never exposed to anyone but the account owner
 class Account < ApplicationRecord
+  acts_as_target
+
   # Associations
   has_one :user, class_name: 'Profiles::User', dependent: :destroy
 

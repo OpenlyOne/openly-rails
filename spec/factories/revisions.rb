@@ -8,6 +8,10 @@ FactoryGirl.define do
     summary       { Faker::Lorem.paragraph }
     is_published  false
 
+    trait :drafted do
+      is_published false
+    end
+
     trait :published do
       is_published true
     end
