@@ -62,6 +62,8 @@ gem 'activerecord-import', '~> 0.22'
 gem 'ahoy_matey', '~> 2.0'
 # Activity notification for in-app and email notifications
 gem 'activity_notification', '~> 1.4'
+# Hash IDs for notification IDs
+gem 'acts_as_hashids', '~> 0.1'
 
 group :development, :test do
   # We will use pry rails as our console
