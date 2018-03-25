@@ -60,6 +60,8 @@ gem 'paperclip', '~> 5.2'
 gem 'activerecord-import', '~> 0.22'
 # Ahoy for tracking page visits
 gem 'ahoy_matey', '~> 2.0'
+# Activity notification for in-app and email notifications
+gem 'activity_notification', '~> 1.4'
 
 group :development, :test do
   # We will use pry rails as our console
