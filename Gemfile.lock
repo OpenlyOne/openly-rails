@@ -135,6 +135,8 @@ GEM
       deep_merge (~> 1.1.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
+    css_parser (1.6.0)
+      addressable
     daemons (1.2.5)
     database_cleaner (1.6.1)
     declarative (0.0.10)
@@ -206,6 +208,7 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     hashdiff (0.3.7)
     hashids (1.0.4)
+    htmlentities (4.3.4)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     httpclient (2.8.3)
@@ -269,6 +272,13 @@ GEM
       mime-types
       mimemagic (~> 0.3.0)
     pg (0.21.0)
+    premailer (1.11.1)
+      addressable
+      css_parser (>= 1.6.0)
+      htmlentities (>= 4.0.0)
+    premailer-rails (1.10.2)
+      actionmailer (>= 3, < 6)
+      premailer (~> 1.7, >= 1.7.9)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -480,6 +490,7 @@ DEPENDENCIES
   nokogiri (~> 1.8.1)
   paperclip (~> 5.2)
   pg (~> 0.21)
+  premailer-rails (~> 1.10)
   pry-byebug (~> 3.4)
   pry-rails (~> 0.3)
   puma (= 3.8.1)

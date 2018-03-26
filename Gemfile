@@ -66,6 +66,8 @@ gem 'activity_notification', '~> 1.4'
 gem 'acts_as_hashids', '~> 0.1'
 # Email templates with Inky
 gem 'inky-rb', '~> 1.3', require: 'inky'
+# Stylesheet inlining for email
+gem 'premailer-rails', '~> 1.10'
 
 group :development, :test do
   # We will use pry rails as our console
