@@ -64,6 +64,8 @@ gem 'ahoy_matey', '~> 2.0'
 gem 'activity_notification', '~> 1.4'
 # Hash IDs for notification IDs
 gem 'acts_as_hashids', '~> 0.1'
+# Email templates with Inky
+gem 'inky-rb', '~> 1.3', require: 'inky'
 
 group :development, :test do
   # We will use pry rails as our console
