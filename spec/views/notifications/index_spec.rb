@@ -10,7 +10,7 @@ RSpec.describe 'notifications/index', type: :view do
 
   before do
     notifications.each do |notification|
-      allow(notification).to receive(:unopened?).and_return unopened
+      allow(notification).to receive(:unread?).and_return unopened
     end
   end
 

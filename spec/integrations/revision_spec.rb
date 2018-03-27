@@ -30,6 +30,13 @@ RSpec.describe Revision, type: :model do
         .to contain_exactly revision
     end
 
+    it 'sends an email to each notification recipient' do
+      expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+        .to match_array(
+          [owner, collaborator2, collaborator3].map(&:account).map(&:email)
+        )
+    end
+
     context 'when revision is not published' do
       let(:publish) { false }
 

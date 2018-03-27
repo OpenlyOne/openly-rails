@@ -9,7 +9,7 @@
     .col.s12
       - if @notifications.present?
         ul.collection.notifications.white
-          = render(partial: 'notification', collection: @notifications)
+          = render @notifications
       - else
          p.flow-text You do not have any notifications.
 

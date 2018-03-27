@@ -27,11 +27,7 @@ module Notifying
   end
 
   def notification_helper
-    @notification_helper ||= notification_helper_class.new(self)
-  end
-
-  def notification_helper_class
-    "Notification::#{model_name}".constantize
+    @notification_helper ||= Notification.notification_helper_for(self)
   end
 
   def trigger_notifications

@@ -26,4 +26,10 @@ class Account < ApplicationRecord
   # Validations
   validates :user, presence: true, on: :create
   devise :validatable
+
+  # Monkey patch activity_notification's notify_to, so that it returns an
+  # instance of Notification (instead of ActivityNotification::Notification)
+  def notify_to(notifying_object, options = {})
+    ::Notification.notify_to(self, notifying_object, options)
+  end
 end

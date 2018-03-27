@@ -12,4 +12,6 @@ html[xmlns='http://www.w3.org/1999/xhtml']
         td.center align="center" valign="top"
           center
             container
+              = render 'mailer/navbar'
               = yield
+              = render 'mailer/footer'

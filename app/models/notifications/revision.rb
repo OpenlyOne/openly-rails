@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-class Notification
+module Notifications
   # Helper for revision notifications
   class Revision
     include Rails.application.routes.url_helpers
     attr_accessor :revision
+    attr_writer :source
 
-    def initialize(revision)
+    def initialize(revision, source: nil)
       self.revision = revision
+      self.source = source
     end
 
     # The path to the notifying object
@@ -22,7 +24,12 @@ class Notification
 
     # The source/originator for this notification
     def source
-      revision.author
+      @source ||= revision.author
+    end
+
+    # The notification's title
+    def title
+      "#{source.name} created a revision in #{project.title}"
     end
 
     private

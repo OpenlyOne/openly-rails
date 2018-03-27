@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Notification::Revision, type: :model do
+RSpec.describe Notifications::Revision, type: :model do
   subject(:notification)  { described_class.new(revision) }
   let(:revision)          { create(:revision, :drafted) }
 
