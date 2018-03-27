@@ -2,6 +2,8 @@
 
 # Revisions represent a snapshot of a project with all its files
 class Revision < ApplicationRecord
+  include Notifying
+
   # Associations
   belongs_to :project
   belongs_to :parent, class_name: 'Revision', optional: true, autosave: false
@@ -15,8 +17,11 @@ class Revision < ApplicationRecord
                                       source: :file_resource_snapshot
   has_many :file_diffs, dependent: :destroy
 
-  # attributes
+  # Attributes
   attr_readonly :project_id, :parent_id, :author_id
+
+  # Callbacks
+  after_save :trigger_notifications, if: :publishing?
 
   # Validations
   # Require title for published revisions
@@ -83,5 +88,10 @@ class Revision < ApplicationRecord
 
   def published_revision_with_parent_exists?
     self.class.exists?(parent_id: parent_id, is_published: true)
+  end
+
+  # Return true if revision is currently being published
+  def publishing?
+    published? && saved_change_to_is_published?
   end
 end

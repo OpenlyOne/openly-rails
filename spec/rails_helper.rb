@@ -41,6 +41,7 @@ require 'vcr'
 # require only the support files necessary.
 #
 # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+require Rails.root.join('spec', 'support', 'action_mail_cleaner.rb')
 require Rails.root.join('spec', 'support', 'database_cleaner.rb')
 require Rails.root.join('spec', 'support', 'delayed_job_activator.rb')
 require Rails.root.join('spec', 'support', 'tmp_file_cleaner.rb')

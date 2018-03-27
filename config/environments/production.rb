@@ -56,7 +56,9 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
-  config.action_mailer.default_url_options = { host: 'upshift.one' }
+  config.action_mailer.default_url_options =
+    { host: 'upshift.one', protocol: 'https' }
+  config.action_mailer.asset_host = 'https://upshift.one'
 
   # Use a real queuing backend for Active Job (and separate queues per
   # environment)
@@ -68,6 +70,15 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to
   # raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.smtp_settings = {
+    address: ENV['SMTP_ADDRESS'],
+    enable_starttls_auto: true,
+    port: ENV['SMTP_PORT'],
+    authentication: ENV['SMTP_AUTHENTICATION'],
+    user_name: ENV['SMTP_USERNAME'],
+    password: ENV['SMTP_PASSWORD'],
+    openssl_verify_mode: 'none'
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

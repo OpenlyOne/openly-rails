@@ -39,4 +39,24 @@ nav {
     // Links should have a padding of base unit
     padding: 0 $base-unit;
   }
+
+  // Fix positioning to center the icons
+  li .material-icons {
+    padding-top: 3px;
+  }
+
+  // Set height of image to 32px
+  li img {
+    display: block;
+    height: 64px;
+    padding: 16px 0;
+  }
+
+  li .badge.unread {
+    margin-left: 13px;
+    margin-top: 8px;
+    min-width: unset;
+    position: absolute;
+    z-index: 10;
+  }
 }

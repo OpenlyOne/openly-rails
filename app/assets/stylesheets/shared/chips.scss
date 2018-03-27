@@ -7,8 +7,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  // Slim chips are 75% as high
-  &.slim {
+  @mixin slim {
     height: 24px;
     line-height: 24px;
 
@@ -21,6 +20,22 @@
       height: 100%;
       width: auto;
     }
+  }
+
+  &.slim-on-mobile {
+    @media #{$medium-and-down} {
+      @include slim;
+    }
+  }
+
+  // Slim chips are 75% as high
+  &.slim {
+    @include slim;
+  }
+
+  &.right {
+    margin-left: 5px;
+    margin-right: 0;
   }
 
   // SVG icon inside a chip

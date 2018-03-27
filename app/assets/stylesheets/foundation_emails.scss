@@ -1,0 +1,37 @@
+$body-background: #cacaca;  // medium gray background
+$primary-color: #1565c0;    // primary color same as app
+@import 'foundation-emails';
+
+// Title text
+.title {
+  font-size: 25px;
+  line-height: 30px;
+  margin: 0;
+  padding-left: 40px;
+}
+
+// Define wrapper colors
+.wrapper.primary {
+  background-color: $primary-color;
+}
+
+.wrapper.light-gray {
+  background-color: $light-gray;
+}
+
+// Define text colors
+.dark-gray-text {
+  color: $dark-gray;
+}
+
+.medium-gray-text {
+  color: $medium-gray;
+}
+
+.light-gray-text {
+  color: $light-gray;
+}
+
+.white-text {
+  color: $white;
+}

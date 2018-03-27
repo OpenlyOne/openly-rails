@@ -60,6 +60,14 @@ gem 'paperclip', '~> 5.2'
 gem 'activerecord-import', '~> 0.22'
 # Ahoy for tracking page visits
 gem 'ahoy_matey', '~> 2.0'
+# Activity notification for in-app and email notifications
+gem 'activity_notification', '~> 1.4'
+# Hash IDs for notification IDs
+gem 'acts_as_hashids', '~> 0.1'
+# Email templates with Inky
+gem 'inky-rb', '~> 1.3', require: 'inky'
+# Stylesheet inlining for email
+gem 'premailer-rails', '~> 1.10'
 
 group :development, :test do
   # We will use pry rails as our console

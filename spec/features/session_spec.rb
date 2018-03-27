@@ -72,9 +72,9 @@ feature 'Session' do
     # and I am on the homepage
     visit '/'
 
-    # when I click on 'Logout'
+    # when I click on 'Log Out'
     within 'nav' do
-      click_on 'Logout'
+      click_on 'Log Out'
     end
 
     # then I should be signed out

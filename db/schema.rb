@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180317221933) do
+ActiveRecord::Schema.define(version: 20180324033225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -152,6 +152,28 @@ ActiveRecord::Schema.define(version: 20180317221933) do
     t.index ["parent_id"], name: "index_file_resources_on_parent_id"
     t.index ["provider_id", "external_id"], name: "index_file_resources_on_provider_id_and_external_id", unique: true
     t.index ["thumbnail_id"], name: "index_file_resources_on_thumbnail_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.string "target_type", null: false
+    t.bigint "target_id", null: false
+    t.string "notifiable_type", null: false
+    t.bigint "notifiable_id", null: false
+    t.string "notifier_type"
+    t.bigint "notifier_id"
+    t.string "group_type"
+    t.bigint "group_id"
+    t.integer "group_owner_id"
+    t.string "key", null: false
+    t.text "parameters"
+    t.datetime "opened_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_owner_id"], name: "index_notifications_on_group_owner_id"
+    t.index ["group_type", "group_id"], name: "index_notifications_on_group_type_and_group_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
+    t.index ["notifier_type", "notifier_id"], name: "index_notifications_on_notifier_type_and_notifier_id"
+    t.index ["target_type", "target_id"], name: "index_notifications_on_target_type_and_target_id"
   end
 
   create_table "profiles", force: :cascade do |t|

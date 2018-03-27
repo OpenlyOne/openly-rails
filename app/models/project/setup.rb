@@ -3,6 +3,8 @@
 class Project
   # Track setup process of a project (primarily file import)
   class Setup < ApplicationRecord
+    include HasJobs
+
     # Associations
     belongs_to :project
 
@@ -17,7 +19,6 @@ class Project
 
     # Callbacks
     after_create :set_root_and_import_files, if: :id_from_link
-    after_destroy :destroy_all_jobs
 
     # Validations
     validates :project_id, uniqueness: { message: 'has already been set up' }
@@ -87,11 +88,6 @@ class Project
                       summary: 'Import Files from Google Drive.')
     end
 
-    # Destroy all jobs related to this setup process
-    def destroy_all_jobs
-      jobs.destroy_all
-    end
-
     # Validation: File behind link is accessible by tracking account
     def file_is_accessible
       return unless file.deleted?
@@ -122,12 +118,6 @@ class Project
         FileResources::GoogleDrive
         .find_or_initialize_by(external_id: id_from_link) # Find or initialize
         .tap { |file| file.pull if file.new_record? }     # Pull if new record
-    end
-
-    # Return the delayed jobs that belong to this setup process
-    def jobs
-      Delayed::Job.where(delayed_reference_id: id,
-                         delayed_reference_type: model_name.param_key)
     end
 
     # Validation: Link points to a Google Drive folder
