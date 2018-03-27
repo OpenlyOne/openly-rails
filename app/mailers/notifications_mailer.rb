@@ -4,6 +4,11 @@
 class NotificationsMailer < ApplicationMailer
   default from: 'Upshift One <notification@upshift.one>'
 
+  # Overwrite .send_notification_email to push reference to DeliveryJob
+  def self.send_notification_email(notification, options = {})
+    notification_email(notification, options.merge(reference: notification))
+  end
+
   # Send a notification email
   def notification_email(notification, _options = {})
     @notification = notification
@@ -11,8 +16,6 @@ class NotificationsMailer < ApplicationMailer
          subject: notification.subject_line,
          template_name: 'notification_email')
   end
-
-  alias send_notification_email notification_email
 
   private
 

@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.describe NotificationsMailer, type: :mailer do
+  describe '.send_notification_email(notification, options = {})' do
+    after { described_class.send_notification_email('notification', x: 'y') }
+
+    it 'calls .notification_email with reference' do
+      expect(described_class)
+        .to receive(:notification_email)
+        .with('notification', x: 'y', reference: 'notification')
+    end
+  end
+
   describe '#notification_email' do
     let(:notification) { build_stubbed :notification }
     let(:mail) { described_class.notification_email(notification).deliver_now }

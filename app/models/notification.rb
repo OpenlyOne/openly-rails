@@ -2,6 +2,8 @@
 
 # Wrapper class for activity notifications
 class Notification < ActivityNotification::Notification
+  include HasJobs
+
   acts_as_hashids secret: ENV['HASH_ID_SECRET']
 
   # Create a new instance of the notification helper for the notifying object

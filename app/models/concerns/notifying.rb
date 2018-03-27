@@ -8,11 +8,17 @@ module Notifying
     acts_as_notifiable :accounts,
                        targets: :notification_recipients,
                        notifier: :notification_source,
-                       dependent_notifications: :update_group_and_delete_all,
+                       dependent_notifications: :do_nothing,
                        notifiable_path: :path_to_notifying_object
+
+    before_destroy :destroy_notifications
   end
 
   private
+
+  def destroy_notifications
+    Notification.where(notifiable: self).destroy_all
+  end
 
   def notification_recipients
     notification_helper.recipients
