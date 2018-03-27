@@ -29,11 +29,11 @@ module CanSetProjectContext
   end
 
   # Find and set project within the scope. Raise 404 if project does not exist
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable Style/AccessorMethodName
   def set_project_by_handle_and_slug!(scope: Project)
     @project = scope.find_by_handle_and_slug!(profile_handle, profile_slug)
   end
-  # rubocop:enable Naming/AccessorMethodName
+  # rubocop:enable Style/AccessorMethodName
 
   # Find and set project where setup has been completed. Raise 404 if project
   # does not exist / is not complete

@@ -9,7 +9,13 @@ class ModelReferencePlugin < Delayed::Plugin
       # break if no arguments have been passed
       next unless job.payload_object.job_data['arguments'].is_a? Array
 
-      job_args        = job.payload_object.job_data['arguments'][0]
+      job_args =
+        job.payload_object.job_data['arguments'].find do |arg|
+          arg.is_a?(Hash) && arg.key?('reference_id')
+        end
+
+      next unless job_args
+
       reference_id    = job_args['reference_id']
       reference_type  = job_args['reference_type']
 

@@ -5,6 +5,8 @@ module Profiles
   # visible to other users, such as the user's name (as opposed to an account's
   # email and password, for example)
   class User < Base
+    acts_as_notifier
+
     # Adopt route key of Profiles::Base class
     # See: https://stackoverflow.com/a/9463495/6451879
     def self.model_name

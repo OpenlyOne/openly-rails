@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.17 (March 26, 2018)
+
+**New Features:**
+- Creating project revisions sends an in-app & email notification to your
+  project team
+
+**Enhancements:**
+- The navigation bar now has icons rather than labels
+
+**Fixes:**
+- Header input fields when editing profile and project show correct color
+  (white)
+
 ## v0.16.1 (March 20, 2018)
 
 **Fixes:**

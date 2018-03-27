@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/having_jobs.rb'
+
 RSpec.describe Project::Setup, type: :model do
   subject(:setup) { build_stubbed :project_setup }
+
+  it_should_behave_like 'having jobs' do
+    let(:owning_object) { setup }
+  end
 
   describe 'associations' do
     it { is_expected.to belong_to(:project) }
@@ -27,13 +33,6 @@ RSpec.describe Project::Setup, type: :model do
       after           { setup.save(validate: false) }
 
       it { is_expected.to receive(:set_root_and_import_files) }
-    end
-
-    context 'after destroy', :delayed_job do
-      subject(:setup) { create :project_setup, :with_link }
-      after           { setup.destroy }
-
-      it { is_expected.to receive(:destroy_all_jobs) }
     end
   end
 

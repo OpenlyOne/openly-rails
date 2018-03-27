@@ -3,8 +3,14 @@
 # Top level model responsible for registration, authentication, settings, ...
 # Is never exposed to anyone but the account owner
 class Account < ApplicationRecord
+  acts_as_target
+
   # Associations
   has_one :user, class_name: 'Profiles::User', dependent: :destroy
+  # Override notification association with our own class name
+  has_many :notifications, class_name: 'Notification',
+                           as: :target,
+                           dependent: :delete_all
 
   # Devise
   devise :database_authenticatable, :registerable, :rememberable
@@ -20,4 +26,10 @@ class Account < ApplicationRecord
   # Validations
   validates :user, presence: true, on: :create
   devise :validatable
+
+  # Monkey patch activity_notification's notify_to, so that it returns an
+  # instance of Notification (instead of ActivityNotification::Notification)
+  def notify_to(notifying_object, options = {})
+    ::Notification.notify_to(self, notifying_object, options)
+  end
 end

@@ -47,7 +47,7 @@ feature 'Account' do
 
     # when I go to the edit account page
     within 'nav' do
-      click_on 'Account'
+      click_on 'Settings'
     end
     # and update my password
     fill_in 'Current password', with: account.password
@@ -75,7 +75,7 @@ feature 'Account' do
 
     # when I go to the edit account page
     within 'nav' do
-      click_on 'Account'
+      click_on 'Settings'
     end
 
     # Disable Bullet because deleting will trigger an N+1 query
