@@ -17,6 +17,15 @@ class FileResource < ApplicationRecord
   # Attributes
   attr_readonly :provider_id
 
+  scope :order_by_name_with_folders_first, lambda { |table: nil|
+    table ||= table_name
+    folder_mime_type = Providers::GoogleDrive::MimeType.folder
+    order(
+      "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
+      "#{table}.name asc"
+    )
+  }
+
   # Validations
   validates :provider_id, presence: true
   validates :external_id, presence: true

@@ -14,8 +14,6 @@ class RevisionsController < ApplicationController
   # TODO: Find way to not manually set provider for all file diffs while still
   #       avoiding N+1 query
   before_action :set_provider_for_file_diffs, only: :new
-  # TODO: Sort children in query, not manually afterwards
-  before_action :sort_file_diffs, only: :new
 
   def index
     # TODO: Raise 404 if no revisions exist or redirect
@@ -68,10 +66,6 @@ class RevisionsController < ApplicationController
   def set_file_diffs
     @file_diffs =
       @revision.file_diffs.includes(:current_snapshot, :previous_snapshot).to_a
-  end
-
-  def sort_file_diffs
-    helpers.sort_file_diffs!(@file_diffs)
   end
 
   def set_provider_for_file_diffs
