@@ -75,7 +75,7 @@ group :development, :test do
   # and also as our debugger
   gem 'pry-byebug', '~> 3.4'
   # Use Rspec for testing
-  gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails', '~> 3.7'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.7'
   # Use FactoryGirl for generating factories
