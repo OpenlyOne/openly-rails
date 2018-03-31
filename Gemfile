@@ -39,7 +39,7 @@ gem 'figaro', '~> 1.1'
 # Use Devise for authentication
 gem 'devise', '~> 4.4'
 # Use CanCanCan for authorization (permission management)
-gem 'cancancan', '~> 2.0'
+gem 'cancancan', '~> 2.1'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
