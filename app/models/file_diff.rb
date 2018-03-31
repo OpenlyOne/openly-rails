@@ -7,10 +7,12 @@ class FileDiff < ApplicationRecord
   # Associations
   belongs_to :revision
   belongs_to :file_resource
-  belongs_to :current_snapshot, class_name: 'FileResource::Snapshot',
-                                optional: true
-  belongs_to :previous_snapshot, class_name: 'FileResource::Snapshot',
-                                 optional: true
+  belongs_to :current_snapshot, -> { with_provider_id },
+             class_name: 'FileResource::Snapshot',
+             optional: true
+  belongs_to :previous_snapshot, -> { with_provider_id },
+             class_name: 'FileResource::Snapshot',
+             optional: true
 
   # Join snapshot on the current snapshot or previous snapshot ID
   scope :joins_current_or_previous_snapshot, lambda {

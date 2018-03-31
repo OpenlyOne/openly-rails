@@ -20,6 +20,10 @@ module Resourceable
     provider_icon_class.for(mime_type: mime_type)
   end
 
+  def provider
+    @provider ||= Provider.find(provider_id)
+  end
+
   def symbolic_mime_type
     provider_mime_type_class.to_symbol(mime_type)
   end

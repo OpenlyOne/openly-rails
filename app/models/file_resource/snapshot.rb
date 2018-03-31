@@ -20,7 +20,6 @@ class FileResource
 
     # Attributes
     alias_attribute :snapshotable_id, :file_resource_id
-    attr_writer :provider
 
     # Scopes
     scope :joins_current_snapshot, lambda {
@@ -44,6 +43,13 @@ class FileResource
       joins(:committing_files).where(committed_files: { revision_id: revision })
     }
 
+    # Return snapshots with provider ID from file resource
+    scope :with_provider_id, lambda {
+      joins(:file_resource)
+        .select('file_resource_snapshots.*')
+        .select('file_resources.provider_id')
+    }
+
     # Validations
     validates :file_resource_id,  presence: true
     validates :name,              presence: true
@@ -57,8 +63,10 @@ class FileResource
               },
               if: :new_record?
 
-    def provider
-      @provider ||= file_resource.provider
+    # Return provider ID of file resource, either preloaded or from file
+    # resource
+    def provider_id
+      read_attribute('provider_id') || file_resource.provider_id
     end
   end
 end

@@ -73,10 +73,14 @@ RSpec.describe Stage::FileDiff, type: :model do
 
     before do
       committed_snapshots = class_double FileResource::Snapshot
+      committed_snapshots_with_provider = class_double FileResource::Snapshot
       allow(project).to receive(:revisions).and_return revisions
       allow(revision)
         .to receive(:committed_file_snapshots).and_return committed_snapshots
       allow(committed_snapshots)
+        .to receive(:with_provider_id)
+        .and_return committed_snapshots_with_provider
+      allow(committed_snapshots_with_provider)
         .to receive(:find_by).with(file_resource: 'file').and_return 'snapshot'
     end
 

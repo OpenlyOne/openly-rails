@@ -87,10 +87,6 @@ class FileResource < ApplicationRecord
     Object.const_get("#{provider}::MimeType").folder?(mime_type)
   end
 
-  def provider
-    "Providers::#{provider_name}".constantize
-  end
-
   # Return all children that are folders
   def subfolders
     children.select(&:folder?)
@@ -121,9 +117,5 @@ class FileResource < ApplicationRecord
 
   def parent_association_loaded?
     association(:parent).loaded?
-  end
-
-  def provider_name
-    self.class.providers[provider_id]
   end
 end

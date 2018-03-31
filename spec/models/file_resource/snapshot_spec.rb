@@ -32,7 +32,6 @@ RSpec.describe FileResource::Snapshot, type: :model do
 
   describe 'attributes' do
     it { is_expected.to respond_to(:snapshotable_id) }
-    it { is_expected.to respond_to(:provider=) }
   end
 
   describe 'validations' do
@@ -82,24 +81,27 @@ RSpec.describe FileResource::Snapshot, type: :model do
     end
   end
 
-  describe '#provider' do
-    subject(:provider)  { snapshot.provider }
-    let(:provider_ivar) { 'provider-ivar' }
+  describe '#provider_id' do
+    subject         { snapshot.provider_id }
+    let(:preloaded) { 'preloaded-provider-id' }
 
-    before { snapshot.instance_variable_set :@provider, provider_ivar }
+    before do
+      allow(snapshot)
+        .to receive(:read_attribute).with('provider_id').and_return preloaded
+    end
 
-    it { is_expected.to eq 'provider-ivar' }
+    it { is_expected.to eq 'preloaded-provider-id' }
 
-    context 'when @provider is nil' do
-      let(:provider_ivar) { nil }
+    context 'when provider_id is not preloaded' do
+      let(:preloaded) { nil }
 
       before do
         file_resource = instance_double FileResource
         allow(snapshot).to receive(:file_resource).and_return file_resource
-        allow(file_resource).to receive(:provider).and_return 'provider-of-file'
+        allow(file_resource).to receive(:provider_id).and_return 'provider-id'
       end
 
-      it { is_expected.to eq 'provider-of-file' }
+      it { is_expected.to eq 'provider-id' }
     end
   end
 end
