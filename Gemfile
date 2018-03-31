@@ -93,6 +93,8 @@ group :development do
   # the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  # Speed up rspec
+  gem 'spring-commands-rspec', '~> 1.0'
   # Automatically run tests when files update
   gem 'guard-rspec', '~> 4.7', require: false
   # Capistrano for deployment
