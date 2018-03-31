@@ -31,7 +31,7 @@ gem 'turbolinks', '~> 5.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 # Material Design
-gem 'materialize-sass', '~> 1.0.0alpha'
+gem 'materialize-sass', '~> 1.0.0beta'
 # MaterializeCSS requires JQuery
 gem 'jquery-rails', '~> 4.3'
 # Use figaro for managing ENV variables
