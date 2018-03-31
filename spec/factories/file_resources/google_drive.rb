@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :file_resources_google_drive,
           class: FileResources::GoogleDrive,
           parent: :file_resource do

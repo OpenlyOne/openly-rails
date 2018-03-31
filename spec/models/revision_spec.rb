@@ -17,6 +17,7 @@ RSpec.describe Revision, type: :model do
         .class_name('Revision')
         .autosave(false)
         .dependent(false)
+        .optional
     end
     it do
       is_expected

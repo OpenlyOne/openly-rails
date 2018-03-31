@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :google_drive_file, class: Google::Apis::DriveV3::File do
     transient do
       type { %w[document spreadsheet folder].sample }

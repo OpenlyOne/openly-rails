@@ -5,7 +5,7 @@
 # command (or created alongside the database with db:setup).
 
 require 'faker'
-require 'factory_girl_rails'
+require 'factory_bot_rails'
 
 # Clear the contents of the file storage
 FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
@@ -20,7 +20,7 @@ end
 
 # Create three projects per user
 Profiles::User.find_each do |user|
-  3.times.with_index do |i|
-    FactoryGirl.create :project, owner: user, slug: "project-#{i + 1}"
+  3.times do |i|
+    FactoryBot.create :project, owner: user, slug: "project-#{i + 1}"
   end
 end

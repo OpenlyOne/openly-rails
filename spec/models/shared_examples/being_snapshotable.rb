@@ -7,7 +7,8 @@ RSpec.shared_examples 'being snapshotable' do
     end
     it do
       is_expected.to belong_to(:current_snapshot)
-        .class_name('FileResource::Snapshot').validate(false).autosave(false)
+        .class_name('FileResource::Snapshot')
+        .validate(false).autosave(false).optional
     end
   end
 

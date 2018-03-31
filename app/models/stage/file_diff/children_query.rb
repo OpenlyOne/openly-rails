@@ -72,7 +72,7 @@ module Stage
 
       # The last revision in the project
       def last_revision
-        @last_committed_snapshot_for ||= project.revisions.last
+        @last_revision ||= project.revisions.last
       end
 
       # Return all snapshots staged in project that belong to parent

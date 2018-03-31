@@ -10,7 +10,8 @@ RSpec.describe Ahoy::Event, type: :model do
     end
     it do
       is_expected
-        .to belong_to(:user).class_name('Profiles::User').dependent(false)
+        .to belong_to(:user)
+        .class_name('Profiles::User').dependent(false).optional
     end
   end
 end

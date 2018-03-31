@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :file_resource_thumbnail, class: 'FileResource::Thumbnail' do
     provider_id     0
     external_id     { Faker::Crypto.unique.sha1 }

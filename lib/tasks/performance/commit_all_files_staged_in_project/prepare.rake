@@ -6,7 +6,7 @@ namespace :performance do
     task prepare: :test_environment do
       puts 'Preparing database'
 
-      snapshot_id = FactoryGirl.create(:file_resource_snapshot).id
+      snapshot_id = FactoryBot.create(:file_resource_snapshot).id
       batch_size = 10_000
       columns = %i[provider_id external_id mime_type name content_version
                    current_snapshot_id]
@@ -23,7 +23,7 @@ namespace :performance do
 
       puts 'Staging all file resources'
 
-      project = FactoryGirl.create(:project)
+      project = FactoryBot.create(:project)
       rows = FileResource.all.pluck(:id).map { |v| [v].push(project.id) }
       StagedFile.import %i[file_resource_id project_id], rows, validate: false
 
