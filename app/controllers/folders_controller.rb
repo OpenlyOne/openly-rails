@@ -13,8 +13,6 @@ class FoldersController < ApplicationController
   #       avoiding N+1 query
   before_action :set_provider_for_children
   before_action :preload_thumbnails_for_children
-  # TODO: Sort children in query, not manually afterwards
-  before_action :sort_children
   before_action :set_ancestors
   before_action :set_user_can_commit_changes
 
@@ -60,9 +58,5 @@ class FoldersController < ApplicationController
 
   def set_user_can_commit_changes
     @user_can_commit_changes = can?(:new, :revision, @project)
-  end
-
-  def sort_children
-    helpers.sort_file_diffs!(@children)
   end
 end

@@ -154,15 +154,13 @@ RSpec.describe Stage::FileDiff, type: :model do
       allow(diff).to receive(:project).and_return 'project'
       allow(diff).to receive(:file_resource_id).and_return 'file-id'
 
-      children = instance_double Stage::FileDiff::Children
-      allow(Stage::FileDiff::Children)
+      allow(Stage::FileDiff::ChildrenQuery)
         .to receive(:new)
         .with(project: 'project', parent_id: 'file-id')
-        .and_return children
-      allow(children).to receive(:as_diffs).and_return 'diffs'
+        .and_return 'query'
     end
 
-    it { is_expected.to eq 'diffs' }
+    it { is_expected.to eq 'query' }
   end
 
   describe '#first_three_ancestors' do

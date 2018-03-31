@@ -63,9 +63,10 @@ module Stage
                    project: project)
     end
 
-    # Return this file's children as an array of Stage::FileDiff instances
+    # Return this file's children as an array of FileDiff instances
     def children_as_diffs
-      Children.new(project: project, parent_id: file_resource_id).as_diffs
+      @children_as_diffs ||=
+        ChildrenQuery.new(project: project, parent_id: file_resource_id)
     end
 
     # Return the first three ancestors (names only) of this diff

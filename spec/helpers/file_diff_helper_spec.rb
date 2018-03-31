@@ -115,25 +115,6 @@ RSpec.describe FileDiffHelper, type: :helper do
     end
   end
 
-  describe '#sort_file_diff!s(file_diffs)' do
-    subject(:method)  { helper.sort_file_diffs!(diffs) }
-    let(:diffs)       { [d1, d2, d3] }
-    let(:d1)          { instance_double FileDiff }
-    let(:d2)          { instance_double FileDiff }
-    let(:d3)          { instance_double FileDiff }
-
-    before do
-      allow(d1).to receive(:current_or_previous_snapshot).and_return 's1'
-      allow(d2).to receive(:current_or_previous_snapshot).and_return 's2'
-      allow(d3).to receive(:current_or_previous_snapshot).and_return 's3'
-      allow(helper).to receive(:sort_order_for_files).with('s1').and_return 3
-      allow(helper).to receive(:sort_order_for_files).with('s2').and_return 2
-      allow(helper).to receive(:sort_order_for_files).with('s3').and_return 1
-    end
-
-    it { is_expected.to eq [d3, d2, d1] }
-  end
-
   describe '#text_color_for_file_diff_change(file_diff_change)' do
     subject(:method) { text_color_for_file_diff_change(file_diff_change) }
 
