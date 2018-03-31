@@ -55,7 +55,7 @@ gem 'daemons', '~> 1.2'
 # Error-tracking with Rollbar
 gem 'rollbar', '~> 2.15'
 # Paperclip for attachments
-gem 'paperclip', '~> 5.2'
+gem 'paperclip', '~> 6.0'
 # ActiveRecord-Import for bulk creation of records
 gem 'activerecord-import', '~> 0.22'
 # Ahoy for tracking page visits
