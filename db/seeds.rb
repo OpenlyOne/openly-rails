@@ -20,7 +20,7 @@ end
 
 # Create three projects per user
 Profiles::User.find_each do |user|
-  3.times.with_index do |i|
+  3.times do |i|
     FactoryBot.create :project, owner: user, slug: "project-#{i + 1}"
   end
 end
