@@ -43,7 +43,7 @@ gem 'cancancan', '~> 2.1'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
-gem 'config', '~> 1.4'
+gem 'config', '~> 1.7'
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
