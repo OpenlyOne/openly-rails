@@ -25,12 +25,14 @@ RSpec.describe FileDiff, type: :model do
         .to belong_to(:current_snapshot)
         .class_name('FileResource::Snapshot')
         .dependent(false)
+        .optional
     end
     it do
       is_expected
         .to belong_to(:previous_snapshot)
         .class_name('FileResource::Snapshot')
         .dependent(false)
+        .optional
     end
   end
 

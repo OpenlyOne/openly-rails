@@ -120,7 +120,7 @@ group :test do
   # Additional RSpec matchers
   gem 'shoulda-matchers', '~> 3.1',
       git: 'https://github.com/thoughtbot/shoulda-matchers.git',
-      branch: 'rails-5'
+      branch: 'master'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
   # VCR for capturing HTTP requests during tests

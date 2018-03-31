@@ -9,6 +9,7 @@ RSpec.shared_examples 'being a file resource' do
         .to belong_to(:parent)
         .class_name(described_class.model_name.to_s)
         .dependent(false)
+        .optional
     end
     it do
       is_expected

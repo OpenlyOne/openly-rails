@@ -7,6 +7,7 @@ RSpec.shared_examples 'being resourceable' do
         .to belong_to(:thumbnail)
         .class_name('FileResource::Thumbnail')
         .dependent(false)
+        .optional
     end
   end
 

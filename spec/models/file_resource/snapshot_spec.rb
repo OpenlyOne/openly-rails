@@ -19,7 +19,7 @@ RSpec.describe FileResource::Snapshot, type: :model do
     it do
       is_expected
         .to belong_to(:parent).class_name('FileResource')
-        .validate(false).dependent(false)
+        .validate(false).dependent(false).optional
     end
     it do
       is_expected
