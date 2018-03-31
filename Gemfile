@@ -116,7 +116,7 @@ group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
-  gem 'capybara', '~> 2.14'
+  gem 'capybara', '~> 2.18'
   # Additional RSpec matchers
   gem 'shoulda-matchers', '~> 3.1',
       git: 'https://github.com/thoughtbot/shoulda-matchers.git',
