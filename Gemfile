@@ -98,8 +98,8 @@ group :development do
   # Automatically run tests when files update
   gem 'guard-rspec', '~> 4.7', require: false
   # Capistrano for deployment
-  gem 'capistrano',               '~> 3.9', require: false
-  gem 'capistrano-bundler',       '~> 1.2', require: false
+  gem 'capistrano',               '~> 3.10', require: false
+  gem 'capistrano-bundler',       '~> 1.3', require: false
   gem 'capistrano-figaro-yml',    '~> 1.0', require: false
   gem 'capistrano-rails',         '~> 1.3', require: false
   gem 'capistrano-rvm',           '~> 0.1', require: false
