@@ -109,7 +109,7 @@ group :development do
   # Capistrano integration for DelayedJob
   gem 'capistrano3-delayed-job', '~> 1.7'
   # Generate favicons
-  gem 'rails_real_favicon'
+  gem 'rails_real_favicon', '~> 0.0.11'
 end
 
 group :test do
