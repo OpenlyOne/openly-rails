@@ -47,7 +47,7 @@ gem 'config', '~> 1.7'
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
-gem 'google-api-client', '~> 0.17'
+gem 'google-api-client', '~> 0.19'
 # Delayed job for processing background jobs, such as Google Drive requests
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
