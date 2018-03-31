@@ -73,7 +73,7 @@ group :development, :test do
   # We will use pry rails as our console
   gem 'pry-rails', '~> 0.3'
   # and also as our debugger
-  gem 'pry-byebug', '~> 3.4'
+  gem 'pry-byebug', '~> 3.6'
   # Use Rspec for testing
   gem 'rspec-rails', '~> 3.7'
   # We will use bullet to avoid N+1 queries
