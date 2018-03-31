@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :profiles_base do
     name    { Faker::Name.name }
     about   { Faker::Lorem.paragraph }

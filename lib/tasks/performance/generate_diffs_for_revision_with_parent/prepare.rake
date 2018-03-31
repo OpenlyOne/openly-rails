@@ -26,7 +26,7 @@ end
 
 # rubocop:disable Metrics/MethodLength
 def create_file_resources
-  snapshot_id = FactoryGirl.create(:file_resource_snapshot).id
+  snapshot_id = FactoryBot.create(:file_resource_snapshot).id
   batch_size = 1_000
   columns = %i[provider_id external_id mime_type name content_version
                current_snapshot_id]
@@ -44,7 +44,7 @@ end
 # rubocop:enable Metrics/MethodLength
 
 def create_revision_with_all_file_resources_committed(parent: nil)
-  revision = FactoryGirl.create(:revision, parent: parent)
+  revision = FactoryBot.create(:revision, parent: parent)
 
   columns = %i[file_resource_id file_resource_snapshot_id revision_id]
   rows = FileResource.all.pluck(:id, :current_snapshot_id)

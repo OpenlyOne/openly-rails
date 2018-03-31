@@ -79,7 +79,7 @@ group :development, :test do
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.7'
   # Use FactoryGirl for generating factories
-  gem 'factory_girl_rails', '~> 4.8'
+  gem 'factory_bot_rails', '~> 4.8'
   # Quickly generate fake names, urls, etc
   gem 'faker', '~> 1.8'
 end

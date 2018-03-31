@@ -118,8 +118,8 @@ RSpec.configure do |config|
   config.include Paperclip::Shoulda::Matchers
 
   # add this line at the bottom of the config section
-  # it saves us time when using FactoryGirl methods.
-  config.include FactoryGirl::Syntax::Methods
+  # it saves us time when using FactoryBot methods.
+  config.include FactoryBot::Syntax::Methods
 end
 
 # Configure Shoulda Matchers
