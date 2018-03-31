@@ -65,7 +65,8 @@ feature 'Folder' do
     click_on 'Files'
 
     # then I should see files in the correct order
-    file_order = folders.map(&:name).sort + files.map(&:name).sort
+    file_order = FileResource.where(id: folders).order(:name).pluck(:name) +
+                 FileResource.where(id: files).order(:name).pluck(:name)
     expect(page.all('.file').map(&:text)).to eq file_order
   end
 
