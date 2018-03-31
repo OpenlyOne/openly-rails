@@ -24,6 +24,11 @@ class Revision < ApplicationRecord
   # Callbacks
   after_save :trigger_notifications, if: :publishing?
 
+  # Scopes
+  scope :preload_file_diffs_with_snapshots, lambda {
+    preload(file_diffs: %i[current_snapshot previous_snapshot])
+  }
+
   # Validations
   # Require title for published revisions
   validates :title, presence: true, if: :published?
@@ -51,6 +56,11 @@ class Revision < ApplicationRecord
              .with_current_snapshot             # ignore files without snapshot
              .select(id, :id, :current_snapshot_id)
     )
+  end
+
+  # Return the array of individual changes of this revision
+  def file_changes
+    @file_changes ||= file_diffs.flat_map(&:changes)
   end
 
   # Calculate and cache file diffs from parent revision to self

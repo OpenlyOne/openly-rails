@@ -147,47 +147,16 @@ RSpec.shared_examples 'being diffing' do
 
   describe '#changes' do
     subject { diffing.changes }
-    let(:is_added)    { false }
-    let(:is_deleted)  { false }
-    let(:is_modified) { false }
-    let(:is_moved)    { false }
-    let(:is_renamed)  { false }
 
     before do
-      allow(diffing).to receive(:added?).and_return is_added
-      allow(diffing).to receive(:deleted?).and_return is_deleted
-      allow(diffing).to receive(:modified?).and_return is_modified
-      allow(diffing).to receive(:moved?).and_return is_moved
-      allow(diffing).to receive(:renamed?).and_return is_renamed
+      allow(diffing).to receive(:changes_as_symbols).and_return %i[a b]
+      allow(FileDiff::Change)
+        .to receive(:new).with(diff: diffing, type: :a).and_return :c1
+      allow(FileDiff::Change)
+        .to receive(:new).with(diff: diffing, type: :b).and_return :c2
     end
 
-    it { is_expected.to eq [] }
-
-    context 'when it is added, renamed, and deleted' do
-      let(:is_added)    { true }
-      let(:is_renamed)  { true }
-      let(:is_deleted)  { true }
-      it { is_expected.to contain_exactly :added, :renamed, :deleted }
-    end
-
-    context 'when file is moved, renamed, and modified' do
-      let(:is_moved)    { true }
-      let(:is_renamed)  { true }
-      let(:is_modified) { true }
-
-      it 'the first change is moved' do
-        expect(subject.first).to eq :moved
-      end
-    end
-
-    context 'when file is renamed and modified' do
-      let(:is_renamed)  { true }
-      let(:is_modified) { true }
-
-      it 'the first change is renamed' do
-        expect(subject.first).to eq :renamed
-      end
-    end
+    it { is_expected.to eq %i[c1 c2] }
   end
 
   describe '#deleted?' do
@@ -320,6 +289,51 @@ RSpec.shared_examples 'being diffing' do
     context 'when diffing is deleted' do
       let(:is_deleted) { true }
       it { is_expected.not_to be_updated }
+    end
+  end
+
+  describe '#changes_as_symbols' do
+    subject { diffing.send :changes_as_symbols }
+    let(:is_added)    { false }
+    let(:is_deleted)  { false }
+    let(:is_modified) { false }
+    let(:is_moved)    { false }
+    let(:is_renamed)  { false }
+
+    before do
+      allow(diffing).to receive(:added?).and_return is_added
+      allow(diffing).to receive(:deleted?).and_return is_deleted
+      allow(diffing).to receive(:modified?).and_return is_modified
+      allow(diffing).to receive(:moved?).and_return is_moved
+      allow(diffing).to receive(:renamed?).and_return is_renamed
+    end
+
+    it { is_expected.to eq [] }
+
+    context 'when it is added, renamed, and deleted' do
+      let(:is_added)    { true }
+      let(:is_renamed)  { true }
+      let(:is_deleted)  { true }
+      it { is_expected.to contain_exactly :added, :renamed, :deleted }
+    end
+
+    context 'when file is moved, renamed, and modified' do
+      let(:is_moved)    { true }
+      let(:is_renamed)  { true }
+      let(:is_modified) { true }
+
+      it 'the first change is moved' do
+        expect(subject.first).to eq :moved
+      end
+    end
+
+    context 'when file is renamed and modified' do
+      let(:is_renamed)  { true }
+      let(:is_modified) { true }
+
+      it 'the first change is renamed' do
+        expect(subject.first).to eq :renamed
+      end
     end
   end
 end

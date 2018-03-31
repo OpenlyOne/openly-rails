@@ -1,9 +1,9 @@
 / Renders the changes of a file (file diffs)
 
 .revision-diff
-  - if file_diffs.any?
-    = render partial: 'revisions/file_diff',
-             collection: file_diffs,
+  - if file_changes.any?
+    = render partial: 'revisions/file_change',
+             collection: file_changes,
              locals: { project: project,
                        show_link_to_file_info: show_link_to_file_info,
                        all_links_in_new_tab: all_links_in_new_tab }

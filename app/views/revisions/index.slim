@@ -2,17 +2,8 @@
 
   .spacing.v32px
 
-  - @revisions.each do |revision|
-
-    = render partial: 'revision_with_diff',
-             object: revision,
-             locals: { project: @project,
-                       profile: revision.author,
-                       file_diffs: revision.file_diffs,
-                       show_link_to_file_info: true }
-
-    .spacing.v16px
-    .divider
-    .spacing.v16px
+  = render partial: 'revision',
+           collection: @revisions,
+           locals: { project: @project, show_link_to_file_info: true }
 
 .spacing.v48px

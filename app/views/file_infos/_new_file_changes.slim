@@ -8,9 +8,9 @@ h3.with-separator
 
 - if staged_file_diff.changes.any?
 
-  = render partial: 'revisions/revision_diff',
+  = render partial: 'revisions/file_changes',
+           object: staged_file_diff.changes,
            locals: { project: project,
-                     file_diffs: [staged_file_diff],
                      show_link_to_file_info: false,
                      all_links_in_new_tab: false }
 

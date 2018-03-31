@@ -40,9 +40,9 @@
     .spacing.v1
 
     h3: span Review Changes
-    = render partial: 'revision_diff',
+    = render partial: 'file_changes',
+             object: @revision.file_changes,
              locals: { project: @project,
-                       file_diffs: @file_diffs,
                        show_link_to_file_info: true,
                        all_links_in_new_tab: true }
 

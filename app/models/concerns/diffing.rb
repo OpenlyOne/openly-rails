@@ -44,13 +44,11 @@ module Diffing
   end
 
   # Return the changes that have been made from previous_snapshot to
-  # current_snapshot. When file has been updated (moved, renamed, or modified),
-  # moved must come first in the list of changes, renamed second, and modified
-  # last.
+  # current_snapshot as an array of FileDiff::Change instances.
   def changes
     @changes ||=
-      %i[added deleted moved renamed modified].select do |change|
-        send("#{change}?")
+      changes_as_symbols.map do |type|
+        FileDiff::Change.new(diff: self, type: type)
       end
   end
 
@@ -80,5 +78,16 @@ module Diffing
 
   def current_or_previous_snapshot
     current_snapshot || previous_snapshot
+  end
+
+  private
+
+  # Return changes made to this diff as an array of symbols. When file has been
+  # updated (moved, renamed, or modified), moved must come first in the list of
+  # changes, renamed second, and modified last.
+  def changes_as_symbols
+    %i[added deleted moved renamed modified].select do |change|
+      send("#{change}?")
+    end
   end
 end

@@ -5,10 +5,11 @@ RSpec.describe 'revisions/new', type: :view do
   let(:revision)      { build_stubbed :revision, project: project }
   let(:file_diffs)    { [] }
 
+  before { allow(revision).to receive(:file_diffs).and_return(file_diffs) }
+
   before do
     assign(:project, project)
     assign(:revision, revision)
-    assign(:file_diffs, file_diffs)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
   end

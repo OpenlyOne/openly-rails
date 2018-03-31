@@ -104,7 +104,7 @@ RSpec.describe 'file_infos/index', type: :view do
 
     context 'when staged file diff has uncaptured changes' do
       before do
-        allow(staged_file_diff).to receive(:changes)
+        allow(staged_file_diff).to receive(:changes_as_symbols)
           .and_return %i[added modified moved renamed deleted]
         allow(staged_file_diff).to receive(:ancestor_path).and_return 'Home'
       end

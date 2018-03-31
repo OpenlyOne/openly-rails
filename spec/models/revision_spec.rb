@@ -111,6 +111,20 @@ RSpec.describe Revision, type: :model do
     end
   end
 
+  describe '#file_changes' do
+    subject { revision.file_changes }
+
+    before do
+      diff1 = instance_double FileDiff
+      diff2 = instance_double FileDiff
+      allow(revision).to receive(:file_diffs).and_return [diff1, diff2]
+      allow(diff1).to receive(:changes).and_return %w[c1 c2]
+      allow(diff2).to receive(:changes).and_return %w[c3]
+    end
+
+    it { is_expected.to eq %w[c1 c2 c3] }
+  end
+
   describe '#generate_diffs' do
     subject(:generate_diffs)  { revision.generate_diffs }
     let(:calculator)          { instance_double Revision::FileDiffsCalculator }

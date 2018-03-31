@@ -10,7 +10,6 @@ class RevisionsController < ApplicationController
   before_action :authorize_action, except: :index
   before_action :build_revision, only: :new
   before_action :find_revision, only: :create
-  before_action :set_file_diffs, only: :new
 
   def index
     # TODO: Raise 404 if no revisions exist or redirect
@@ -18,7 +17,8 @@ class RevisionsController < ApplicationController
       @project
       .revisions
       .order(id: :desc)
-      .includes(:author, file_diffs: %i[current_snapshot previous_snapshot])
+      .includes(:author)
+      .preload_file_diffs_with_snapshots
   end
 
   def new; end
@@ -31,7 +31,6 @@ class RevisionsController < ApplicationController
         profile_project_root_folder_path(@project.owner, @project)
       )
     else
-      set_file_diffs
       render :new
     end
   end
@@ -47,7 +46,8 @@ class RevisionsController < ApplicationController
   end
 
   def build_revision
-    @revision = @project.revisions.create_draft_and_commit_files!(current_user)
+    revision = @project.revisions.create_draft_and_commit_files!(current_user)
+    find_revision_by_id(revision.id)
   end
 
   def can_can_access_denied(exception)
@@ -55,14 +55,13 @@ class RevisionsController < ApplicationController
   end
 
   def find_revision
-    @revision = Revision.find_by!(id: revision_params[:id],
-                                  project: @project,
-                                  author: current_user)
+    find_revision_by_id(revision_params[:id])
   end
 
-  def set_file_diffs
-    @file_diffs =
-      @revision.file_diffs.includes(:current_snapshot, :previous_snapshot).to_a
+  def find_revision_by_id(id)
+    @revision =
+      Revision.preload_file_diffs_with_snapshots
+              .find_by!(id: id, project: @project, author: current_user)
   end
 
   def revision_params
