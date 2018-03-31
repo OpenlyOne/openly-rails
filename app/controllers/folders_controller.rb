@@ -9,9 +9,6 @@ class FoldersController < ApplicationController
   before_action :set_folder_from_param, only: :show
   before_action :set_folder_from_root, only: :root
   before_action :set_children
-  # TODO: Find way to not manually set provider for all children while still
-  #       avoiding N+1 query
-  before_action :set_provider_for_children
   before_action :preload_thumbnails_for_children
   before_action :set_ancestors
   before_action :set_user_can_commit_changes
@@ -48,12 +45,6 @@ class FoldersController < ApplicationController
 
     @folder = Stage::FileDiff.new(file_resource_id: @project.root_folder.id,
                                   project: @project)
-  end
-
-  def set_provider_for_children
-    @children.each do |child|
-      child.provider = @project.root_folder.provider
-    end
   end
 
   def set_user_can_commit_changes

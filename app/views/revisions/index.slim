@@ -4,15 +4,11 @@
 
   - @revisions.each do |revision|
 
-    - file_diffs = revision.file_diffs.to_a
-    - file_diffs.each do |diff|
-      -  diff.provider = @project.root_folder.provider
-
     = render partial: 'revision_with_diff',
              object: revision,
              locals: { project: @project,
                        profile: revision.author,
-                       file_diffs: file_diffs,
+                       file_diffs: revision.file_diffs,
                        show_link_to_file_info: true }
 
     .spacing.v16px

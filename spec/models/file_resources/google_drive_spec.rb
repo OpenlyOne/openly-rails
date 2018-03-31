@@ -33,10 +33,6 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
     let(:syncable) { file }
   end
 
-  describe '#provider' do
-    it { expect(file.provider).to be Providers::GoogleDrive }
-  end
-
   describe '#thumbnail_version_id' do
     subject(:thumbnail_version) { file.thumbnail_version_id }
     let(:sync_adapter) { nil }

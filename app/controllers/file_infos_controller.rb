@@ -9,9 +9,6 @@ class FileInfosController < ApplicationController
   before_action :set_staged_file_diff
   before_action :set_committed_file_diffs
   before_action :set_file
-  # TODO: Find way to not manually set provider for all children while still
-  #       avoiding N+1 query
-  before_action :set_provider_committed_file_diffs
   before_action :set_user_can_force_sync_files
 
   def index; end
@@ -47,18 +44,15 @@ class FileInfosController < ApplicationController
 
   # Load file history
   def set_committed_file_diffs
+    # Note: Must use preload for current and previous snapshot to correctly set
+    #       provider ID.
     @committed_file_diffs =
       FileDiff
-      .includes(:current_snapshot, :previous_snapshot, revision: [:author])
+      .includes(revision: [:author])
+      .preload(:current_snapshot, :previous_snapshot)
       .where(revisions: { project: @project, is_published: true },
              file_resource_id: file_resource_id)
       .merge(Revision.order(id: :desc))
-  end
-
-  def set_provider_committed_file_diffs
-    @committed_file_diffs.each do |diff|
-      diff.provider = @project.root_folder.provider
-    end
   end
 
   def set_user_can_force_sync_files

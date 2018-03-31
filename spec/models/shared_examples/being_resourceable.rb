@@ -61,6 +61,17 @@ RSpec.shared_examples 'being resourceable' do
     it { is_expected.to eq 'icon.png' }
   end
 
+  describe '#provider' do
+    subject { resourceable.provider }
+
+    before do
+      allow(resourceable).to receive(:provider_id).and_return 'id'
+      allow(Provider).to receive(:find).with('id').and_return 'provider'
+    end
+
+    it { is_expected.to eq 'provider' }
+  end
+
   describe '#symbolic_mime_type' do
     subject { resourceable.symbolic_mime_type }
 

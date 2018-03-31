@@ -32,6 +32,7 @@ module Stage
     def self.staged_snapshot_for(file_resource, project)
       project
         .non_root_file_snapshots_in_stage
+        .with_provider_id
         .find_by(file_resource: file_resource)
     end
 
@@ -42,6 +43,7 @@ module Stage
         .revisions
         &.last
         &.committed_file_snapshots
+        &.with_provider_id
         &.find_by(file_resource: file_resource)
     end
 

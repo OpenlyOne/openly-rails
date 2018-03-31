@@ -11,9 +11,6 @@ class RevisionsController < ApplicationController
   before_action :build_revision, only: :new
   before_action :find_revision, only: :create
   before_action :set_file_diffs, only: :new
-  # TODO: Find way to not manually set provider for all file diffs while still
-  #       avoiding N+1 query
-  before_action :set_provider_for_file_diffs, only: :new
 
   def index
     # TODO: Raise 404 if no revisions exist or redirect
@@ -66,12 +63,6 @@ class RevisionsController < ApplicationController
   def set_file_diffs
     @file_diffs =
       @revision.file_diffs.includes(:current_snapshot, :previous_snapshot).to_a
-  end
-
-  def set_provider_for_file_diffs
-    @file_diffs.each do |diff|
-      diff.provider = @project.root_folder.provider
-    end
   end
 
   def revision_params

@@ -14,7 +14,6 @@ RSpec.shared_examples 'being diffing' do
     it { is_expected.to delegate_method(:mime_type).to(snapshot) }
     it { is_expected.to delegate_method(:name).to(snapshot) }
     it { is_expected.to delegate_method(:provider).to(snapshot) }
-    it { is_expected.to respond_to(:provider=) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(snapshot) }
     it { is_expected.to delegate_method(:thumbnail_id).to(snapshot) }
     it { is_expected.to delegate_method(:thumbnail_image).to(snapshot) }

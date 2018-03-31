@@ -58,4 +58,15 @@ RSpec.describe FileResource::Snapshot, type: :model do
 
     it { is_expected.to contain_exactly snapshot1, snapshot2 }
   end
+
+  describe 'scope: with_provider_id' do
+    subject(:snapshots) { FileResource::Snapshot.with_provider_id }
+    let!(:snapshot1)    { create :file_resource_snapshot }
+    let!(:snapshot2)    { create :file_resource_snapshot }
+
+    it 'fetches provider id' do
+      expect(snapshots.first['provider_id']).to eq snapshot1.provider_id
+      expect(snapshots.second['provider_id']).to eq snapshot2.provider_id
+    end
+  end
 end
