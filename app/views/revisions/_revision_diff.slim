@@ -3,7 +3,7 @@
 .revision-diff
   - if file_diffs.any?
     = render partial: 'revisions/file_diff',
-             collection: sort_file_diffs!(file_diffs),
+             collection: file_diffs,
              locals: { project: project,
                        show_link_to_file_info: show_link_to_file_info,
                        all_links_in_new_tab: all_links_in_new_tab }

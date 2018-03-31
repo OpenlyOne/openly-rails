@@ -65,38 +65,4 @@ RSpec.describe FileHelper, type: :helper do
       end
     end
   end
-
-  describe '#sort_files!(files)' do
-    subject(:method)  { helper.sort_files!(files) }
-    let(:files)       { %w[f1 f2 f3] }
-
-    before do
-      allow(helper).to receive(:sort_order_for_files).with('f1').and_return 3
-      allow(helper).to receive(:sort_order_for_files).with('f2').and_return 2
-      allow(helper).to receive(:sort_order_for_files).with('f3').and_return 1
-    end
-
-    it { is_expected.to eq %w[f3 f2 f1] }
-  end
-
-  describe '#sort_order_for_files' do
-    subject(:method)  { helper.sort_order_for_files(file) }
-    let(:file)        { build_stubbed :file_resource, name: 'File Name' }
-
-    it { is_expected.to be_an Array }
-
-    it 'parses file names as case insensitive' do
-      expect(method.last).to eq 'file name'
-    end
-
-    context 'when file is directory' do
-      before { allow(file).to receive(:folder?).and_return true }
-      it { is_expected.to eq [0, 'file name'] }
-    end
-
-    context 'when file is not directory' do
-      before { allow(file).to receive(:folder?).and_return false }
-      it { is_expected.to eq [1, 'file name'] }
-    end
-  end
 end

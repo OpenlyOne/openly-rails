@@ -45,13 +45,6 @@ module FileDiffHelper
   end
   # rubocop:enable Metrics/MethodLength
 
-  # Sort files according to sort order (see FileHelper#sort_order_for_files)
-  def sort_file_diffs!(file_diffs)
-    file_diffs.sort_by! do |file_diff|
-      sort_order_for_files(file_diff.current_or_previous_snapshot)
-    end
-  end
-
   # Return the text color class for the change that has been made to the file
   def text_color_for_file_diff_change(file_diff_change)
     # return 'black-text' if file_diff_change.nil?

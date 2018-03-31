@@ -19,29 +19,4 @@ module FileHelper
 
     link_to(path, options) { capture(&block) }
   end
-
-  # Sort files according to sort order
-  def sort_files!(files)
-    files.sort_by! do |file|
-      sort_order_for_files(file)
-    end
-  end
-
-  # Return the sort order for files.
-  #
-  # Files are sorted by:
-  # 1) directory first and
-  # 2) file name in ascending alphabetical order case insensitive
-  #
-  # Example use:
-  # files.sort_by! { |file| sort_order_for_files(file) }
-  # file_diffs.sort_by! { |diff| sort_order_for_files(diff.file_is_or_was) }
-  def sort_order_for_files(file)
-    [
-      # put directories first
-      (file.folder? ? 0 : 1),
-      # then sort by name in ascending order (case insensitive)
-      file.name.downcase
-    ]
-  end
 end

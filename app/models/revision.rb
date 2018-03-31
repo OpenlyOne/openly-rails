@@ -15,7 +15,8 @@ class Revision < ApplicationRecord
   has_many :committed_file_snapshots, class_name: 'FileResource::Snapshot',
                                       through: :committed_files,
                                       source: :file_resource_snapshot
-  has_many :file_diffs, dependent: :destroy
+  has_many :file_diffs, -> { order_by_name_with_folders_first },
+           dependent: :destroy
 
   # Attributes
   attr_readonly :project_id, :parent_id, :author_id
