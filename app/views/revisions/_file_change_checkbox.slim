@@ -1,0 +1,10 @@
+/ Renders a file checkbox around the content
+
+.file-checkbox
+  label
+    = check_box_tag 'revision[selected_file_change_ids][]',
+                    file_change.id,
+                    file_change.selected?,
+                    id: "checkbox_#{file_change.id}"
+    span.file-wrapper
+      = yield

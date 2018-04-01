@@ -71,6 +71,15 @@ RSpec.describe 'revisions/new', type: :view do
       root = instance_double FileResource
       allow(project).to receive(:root_folder).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
+      file_diffs.first.changes.each(&:unselect!)
+    end
+
+    it 'has a checkbox for every change' do
+      render
+      file_diffs.flat_map(&:changes).each do |change|
+        expect(rendered)
+          .to have_field(with: change.id, checked: change.selected?)
+      end
     end
 
     it 'it lists files as added' do

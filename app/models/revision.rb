@@ -68,8 +68,21 @@ class Revision < ApplicationRecord
     FileDiffsCalculator.new(revision: self).cache_diffs!
   end
 
+  # Publish this revision, optionally updating the given attributes
+  def publish(attributes_to_update = {})
+    update(attributes_to_update.merge(is_published: true))
+  end
+
   def published?
     is_published
+  end
+
+  # Mark the file changes identified by the given IDs as selected and all other
+  # file changes as unselected
+  def selected_file_change_ids=(ids)
+    file_changes.each do |change|
+      ids.include?(change.id) ? change.select! : change.unselect!
+    end
   end
 
   private

@@ -6,8 +6,12 @@ RSpec.describe FileDiff::Change, type: :model do
 
   describe 'parent class methods' do
     it { is_expected.to respond_to(:color) }
+    it { is_expected.to respond_to(:id) }
     it { is_expected.to respond_to(:text_color) }
     it { is_expected.to respond_to(:type) }
+    it { is_expected.to respond_to(:selected?) }
+    it { is_expected.to respond_to(:select!) }
+    it { is_expected.to respond_to(:unselect!) }
     it { is_expected.to be_respond_to(:color_shade, true) }
     it { is_expected.to be_respond_to(:tooltip_base_text, true) }
   end

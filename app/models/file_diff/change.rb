@@ -11,16 +11,43 @@ class FileDiff
              :icon, :name, :symbolic_mime_type,
              to: :diff
 
+    # Select change on initialization
+    def initialize(*args)
+      super
+      select!
+    end
+
     def color
       "#{base_color} #{color_shade}"
+    end
+
+    # The identifier for the change, consisting of external ID and change type
+    def id
+      "#{external_id}_#{type}"
     end
 
     def text_color
       color.split(' ').join('-text text-')
     end
 
+    # Mark the change as selected
+    def select!
+      @selected = true
+    end
+
+    # Return true if the change is selected
+    def selected?
+      @selected
+    end
+
+    # Return the type of change, such as 'addition' or 'movement'
     def type
       model_name.element
+    end
+
+    # Mark the change as unselected
+    def unselect!
+      @selected = false
     end
 
     private

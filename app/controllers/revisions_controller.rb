@@ -24,9 +24,7 @@ class RevisionsController < ApplicationController
   def new; end
 
   def create
-    if @revision.update(title: revision_params[:title],
-                        summary: revision_params[:summary],
-                        is_published: true)
+    if @revision.publish(revision_params.except('id'))
       redirect_with_success_to(
         profile_project_root_folder_path(@project.owner, @project)
       )
@@ -65,6 +63,7 @@ class RevisionsController < ApplicationController
   end
 
   def revision_params
-    params.require(:revision).permit(:title, :summary, :id)
+    params.require(:revision)
+          .permit(:title, :summary, :id, selected_file_change_ids: [])
   end
 end

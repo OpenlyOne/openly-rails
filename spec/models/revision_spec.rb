@@ -136,4 +136,41 @@ RSpec.describe Revision, type: :model do
       subject
     end
   end
+
+  describe '#publish(attributes_to_update)' do
+    subject { revision.publish(attribute: 'update') }
+
+    before do
+      allow(revision)
+        .to receive(:update)
+        .with(attribute: 'update', is_published: true)
+        .and_return 'return-value-of-update'
+    end
+
+    it 'returns the return value of #update' do
+      is_expected.to eq 'return-value-of-update'
+    end
+  end
+
+  describe '#selected_file_change_ids=(ids)' do
+    let(:change1) { instance_double FileDiff::Change }
+    let(:change2) { instance_double FileDiff::Change }
+    let(:change3) { instance_double FileDiff::Change }
+
+    before do
+      allow(revision)
+        .to receive(:file_changes).and_return [change1, change2, change3]
+      allow(change1).to receive(:id).and_return 'change1'
+      allow(change2).to receive(:id).and_return 'change2'
+      allow(change3).to receive(:id).and_return 'change3'
+    end
+
+    after { revision.selected_file_change_ids = %w[change1 change3] }
+
+    it 'selects change1, change3 and unselects change2' do
+      expect(change1).to receive(:select!)
+      expect(change2).to receive(:unselect!)
+      expect(change3).to receive(:select!)
+    end
+  end
 end

@@ -1,8 +1,12 @@
 / Renders the changes of a file (file diffs)
 
+/ By default, do not wrap each file change inside a layout
+- file_change_wrapper ||= false
+
 .revision-diff
   - if file_changes.any?
     = render partial: 'revisions/file_change',
+             layout: file_change_wrapper,
              collection: file_changes,
              locals: { project: project,
                        show_link_to_file_info: show_link_to_file_info,

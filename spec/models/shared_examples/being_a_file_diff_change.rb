@@ -14,6 +14,12 @@ RSpec.shared_examples 'being a file diff change' do
     it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
   end
 
+  describe '#initialize' do
+    it 'marks change as selected' do
+      expect(change).to be_selected
+    end
+  end
+
   describe '#color' do
     subject { change.color }
     it      { is_expected.to eq "#{color} #{shade}" }
@@ -22,6 +28,12 @@ RSpec.shared_examples 'being a file diff change' do
   describe '#description' do
     subject { change.description }
     it      { is_expected.to eq description }
+  end
+
+  describe '#id' do
+    subject { change.id }
+    before  { allow(diff).to receive(:external_id).and_return 'extID' }
+    it      { is_expected.to eq "extID_#{type}" }
   end
 
   describe '#indicator_icon' do
@@ -38,8 +50,18 @@ RSpec.shared_examples 'being a file diff change' do
     it      { is_expected.to eq tooltip }
   end
 
+  describe '#select!' do
+    before  { change.select! }
+    it      { is_expected.to be_selected }
+  end
+
   describe '#type' do
     subject { change.type }
     it      { is_expected.to eq type }
+  end
+
+  describe '#unselect!' do
+    before  { change.unselect! }
+    it      { is_expected.not_to be_selected }
   end
 end
