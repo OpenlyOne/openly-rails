@@ -1,9 +1,10 @@
 / render a single file with diff/change indicator
 
 .file.z-depth-1[class=file_diff.symbolic_mime_type
-                class=html_class_for_file_diff_changes(file_diff.changes.map(&:type))
-                class=text_color_for_file_diff_change(file_diff.changes.first&.type)
-                class=color_for_file_diff_change(file_diff.changes.first&.type)
+                class=(file_diff.changes.any? ? 'change' : 'no-change')
+                class=file_diff.change_types.join(' ')
+                class=(file_diff.text_color || 'black-text')
+                class=(file_diff.color || 'black')
                 title=file_diff.name]
 
   = render partial: 'link_to_file_info',
@@ -14,7 +15,8 @@
 
     .indicators
       = render partial: 'file_diff_indicator',
-               collection: file_diff.changes.map(&:type)
+               collection: file_diff.changes,
+               as: :file_change
 
     = image_tag file_diff.thumbnail_image_or_fallback.url,
                 alt: 'File icon',

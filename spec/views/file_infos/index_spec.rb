@@ -104,8 +104,8 @@ RSpec.describe 'file_infos/index', type: :view do
 
     context 'when staged file diff has uncaptured changes' do
       before do
-        allow(staged_file_diff).to receive(:changes_as_symbols)
-          .and_return %i[added modified moved renamed deleted]
+        allow(staged_file_diff).to receive(:change_types)
+          .and_return %i[addition modification movement rename deletion]
         allow(staged_file_diff).to receive(:ancestor_path).and_return 'Home'
       end
 
@@ -181,15 +181,15 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'renders the file change of each revision' do
       render
       expect(rendered).to have_css(
-        ".revision[id='#{r1.id}'] .file.added",
+        ".revision[id='#{r1.id}'] .file.addition",
         text: 'f1 added'
       )
       expect(rendered).to have_css(
-        ".revision[id='#{r2.id}'] .file.added",
+        ".revision[id='#{r2.id}'] .file.addition",
         text: 'f2 added'
       )
       expect(rendered).to have_css(
-        ".revision[id='#{r3.id}'] .file.added",
+        ".revision[id='#{r3.id}'] .file.addition",
         text: 'f3 added'
       )
     end

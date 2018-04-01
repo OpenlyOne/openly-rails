@@ -76,7 +76,8 @@ RSpec.describe 'revisions/new', type: :view do
     it 'it lists files as added' do
       render
       file_diffs.each do |diff|
-        expect(rendered).to have_css('.file.added', text: "#{diff.name} added")
+        expect(rendered)
+          .to have_css('.file.addition', text: "#{diff.name} added")
       end
     end
 

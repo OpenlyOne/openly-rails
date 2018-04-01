@@ -69,7 +69,7 @@ feature 'Revision' do
     # and have the revision persisted to the repository
     expect(project.revisions.last).to be_present
     # and see no file modification icons
-    expect(page).to have_css '.file.unchanged', count: 5
+    expect(page).to have_css '.file.no-change', count: 5
   end
 
   scenario 'User can review changes' do
@@ -106,16 +106,16 @@ feature 'Revision' do
     click_on 'Capture Changes'
 
     # then I can see the changes I am about to commit
-    expect(page).to have_css '.file.added',     text: added_file.name
-    expect(page).to have_css '.file.modified',  text: modified_file.name
-    expect(page).to have_css '.file.moved',     text: moved_out_file.name
-    expect(page).to have_css '.file.moved',     text: moved_in_file.name
-    expect(page).to have_css '.file.moved',
+    expect(page).to have_css '.file.addition',      text: added_file.name
+    expect(page).to have_css '.file.modification',  text: modified_file.name
+    expect(page).to have_css '.file.movement',      text: moved_out_file.name
+    expect(page).to have_css '.file.movement',      text: moved_in_file.name
+    expect(page).to have_css '.file.movement',
                              text: moved_in_and_modified_file.name
-    expect(page).to have_css '.file.modified',
+    expect(page).to have_css '.file.modification',
                              text: moved_in_and_modified_file.name
-    expect(page).to have_css '.file.deleted', text: removed_file.name
-    expect(page).to have_css '.file.moved',   text: moved_folder.name
+    expect(page).to have_css '.file.deletion',      text: removed_file.name
+    expect(page).to have_css '.file.movement',      text: moved_folder.name
     # and not see the descendants of moved folders listed
     expect(page).not_to have_text 'unchanged'
   end

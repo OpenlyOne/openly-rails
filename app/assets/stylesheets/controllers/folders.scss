@@ -43,12 +43,12 @@
     }
 
     // bolden changed files
-    &.changed .file-name {
+    &.change .file-name {
       font-weight: bold;
     }
 
     // reduce opacity for deleted files
-    &.changed.deleted {
+    &.deletion {
       // scss-lint:disable NestingDepth
       opacity: .5;
       transition: opacity .3s;

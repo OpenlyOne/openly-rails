@@ -43,7 +43,7 @@ feature 'Folder Import', :vcr do
 
     # then I should see all the files, marked unchanged
     click_on 'Files'
-    expect(page).to have_css '.file.unchanged', count: 3
+    expect(page).to have_css '.file.no-change', count: 3
 
     # and I should see one revision
     click_on 'Revisions'

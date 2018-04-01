@@ -60,7 +60,7 @@ class Revision < ApplicationRecord
 
   # Return the array of individual changes of this revision
   def file_changes
-    @file_changes ||= file_diffs.flat_map(&:changes)
+    file_diffs.flat_map(&:changes)
   end
 
   # Calculate and cache file diffs from parent revision to self

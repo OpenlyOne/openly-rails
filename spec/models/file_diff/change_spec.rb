@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe FileDiff::Change, type: :model do
-  subject(:change)  { FileDiff::Change.new(diff: diff, type: :type) }
+  subject(:change)  { described_class.new(diff: diff) }
   let(:diff)        { instance_double FileDiff }
 
-  describe 'delegations' do
-    it { is_expected.to delegate_method(:ancestor_path).to(:diff) }
-    it do
-      is_expected.to delegate_method(:current_or_previous_snapshot).to(:diff)
-    end
-    it { is_expected.to delegate_method(:external_id).to(:diff) }
-    it { is_expected.to delegate_method(:icon).to(:diff) }
-    it { is_expected.to delegate_method(:name).to(:diff) }
-    it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
+  describe 'parent class methods' do
+    it { is_expected.to respond_to(:color) }
+    it { is_expected.to respond_to(:text_color) }
+    it { is_expected.to respond_to(:type) }
+    it { is_expected.to be_respond_to(:color_shade, true) }
+    it { is_expected.to be_respond_to(:tooltip_base_text, true) }
   end
 end

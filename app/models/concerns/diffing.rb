@@ -15,7 +15,9 @@ module Diffing
   delegate(*delegate_methods, to: :current_snapshot, prefix: :current)
   delegate(*delegate_methods, to: :previous_snapshot, prefix: :previous)
 
-  def added?
+  delegate :color, :text_color, to: :primary_change, allow_nil: true
+
+  def addition?
     previous_snapshot_id.nil?
   end
 
@@ -39,55 +41,58 @@ module Diffing
     current_or_previous_snapshot.association(association_name)
   end
 
-  def changed?
-    added? || deleted? || updated?
+  def change?
+    addition? || deletion? || update?
+  end
+
+  # Return changes made to this diff as an array of symbols. When file has been
+  # updated (moved, renamed, or modified), moved must come first in the list of
+  # changes, renamed second, and modified last.
+  def change_types
+    %i[addition deletion movement rename modification].select do |change|
+      send("#{change}?")
+    end
   end
 
   # Return the changes that have been made from previous_snapshot to
   # current_snapshot as an array of FileDiff::Change instances.
   def changes
     @changes ||=
-      changes_as_symbols.map do |type|
-        FileDiff::Change.new(diff: self, type: type)
+      change_types.map do |type|
+        "FileDiff::Changes::#{type.to_s.humanize}".constantize.new(diff: self)
       end
   end
 
-  def deleted?
+  def deletion?
     current_snapshot_id.nil?
   end
 
-  def modified?
-    return false unless updated?
+  def modification?
+    return false unless update?
     current_content_version != previous_content_version
   end
 
-  def moved?
-    return false unless updated?
+  def movement?
+    return false unless update?
     current_parent_id != previous_parent_id
   end
 
-  def renamed?
-    return false unless updated?
+  # The first change is the primary change
+  def primary_change
+    changes.first
+  end
+
+  def rename?
+    return false unless update?
     current_name != previous_name
   end
 
-  def updated?
-    return false if added? || deleted?
+  def update?
+    return false if addition? || deletion?
     current_snapshot_id != previous_snapshot_id
   end
 
   def current_or_previous_snapshot
     current_snapshot || previous_snapshot
-  end
-
-  private
-
-  # Return changes made to this diff as an array of symbols. When file has been
-  # updated (moved, renamed, or modified), moved must come first in the list of
-  # changes, renamed second, and modified last.
-  def changes_as_symbols
-    %i[added deleted moved renamed modified].select do |change|
-      send("#{change}?")
-    end
   end
 end
