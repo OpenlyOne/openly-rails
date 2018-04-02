@@ -7,10 +7,14 @@ class FileDiff
 
     attr_accessor :diff
 
+    # Delegations
     delegate :ancestor_path, :current_snapshot, :current_snapshot=,
-             :current_or_previous_snapshot, :external_id, :icon, :name,
-             :previous_snapshot, :symbolic_mime_type,
+             :current_or_previous_snapshot, :file_resource_id, :external_id,
+             :icon, :name, :parent_id, :previous_parent_id, :previous_snapshot,
+             :symbolic_mime_type, :revision,
              to: :diff
+
+    delegate :unselected_file_changes, to: :revision
 
     # Select change on initialization
     def initialize(*args)
@@ -86,6 +90,17 @@ class FileDiff
 
     def color_shade
       'darken-2'
+    end
+
+    def must_not_unselect_addition_of_parent
+      unselected_parent = unselected_file_changes.find do |change|
+        change.addition? && change.file_resource_id == parent_id
+      end
+
+      return unless unselected_parent
+
+      errors[:base] << "You cannot #{action} '#{name}' without adding its " \
+                       "parent folder '#{unselected_parent.name}'"
     end
 
     def tooltip_base_text

@@ -15,11 +15,18 @@ RSpec.shared_examples 'being a file diff change' do
     it do
       is_expected.to delegate_method(:current_or_previous_snapshot).to(:diff)
     end
+    it { is_expected.to delegate_method(:file_resource_id).to(:diff) }
     it { is_expected.to delegate_method(:external_id).to(:diff) }
     it { is_expected.to delegate_method(:icon).to(:diff) }
     it { is_expected.to delegate_method(:name).to(:diff) }
+    it { is_expected.to delegate_method(:parent_id).to(:diff) }
+    it { is_expected.to delegate_method(:previous_parent_id).to(:diff) }
     it { is_expected.to delegate_method(:previous_snapshot).to(:diff) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
+
+    it do
+      is_expected.to delegate_method(:unselected_file_changes).to(:revision)
+    end
   end
 
   describe '#initialize' do

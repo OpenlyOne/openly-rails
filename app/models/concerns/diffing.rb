@@ -7,8 +7,8 @@ module Diffing
   # Delegations
   delegate :id, to: :current_or_previous_snapshot, prefix: true
   delegate :external_id, :external_link, :folder?, :icon, :mime_type, :name,
-           :provider, :symbolic_mime_type, :thumbnail_id, :thumbnail_image,
-           :thumbnail_image_or_fallback,
+           :parent_id, :provider, :symbolic_mime_type, :thumbnail_id,
+           :thumbnail_image, :thumbnail_image_or_fallback,
            to: :current_or_previous_snapshot
 
   delegate_methods = %i[content_version name parent_id]

@@ -217,14 +217,12 @@ RSpec.describe Revision, type: :model do
   describe '#apply_selected_file_changes' do
     let(:diff1) { instance_double FileDiff }
     let(:diff2) { instance_double FileDiff }
-    let(:change1) { instance_double FileDiff::Change }
-    let(:change2) { instance_double FileDiff::Change }
+    let(:unselected_file_changes) { %w[c1 c2] }
 
     before do
-      allow(revision).to receive(:file_changes).and_return [change1, change2]
+      allow(revision)
+        .to receive(:unselected_file_changes).and_return unselected_file_changes
       allow(revision).to receive(:file_diffs).and_return [diff1, diff2]
-      allow(change1).to receive(:selected?).and_return false
-      allow(change2).to receive(:selected?).and_return false
       allow(diff1).to receive(:apply_selected_changes)
       allow(diff2).to receive(:apply_selected_changes)
       allow(revision).to receive(:generate_diffs)
@@ -242,10 +240,7 @@ RSpec.describe Revision, type: :model do
     end
 
     context 'when all file changes are selected' do
-      before do
-        allow(change1).to receive(:selected?).and_return true
-        allow(change2).to receive(:selected?).and_return true
-      end
+      let(:unselected_file_changes) { [] }
 
       it 'does not apply selected changes or regenerate diffs' do
         expect(diff1).not_to receive(:apply_selected_changes)

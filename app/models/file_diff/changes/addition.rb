@@ -4,6 +4,8 @@ class FileDiff
   module Changes
     # A single change of type addition
     class Addition < Change
+      validate :must_not_unselect_addition_of_parent
+
       def description
         "added to #{ancestor_path}"
       end
@@ -17,6 +19,10 @@ class FileDiff
       end
 
       private
+
+      def action
+        'add'
+      end
 
       def base_color
         'green'

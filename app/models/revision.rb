@@ -37,13 +37,12 @@ class Revision < ApplicationRecord
   validate :parent_must_belong_to_same_project, if: :parent_id
   validate :can_only_have_one_revision_with_parent, if: :parent_id
   validate :can_only_have_one_origin_revision_per_project, unless: :parent_id
+  validate :selected_file_changes_must_be_valid, if: :publishing?
 
   # Create a non-published revision for the project and commit all files staged
   # in the project
   def self.create_draft_and_commit_files_for_project!(project, author)
-    create!(project: project,
-            parent: project.revisions.last,
-            author: author)
+    create!(project: project, parent: project.revisions.last, author: author)
       .tap(&:commit_all_files_staged_in_project)
       .tap(&:generate_diffs)
   end
@@ -89,12 +88,17 @@ class Revision < ApplicationRecord
     end
   end
 
+  # Return all file changes that are NOT selected
+  def unselected_file_changes
+    file_changes.reject(&:selected?)
+  end
+
   private
 
   # Apply selected changes to each file diff
   def apply_selected_file_changes
     # Skip if all changes are selected
-    return if file_changes.all?(&:selected?)
+    return if unselected_file_changes.none?
 
     # Apply changes on each diff
     file_diffs.each(&:apply_selected_changes)
@@ -134,5 +138,15 @@ class Revision < ApplicationRecord
   def publishing?
     is_published &&
       (will_save_change_to_is_published? || saved_change_to_is_published?)
+  end
+
+  def selected_file_changes_must_be_valid
+    # Skip if all changes are selected
+    return if unselected_file_changes.none?
+
+    file_changes.select(&:selected?).each do |file_change|
+      next if file_change.valid?
+      errors[:base].push(*file_change.errors.full_messages)
+    end
   end
 end
