@@ -16,12 +16,13 @@ class Revision < ApplicationRecord
                                       through: :committed_files,
                                       source: :file_resource_snapshot
   has_many :file_diffs, -> { order_by_name_with_folders_first },
-           dependent: :destroy
+           inverse_of: :revision, dependent: :destroy
 
   # Attributes
   attr_readonly :project_id, :parent_id, :author_id
 
   # Callbacks
+  before_save :apply_selected_file_changes, if: :publishing?
   after_save :trigger_notifications, if: :publishing?
 
   # Scopes
@@ -31,7 +32,7 @@ class Revision < ApplicationRecord
 
   # Validations
   # Require title for published revisions
-  validates :title, presence: true, if: :published?
+  validates :title, presence: true, if: :is_published
 
   validate :parent_must_belong_to_same_project, if: :parent_id
   validate :can_only_have_one_revision_with_parent, if: :parent_id
@@ -65,7 +66,10 @@ class Revision < ApplicationRecord
 
   # Calculate and cache file diffs from parent revision to self
   def generate_diffs
+    FileDiff.where(revision: self).delete_all # Delete all existing diffs
     FileDiffsCalculator.new(revision: self).cache_diffs!
+    file_diffs.reset                          # Reset association
+    true                                      # Return success
   end
 
   # Publish this revision, optionally updating the given attributes
@@ -74,7 +78,7 @@ class Revision < ApplicationRecord
   end
 
   def published?
-    is_published
+    is_published_in_database
   end
 
   # Mark the file changes identified by the given IDs as selected and all other
@@ -86,6 +90,18 @@ class Revision < ApplicationRecord
   end
 
   private
+
+  # Apply selected changes to each file diff
+  def apply_selected_file_changes
+    # Skip if all changes are selected
+    return if file_changes.all?(&:selected?)
+
+    # Apply changes on each diff
+    file_diffs.each(&:apply_selected_changes)
+
+    # Re-generate diffs
+    generate_diffs
+  end
 
   def can_only_have_one_origin_revision_per_project
     return unless published_origin_revision_exists_for_project?
@@ -116,6 +132,7 @@ class Revision < ApplicationRecord
 
   # Return true if revision is currently being published
   def publishing?
-    published? && saved_change_to_is_published?
+    is_published &&
+      (will_save_change_to_is_published? || saved_change_to_is_published?)
   end
 end

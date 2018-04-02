@@ -10,7 +10,16 @@ RSpec.describe FileDiff::Changes::Deletion, type: :model do
     before { allow(diff).to receive(:ancestor_path).and_return 'path' }
     let(:color)       { 'red' }
     let(:description) { 'deleted from path' }
+    let(:is_deletion) { true }
     let(:tooltip)     { 'File has been deleted' }
     let(:type)        { 'deletion' }
+  end
+
+  describe '#unapply' do
+    before do
+      allow(change).to receive(:previous_snapshot).and_return 'previous-snap'
+    end
+    after { change.send :unapply }
+    it    { is_expected.to receive(:current_snapshot=).with('previous-snap') }
   end
 end

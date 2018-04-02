@@ -1,16 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'being a file diff change' do
-  let(:shade) { 'darken-2' }
+  let(:shade)           { 'darken-2' }
+  let(:is_addition)     { false }
+  let(:is_deletion)     { false }
+  let(:is_modification) { false }
+  let(:is_movement)     { false }
+  let(:is_rename)       { false }
 
   describe 'delegations' do
     it { is_expected.to delegate_method(:ancestor_path).to(:diff) }
+    it { is_expected.to delegate_method(:current_snapshot).to(:diff) }
+    it { is_expected.to respond_to(:current_snapshot=) }
     it do
       is_expected.to delegate_method(:current_or_previous_snapshot).to(:diff)
     end
     it { is_expected.to delegate_method(:external_id).to(:diff) }
     it { is_expected.to delegate_method(:icon).to(:diff) }
     it { is_expected.to delegate_method(:name).to(:diff) }
+    it { is_expected.to delegate_method(:previous_snapshot).to(:diff) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
   end
 
@@ -20,9 +28,31 @@ RSpec.shared_examples 'being a file diff change' do
     end
   end
 
+  describe '#addition' do
+    it { expect(change.addition?).to be is_addition }
+  end
+
+  describe '#apply' do
+    after { change.apply }
+
+    context 'when change is selected' do
+      before  { change.select! }
+      it      { is_expected.not_to receive(:unapply) }
+    end
+
+    context 'when change is selected' do
+      before  { change.unselect! }
+      it      { is_expected.to receive(:unapply) }
+    end
+  end
+
   describe '#color' do
     subject { change.color }
     it      { is_expected.to eq "#{color} #{shade}" }
+  end
+
+  describe '#deletion' do
+    it { expect(change.deletion?).to be is_deletion }
   end
 
   describe '#description' do
@@ -38,6 +68,18 @@ RSpec.shared_examples 'being a file diff change' do
 
   describe '#indicator_icon' do
     it { is_expected.to respond_to(:indicator_icon) }
+  end
+
+  describe '#modification' do
+    it { expect(change.modification?).to be is_modification }
+  end
+
+  describe '#movement' do
+    it { expect(change.movement?).to be is_movement }
+  end
+
+  describe '#rename' do
+    it { expect(change.rename?).to be is_rename }
   end
 
   describe '#text_color' do

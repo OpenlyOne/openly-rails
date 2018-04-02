@@ -7,8 +7,9 @@ class FileDiff
 
     attr_accessor :diff
 
-    delegate :ancestor_path, :current_or_previous_snapshot, :external_id,
-             :icon, :name, :symbolic_mime_type,
+    delegate :ancestor_path, :current_snapshot, :current_snapshot=,
+             :current_or_previous_snapshot, :external_id, :icon, :name,
+             :previous_snapshot, :symbolic_mime_type,
              to: :diff
 
     # Select change on initialization
@@ -17,8 +18,24 @@ class FileDiff
       select!
     end
 
+    # Return true if the change is an ::Addition
+    def addition?
+      type == 'addition'
+    end
+
+    # Unapplies the change from the diffed file resource, if the change is not
+    # selected
+    def apply
+      unapply unless selected?
+    end
+
     def color
       "#{base_color} #{color_shade}"
+    end
+
+    # Return true if the change is a ::Deletion
+    def deletion?
+      type == 'deletion'
     end
 
     # The identifier for the change, consisting of external ID and change type
@@ -26,8 +43,23 @@ class FileDiff
       "#{external_id}_#{type}"
     end
 
+    # Return true if the change is a ::Modification
+    def modification?
+      type == 'modification'
+    end
+
+    # Return true if the change is a ::Movement
+    def movement?
+      type == 'movement'
+    end
+
     def text_color
       color.split(' ').join('-text text-')
+    end
+
+    # Return true if the change is a ::Rename
+    def rename?
+      type == 'rename'
     end
 
     # Mark the change as selected

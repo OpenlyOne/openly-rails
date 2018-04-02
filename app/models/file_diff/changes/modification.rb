@@ -27,6 +27,14 @@ class FileDiff
       def color_shade
         'darken-4'
       end
+
+      # Undo modification of the file resource
+      def unapply
+        current_snapshot.content_version = previous_snapshot.content_version
+        current_snapshot.mime_type       = previous_snapshot.mime_type
+        current_snapshot.external_id     = previous_snapshot.external_id
+        current_snapshot.thumbnail_id    = previous_snapshot.thumbnail_id
+      end
     end
   end
 end

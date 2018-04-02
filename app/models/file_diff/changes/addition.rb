@@ -21,6 +21,11 @@ class FileDiff
       def base_color
         'green'
       end
+
+      # Undo addition of the file resource
+      def unapply
+        self.current_snapshot = nil
+      end
     end
   end
 end

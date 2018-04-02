@@ -32,7 +32,10 @@ RSpec.describe Revision, type: :model do
     end
 
     it { is_expected.to have_many(:committed_files).dependent(:delete_all) }
-    it { is_expected.to have_many(:file_diffs).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:file_diffs).inverse_of(:revision).dependent(:destroy)
+    end
   end
 
   describe 'attributes' do
@@ -129,10 +132,31 @@ RSpec.describe Revision, type: :model do
     subject(:generate_diffs)  { revision.generate_diffs }
     let(:calculator)          { instance_double Revision::FileDiffsCalculator }
 
+    before do
+      allow(FileDiff).to receive_message_chain(:where, :delete_all)
+      allow(Revision::FileDiffsCalculator)
+        .to receive_message_chain(:new, :cache_diffs!)
+    end
+
+    it { is_expected.to be true }
+
+    it 'deletes all file diffs' do
+      chain = class_double FileDiff
+      expect(FileDiff)
+        .to receive(:where).with(revision: revision).and_return chain
+      expect(chain).to receive(:delete_all)
+      subject
+    end
+
     it 'calls Revision::FileDiffsCalculator#cache_diffs!' do
       expect(Revision::FileDiffsCalculator)
         .to receive(:new).with(revision: revision).and_return calculator
       expect(calculator).to receive(:cache_diffs!)
+      subject
+    end
+
+    it 'resets file_diffs association' do
+      expect(revision.file_diffs).to receive(:reset)
       subject
     end
   end
@@ -149,6 +173,22 @@ RSpec.describe Revision, type: :model do
 
     it 'returns the return value of #update' do
       is_expected.to eq 'return-value-of-update'
+    end
+  end
+
+  describe '#published?' do
+    before do
+      allow(revision).to receive(:is_published_in_database).and_return published
+    end
+
+    context 'when published in database' do
+      let(:published) { true }
+      it { is_expected.to be_published }
+    end
+
+    context 'when not published in database' do
+      let(:published) { false }
+      it { is_expected.not_to be_published }
     end
   end
 
@@ -171,6 +211,47 @@ RSpec.describe Revision, type: :model do
       expect(change1).to receive(:select!)
       expect(change2).to receive(:unselect!)
       expect(change3).to receive(:select!)
+    end
+  end
+
+  describe '#apply_selected_file_changes' do
+    let(:diff1) { instance_double FileDiff }
+    let(:diff2) { instance_double FileDiff }
+    let(:change1) { instance_double FileDiff::Change }
+    let(:change2) { instance_double FileDiff::Change }
+
+    before do
+      allow(revision).to receive(:file_changes).and_return [change1, change2]
+      allow(revision).to receive(:file_diffs).and_return [diff1, diff2]
+      allow(change1).to receive(:selected?).and_return false
+      allow(change2).to receive(:selected?).and_return false
+      allow(diff1).to receive(:apply_selected_changes)
+      allow(diff2).to receive(:apply_selected_changes)
+      allow(revision).to receive(:generate_diffs)
+    end
+
+    after { revision.send :apply_selected_file_changes }
+
+    it 'calls apply_selected_changes on each file_diff' do
+      expect(diff1).to receive(:apply_selected_changes)
+      expect(diff2).to receive(:apply_selected_changes)
+    end
+
+    it 're-generates file diffs' do
+      expect(revision).to receive(:generate_diffs)
+    end
+
+    context 'when all file changes are selected' do
+      before do
+        allow(change1).to receive(:selected?).and_return true
+        allow(change2).to receive(:selected?).and_return true
+      end
+
+      it 'does not apply selected changes or regenerate diffs' do
+        expect(diff1).not_to receive(:apply_selected_changes)
+        expect(diff2).not_to receive(:apply_selected_changes)
+        expect(revision).not_to receive(:generate_diffs)
+      end
     end
   end
 end

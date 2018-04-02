@@ -23,6 +23,11 @@ class FileDiff
       def base_color
         'blue'
       end
+
+      # Undo rename of the file resource
+      def unapply
+        current_snapshot.name = previous_snapshot.name
+      end
     end
   end
 end

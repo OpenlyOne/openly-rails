@@ -10,7 +10,13 @@ RSpec.describe FileDiff::Changes::Addition, type: :model do
     before { allow(diff).to receive(:ancestor_path).and_return 'path' }
     let(:color)       { 'green' }
     let(:description) { 'added to path' }
+    let(:is_addition) { true }
     let(:tooltip)     { 'File has been added' }
     let(:type)        { 'addition' }
+  end
+
+  describe '#unapply' do
+    after { change.send :unapply }
+    it    { is_expected.to receive(:current_snapshot=).with(nil) }
   end
 end

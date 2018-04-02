@@ -22,6 +22,11 @@ class FileDiff
       def base_color
         'red'
       end
+
+      # Undo deletion of the file resource
+      def unapply
+        self.current_snapshot = previous_snapshot
+      end
     end
   end
 end
