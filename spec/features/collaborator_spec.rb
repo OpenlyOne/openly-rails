@@ -89,6 +89,6 @@ feature 'Collaborators' do
     # and have the revision persisted to the repository
     expect(project.revisions).to be_any
     # and see no file modification icons
-    expect(page).to have_css '.file.unchanged', count: 5
+    expect(page).to have_css '.file.no-change', count: 5
   end
 end

@@ -20,6 +20,8 @@ if defined? Bullet
 
   Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
                        association: :previous_snapshot
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
+                       association: :current_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Profiles::User',
@@ -29,4 +31,9 @@ if defined? Bullet
   Bullet.add_whitelist type: :n_plus_one_query,
                        class_name: 'FileResource::Snapshot',
                        association: :thumbnail
+
+  # Bullet complains about RevisionsController eager loading
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Revision',
+                       association: :file_diffs
 end

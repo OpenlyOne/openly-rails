@@ -69,4 +69,54 @@ RSpec.describe FileResource::Snapshot, type: :model do
       expect(snapshots.second['provider_id']).to eq snapshot2.provider_id
     end
   end
+
+  describe '.for(attributes)' do
+    subject       { FileResource::Snapshot.for(attributes) }
+    let!(:file)   { create :file_resource }
+    let(:attributes) do
+      attributes_for(:file_resource_snapshot,
+                     file_resource: file, file_resource_id: file.id)
+    end
+
+    it 'creates a new snapshot' do
+      expect { subject }.to change(FileResource::Snapshot, :count).by(1)
+    end
+
+    describe 'when snapshot already exists' do
+      let!(:existing_snapshot) { FileResource::Snapshot.for(attributes) }
+
+      it 'does not create a new snapshot' do
+        expect { subject }
+          .not_to change(FileResource::Snapshot, :count)
+      end
+
+      context 'when supplemental attributes change' do
+        let(:thumbnail) { create :file_resource_thumbnail }
+        let(:snapshot)  { FileResource::Snapshot.order(:created_at).first }
+        before          { attributes[:thumbnail_id] = thumbnail.id }
+
+        it 'updates thumbnail on the snapshot' do
+          expect { subject }
+            .to change { existing_snapshot.reload.thumbnail_id }.from(nil)
+        end
+      end
+    end
+  end
+
+  describe '#snapshot!' do
+    subject         { snapshot.snapshot! }
+    let(:snapshot)  { create :file_resource_snapshot }
+
+    before { snapshot.name = 'new-name' }
+
+    it 'creates a new snapshot' do
+      expect { subject }.to change(FileResource::Snapshot, :count).by(1)
+    end
+
+    it 'acquires ID of new snapshot and reloads' do
+      subject
+      expect(snapshot).to eq FileResource::Snapshot.order(:created_at).last
+      expect(snapshot).not_to be_changed
+    end
+  end
 end

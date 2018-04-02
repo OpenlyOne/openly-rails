@@ -63,10 +63,77 @@ class FileResource
               },
               if: :new_record?
 
+    # Finds an existing snapshot with the given attributes or creates a new one
+    def self.for(attributes)
+      find_or_create_by_attributes(
+        core_attributes(attributes),
+        supplemental_attributes(attributes)
+      )
+    end
+
+    # The set of core attributes that uniquely identify a snapshot
+    def self.core_attributes(attributes)
+      attributes.symbolize_keys.slice(*core_attribute_keys)
+    end
+
+    # The set of core attributes that uniquely identify a snapshot
+    def self.core_attribute_keys
+      %i[file_resource_id name external_id content_version mime_type parent_id]
+    end
+
+    # Find or create a snapshot from the set of core attributes, optionally
+    # updating its supplemental attributes
+    def self.find_or_create_by_attributes(core, supplements)
+      create_with(supplements).find_or_create_by!(core).tap do |snapshot|
+        snapshot.update_supplemental_attributes(supplements)
+      end
+    end
+
+    # The set of supplemental attributes to a snapshot
+    def self.supplemental_attributes(attributes)
+      attributes.symbolize_keys.slice(*supplemental_attribute_keys)
+    end
+
+    # The set of supplemental attributes to a snapshot
+    def self.supplemental_attribute_keys
+      %i[thumbnail_id]
+    end
+
     # Return provider ID of file resource, either preloaded or from file
     # resource
     def provider_id
       read_attribute('provider_id') || file_resource.provider_id
+    end
+
+    # Create a new snapshot from the current snapshot's attributes and set the
+    # current snapshot to the new one
+    def snapshot!
+      self.id = FileResource::Snapshot.for(attributes).id
+      reload
+    end
+
+    # Update any new supplemental attributes, such as thumbnail
+    def update_supplemental_attributes(new_attributes)
+      # Return all supplemental attribute key-value pairs that are not
+      # supplemental attributes of current snapshot
+      # h1: {thumbnail: '1', attribute_a: 'abc'}
+      # h2: {thumbnail: '2'}
+      # --> {thumbnail: '1', attribute_a: 'abc'}
+      # See: https://stackoverflow.com/a/24642938/6451879
+      attributes_to_update =
+        (new_attributes.to_a - supplemental_attributes.to_a).to_h
+
+      # If there are no attributes to update, exit
+      return if attributes_to_update.none?
+
+      # Update current snapshot, bypassing callbacks
+      update_columns(attributes_to_update)
+    end
+
+    private
+
+    def supplemental_attributes
+      self.class.supplemental_attributes(attributes)
     end
   end
 end

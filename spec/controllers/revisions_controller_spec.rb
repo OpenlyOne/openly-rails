@@ -61,7 +61,9 @@ RSpec.describe RevisionsController, type: :controller do
       {
         revision: {
           title: 'Initial Commit',
-          id: revision_draft.id
+          summary: 'Summary',
+          id: revision_draft.id,
+          selected_file_change_ids: ['']
         }
       }
     end
@@ -84,7 +86,9 @@ RSpec.describe RevisionsController, type: :controller do
 
     it 'publishes the revision' do
       expect_any_instance_of(Revision)
-        .to receive(:update).with(hash_including(is_published: true))
+        .to receive(:publish)
+        .with(hash_including(title: 'Initial Commit', summary: 'Summary',
+                             selected_file_change_ids: kind_of(Array)))
       run_request
     end
 

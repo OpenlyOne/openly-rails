@@ -16,28 +16,33 @@ class Revision < ApplicationRecord
                                       through: :committed_files,
                                       source: :file_resource_snapshot
   has_many :file_diffs, -> { order_by_name_with_folders_first },
-           dependent: :destroy
+           inverse_of: :revision, dependent: :destroy
 
   # Attributes
   attr_readonly :project_id, :parent_id, :author_id
 
   # Callbacks
+  before_save :apply_selected_file_changes, if: :publishing?
   after_save :trigger_notifications, if: :publishing?
+
+  # Scopes
+  scope :preload_file_diffs_with_snapshots, lambda {
+    preload(file_diffs: %i[current_snapshot previous_snapshot])
+  }
 
   # Validations
   # Require title for published revisions
-  validates :title, presence: true, if: :published?
+  validates :title, presence: true, if: :is_published
 
   validate :parent_must_belong_to_same_project, if: :parent_id
   validate :can_only_have_one_revision_with_parent, if: :parent_id
   validate :can_only_have_one_origin_revision_per_project, unless: :parent_id
+  validate :selected_file_changes_must_be_valid, if: :publishing?
 
   # Create a non-published revision for the project and commit all files staged
   # in the project
   def self.create_draft_and_commit_files_for_project!(project, author)
-    create!(project: project,
-            parent: project.revisions.last,
-            author: author)
+    create!(project: project, parent: project.revisions.last, author: author)
       .tap(&:commit_all_files_staged_in_project)
       .tap(&:generate_diffs)
   end
@@ -53,16 +58,54 @@ class Revision < ApplicationRecord
     )
   end
 
+  # Return the array of individual changes of this revision
+  def file_changes
+    file_diffs.flat_map(&:changes)
+  end
+
   # Calculate and cache file diffs from parent revision to self
   def generate_diffs
+    FileDiff.where(revision: self).delete_all # Delete all existing diffs
     FileDiffsCalculator.new(revision: self).cache_diffs!
+    file_diffs.reset                          # Reset association
+    true                                      # Return success
+  end
+
+  # Publish this revision, optionally updating the given attributes
+  def publish(attributes_to_update = {})
+    update(attributes_to_update.merge(is_published: true))
   end
 
   def published?
-    is_published
+    is_published_in_database
+  end
+
+  # Mark the file changes identified by the given IDs as selected and all other
+  # file changes as unselected
+  def selected_file_change_ids=(ids)
+    file_changes.each do |change|
+      ids.include?(change.id) ? change.select! : change.unselect!
+    end
+  end
+
+  # Return all file changes that are NOT selected
+  def unselected_file_changes
+    file_changes.reject(&:selected?)
   end
 
   private
+
+  # Apply selected changes to each file diff
+  def apply_selected_file_changes
+    # Skip if all changes are selected
+    return if unselected_file_changes.none?
+
+    # Apply changes on each diff
+    file_diffs.each(&:apply_selected_changes)
+
+    # Re-generate diffs
+    generate_diffs
+  end
 
   def can_only_have_one_origin_revision_per_project
     return unless published_origin_revision_exists_for_project?
@@ -93,6 +136,17 @@ class Revision < ApplicationRecord
 
   # Return true if revision is currently being published
   def publishing?
-    published? && saved_change_to_is_published?
+    is_published &&
+      (will_save_change_to_is_published? || saved_change_to_is_published?)
+  end
+
+  def selected_file_changes_must_be_valid
+    # Skip if all changes are selected
+    return if unselected_file_changes.none?
+
+    file_changes.select(&:selected?).each do |file_change|
+      next if file_change.valid?
+      errors[:base].push(*file_change.errors.full_messages)
+    end
   end
 end

@@ -1,5 +1,7 @@
 = form_for(@revision, as: :revision, method: :post, url: profile_project_revisions_path(@project.owner, @project)) do |f|
 
+  = hidden_field_tag 'revision[selected_file_change_ids][]', nil
+
   .page-subheading.gray.lighten-3
     .container
       .row.no-margin-bottom
@@ -8,7 +10,7 @@
 
   .container
     - if @revision.errors.any?
-      .row
+      .row.no-margin-bottom
         .col.s12
           .validation-errors
             = render partial: "error",
@@ -16,6 +18,19 @@
                      as: :error
 
     = f.hidden_field :id
+
+    .row
+      .col.s12
+        h3.no-margin: span Review Changes
+        p.gray-text.text-darken-2.no-margin-top Select changes to capture.
+        = render partial: 'file_changes',
+                 object: @revision.file_changes,
+                 locals: { project: @project,
+                           show_link_to_file_info: true,
+                           all_links_in_new_tab: true,
+                           file_change_wrapper: 'file_change_checkbox' }
+
+    .spacing.v32px
 
     .row
       .col.s12.l12
@@ -36,14 +51,5 @@
       .col.s12.right-align
         button action='submit' class="btn-large primary-color primary-color-text"
           | Capture Changes
-
-    .spacing.v1
-
-    h3: span Review Changes
-    = render partial: 'revision_diff',
-             locals: { project: @project,
-                       file_diffs: @file_diffs,
-                       show_link_to_file_info: true,
-                       all_links_in_new_tab: true }
 
     .spacing.v48px

@@ -98,13 +98,13 @@ feature 'Folder' do
     click_on folder.name
 
     # then I should see a diff for each file
-    expect(page).to have_css '.file.added',           text: added_file.name
-    expect(page).to have_css '.file.modified',        text: modified_file.name
-    expect(page).to have_css '.file.moved',           text: moved_in_file.name
-    expect(page).to have_css '.file.moved.modified',
+    expect(page).to have_css '.file.addition',      text: added_file.name
+    expect(page).to have_css '.file.modification',  text: modified_file.name
+    expect(page).to have_css '.file.movement',      text: moved_in_file.name
+    expect(page).to have_css '.file.movement.modification',
                              text: moved_in_and_modified_file.name
-    expect(page).to have_css '.file.deleted',         text: removed_file.name
-    expect(page).to have_css '.file.unchanged',       text: unchanged_file.name
+    expect(page).to have_css '.file.deletion',      text: removed_file.name
+    expect(page).to have_css '.file.no-change',     text: unchanged_file.name
 
     # and not see the file that was moved out of the directory
     expect(page).not_to have_text moved_out_file

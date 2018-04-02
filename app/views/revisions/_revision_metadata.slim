@@ -1,0 +1,9 @@
+.metadata
+  h5.title.no-margin-top
+    = render partial: 'revisions/revision_timestamp',
+             locals: { project: project, revision: revision, device: :desktop }
+    b = revision.title
+
+  - if revision.summary.present?
+    .summary
+      = simple_format html_escape(revision.summary)
