@@ -47,7 +47,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: 'My New File', status: 'added')
+    then_i_should_see_file_in_project(name: 'My New File', status: 'addition')
   end
 
   scenario 'In Google Drive, user updates file content' do
@@ -68,7 +68,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files as modified
-    then_i_should_see_file_in_project(name: 'File', status: 'modified')
+    then_i_should_see_file_in_project(name: 'File', status: 'modification')
   end
 
   scenario 'In Google Drive, user renames file' do
@@ -89,7 +89,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files as modified
-    then_i_should_see_file_in_project(name: 'New File Name', status: 'renamed')
+    then_i_should_see_file_in_project(name: 'New File Name', status: 'rename')
   end
 
   scenario 'In Google Drive, user moves file within project folder' do
@@ -118,7 +118,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: 'File To Move', status: 'moved')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'movement')
   end
 
   scenario 'In Google Drive, user trashes file' do
@@ -139,14 +139,14 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files as deleted
-    then_i_should_see_file_in_project(name: 'File To Trash', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File To Trash', status: 'deletion')
   end
 
   scenario 'In Google Drive, user deletes file' do
     # given a file within the project folder
     file_to_delete =
       create_google_drive_file(
-        name: 'File To Delete',
+        name: 'To Delete',
         parent_id: google_drive_test_folder_id,
         api_connection: api_connection
       )
@@ -160,7 +160,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files as deleted
-    then_i_should_see_file_in_project(name: 'File To Delete', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'To Delete', status: 'deletion')
   end
 
   scenario 'In Google Drive, user moves file out of project folder' do
@@ -189,7 +189,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: 'File To Move', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'deletion')
 
     # cleanup: remove out-of-scope-folder
     api_connection.delete_file(out_of_scope_folder.id)
@@ -213,7 +213,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then I should see the file among my project's files
-    then_i_should_see_file_in_project(name: 'File To Move', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File To Move', status: 'deletion')
 
     # cleanup: remove moved file
     api_connection.delete_file(file_to_move.id)
@@ -237,7 +237,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then the file should be marked as unshared
-    then_i_should_see_file_in_project(name: 'File', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File', status: 'deletion')
   end
 
   scenario 'In Google Drive, user deletes the project folder' do
@@ -257,7 +257,7 @@ feature 'File Update', :vcr do
     run_file_update_job
 
     # then all files should be marked as deleted
-    then_i_should_see_file_in_project(name: 'File', status: 'deleted')
+    then_i_should_see_file_in_project(name: 'File', status: 'deletion')
   end
 end
 
@@ -267,7 +267,7 @@ end
 
 def then_i_should_see_file_in_project(params)
   when_i_visit_my_project_files
-  # then I should see one added file
+  # then I should see one file with the given status
   expect(page).to have_css ".file.#{params[:status]}", text: params[:name]
 end
 

@@ -92,7 +92,7 @@ RSpec.describe 'revisions/index', type: :view do
       render
       diffs.each do |diff|
         expect(rendered).to have_css(
-          ".revision[id='#{revisions.first.id}'] .file.added",
+          ".revision[id='#{revisions.first.id}'] .file.addition",
           text: "#{diff.name} added"
         )
       end

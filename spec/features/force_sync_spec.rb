@@ -56,8 +56,8 @@ feature 'Force Sync', :vcr do
     expect(page).to have_text 'File successfully synced.'
 
     # and see the file as modified, renamed, and moved
-    expect(page).to have_css '.file.modified', text: 'Doc ABC'
-    expect(page).to have_css '.file.renamed', text: 'Doc ABC'
-    expect(page).to have_css '.file.moved', text: 'Doc ABC'
+    expect(page).to have_css '.file.modification', text: 'Doc ABC'
+    expect(page).to have_css '.file.rename', text: 'Doc ABC'
+    expect(page).to have_css '.file.movement', text: 'Doc ABC'
   end
 end

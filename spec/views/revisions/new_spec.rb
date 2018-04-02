@@ -5,10 +5,11 @@ RSpec.describe 'revisions/new', type: :view do
   let(:revision)      { build_stubbed :revision, project: project }
   let(:file_diffs)    { [] }
 
+  before { allow(revision).to receive(:file_diffs).and_return(file_diffs) }
+
   before do
     assign(:project, project)
     assign(:revision, revision)
-    assign(:file_diffs, file_diffs)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
   end
@@ -70,12 +71,22 @@ RSpec.describe 'revisions/new', type: :view do
       root = instance_double FileResource
       allow(project).to receive(:root_folder).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
+      file_diffs.first.changes.each(&:unselect!)
+    end
+
+    it 'has a checkbox for every change' do
+      render
+      file_diffs.flat_map(&:changes).each do |change|
+        expect(rendered)
+          .to have_field(with: change.id, checked: change.selected?)
+      end
     end
 
     it 'it lists files as added' do
       render
       file_diffs.each do |diff|
-        expect(rendered).to have_css('.file.added', text: "#{diff.name} added")
+        expect(rendered)
+          .to have_css('.file.addition', text: "#{diff.name} added")
       end
     end
 

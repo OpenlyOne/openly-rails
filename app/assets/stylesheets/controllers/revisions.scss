@@ -9,6 +9,21 @@
     margin-bottom: 15px; // match p tag
   }
 
+  .file-checkbox {
+    // expand the height of the file wrapper to the height of its content
+    // (overriding default height of checkbox labels)
+    .file-wrapper {
+      height: auto;
+    }
+
+    // files wrapper inside a checkbox need to be positioned up by 4px to
+    // vertically align centrally with the checkbox
+    .file {
+      position: relative;
+      top: -4px;
+    }
+  }
+
   .file {
     // scss-lint:disable NestingDepth
 

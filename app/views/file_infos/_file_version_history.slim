@@ -4,14 +4,11 @@ h3.with-separator.no-margin-bottom: span File History
 
 - committed_file_diffs.each do |diff|
 
-  = render partial: 'revisions/revision_with_diff',
+  = render partial: 'revisions/revision',
            object: diff.revision,
            locals: { project: project,
-                     profile: diff.revision.author,
-                     file_diffs: [diff],
+                     file_changes: diff.changes,
                      show_link_to_file_info: false }
-
-  .divider
 
 - if committed_file_diffs.none?
 

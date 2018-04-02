@@ -3,7 +3,7 @@
 # rubocop:disable Metrics/BlockLength
 
 # config valid only for current version of Capistrano
-lock '3.9.0'
+lock '3.10.1'
 
 # Load default settings
 require 'config'

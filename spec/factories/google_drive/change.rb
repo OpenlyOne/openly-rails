@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :google_drive_change, class: Google::Apis::DriveV3::Change do
     transient do
       id            { Faker::Crypto.unique.sha1 }

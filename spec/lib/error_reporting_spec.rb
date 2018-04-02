@@ -31,7 +31,7 @@ RSpec.describe 'error reporting' do
 
     it 'creates an ErrorReportJob' do
       class JobDouble < ApplicationJob
-        def perform(*_)
+        def perform(*_args)
           raise 'error during job'
         end
       end

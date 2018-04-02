@@ -1,8 +1,0 @@
-/ render one entry for every change to the file (i.e. if a document was modified
-/ and moved, it will be shown separately on two consecutive lines)
-= render partial: 'revisions/file_diff_change',
-         collection: file_diff.changes,
-         locals: { file_diff: file_diff,
-                   project: project,
-                   show_link_to_file_info: show_link_to_file_info,
-                   all_links_in_new_tab: all_links_in_new_tab }

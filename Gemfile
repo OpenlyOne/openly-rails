@@ -8,15 +8,15 @@ git_source(:github) do |repo_name|
 end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.2'
+gem 'rails', '~> 5.1.6'
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 0.21'
+gem 'pg', '~> 1.0.0'
 # Use Puma as the app server
-gem 'puma', '3.8.1'
+gem 'puma', '3.11.3'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.7'
 # Autoprefix CSS rules using values from Can I Use
-gem 'autoprefixer-rails', '~> 7.1'
+gem 'autoprefixer-rails', '~> 8.2'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
@@ -27,27 +27,27 @@ gem 'slim', '~> 3.0'
 gem 'coffee-rails', '~> 4.2'
 # Turbolinks makes navigating your web application faster. Read more:
 # https://github.com/turbolinks/turbolinks
-gem 'turbolinks', '~> 5'
+gem 'turbolinks', '~> 5.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 # Material Design
-gem 'materialize-sass', '~> 1.0.0alpha'
+gem 'materialize-sass', '~> 1.0.0beta'
 # MaterializeCSS requires JQuery
 gem 'jquery-rails', '~> 4.3'
 # Use figaro for managing ENV variables
 gem 'figaro', '~> 1.1'
 # Use Devise for authentication
-gem 'devise', '~> 4.3'
+gem 'devise', '~> 4.4'
 # Use CanCanCan for authorization (permission management)
-gem 'cancancan', '~> 2.0'
+gem 'cancancan', '~> 2.1'
 # Nokogiri for parsing fields with errors
 gem 'nokogiri', '~> 1.8.1'
 # For simplified Rails configuration
-gem 'config', '~> 1.4'
+gem 'config', '~> 1.7'
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
-gem 'google-api-client', '~> 0.17'
+gem 'google-api-client', '~> 0.19'
 # Delayed job for processing background jobs, such as Google Drive requests
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
@@ -55,7 +55,7 @@ gem 'daemons', '~> 1.2'
 # Error-tracking with Rollbar
 gem 'rollbar', '~> 2.15'
 # Paperclip for attachments
-gem 'paperclip', '~> 5.2'
+gem 'paperclip', '~> 6.0'
 # ActiveRecord-Import for bulk creation of records
 gem 'activerecord-import', '~> 0.22'
 # Ahoy for tracking page visits
@@ -73,13 +73,13 @@ group :development, :test do
   # We will use pry rails as our console
   gem 'pry-rails', '~> 0.3'
   # and also as our debugger
-  gem 'pry-byebug', '~> 3.4'
+  gem 'pry-byebug', '~> 3.6'
   # Use Rspec for testing
-  gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails', '~> 3.7'
   # We will use bullet to avoid N+1 queries
-  gem 'bullet', '~> 5.6'
+  gem 'bullet', '~> 5.7'
   # Use FactoryGirl for generating factories
-  gem 'factory_girl_rails', '~> 4.8'
+  gem 'factory_bot_rails', '~> 4.8'
   # Quickly generate fake names, urls, etc
   gem 'faker', '~> 1.8'
 end
@@ -93,11 +93,13 @@ group :development do
   # the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  # Speed up rspec
+  gem 'spring-commands-rspec', '~> 1.0'
   # Automatically run tests when files update
   gem 'guard-rspec', '~> 4.7', require: false
   # Capistrano for deployment
-  gem 'capistrano',               '~> 3.9', require: false
-  gem 'capistrano-bundler',       '~> 1.2', require: false
+  gem 'capistrano',               '~> 3.10', require: false
+  gem 'capistrano-bundler',       '~> 1.3', require: false
   gem 'capistrano-figaro-yml',    '~> 1.0', require: false
   gem 'capistrano-rails',         '~> 1.3', require: false
   gem 'capistrano-rvm',           '~> 0.1', require: false
@@ -107,18 +109,18 @@ group :development do
   # Capistrano integration for DelayedJob
   gem 'capistrano3-delayed-job', '~> 1.7'
   # Generate favicons
-  gem 'rails_real_favicon'
+  gem 'rails_real_favicon', '~> 0.0.11'
 end
 
 group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
-  gem 'capybara', '~> 2.14'
+  gem 'capybara', '~> 2.18'
   # Additional RSpec matchers
   gem 'shoulda-matchers', '~> 3.1',
       git: 'https://github.com/thoughtbot/shoulda-matchers.git',
-      branch: 'rails-5'
+      branch: 'master'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
   # VCR for capturing HTTP requests during tests

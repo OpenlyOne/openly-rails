@@ -7,6 +7,7 @@ RSpec.shared_examples 'being resourceable' do
         .to belong_to(:thumbnail)
         .class_name('FileResource::Thumbnail')
         .dependent(false)
+        .optional
     end
   end
 
@@ -59,6 +60,17 @@ RSpec.shared_examples 'being resourceable' do
     end
 
     it { is_expected.to eq 'icon.png' }
+  end
+
+  describe '#provider' do
+    subject { resourceable.provider }
+
+    before do
+      allow(resourceable).to receive(:provider_id).and_return 'id'
+      allow(Provider).to receive(:find).with('id').and_return 'provider'
+    end
+
+    it { is_expected.to eq 'provider' }
   end
 
   describe '#symbolic_mime_type' do

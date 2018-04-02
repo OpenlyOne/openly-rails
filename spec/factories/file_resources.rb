@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :file_resource do
     provider_id     0
     external_id     { Faker::Crypto.unique.sha1 }

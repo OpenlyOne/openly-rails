@@ -32,6 +32,7 @@ module Stage
     def self.staged_snapshot_for(file_resource, project)
       project
         .non_root_file_snapshots_in_stage
+        .with_provider_id
         .find_by(file_resource: file_resource)
     end
 
@@ -42,6 +43,7 @@ module Stage
         .revisions
         &.last
         &.committed_file_snapshots
+        &.with_provider_id
         &.find_by(file_resource: file_resource)
     end
 
@@ -63,9 +65,10 @@ module Stage
                    project: project)
     end
 
-    # Return this file's children as an array of Stage::FileDiff instances
+    # Return this file's children as an array of FileDiff instances
     def children_as_diffs
-      Children.new(project: project, parent_id: file_resource_id).as_diffs
+      @children_as_diffs ||=
+        ChildrenQuery.new(project: project, parent_id: file_resource_id)
     end
 
     # Return the first three ancestors (names only) of this diff

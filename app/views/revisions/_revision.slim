@@ -1,9 +1,35 @@
-.metadata
-  h5.title.no-margin-top
-    = render partial: 'revisions/revision_timestamp',
-             locals: { project: project, revision: revision, device: :desktop }
-    b = revision.title
+/ render a single revision with file diff
 
-  - if revision.summary.present?
-    .summary
-      = simple_format html_escape(revision.summary)
+/ allow overwriting of changes by passing file_changes in locals, as in the case
+/ of file infos where we want to display changes for only one file
+- file_changes ||= revision.file_changes
+
+.row.revision id=revision.id
+
+  .spacing.v8px
+
+  = render partial: 'revisions/revision_timestamp',
+           locals: { project: project, revision: revision, device: :mobile }
+
+  .spacing.v8px
+
+
+  .col.l2.m3.s12.center-align
+    = render partial: 'profiles/profile',
+             object: revision.author
+
+  .col.l10.m9.s12
+    = render partial: 'revisions/revision_metadata',
+             object: revision,
+             as: :revision,
+             locals: { project: project }
+
+    = render partial: 'revisions/file_changes',
+             object: file_changes,
+             locals: { project: project,
+                       show_link_to_file_info: show_link_to_file_info,
+                       all_links_in_new_tab: false }
+
+.spacing.v16px
+.divider
+.spacing.v16px

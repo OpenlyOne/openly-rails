@@ -17,6 +17,15 @@ class FileResource < ApplicationRecord
   # Attributes
   attr_readonly :provider_id
 
+  scope :order_by_name_with_folders_first, lambda { |table: nil|
+    table ||= table_name
+    folder_mime_type = Providers::GoogleDrive::MimeType.folder
+    order(
+      "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
+      "#{table}.name asc"
+    )
+  }
+
   # Validations
   validates :provider_id, presence: true
   validates :external_id, presence: true
@@ -78,10 +87,6 @@ class FileResource < ApplicationRecord
     Object.const_get("#{provider}::MimeType").folder?(mime_type)
   end
 
-  def provider
-    "Providers::#{provider_name}".constantize
-  end
-
   # Return all children that are folders
   def subfolders
     children.select(&:folder?)
@@ -112,9 +117,5 @@ class FileResource < ApplicationRecord
 
   def parent_association_loaded?
     association(:parent).loaded?
-  end
-
-  def provider_name
-    self.class.providers[provider_id]
   end
 end

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.18 (April 1, 2018)
+
+**New Features:**
+- When capturing changes, the user can (un-)select the file changes to capture.
+
 ## v0.17 (March 26, 2018)
 
 **New Features:**

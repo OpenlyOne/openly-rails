@@ -141,60 +141,61 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been modified' do
-    before { allow(children.first).to receive(:modified?).and_return(true) }
+    before { allow(children.first).to receive(:modification?).and_return(true) }
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.file.modified .indicators svg', count: 1
+      expect(rendered)
+        .to have_css '.file.modification .indicators svg', count: 1
     end
   end
 
   context 'when file has been added' do
-    before { allow(children.first).to receive(:added?).and_return(true) }
+    before { allow(children.first).to receive(:addition?).and_return(true) }
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.file.added .indicators svg', count: 1
+      expect(rendered).to have_css '.file.addition .indicators svg', count: 1
     end
   end
 
   context 'when file has been moved' do
-    before { allow(children.first).to receive(:moved?).and_return(true) }
+    before { allow(children.first).to receive(:movement?).and_return(true) }
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.file.moved .indicators svg', count: 1
+      expect(rendered).to have_css '.file.movement .indicators svg', count: 1
     end
   end
 
   context 'when file has been renamed' do
-    before { allow(children.first).to receive(:renamed?).and_return(true) }
+    before { allow(children.first).to receive(:rename?).and_return(true) }
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.file.renamed .indicators svg', count: 1
+      expect(rendered).to have_css '.file.rename .indicators svg', count: 1
     end
   end
 
   context 'when file has been deleted' do
-    before { allow(children.first).to receive(:deleted?).and_return(true) }
+    before { allow(children.first).to receive(:deletion?).and_return(true) }
 
     it 'adds a file indicator' do
       render
-      expect(rendered).to have_css '.file.deleted .indicators svg', count: 1
+      expect(rendered).to have_css '.file.deletion .indicators svg', count: 1
     end
   end
 
   context 'when file has been moved, renamed, and modified' do
     before do
-      allow(children.first).to receive(:moved?).and_return(true)
-      allow(children.first).to receive(:renamed?).and_return(true)
-      allow(children.first).to receive(:modified?).and_return(true)
+      allow(children.first).to receive(:movement?).and_return(true)
+      allow(children.first).to receive(:rename?).and_return(true)
+      allow(children.first).to receive(:modification?).and_return(true)
     end
 
     it 'adds 3 file indicators' do
       render
-      expect(rendered).to have_css '.file.changed .indicators svg', count: 3
+      expect(rendered).to have_css '.file.change .indicators svg', count: 3
     end
   end
 end

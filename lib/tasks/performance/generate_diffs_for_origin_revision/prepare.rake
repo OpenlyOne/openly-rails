@@ -6,7 +6,7 @@ namespace :performance do
     task prepare: :test_environment do
       puts 'Preparing database'
 
-      snapshot_id = FactoryGirl.create(:file_resource_snapshot).id
+      snapshot_id = FactoryBot.create(:file_resource_snapshot).id
       batch_size = 1_000
       columns = %i[provider_id external_id mime_type name content_version
                    current_snapshot_id]
@@ -22,7 +22,7 @@ namespace :performance do
       end
 
       puts 'Creating revision with all file resources committed'
-      revision = FactoryGirl.create(:revision)
+      revision = FactoryBot.create(:revision)
 
       columns = %i[file_resource_id file_resource_snapshot_id revision_id]
       rows = FileResource.all.pluck(:id, :current_snapshot_id)

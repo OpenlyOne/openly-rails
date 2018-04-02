@@ -50,19 +50,19 @@ RSpec.describe Revision::FileDiffsCalculator, type: :model do
       expect(diffs.map(&:file_resource_id))
         .to match_array [f3, f4, f5, f6, f8, f9].map(&:id)
 
-      expect(diff3).to be_updated
+      expect(diff3).to be_update
       expect(diff3.first_three_ancestors).to eq %w[f6 f2 f1]
 
-      expect(diff4).to be_deleted
+      expect(diff4).to be_deletion
       expect(diff4.first_three_ancestors).to eq %w[f3 f6 f2]
 
-      expect(diff5).to be_deleted
+      expect(diff5).to be_deletion
       expect(diff5.first_three_ancestors).to eq %w[f4 f3 f6]
 
-      expect(diff8).to be_added
+      expect(diff8).to be_addition
       expect(diff8.first_three_ancestors).to eq %w[f2 f1]
 
-      expect(diff9).to be_added
+      expect(diff9).to be_addition
       expect(diff9.first_three_ancestors).to eq %w[f8 f2 f1]
     end
 
@@ -74,25 +74,25 @@ RSpec.describe Revision::FileDiffsCalculator, type: :model do
         expect(diffs.map(&:file_resource_id))
           .to match_array [f1, f2, f3, f6, f7, f8, f9].map(&:id)
 
-        expect(diff1).to be_added
+        expect(diff1).to be_addition
         expect(diff1.first_three_ancestors).to eq %w[]
 
-        expect(diff2).to be_added
+        expect(diff2).to be_addition
         expect(diff2.first_three_ancestors).to eq %w[f1]
 
-        expect(diff3).to be_added
+        expect(diff3).to be_addition
         expect(diff3.first_three_ancestors).to eq %w[f6 f2 f1]
 
-        expect(diff6).to be_added
+        expect(diff6).to be_addition
         expect(diff6.first_three_ancestors).to eq %w[f2 f1]
 
-        expect(diff7).to be_added
+        expect(diff7).to be_addition
         expect(diff7.first_three_ancestors).to eq %w[f6 f2 f1]
 
-        expect(diff8).to be_added
+        expect(diff8).to be_addition
         expect(diff8.first_three_ancestors).to eq %w[f2 f1]
 
-        expect(diff9).to be_added
+        expect(diff9).to be_addition
         expect(diff9.first_three_ancestors).to eq %w[f8 f2 f1]
       end
     end
