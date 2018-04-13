@@ -19,6 +19,11 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.about
   end
 
+  it 'renders the location of the profile' do
+    render
+    expect(rendered).to have_text profile.location
+  end
+
   it 'lists projects with title & tags & description' do
     render
     projects.each do |project|
