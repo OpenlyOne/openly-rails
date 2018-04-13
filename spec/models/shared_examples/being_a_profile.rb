@@ -27,6 +27,7 @@ RSpec.shared_examples 'being a profile' do
 
   describe 'attachments' do
     it { is_expected.to have_attached_file(:picture) }
+    it { is_expected.to have_attached_file(:banner) }
   end
 
   describe 'attributes' do
