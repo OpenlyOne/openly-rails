@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180324033225) do
+ActiveRecord::Schema.define(version: 20180413212022) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -181,7 +181,6 @@ ActiveRecord::Schema.define(version: 20180324033225) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "color_scheme", default: "indigo base", null: false
     t.string "type", null: false
     t.citext "handle", null: false
     t.string "picture_file_name"
@@ -189,6 +188,15 @@ ActiveRecord::Schema.define(version: 20180324033225) do
     t.integer "picture_file_size"
     t.datetime "picture_updated_at"
     t.text "about"
+    t.text "location"
+    t.text "link_to_website"
+    t.text "link_to_facebook"
+    t.text "link_to_twitter"
+    t.string "banner_file_name"
+    t.string "banner_content_type"
+    t.integer "banner_file_size"
+    t.datetime "banner_updated_at"
+    t.string "color_scheme", default: "blue darken-2", null: false
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
     t.index ["handle"], name: "index_profiles_on_handle", unique: true
   end

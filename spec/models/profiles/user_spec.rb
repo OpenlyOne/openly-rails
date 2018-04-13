@@ -9,7 +9,9 @@ RSpec.describe Profiles::User, type: :model do
     is_expected.to be_valid
   end
 
-  it_should_behave_like 'being a profile'
+  it_should_behave_like 'being a profile' do
+    subject(:profile) { user }
+  end
 
   describe 'associations' do
     it { is_expected.to belong_to(:account) }

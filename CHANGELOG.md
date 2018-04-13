@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.19 (April 13, 2018)
+
+**Enhancements:**
+- Profiles have a location, social links, and one of 256 color schemes
+
 ## v0.18 (April 1, 2018)
 
 **New Features:**

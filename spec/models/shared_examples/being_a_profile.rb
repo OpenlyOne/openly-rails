@@ -27,6 +27,7 @@ RSpec.shared_examples 'being a profile' do
 
   describe 'attachments' do
     it { is_expected.to have_attached_file(:picture) }
+    it { is_expected.to have_attached_file(:banner) }
   end
 
   describe 'attributes' do
@@ -67,6 +68,31 @@ RSpec.shared_examples 'being a profile' do
 
     it do
       is_expected.to validate_attachment_size(:picture).less_than(10.megabytes)
+    end
+
+    it 'validates that color scheme is a valid option' do
+      is_expected.to validate_inclusion_of(:color_scheme)
+        .in_array(Color.options)
+    end
+  end
+
+  describe '#color_scheme_with_font_color' do
+    subject(:method)  { profile.color_scheme_with_font_color }
+    before            { profile.color_scheme = color_scheme }
+
+    context "when color scheme is 'indigo base'" do
+      let(:color_scheme) { 'indigo base' }
+      it { is_expected.to eq 'indigo base white-text' }
+    end
+
+    context "when color scheme is 'red lighten-4'" do
+      let(:color_scheme) { 'red lighten-4' }
+      it { is_expected.to eq 'red lighten-4 black-text' }
+    end
+
+    context "when color scheme is 'amber accent-2'" do
+      let(:color_scheme) { 'amber accent-2' }
+      it { is_expected.to eq 'amber accent-2 black-text' }
     end
   end
 

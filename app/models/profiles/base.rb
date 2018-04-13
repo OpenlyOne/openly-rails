@@ -38,6 +38,16 @@ module Profiles
                       url:  ':attachment_url/profiles/:id_partition/picture/' \
                             ':style.:extension',
                       default_url: '/fallback/profiles/picture.jpg'
+    has_attached_file :banner,
+                      styles: {
+                        original: ['1600x500#', :jpg]
+                      },
+                      default_style: :original,
+                      path: ':attachment_path/profiles/:id_partition/banner/' \
+                            ':style.:extension',
+                      url:  ':attachment_url/profiles/:id_partition/banner/' \
+                            ':style.:extension',
+                      default_url: '/fallback/profiles/banner.jpg'
 
     # Attributes
     # Do not allow handle to change
@@ -70,6 +80,10 @@ module Profiles
     validates :handle,
               uniqueness: { case_sensitive: true },
               unless: proc { |handle| handle.errors[:identifier].any? }
+    validates :color_scheme, inclusion: {
+      in: Color.options,
+      message: '%<value>s is not a valid option'
+    }
 
     # Profile picture
     validates_with AttachmentSizeValidator,
@@ -79,6 +93,12 @@ module Profiles
                    attributes: :picture,
                    content_type: %w[image/jpeg image/gif image/png],
                    message: 'must be JPEG, PNG, or GIF'
+
+    # Return both color_scheme and the font color for the color_scheme
+    def color_scheme_with_font_color
+      @color_scheme_with_font_color ||=
+        "#{color_scheme} #{Color.font_color_for(color_scheme)}"
+    end
 
     # Use handle identifier as param in URLs
     def to_param
