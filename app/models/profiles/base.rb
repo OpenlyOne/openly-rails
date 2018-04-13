@@ -38,6 +38,16 @@ module Profiles
                       url:  ':attachment_url/profiles/:id_partition/picture/' \
                             ':style.:extension',
                       default_url: '/fallback/profiles/picture.jpg'
+    has_attached_file :banner,
+                      styles: {
+                        original: ['1600x500#', :jpg]
+                      },
+                      default_style: :original,
+                      path: ':attachment_path/profiles/:id_partition/banner/' \
+                            ':style.:extension',
+                      url:  ':attachment_url/profiles/:id_partition/banner/' \
+                            ':style.:extension',
+                      default_url: '/fallback/profiles/banner.jpg'
 
     # Attributes
     # Do not allow handle to change

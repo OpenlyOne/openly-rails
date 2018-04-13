@@ -7,7 +7,7 @@
           h1
             = f.text_field :name, placeholder: 'Your Name', class: 'inherit'
 
-  .profile-banner style="background-image: url(#{image_path('profiles/banner.jpg')});"
+  .profile-banner style="background-image: url(#{@profile.banner});"
 
   .container
     .profile-picture

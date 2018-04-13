@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'profiles/show', type: :view do
-  let(:profile) { build(:user) }
+  let(:profile) { build(:user, :with_social_links) }
   let(:projects) { build_stubbed_list(:project, 3, owner: profile) }
 
   before do
@@ -14,9 +14,21 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.name
   end
 
+  it 'renders the social links of the profile' do
+    render
+    expect(rendered).to have_link href: profile.link_to_website
+    expect(rendered).to have_link href: profile.link_to_facebook
+    expect(rendered).to have_link href: profile.link_to_twitter
+  end
+
   it 'renders the about text of the profile' do
     render
     expect(rendered).to have_text profile.about
+  end
+
+  it 'renders the location of the profile' do
+    render
+    expect(rendered).to have_text profile.location
   end
 
   it 'lists projects with title & tags & description' do

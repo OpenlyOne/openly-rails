@@ -28,7 +28,6 @@ $picture-size-small: 100px;
       top: $picture-size-large / 2 - 18px;
     }
 
-
     // Increase picture size on large screens
     @media #{$large-and-up} {
       margin-bottom: - $picture-size-large / 2;
@@ -44,6 +43,27 @@ $picture-size-small: 100px;
       .upload.btn {
         top: $picture-size-large / 2 - 18px;
       }
+    }
+  }
+
+  .social-links {
+    a {
+      display: inline-block;
+      margin-left: 16px;
+      margin-top: 16px;
+
+      // scss-lint:disable SelectorDepth, NestingDepth
+      &:hover svg {
+        // scss-lint:disable ImportantRule
+        background-color: color('shades', 'black') !important;
+        color: color('shades', 'white') !important;
+      }
+    }
+
+    svg {
+      height: 32px;
+      padding: 6px;
+      width: 32px;
     }
   }
 }
