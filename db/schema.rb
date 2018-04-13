@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180413032306) do
+ActiveRecord::Schema.define(version: 20180413034654) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -190,6 +190,9 @@ ActiveRecord::Schema.define(version: 20180413032306) do
     t.datetime "picture_updated_at"
     t.text "about"
     t.text "location"
+    t.text "link_to_website"
+    t.text "link_to_facebook"
+    t.text "link_to_twitter"
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
     t.index ["handle"], name: "index_profiles_on_handle", unique: true
   end
