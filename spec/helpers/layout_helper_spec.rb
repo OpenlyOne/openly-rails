@@ -32,17 +32,31 @@ RSpec.describe LayoutHelper, type: :helper do
     end
   end
 
-  describe '#color_scheme' do
-    it "includes 'color-scheme'" do
-      expect(helper.color_scheme).to include 'color-scheme'
+  describe '#color_scheme(scheme)' do
+    subject(:method) { helper.color_scheme(scheme) }
+
+    context "when scheme is 'red base'" do
+      let(:scheme) { 'red base' }
+      it {
+        is_expected
+          .to eq('color-scheme primary-red primary-base primary-black-text')
+      }
     end
 
-    it "includes the base color with 'primary-___'" do
-      expect(helper.color_scheme).to match(/\bprimary-[a-z]+\b/)
-    end
+    context 'when scheme is nil' do
+      let(:scheme) { nil }
 
-    it "includes the text color with 'primary-___-text'" do
-      expect(helper.color_scheme).to match(/\bprimary-(white|black)-text\b/)
+      it "includes 'color-scheme'" do
+        is_expected.to include 'color-scheme'
+      end
+
+      it "includes the base color with 'primary-___'" do
+        is_expected.to match(/\bprimary-[a-z]+\b/)
+      end
+
+      it "includes the text color with 'primary-___-text'" do
+        is_expected.to match(/\bprimary-(white|black)-text\b/)
+      end
     end
   end
 end

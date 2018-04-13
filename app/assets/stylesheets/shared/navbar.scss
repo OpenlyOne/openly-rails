@@ -5,6 +5,12 @@ nav {
   // add seam
   @include seam(bottom);
 
+  .nav-overlay {
+    background-color: $shadow;
+    height: 100%;
+    width: 100%;
+  }
+
   .brand-logo {
 
     // inherit color from navbar

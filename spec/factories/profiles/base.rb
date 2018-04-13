@@ -14,6 +14,10 @@ FactoryBot.define do
       link_to_twitter   { Faker::Internet.url('twitter.com') }
     end
 
+    trait :with_random_color_scheme do
+      color_scheme { Color.options.sample }
+    end
+
     transient do
       city  { Faker::Address.city }
       state { Faker::Address.state }
