@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.20 (April 14, 2018)
+
+**New Features:**
+- Profiles own resources (such as a Google Drive doc) that are listed on their
+  profile page
+
 ## v0.19 (April 13, 2018)
 
 **Enhancements:**
