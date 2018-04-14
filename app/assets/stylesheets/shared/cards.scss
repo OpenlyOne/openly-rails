@@ -21,5 +21,13 @@
   // Reduce top & bottom spacing on cards
   .card-content {
     padding: 16px 24px;
+
+    p:not(:first-of-type) {
+      margin-top: 10px;
+    }
+  }
+
+  .with-bottom-seam {
+    @include seam('bottom');
   }
 }

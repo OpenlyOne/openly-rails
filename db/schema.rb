@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180413212022) do
+ActiveRecord::Schema.define(version: 20180414050240) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -229,6 +229,17 @@ ActiveRecord::Schema.define(version: 20180413212022) do
     t.index ["owner_id"], name: "index_projects_on_owner_id"
   end
 
+  create_table "resources", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.text "mime_type", null: false
+    t.bigint "owner_id", null: false
+    t.text "link", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_resources_on_owner_id"
+  end
+
   create_table "revisions", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.bigint "parent_id"
@@ -276,6 +287,7 @@ ActiveRecord::Schema.define(version: 20180413212022) do
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
+  add_foreign_key "resources", "profiles", column: "owner_id"
   add_foreign_key "revisions", "profiles", column: "author_id"
   add_foreign_key "revisions", "projects"
   add_foreign_key "revisions", "revisions", column: "parent_id"

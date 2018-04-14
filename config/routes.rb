@@ -47,6 +47,9 @@ Rails.application.routes.draw do
   # Routes for notifications
   resources :notifications, only: %i[index show]
 
+  # Routes for resources
+  resources :resources, only: :show
+
   # Routes for creating new projects
   get   '/projects/new' => 'projects#new',    as: :new_project
   post  '/projects/new' => 'projects#create', as: :projects

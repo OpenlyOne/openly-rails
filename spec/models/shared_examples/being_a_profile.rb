@@ -20,6 +20,13 @@ RSpec.shared_examples 'being a profile' do
     end
     it do
       is_expected
+        .to have_many(:resources)
+        .with_foreign_key(:owner_id)
+        .dependent(:destroy)
+        .inverse_of(:owner)
+    end
+    it do
+      is_expected
         .to have_and_belong_to_many(:collaborations)
         .class_name('Project').validate(false)
     end
