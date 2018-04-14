@@ -19,4 +19,17 @@ RSpec.describe Resource, type: :model do
     end
     it { is_expected.to validate_presence_of(:link) }
   end
+
+  describe '#icon' do
+    subject { resource.icon }
+
+    before do
+      allow(Providers::GoogleDrive::Icon)
+        .to receive(:for)
+        .with(mime_type: resource.mime_type)
+        .and_return 'icon-for-mime-type'
+    end
+
+    it { is_expected.to eq 'icon-for-mime-type' }
+  end
 end
