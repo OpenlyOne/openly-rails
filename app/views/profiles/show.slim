@@ -69,3 +69,23 @@
                         'hide-on-med-and-up',
                         '')
           .clearfix
+
+- if @resources.present?
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        h3 Resources
+    .row
+      - @resources.each do |resource|
+
+        = render resource
+
+        div class=cycle('hide-on-med-and-up',
+                        'hide-on-large-only',
+                        'hide-on-med-only',
+                        'hide-on-large-only',
+                        'hide-on-med-and-up',
+                        '')
+          .clearfix
+
+.spacing.v32px
