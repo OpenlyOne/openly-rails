@@ -63,7 +63,10 @@ RSpec.describe 'profiles/show', type: :view do
   it 'links to resources' do
     render
     resources.each do |resource|
-      expect(rendered).to have_link href: resource.link
+      expect(rendered).to have_link(
+        'Open in Google Drive',
+        href: resource_path(resource)
+      )
     end
   end
 

@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/acting_as_hash_id.rb'
+
 RSpec.describe Resource, type: :model do
   subject(:resource) { build_stubbed :resource }
 
   it 'has a valid factory' do
     is_expected.to be_valid
   end
+
+  it_should_behave_like 'acting as hash ID'
 
   describe 'associations' do
     it { is_expected.to belong_to(:owner).dependent(false) }

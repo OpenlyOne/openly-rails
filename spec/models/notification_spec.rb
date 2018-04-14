@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/acting_as_hash_id.rb'
+
 RSpec.describe Notification, type: :model do
   subject(:notification) { build_stubbed :notification }
 
@@ -7,11 +9,7 @@ RSpec.describe Notification, type: :model do
     is_expected.to be_valid
   end
 
-  describe 'hash ids' do
-    it '#to_param returns a hash id' do
-      expect(notification.to_param).to be_an_instance_of String
-    end
-  end
+  it_should_behave_like 'acting as hash ID'
 
   describe 'aliases' do
     it do

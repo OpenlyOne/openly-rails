@@ -2,6 +2,9 @@
 
 # A single file resource
 class Resource < ApplicationRecord
+  acts_as_hashids secret: ENV['HASH_ID_SECRET']
+
+  # Associations
   belongs_to :owner, class_name: 'Profiles::Base'
 
   # Validations
