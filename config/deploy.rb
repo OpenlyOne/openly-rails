@@ -11,7 +11,7 @@ Config.load_and_set_settings(Config.setting_files('config', fetch(:env)))
 
 server Settings.app_domain, port: 22, roles: %i[web app db], primary: true
 
-set :repo_url,        'git@github.com:UpshiftOne/upshift.git'
+set :repo_url,        'git@github.com:OpenlyOne/openly.git'
 set :application,     'upshift'
 set :user,            ENV['DEPLOY_USER']
 set :puma_threads,    [4, 16]

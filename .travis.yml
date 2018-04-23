@@ -11,7 +11,7 @@ services:
   - postgresql
 
 before_script:
-  - psql -c 'create database upshift_test;' -U postgres
+  - psql -c 'create database openly_test;' -U postgres
 
 script:
   - bundle exec rspec spec/

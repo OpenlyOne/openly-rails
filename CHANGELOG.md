@@ -173,7 +173,7 @@
 ## v0.7.1 (December 7, 2017)
 
 **New Features**:
-- Users can sign up to stay informed about Upshift.
+- Users can sign up to stay informed about Openly.
 
 ## v0.7 (November 25, 2017)
 
