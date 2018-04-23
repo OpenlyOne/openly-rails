@@ -2,6 +2,6 @@
 
 # Base class for all app mailers
 class ApplicationMailer < ActionMailer::Base
-  default from: 'hello@upshift.one'
+  default from: "hello@#{Settings.app_domain}"
   layout 'mailer'
 end

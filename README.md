@@ -1,8 +1,8 @@
-# Upshift One
+# Openly One
 
-[![GitHub release](https://img.shields.io/badge/version-0.20-blue.svg)](https://github.com/UpshiftOne/upshift)
-[![Build Status](https://travis-ci.org/UpshiftOne/upshift.svg?branch=master)](https://travis-ci.org/UpshiftOne/upshift)
-[![codecov](https://codecov.io/gh/UpshiftOne/upshift/branch/master/graph/badge.svg)](https://codecov.io/gh/UpshiftOne/upshift)
+[![GitHub release](https://img.shields.io/badge/version-0.20-blue.svg)](https://github.com/OpenlyOne/openly)
+[![Build Status](https://travis-ci.org/OpenlyOne/openly.svg?branch=master)](https://travis-ci.org/OpenlyOne/openly)
+[![codecov](https://codecov.io/gh/OpenlyOne/openly/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenlyOne/openly)
 
-Upshift is a collaboration platform for individuals and teams with bold
+Openly is a collaboration platform for individuals and teams with bold
 ambitions.

@@ -17,7 +17,7 @@ require 'sprockets/railtie'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Upshift
+module Openly
   # Set application specific configuration
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.

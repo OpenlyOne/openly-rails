@@ -4,6 +4,6 @@ wrapper.primary
       spacer size='10'
       = image_tag 'logo-white.png',
                   class:'float-left', size: '30', alt: 'Logo'
-      p.title.white-text Upshift One
+      p.title.white-text = Settings.app_name
 
 spacer size='32'

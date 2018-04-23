@@ -8,6 +8,6 @@ RSpec.describe 'errors/internal_server_error', type: :view do
 
   it 'provides a contact email address' do
     render
-    expect(rendered).to have_selector('a', text: 'hello@upshift.one')
+    expect(rendered).to have_selector('a', text: 'hello@openly.one')
   end
 end

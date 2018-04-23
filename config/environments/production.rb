@@ -57,13 +57,13 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   config.action_mailer.default_url_options =
-    { host: 'upshift.one', protocol: 'https' }
-  config.action_mailer.asset_host = 'https://upshift.one'
+    { host: Settings.app_url, protocol: 'https' }
+  config.action_mailer.asset_host = "https://#{Settings.app_url}"
 
   # Use a real queuing backend for Active Job (and separate queues per
   # environment)
   # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "upshift_#{Rails.env}"
+  # config.active_job.queue_name_prefix = "openly_#{Rails.env}"
   config.action_mailer.perform_caching = false
 
   # Ignore bad email addresses and do not raise email delivery errors.
