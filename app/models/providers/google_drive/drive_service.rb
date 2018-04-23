@@ -35,7 +35,7 @@ module Providers
       # Initialize a new instance of DriveService
       def initialize(google_account)
         super()
-        client_options.application_name = 'Upshift One'
+        client_options.application_name = Settings.app_name
         @google_account = google_account
         reload
       end

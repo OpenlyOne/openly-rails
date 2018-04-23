@@ -2,7 +2,7 @@
 
 # Send notification emails
 class NotificationsMailer < ApplicationMailer
-  default from: "Upshift One <notification@#{Settings.app_domain}>"
+  default from: "#{Settings.app_name} <notification@#{Settings.app_domain}>"
 
   # Overwrite .send_notification_email to push reference to DeliveryJob
   def self.send_notification_email(notification, options = {})
