@@ -57,8 +57,8 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   config.action_mailer.default_url_options =
-    { host: 'upshift.one', protocol: 'https' }
-  config.action_mailer.asset_host = 'https://upshift.one'
+    { host: Settings.app_url, protocol: 'https' }
+  config.action_mailer.asset_host = "https://#{Settings.app_url}"
 
   # Use a real queuing backend for Active Job (and separate queues per
   # environment)

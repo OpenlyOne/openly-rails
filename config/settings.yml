@@ -1,9 +1,16 @@
+# The domain name of the application, used for email addresses
+app_domain: <%= ENV['APPLICATION_DOMAIN'] %>
+# The URL of the application, used for links
+app_url: <%= ENV['APPLICATION_DOMAIN'] %>
+# app_url: "www.<%= ENV['APPLICATION_DOMAIN'] %>" # For the www version
 # The location for storing Paperclip attachments, such as profile pictures
 attachment_storage: 'public/system'
 # Allow users to register new accounts
 enable_account_registration: true
 # The account used to access, monitor, and manage files
 google_drive_tracking_account: <%= ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] || 'track@flov.com' %>
+# The email displayed to users for seeking customer support (for example, on error pages)
+support_email: "hello@<%= ENV['APPLICATION_DOMAIN'] %>"
 # The classes whitelisted for use in YAML.safe_load
 # Example: YAML.safe_load(string, Settings.whitelisted_yaml_classes)
 # Read more: http://www.rubydoc.info/stdlib/psych/Psych.safe_load

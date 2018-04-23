@@ -9,7 +9,7 @@ lock '3.10.1'
 require 'config'
 Config.load_and_set_settings(Config.setting_files('config', fetch(:env)))
 
-server 'upshift.one', port: 22, roles: %i[web app db], primary: true
+server Settings.app_domain, port: 22, roles: %i[web app db], primary: true
 
 set :repo_url,        'git@github.com:UpshiftOne/upshift.git'
 set :application,     'upshift'

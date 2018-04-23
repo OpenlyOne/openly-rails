@@ -1,6 +1,6 @@
 wrapper.light-gray
   spacer size='10'
   p.text-center
-    => link_to 'upshift.one', root_url
+    => link_to Settings.app_url, root_url
     | &middot;
-    =< link_to 'hello@upshift.one', 'mailto:hello@upshift.one'
+    =< mail_to Settings.support_email
