@@ -1,5 +1,8 @@
 # The domain name of the application, used for email addresses
 app_domain: <%= ENV['APPLICATION_DOMAIN'] %>
+# The name of the application, used for page titles
+# Default: Openly One
+app_name: <%= ENV['APPLICATION_NAME'] || 'Openly One' %>
 # The slug of the application, used for database names
 # Default: openly
 app_slug: <%= ENV['APPLICATION_SLUG'] || 'openly' %>
