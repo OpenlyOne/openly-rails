@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.21 (April 22, 2018)
+
+**Fixes:**
+- Rename application from 'Upshift' to 'Openly' (our new business name)
+
 ## v0.20 (April 14, 2018)
 
 **New Features:**
