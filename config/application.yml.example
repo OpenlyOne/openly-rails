@@ -34,9 +34,9 @@ SMTP_PASSWORD: <password for email>
 production:
   DEPLOY_USER: <username of user for deployment>
   SECRET_KEY_BASE: <generate with 'rake secret'>
-  UPSHIFT_DATABASE_NAME: <your postgres database>
-  UPSHIFT_DATABASE_USERNAME: <your postgres user's username>
-  UPSHIFT_DATABASE_PASSWORD: <your postgres user's password>
+  PRODUCTION_DATABASE_NAME: <your postgres database>
+  PRODUCTION_DATABASE_USERNAME: <your postgres user's username>
+  PRODUCTION_DATABASE_PASSWORD: <your postgres user's password>
   GOOGLE_DRIVE_CREDENTIALS_PATH: '/var/apps/app-name/shared/credentials/google-drive.yaml'
   THUMBNAIL_HASH_SECRET: <token for thumbnail path obfuscation
 

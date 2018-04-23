@@ -1,5 +1,8 @@
 # The domain name of the application, used for email addresses
 app_domain: <%= ENV['APPLICATION_DOMAIN'] %>
+# The slug of the application, used for database names
+# Default: openly
+app_slug: <%= ENV['APPLICATION_SLUG'] || 'openly' %>
 # The URL of the application, used for links
 app_url: <%= ENV['APPLICATION_DOMAIN'] %>
 # app_url: "www.<%= ENV['APPLICATION_DOMAIN'] %>" # For the www version
