@@ -11,7 +11,7 @@ services:
   - postgresql
 
 before_script:
-  - psql -c 'create database upshift_test;' -U postgres
+  - psql -c 'create database openly_test;' -U postgres
 
 script:
   - bundle exec rspec spec/
@@ -28,6 +28,7 @@ branches:
 env:
   global:
     - CI=true
+    - APPLICATION_DOMAIN=openly.one
     - GOOGLE_DRIVE_TRACKING_ACCOUNT=example.one@gmail.com
     - GOOGLE_DRIVE_USER_ACCOUNT=example.two@gmail.com
     - GOOGLE_DRIVE_CLIENT_ID=client_id

@@ -12,7 +12,8 @@ FileUtils.rm_rf Dir.glob(Rails.root.join(Settings.file_storage, '*'))
 
 # Create three users
 %w[alice bob carla].each do |handle|
-  account = Account.new email: "#{handle}@upshift.one", password: 'password'
+  account = Account.new(email: "#{handle}@#{Settings.app_domain}",
+                        password: 'password')
   account.build_user name: handle.capitalize, handle: handle
   account.save
   account.reload # reload account to ensure that they were persisted
