@@ -39,6 +39,10 @@ class Ability
       can?(:collaborate, project)
     end
 
+    # Admins can use the administration back end
+    return unless user.admin?
+    can :manage, :admin_panel
+
     # Define abilities for the passed in user here. For example:
     #
     #   user ||= User.new # guest user (not logged in)

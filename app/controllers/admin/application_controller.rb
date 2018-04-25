@@ -11,8 +11,16 @@ module Admin
   class ApplicationController < Administrate::ApplicationController
     before_action :authenticate_admin
 
+    private
+
     def authenticate_admin
-      # TODO: Add authentication logic here.
+      authenticate_account!
+      authorize! :manage, :admin_panel
+    end
+
+    # Get the current user
+    def current_user
+      current_account.try(:user)
     end
   end
 end
