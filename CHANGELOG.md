@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.22 (April 25, 2018)
+
+**New Features:**
+- Add administration panel for admins to manage accounts and resources
+
 ## v0.21 (April 22, 2018)
 
 **Fixes:**
