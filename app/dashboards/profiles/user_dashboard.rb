@@ -16,6 +16,11 @@ module Profiles
       name: Field::String,
       handle: Field::String,
       color_scheme: Field::Select.with_options(collection: Color.options),
+      about: Field::Text,
+      location: Field::String,
+      link_to_website: Field::String,
+      link_to_facebook: Field::String,
+      link_to_twitter: Field::String,
       created_at: Field::DateTime,
       updated_at: Field::DateTime
     }.freeze
@@ -44,6 +49,11 @@ module Profiles
       name
       handle
       color_scheme
+      about
+      location
+      link_to_website
+      link_to_facebook
+      link_to_twitter
     ].freeze
 
     # Overwrite this method to customize how users are displayed
