@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # Admin panel routing
+  namespace :admin do
+    resources :accounts
+
+    root to: 'accounts#index'
+  end
+
   # Error routing
   match '/404', to: 'errors#not_found', via: :all
   match '/422', to: 'errors#unacceptable', via: :all
