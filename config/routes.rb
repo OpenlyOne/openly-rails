@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # Admin panel routing, return 404 unless account is admin
+  authenticated :account, ->(account) { account.admin? } do
+    namespace :admin do
+      resources :accounts
+      resources :resources
+
+      root to: 'accounts#index'
+    end
+  end
+
   # Error routing
   match '/404', to: 'errors#not_found', via: :all
   match '/422', to: 'errors#unacceptable', via: :all

@@ -20,5 +20,8 @@ module Profiles
     # Attributes
     # Do not allow account change
     attr_readonly :account_id
+
+    # Delegations
+    delegate :admin?, to: :account
   end
 end

@@ -68,6 +68,8 @@ gem 'acts_as_hashids', '~> 0.1'
 gem 'inky-rb', '~> 1.3', require: 'inky'
 # Stylesheet inlining for email
 gem 'premailer-rails', '~> 1.10'
+# Administration Panel
+gem 'administrate', '0.10'
 
 group :development, :test do
   # We will use pry rails as our console
