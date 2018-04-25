@@ -16,6 +16,8 @@ module Profiles
       name: Field::String,
       handle: Field::String,
       color_scheme: Field::Select.with_options(collection: Color.options),
+      picture: PaperclipField,
+      banner: PaperclipField,
       about: Field::Text,
       location: Field::String,
       link_to_website: Field::String,
@@ -49,6 +51,8 @@ module Profiles
       name
       handle
       color_scheme
+      picture
+      banner
       about
       location
       link_to_website
