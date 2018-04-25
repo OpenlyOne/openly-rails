@@ -9,6 +9,8 @@ module Providers
         drawing: 'application/vnd.google-apps.drawing',
         folder: 'application/vnd.google-apps.folder',
         form: 'application/vnd.google-apps.form',
+        other: 'other',
+        pdf: 'application/pdf',
         presentation: 'application/vnd.google-apps.presentation',
         spreadsheet: 'application/vnd.google-apps.spreadsheet'
       }.freeze

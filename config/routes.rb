@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   # Admin panel routing
   namespace :admin do
     resources :accounts
+    resources :resources
 
     root to: 'accounts#index'
   end
