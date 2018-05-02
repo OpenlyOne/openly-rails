@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.22.1 (May 2, 2018)
+
+**Fixes:**
+- Fixed a bug where the Files and Revisions pages would break if they contained
+  a PDF document
+
 ## v0.22 (April 25, 2018)
 
 **New Features:**
