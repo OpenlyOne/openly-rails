@@ -9,8 +9,8 @@ module Providers
       end
 
       def self.for(external_id:, mime_type:)
-        mime_type_symbol = MimeType.to_symbol(mime_type)
-        send(:"for_#{mime_type_symbol}", external_id)
+        type_symbol = MimeType.to_symbol(mime_type)
+        safe_send(:"for_#{type_symbol}", external_id) || for_other(external_id)
       end
 
       def self.for_document(id)
@@ -39,6 +39,11 @@ module Providers
 
       def self.for_other(id)
         "#{base_path(:drive)}/file/d/#{id}"
+      end
+
+      # Send the method with arguments if the method exists. Else, return nil.
+      def self.safe_send(method, arguments)
+        send(method, arguments) if respond_to?(method)
       end
     end
   end

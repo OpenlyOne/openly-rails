@@ -12,5 +12,9 @@ FactoryBot.define do
     trait :folder do
       mime_type { 'application/vnd.google-apps.folder' }
     end
+
+    trait :pdf do
+      mime_type { Providers::GoogleDrive::MimeType.pdf }
+    end
   end
 end
