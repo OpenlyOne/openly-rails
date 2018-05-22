@@ -23,8 +23,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    @collaborators = @project.collaborators.order(:name, :id)
-    @user_can_edit_project = can?(:edit, @project)
+    redirect_to profile_project_overview_path(@project.owner, @project)
   end
 
   def edit; end

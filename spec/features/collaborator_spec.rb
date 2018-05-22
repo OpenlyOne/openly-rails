@@ -31,7 +31,7 @@ feature 'Collaborators' do
 
     # then I should be on the project's page
     expect(page).to have_current_path(
-      "/#{project.owner.to_param}/#{project.to_param}"
+      "/#{project.owner.to_param}/#{project.to_param}/overview"
     )
   end
 

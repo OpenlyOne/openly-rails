@@ -39,9 +39,10 @@ feature 'Project' do
     # and click on the project title
     click_on project.title
 
-    # then I should be on the project's page
-    expect(page)
-      .to have_current_path profile_project_path(project.owner, project)
+    # then I should be on the project's overview page
+    expect(page).to have_current_path(
+      profile_project_overview_path(project.owner, project)
+    )
     # and I should see the project's title
     expect(page).to have_text project.title
     # and the project's owner and collaborators
@@ -70,7 +71,7 @@ feature 'Project' do
 
     # then I should be back on project_path
     expect(page)
-      .to have_current_path "/#{project.owner.to_param}/new-slug"
+      .to have_current_path "/#{project.owner.to_param}/new-slug/overview"
     # and see the project's new title
     expect(page).to have_text 'My New Project Title'
     # and see the project's new tags

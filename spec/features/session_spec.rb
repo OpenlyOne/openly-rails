@@ -61,8 +61,9 @@ feature 'Session' do
     # then I should be signed in
     expect(page).to have_text 'Signed in successfully'
     # and I should be back to the project page
-    expect(page)
-      .to have_current_path profile_project_path(project.owner, project)
+    expect(page).to have_current_path(
+      profile_project_overview_path(project.owner, project)
+    )
   end
 
   scenario 'User can log out' do
