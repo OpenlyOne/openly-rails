@@ -9,7 +9,11 @@ FactoryBot.define do
     tags            { Faker::Lorem.words }
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user) }
-    is_public       { false }
+    is_public       false
+
+    trait :public do
+      is_public true
+    end
 
     trait :setup_complete do
       after(:create) do |project|

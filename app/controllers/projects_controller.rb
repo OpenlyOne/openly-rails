@@ -22,15 +22,28 @@ class ProjectsController < ApplicationController
     end
   end
 
+  # Re-route user depending on whether they have permission to collaborate on
+  # the project:
+  # - Non-Collaborators are redirected to the overview page
+  # - Collaborators are redirected to setup/files
   def show
-    redirect_to profile_project_overview_path(@project.owner, @project)
+    return redirect_to project_overview_path unless can?(:collaborate, @project)
+
+    # User is a collaborator, determine the correct destination for redirection
+    if @project.setup_not_started?
+      redirect_to new_profile_project_setup_path(@project.owner, @project)
+    elsif @project.setup_in_progress?
+      redirect_to profile_project_setup_path(@project.owner, @project)
+    else
+      redirect_to profile_project_root_folder_path(@project.owner, @project)
+    end
   end
 
   def edit; end
 
   def update
     if @project.update(project_params)
-      redirect_with_success_to [@project.owner, @project]
+      redirect_with_success_to project_overview_path
     else
       render :edit
     end
@@ -40,7 +53,7 @@ class ProjectsController < ApplicationController
     if @project.destroy
       redirect_with_success_to [@project.owner]
     else
-      redirect_to [@project.owner, @project],
+      redirect_to project_overview_path,
                   alert: 'An unexpected error occured while deleting the ' \
                          'project.'
     end
@@ -61,7 +74,7 @@ class ProjectsController < ApplicationController
   end
 
   def can_can_access_denied(exception)
-    super || redirect_to([@project.owner, @project], alert: exception.message)
+    super || redirect_to(project_overview_path, alert: exception.message)
   end
 
   def profile_slug
@@ -70,5 +83,9 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(:title, :slug, :tag_list, :description)
+  end
+
+  def project_overview_path
+    profile_project_overview_path(@project.owner, @project)
   end
 end

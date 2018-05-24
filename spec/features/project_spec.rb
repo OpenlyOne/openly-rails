@@ -26,13 +26,11 @@ feature 'Project' do
   end
 
   scenario 'User can view project' do
-    # given there is a project
-    project = create(:project)
+    # given there is a public project
+    project = create(:project, :public)
     # with two collaborators
     collaborators = create_list :user, 2
     project.collaborators << collaborators
-    # and I am signed in as the project owner
-    sign_in_as project.owner.account
 
     # when I visit the project's owner
     visit "/#{project.owner.to_param}"
@@ -57,8 +55,8 @@ feature 'Project' do
     # and I am signed in as its owner
     sign_in_as project.owner.account
 
-    # when I visit my project
-    visit "/#{project.owner.to_param}/#{project.to_param}"
+    # when I visit my project's overview page
+    visit "/#{project.owner.to_param}/#{project.to_param}/overview"
     # and click on edit
     find('a#edit_project').click
     # and fill in a new title
@@ -91,8 +89,8 @@ feature 'Project' do
     # and I am signed in as its owner
     sign_in_as project.owner.account
 
-    # when I visit my project
-    visit "/#{project.owner.to_param}/#{project.to_param}"
+    # when I visit my project's overview page
+    visit "/#{project.owner.to_param}/#{project.to_param}/overview"
     # and click on edit
     find('a#edit_project').click
     # and click on delete

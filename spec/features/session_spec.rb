@@ -45,7 +45,7 @@ feature 'Session' do
     # given I have an account but I am not logged in
     account = create :account
     # and there is a project that I want to visit
-    project = create :project, owner: account.user
+    project = create :project, :public
 
     # when I visit a project page
     visit profile_project_path(project.owner, project)
