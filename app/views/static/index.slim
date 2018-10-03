@@ -2,30 +2,14 @@
   .hero-darken
   .container.center-align.hero-content
     .content-text-shadow
-      h1 "GitHub for Google Drive"
-      h3
-        ' Bring the GitHub&trade; workflow to Google Drive&trade;,
-        br.hide-on-med-and-down
-        ' so you can work at the efficiency you know and love.
+      = render 'hero_text'
 
     .content-text
-      h1 "GitHub for Google Drive"
-      h3
-        ' Bring the GitHub&trade; workflow to Google Drive&trade;,
-        br.hide-on-med-and-down
-        ' so you can work at the efficiency you know and love.
+      = render 'hero_text'
 
     .section
-      .row
-        .col.l6.m9.s12.push-m3.push-l3
-          = form_for Signup.new, url: {controller: 'signups', action: 'create'}, method: :post do |f|
-            .row
-              .col.s12.input-field
-                = f.email_field :email, placeholder: 'Your Email Address', class: 'white black-text center-align'
-            .row
-              .col.s12
-                button action='submit' class="btn-large primary-color primary-color-text"
-                  | Join Now
+      = render 'call_to_action'
+
     .spacing.v48px
 
 .spacing.v64px
@@ -57,7 +41,7 @@
     .col.s12.m6.l4.push-l1
       h4 Built for Google Drive&trade;
       p.flow-text.no-margin-top.no-margin-bottom
-        ' All Git functionality layered right on top of your Drive in your
+        ' All Git functionality layered right on top of Drive in your
         | browser &mdash; bye, bye command line.
         span.gray-text *
       p.no-margin-top.gray-text
@@ -71,13 +55,13 @@
   .hero-darken
   .container.center-align.hero-content
     .content-text-shadow
-      h2 Take Your Work to the Next Level
+      = render 'closing_text'
 
     .content-text
-      h2 Take Your Work to the Next Level
+      = render 'closing_text'
 
     .section
-      button.btn-large.disabled Coming Soon
+      = render 'call_to_action'
 
 / add non-sticky footer here manually as a replacement for overriding the
 / default footer
