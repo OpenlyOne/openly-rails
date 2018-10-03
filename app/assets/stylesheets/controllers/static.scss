@@ -2,6 +2,9 @@
 
 .c-static.a-index {
 
+  $hero-darken-alpha: .35;
+  $hero-darken-color: rgba(0, 0, 0, $hero-darken-alpha);
+
   // Set the height of body and main to 100% so that our #hero banner
   // automatically fills the full viewport height
   height: 100%;
@@ -17,25 +20,19 @@
 
   // Full height banner on top
   .hero {
-
     // Background pattern
-    background-image: image-url('static/banner.svg');
+    background-image: image-url('static/desk.jpg');
     background-position: center center;
-    background-repeat: repeat;
+    background-repeat: no-repeat;
 
-    // Scale background image tile according to screen width
-    background-size: 50%;
-
-    @media #{$medium-and-up} {
-      background-size: 33%;
-    }
-
-    @media #{$large-and-up} {
-      background-size: 20%;
-    }
+    // Scale background image to cover screen
+    background-size: cover;
 
     // Vertical padding
     padding: 50px 0;
+
+    // To enable absolute positioning of .hero-darken
+    position: relative;
 
     // Fill viewport height (minus navbar)
     &.full-height {
@@ -45,6 +42,36 @@
         min-height: calc(100% - #{$navbar-height});
       }
 
+    }
+  }
+
+  // Background darkener for cover image
+  .hero-darken {
+    background-color: $hero-darken-color;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  // Text on hero banner
+  .hero-content {
+    position: relative;
+
+    .content-text-shadow {
+      position: relative;
+      // for text legibility
+      text-shadow: 0 0 5px $black, 0 0 10px $black, 0 0 20px $black,
+                   0 0 40px $black, 0 0 40px $black, 0 0 40px $black;
+    }
+
+    // overlay text again on top of text shadow to prevent shadow from
+    // overlapping text
+    .content-text {
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 100%;
     }
   }
 

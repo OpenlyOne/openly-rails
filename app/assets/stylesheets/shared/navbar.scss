@@ -5,6 +5,10 @@ nav {
   // add seam
   @include seam(bottom);
 
+  // position navbar on top of other elements
+  position: relative;
+  z-index: 100;
+
   .nav-overlay {
     background-color: $shadow;
     height: 100%;
