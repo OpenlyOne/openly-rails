@@ -1,24 +1,15 @@
 .hero.full-height.valign-wrapper.black.white-text
-  .container.center-align
-    h1 Create Change Together
-    p.flow-text
-      => Settings.app_name
-      | is a collaboration platform for individuals and teams with
-        bold ambitions.
-      br
-      | Share your work, collaborate with your team and the world at large, and
-        make a difference.
+  .hero-darken
+  .container.center-align.hero-content
+    .content-text-shadow
+      = render 'hero_text'
+
+    .content-text
+      = render 'hero_text'
+
     .section
-      .row
-        .col.l6.m9.s12.push-m3.push-l3
-          = form_for Signup.new, url: {controller: 'signups', action: 'create'}, method: :post do |f|
-            .row
-              .col.s12.input-field
-                = f.email_field :email, placeholder: 'Your Email Address', class: 'white black-text center-align'
-            .row
-              .col.s12
-                button action='submit' class="btn-large primary-color primary-color-text"
-                  | Join Now
+      = render 'call_to_action'
+
     .spacing.v48px
 
 .spacing.v64px
@@ -26,60 +17,51 @@
 .container
   .row
     .col.s12.m6.l4.push-l1
-      h5 A Better Way to Collaborate
-      p
-        | Teamwork makes the dream work. Take projects to the next level with
-          integrated suggestion management, issue tracking, and in-text
-          comments. Share ideas, learn from others, and collaborate with your
-          team and beyond.
+      h4 The Best of GitHub&trade;
+      p.flow-text.no-margin-top
+        ' Repositories, commits, diffs, merge requests, and issue tracking &mdash;
+        | we’ve replicated the best of GitHub.
     .col.s12.m6.l4.push-l2.center-align
-      = image_tag 'static/collaboration.svg', class: 'responsive-img'
+      = image_tag 'static/github.min.svg', class: 'responsive-img'
 
   .spacing.v64px
 
   .row
     .col.s12.m6.push-m6.l4.push-l6
-      h5 Focus on What Matters
-      p
-        | By simplifying your project workflow, you can spend less time
-          organizing and more time doing.
-          Thanks to version control,
-        =<> Settings.app_name
-        | makes it easy for you and your
-          collaborators to understand what changed, when, and why. If you change
-          your mind later, you can review previous versions and revert back any
-          time.
+      h4 Optimized for Documents
+      p.flow-text.no-margin-top
+        ' Diffing and merging optimized for Google file formats &mdash;
+        | from docs to sheets to slides.
     .col.s12.m6.pull-m6.l4.pull-l3.center-align
-      = image_tag 'static/focus.svg', class: 'responsive-img'
+      = image_tag 'static/files.min.svg', class: 'responsive-img'
 
   .spacing.v64px
 
   .row
     .col.s12.m6.l4.push-l1
-      h5 Built for Changemakers
-      p
-        => Settings.app_name
-        | is a community of people just like you - ambitious and
-          committed to making a difference in the world. Share insights and
-          and resources, search similar projects, identify
-          collaborators, and make new friends.
+      h4 Built for Google Drive&trade;
+      p.flow-text.no-margin-top.no-margin-bottom
+        ' All Git functionality layered right on top of Drive in your
+        | browser &mdash; bye, bye command line.
+        span.gray-text *
+      p.no-margin-top.gray-text
+        | * at least while you're working on documents ;)
     .col.s12.m6.l4.push-l2.center-align
-      = image_tag 'static/community.svg', class: 'responsive-img'
+      = image_tag 'static/drive.min.svg', class: 'responsive-img'
 
   .spacing.v64px
 
-.hero.black.white-text
-  .container.center-align
-    h2 Change the World
-    p.flow-text
-      => Settings.app_name
-      | is a platform for people just like you.
-      br
-      | Dreamers, changemakers, activists.
-      br
-      | Let's collaborate.
+.hero.valign-wrapper.black.white-text
+  .hero-darken
+  .container.center-align.hero-content
+    .content-text-shadow
+      = render 'closing_text'
+
+    .content-text
+      = render 'closing_text'
+
     .section
-      button.btn-large.disabled Coming Soon
+      = render 'call_to_action'
 
 / add non-sticky footer here manually as a replacement for overriding the
 / default footer

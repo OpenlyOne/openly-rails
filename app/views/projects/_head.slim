@@ -16,7 +16,7 @@
             = yield :project_tabs
           - else
             div.tab
-              = link_to 'Overview', [project.owner, project],
+              = link_to 'Overview', profile_project_overview_path(project.owner, project),
                 class: ('active' if active_tab == :overview)
             - if project.setup_not_started?
               div.tab

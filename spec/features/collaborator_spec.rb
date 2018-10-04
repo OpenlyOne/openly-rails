@@ -29,9 +29,9 @@ feature 'Collaborators' do
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
 
-    # then I should be on the project's page
+    # then I should be on the project's setup page
     expect(page).to have_current_path(
-      "/#{project.owner.to_param}/#{project.to_param}"
+      "/#{project.owner.to_param}/#{project.to_param}/setup/new"
     )
   end
 

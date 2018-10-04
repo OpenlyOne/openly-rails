@@ -45,7 +45,7 @@ feature 'Session' do
     # given I have an account but I am not logged in
     account = create :account
     # and there is a project that I want to visit
-    project = create :project, owner: account.user
+    project = create :project, :public
 
     # when I visit a project page
     visit profile_project_path(project.owner, project)
@@ -61,8 +61,9 @@ feature 'Session' do
     # then I should be signed in
     expect(page).to have_text 'Signed in successfully'
     # and I should be back to the project page
-    expect(page)
-      .to have_current_path profile_project_path(project.owner, project)
+    expect(page).to have_current_path(
+      profile_project_overview_path(project.owner, project)
+    )
   end
 
   scenario 'User can log out' do

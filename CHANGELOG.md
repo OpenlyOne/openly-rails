@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.23 (Oct 4, 2018)
+
+**Enhancements:**
+- Complete makeover for the landing page to target Githubber as early adopters
+
 ## v0.22.1 (May 2, 2018)
 
 **Fixes:**

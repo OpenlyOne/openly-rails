@@ -72,6 +72,8 @@ Rails.application.routes.draw do
     # Routes for existing projects (must be last)
     resources :projects,
               path: '/', except: %i[index new create], param: :slug do
+      # Route for overview
+      get 'overview' => 'project_overviews#show', as: :overview
       # Routes for setup
       resource :project_setup, as: 'setup', only: %i[new create show],
                                path: 'setup'

@@ -50,6 +50,7 @@ RSpec.describe ProjectsController, type: :controller do
   describe 'GET #show' do
     let(:params)          { default_params }
     let(:run_request)     { get :show, params: params }
+    let(:project)         { create :project, :setup_complete }
     let(:current_account) { project.owner.account }
     before                { sign_in current_account }
 
@@ -57,9 +58,45 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'authorizing project access'
 
-    it 'returns http success' do
+    it 'redirects to files page' do
       run_request
-      expect(response).to have_http_status :success
+      expect(response)
+        .to redirect_to profile_project_root_folder_path project.owner, project
+    end
+
+    context 'when setup has not started' do
+      let(:project) { create :project }
+
+      it 'redirects to setup page' do
+        run_request
+        expect(response)
+          .to redirect_to new_profile_project_setup_path(project.owner, project)
+      end
+    end
+
+    context 'when setup is in progress' do
+      let(:project) { create :project }
+
+      before { create :project_setup, :skip_validation, project: project }
+
+      it 'redirects to setup status page' do
+        run_request
+        expect(response)
+          .to redirect_to profile_project_setup_path(project.owner, project)
+      end
+    end
+
+    context 'when current user cannot collaborate on project' do
+      before do
+        allow(controller)
+          .to receive(:can?).with(:collaborate, project).and_return false
+      end
+
+      it 'redirects to overview page' do
+        run_request
+        expect(response)
+          .to redirect_to profile_project_overview_path project.owner, project
+      end
     end
   end
 
@@ -72,7 +109,9 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
-      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:redirect_location) do
+        profile_project_overview_path(project.owner, project)
+      end
     end
 
     it 'returns http success' do
@@ -91,11 +130,13 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
-      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:redirect_location) do
+        profile_project_overview_path(project.owner, project)
+      end
     end
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) do
-        profile_project_path(project.owner, 'new-slug')
+        profile_project_overview_path(project.owner, 'new-slug')
       end
     end
 
@@ -114,7 +155,9 @@ RSpec.describe ProjectsController, type: :controller do
     it_should_behave_like 'raise 404 if non-existent', Profiles::Base
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do
-      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:redirect_location) do
+        profile_project_overview_path(project.owner, project)
+      end
     end
     it_should_behave_like 'a redirect with success' do
       let(:redirect_location) { profile_path(project.owner) }
@@ -130,10 +173,10 @@ RSpec.describe ProjectsController, type: :controller do
         allow_any_instance_of(Project).to receive(:destroy).and_return false
       end
 
-      it 'redirects to project' do
+      it 'redirects to project overview page' do
         run_request
         expect(response)
-          .to redirect_to profile_project_path project.owner, project
+          .to redirect_to profile_project_overview_path project.owner, project
       end
 
       it 'sets flash message' do
