@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 feature 'Signup' do
+  # TODO: Remove all logic related to requesting early access/signup
   scenario 'User can signup' do
     # given I am on the homepage
     visit '/'
+
+    pending 'Signup-related logic should be deleted!'
 
     # when I enter my email address
     within 'form' do
