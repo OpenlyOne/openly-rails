@@ -19,7 +19,7 @@ RSpec.describe Providers::GoogleDrive::DriveService, type: :model do
     it { is_expected.to be_a Google::Apis::DriveV3::DriveService }
 
     it 'sets application name' do
-      expect(service.client_options.application_name).to eq 'Openly One'
+      expect(service.client_options.application_name).to eq 'Openly'
     end
 
     it 'sets authorization access token' do
