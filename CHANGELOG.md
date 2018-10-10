@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.24 (Oct 8, 2018)
+
+**Enhancements:**
+- Improvements to the landing page: Column size, wording, compression
+
+
 ## v0.23 (Oct 4, 2018)
 
 **Enhancements:**
