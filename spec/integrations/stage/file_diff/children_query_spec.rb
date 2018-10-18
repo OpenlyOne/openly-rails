@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
+
 RSpec.describe Stage::FileDiff::ChildrenQuery, type: :model do
+  include_context 'skip project archive setup'
+
   subject(:diffs) do
     described_class.new(project: project, parent_id: folder.id)
   end

@@ -13,7 +13,9 @@ feature 'Folder Import', :vcr do
 
   scenario 'Files are imported' do
     # given there is a project
-    project = create(:project, title: 'My Awesome New Project!')
+    project = create(:project,
+                     title: 'My Awesome New Project!',
+                     owner_account_email: user_acct)
 
     # and a Google Drive folder that contains three files
     3.times do

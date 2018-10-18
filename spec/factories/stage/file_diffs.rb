@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :staged_file_diff, class: Stage::FileDiff do
-    project
+    association :project, :skip_archive_setup
     association :staged_snapshot, factory: :file_resource_snapshot
     association :committed_snapshot, factory: :file_resource_snapshot
   end

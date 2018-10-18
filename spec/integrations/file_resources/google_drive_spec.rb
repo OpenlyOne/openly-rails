@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
 require 'integrations/shared_examples/including_snapshotable_integration.rb'
 require 'integrations/shared_examples/including_stageable_integration.rb'
 require 'integrations/shared_examples/including_syncable_integration.rb'
@@ -34,6 +35,8 @@ RSpec.describe FileResources::GoogleDrive, type: :model do
   end
 
   describe 'snapshotable + stageable + syncable', :vcr do
+    include_context 'skip project archive setup'
+
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }
     let!(:file_sync) do
