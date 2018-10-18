@@ -9,7 +9,7 @@ require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe RevisionsController, type: :controller do
-  let!(:project) { create :project, :setup_complete }
+  let!(:project) { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,

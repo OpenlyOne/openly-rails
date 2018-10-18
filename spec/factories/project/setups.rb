@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :project_setup, class: 'Project::Setup' do
-    project
+    association :project, :skip_archive_setup
     is_completed false
     link { '' }
 

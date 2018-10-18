@@ -113,9 +113,29 @@ RSpec.describe Project, type: :model do
         it { is_expected.not_to receive(:generate_slug_from_title) }
       end
     end
+
+    context 'after create' do
+      subject(:project) { build(:project) }
+
+      before do
+        allow(project).to receive(:setup_archive)
+        before_save_hook if defined?(before_save_hook)
+        project.save
+      end
+
+      it { is_expected.to have_received(:setup_archive) }
+
+      context 'when skip_archive_setup = true' do
+        let(:before_save_hook) { project.skip_archive_setup = true }
+
+        it { is_expected.not_to have_received(:setup_archive) }
+      end
+    end
   end
 
   describe 'validations' do
+    before { allow(project).to receive(:setup_archive) }
+
     it do
       is_expected.to validate_presence_of(:owner).with_message 'must exist'
     end
@@ -290,6 +310,36 @@ RSpec.describe Project, type: :model do
       project = build(:project, title: 'PRojECT UpperCASE #$?')
       project.send(:generate_slug_from_title)
       expect(project.slug).to eq 'project-uppercase'
+    end
+  end
+
+  describe '#setup_archive' do
+    subject(:project) { build_stubbed(:project) }
+
+    let(:archive)         { instance_double Project::Archive }
+    let(:setup_completed) { false }
+
+    before do
+      allow(project).to receive(:archive).and_return(archive)
+      allow(archive).to receive(:setup)
+      allow(archive).to receive(:setup_completed?).and_return setup_completed
+      allow(archive).to receive(:save)
+
+      project.send(:setup_archive)
+    end
+
+    it 'builds archive, sets it up, and saves' do
+      expect(archive).to have_received(:setup)
+      expect(archive).to have_received(:save)
+    end
+
+    context 'when setup is already complete' do
+      let(:setup_completed) { true }
+
+      it 'does not call #setup' do
+        expect(archive).not_to have_received(:setup)
+        expect(archive).to have_received(:save)
+      end
     end
   end
 end

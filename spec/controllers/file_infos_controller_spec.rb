@@ -7,7 +7,7 @@ require 'controllers/shared_examples/setting_project.rb'
 RSpec.describe FileInfosController, type: :controller do
   let(:root)    { create :file_resource, :folder }
   let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project, :setup_complete }
+  let(:project) { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,

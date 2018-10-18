@@ -16,7 +16,7 @@ feature 'Force Sync', :vcr do
   # delete test folder
   after { tear_down_google_drive_test(api_connection) }
 
-  let(:current_account) { create :account }
+  let(:current_account) { create :account, email: user_acct }
   let(:project) { create :project, owner: current_account.user }
   let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do

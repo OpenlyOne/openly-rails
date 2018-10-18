@@ -13,11 +13,16 @@ class Project
     # Set up the archive folder with the provider by creating it and granting
     # view access to the repository owner
     def setup
-      raise 'Already set up' if file_resource.present?
+      raise 'Already set up' if setup_completed?
 
       create_external_folder
       grant_view_access_to_repository_owner
       file_resource.pull
+    end
+
+    # Return true if setup has been completed (i.e. file resource is present)
+    def setup_completed?
+      file_resource.present?
     end
 
     private

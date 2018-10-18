@@ -22,7 +22,7 @@ feature 'File Update', :vcr do
     allow_any_instance_of(FileUpdateJob).to receive(:list_changes_on_next_page)
   end
 
-  let(:current_account) { create :account }
+  let(:current_account) { create :account, email: user_acct }
   let(:project) { create :project, owner: current_account.user }
   let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do

@@ -22,7 +22,7 @@ feature 'Notification' do
     # given I have an account
     account = create :account
     # and there is a project with a revision
-    project = create :project, :setup_complete
+    project = create :project, :setup_complete, :skip_archive_setup
     revision = create :revision, project: project
     # and I have a notification for the revision
     create(:notification, target: account, notifiable: revision)
