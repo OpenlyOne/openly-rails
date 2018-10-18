@@ -23,6 +23,8 @@ feature 'Project' do
     expect(page).to have_text 'My Awesome New Project!'
     # and see a success message
     expect(page).to have_text 'Project successfully created.'
+    # and have set up an archive folder on Google Drive
+    expect(Project.first.archive).to be_present
   end
 
   scenario 'User can view project' do

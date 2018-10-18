@@ -51,6 +51,8 @@ class Project < ApplicationRecord
     end
   end
 
+  has_one :archive, dependent: :destroy
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id

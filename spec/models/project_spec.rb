@@ -74,6 +74,7 @@ RSpec.describe Project, type: :model do
         .conditions(is_published: true)
         .dependent(false)
     end
+    it { is_expected.to have_one(:archive).dependent(:destroy) }
   end
 
   describe 'attributes' do

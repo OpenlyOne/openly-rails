@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180425151936) do
+ActiveRecord::Schema.define(version: 20181018063101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -209,6 +209,15 @@ ActiveRecord::Schema.define(version: 20180425151936) do
     t.index ["project_id", "profile_id"], name: "index_profiles_projects_on_project_id_and_profile_id", unique: true
   end
 
+  create_table "project_archives", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_project_archives_on_file_resource_id"
+    t.index ["project_id"], name: "index_project_archives_on_project_id", unique: true
+  end
+
   create_table "project_setups", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.boolean "is_completed", default: false, null: false
@@ -287,6 +296,8 @@ ActiveRecord::Schema.define(version: 20180425151936) do
   add_foreign_key "file_resources", "file_resource_thumbnails", column: "thumbnail_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
+  add_foreign_key "project_archives", "file_resources"
+  add_foreign_key "project_archives", "projects"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "resources", "profiles", column: "owner_id"
   add_foreign_key "revisions", "profiles", column: "author_id"
