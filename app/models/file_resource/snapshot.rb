@@ -8,6 +8,9 @@ class FileResource
     # Associations
     belongs_to :file_resource, autosave: false, optional: false
     belongs_to :parent, class_name: 'FileResource', optional: true
+    has_one :backup, class_name: 'FileResource::Backup',
+                     dependent: :destroy,
+                     foreign_key: :file_resource_snapshot_id
 
     has_many :committing_files, class_name: 'CommittedFile',
                                 foreign_key: :file_resource_snapshot_id

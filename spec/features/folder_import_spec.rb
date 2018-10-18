@@ -50,5 +50,8 @@ feature 'Folder Import', :vcr do
     # and I should see one revision
     click_on 'Revisions'
     expect(page).to have_text 'Import Files'
+
+    # and have 3 files in archive
+    expect(project.archive.backups.count).to eq 3
   end
 end

@@ -8,6 +8,12 @@ RSpec.describe Project::Archive, type: :model do
     it do
       is_expected.to belong_to(:file_resource).validate(false).dependent(false)
     end
+    it do
+      is_expected
+        .to have_many(:backups)
+        .class_name('FileResource::Backup')
+        .dependent(:destroy)
+    end
   end
 
   describe 'validations' do

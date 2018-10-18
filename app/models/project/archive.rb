@@ -6,6 +6,7 @@ class Project
     # Associations
     belongs_to :project
     belongs_to :file_resource
+    has_many :backups, class_name: 'FileResource::Backup', dependent: :destroy
 
     # Validations
     validates :project_id, uniqueness: { message: 'already has an archive' }
