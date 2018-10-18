@@ -39,15 +39,17 @@ feature 'File Update', :vcr do
     given_project_is_imported_and_changes_committed
 
     # when I create a file in Google Drive within the project folder
-    create_google_drive_file(name: 'My New File',
-                             parent_id: google_drive_test_folder_id,
-                             api_connection: api_connection)
+    file = create_google_drive_file(name: 'My New File',
+                                    parent_id: google_drive_test_folder_id,
+                                    api_connection: api_connection)
 
     wait_for_google_to_propagate_changes
     run_file_update_job
 
     # then I should see the file among my project's files
     then_i_should_see_file_in_project(name: 'My New File', status: 'addition')
+    # and have a backup of the file
+    and_have_a_backup_of_file_with_id(file.id)
   end
 
   scenario 'In Google Drive, user updates file content' do
@@ -259,6 +261,15 @@ feature 'File Update', :vcr do
     # then all files should be marked as deleted
     then_i_should_see_file_in_project(name: 'File', status: 'deletion')
   end
+end
+
+def and_have_a_backup_of_file_with_id(file_id)
+  file_resource = FileResource.find_by(external_id: file_id)
+  backup_file_resource = file_resource.current_snapshot.backup.file_resource
+  expect(backup_file_resource).to have_attributes(
+    name: 'My New File',
+    parent_id: project.archive.file_resource.external_id
+  )
 end
 
 def given_project_is_imported_and_changes_committed
