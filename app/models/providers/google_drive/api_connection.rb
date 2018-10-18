@@ -195,7 +195,7 @@ module Providers
 
       # The default fields for file query methods
       def default_file_fields
-        %w[id name mimeType parents trashed thumbnailLink
+        %w[id name mimeType parents permissions trashed thumbnailLink
            thumbnailVersion].join(',')
       end
 

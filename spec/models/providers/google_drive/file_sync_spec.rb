@@ -177,6 +177,24 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#permissions' do
+    subject(:permissions) { file_sync.permissions }
+
+    let(:file)  { Google::Apis::DriveV3::File.new(permissions: [p1, p2]) }
+    let(:p1)    { instance_double Google::Apis::DriveV3::Permission }
+    let(:p2)    { instance_double Google::Apis::DriveV3::Permission }
+
+    before { allow(file_sync).to receive(:file).and_return file }
+
+    it { is_expected.to contain_exactly(p1, p2) }
+
+    context 'when file is not is set' do
+      let(:file) { nil }
+
+      it { is_expected.to eq nil }
+    end
+  end
+
   describe '#relocate(to:, from:)' do
     subject(:relocate) { file_sync.relocate(to: 'to', from: 'from') }
     before  { file_sync.instance_variable_set :@id, 'id' }

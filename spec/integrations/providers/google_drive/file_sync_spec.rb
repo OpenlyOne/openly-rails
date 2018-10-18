@@ -31,6 +31,11 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     it 'sets mime type to document' do
       expect(created_file.mime_type).to eq document_type
     end
+
+    it 'restricts access to creator' do
+      expect(created_file.permissions.map(&:email_address))
+        .to contain_exactly(Settings.google_drive_tracking_account)
+    end
   end
 
   describe '#content_version' do

@@ -49,6 +49,10 @@ module Providers
         file&.parents&.first
       end
 
+      def permissions
+        file&.permissions
+      end
+
       # Relocate the file to a new parent, optionally removing old parent
       def relocate(to:, from:)
         @file =

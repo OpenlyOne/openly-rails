@@ -67,7 +67,7 @@ VCR.configure do |c|
     # check response
     oauth_response_params = JSON.parse(interaction.response.body)
     oauth_response_params
-      .except('token_type', 'expires_in').each do |param, value|
+      .except('token_type', 'expires_in', 'scope').each do |param, value|
       # everything is good if the value starts with < and ends with >
       next if value.match?(/^<.*>$/)
 
