@@ -98,6 +98,93 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { expect(drive_service).to receive(:delete_file).with('file-id') }
   end
 
+  describe '#duplicate_file(id, name:, parent_id:)' do
+    subject(:duplicate_file) do
+      api.duplicate_file('file-id', name: 'duplicate', parent_id: 'parent-id')
+    end
+    before do
+      allow(api).to receive(:duplicate_file!).with(
+        'file-id',
+        name: 'duplicate',
+        parent_id: 'parent-id'
+      ).and_return 'duplicated-file'
+    end
+
+    it { is_expected.to eq 'duplicated-file' }
+
+    context 'when an error is raised' do
+      before { allow(api).to receive(:duplicate_file!).and_raise error }
+
+      context 'Google::Apis::ClientError, cannotCopyFile' do
+        let(:error) { Google::Apis::ClientError.new('cannotCopyFile') }
+
+        it { is_expected.to eq nil }
+      end
+
+      context 'Google::Apis::ClientError of different type' do
+        let(:error) { Google::Apis::ClientError.new('invalid') }
+
+        it do
+          expect { duplicate_file }.to raise_error Google::Apis::ClientError
+        end
+      end
+
+      context 'when it raises a different error' do
+        let(:error) { StandardError.new }
+
+        it { expect { duplicate_file }.to raise_error StandardError }
+      end
+    end
+  end
+
+  describe '#duplicate_file!(id, name:, parent_id:)' do
+    subject(:duplicate_file) do
+      api.duplicate_file!('file-id', name: 'duplicate', parent_id: 'parent-id')
+    end
+
+    before  { allow(api).to receive(:default_file_fields).and_return 'default' }
+    after   { duplicate_file }
+
+    it do
+      expect(drive_service)
+        .to receive(:copy_file)
+        .with('file-id',
+              kind_of(Google::Apis::DriveV3::File),
+              fields: 'default')
+    end
+
+    it 'calls #copy_file with name' do
+      expect(drive_service)
+        .to receive(:copy_file) do |*args|
+        expect(args[1].name).to eq 'duplicate'
+        expect(args[1].parents).to match_array('parent-id')
+      end
+    end
+  end
+
+  describe 'file_content(id)' do
+    subject(:file_content) { api.file_content('id') }
+
+    let(:content) { 'content' }
+
+    before do
+      allow(drive_service)
+        .to receive(:export_file) do |_id, _format, download_dest:|
+        download_dest << content
+      end
+    end
+
+    it { is_expected.to eq 'content' }
+
+    context 'when content starts with BOM' do
+      let(:content) { "\xEF\xBB\xBFcontent" }
+
+      it 'removes BOM' do
+        is_expected.to eq 'content'
+      end
+    end
+  end
+
   describe '#find_file(id)' do
     subject(:find_file) { api.find_file('id') }
     before { allow(api).to receive(:find_file!).with('id').and_return 'file' }

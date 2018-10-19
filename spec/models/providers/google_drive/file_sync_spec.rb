@@ -128,6 +128,30 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#duplicate(name:, parent_id:)' do
+    subject(:duplicate) { file_sync.duplicate(name: 'abc', parent_id: 'p-id') }
+
+    let(:file) { Google::Apis::DriveV3::File.new(id: 'dup-id') }
+
+    before  { file_sync.instance_variable_set :@id, 'id' }
+    before  { allow(api).to receive(:duplicate_file).and_return file }
+    after   { duplicate }
+
+    it 'duplicates the file' do
+      duplicate
+      expect(api)
+        .to have_received(:duplicate_file)
+        .with('id', name: 'abc', parent_id: 'p-id')
+    end
+
+    it 'returns new instance with dup-id and @file' do
+      expect(duplicate).to be_an_instance_of(described_class)
+      expect(duplicate).not_to equal file_sync
+      expect(duplicate.id).to eq 'dup-id'
+      expect(duplicate.instance_variable_get(:@file)).to be_present
+    end
+  end
+
   describe '#mime_type' do
     subject(:mime_type) { file_sync.mime_type }
     let(:file)          { Google::Apis::DriveV3::File.new(mime_type: 'type') }
