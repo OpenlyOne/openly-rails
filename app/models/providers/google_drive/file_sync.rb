@@ -3,6 +3,7 @@
 module Providers
   module GoogleDrive
     # API Adapter for CRUD operations on Google Drive files
+    # rubocop:disable Metrics/ClassLength
     class FileSync
       attr_reader :id
 
@@ -28,6 +29,12 @@ module Providers
         @children ||= fetch_children_as_file_syncs
       end
 
+      # TODO: Add support for getting content of different file formats
+      def content
+        return nil if deleted?
+        @content ||= fetch_content
+      end
+
       def content_version
         return nil if deleted?
         @content_version ||= fetch_content_version
@@ -35,6 +42,13 @@ module Providers
 
       def deleted?
         file&.trashed
+      end
+
+      # TODO: support duplication without explicit name and parent_id
+      def duplicate(name:, parent_id:)
+        copy =
+          api_connection.duplicate_file(id, name: name, parent_id: parent_id)
+        self.class.new(copy.id, file: copy)
       end
 
       def mime_type
@@ -99,6 +113,11 @@ module Providers
         end
       end
 
+      # Fetch the content
+      def fetch_content
+        api_connection.file_content(id)
+      end
+
       # Fetch the content version
       def fetch_content_version
         api_connection.file_head_revision(id)
@@ -137,4 +156,5 @@ module Providers
       end
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
