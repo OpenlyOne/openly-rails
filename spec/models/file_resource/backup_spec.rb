@@ -44,6 +44,41 @@ RSpec.describe FileResource::Backup, type: :model do
     end
   end
 
+  describe '.backup(file_resource_to_backup)' do
+    subject(:method) { described_class.backup(file_resource) }
+
+    let(:file_resource) { instance_double FileResource }
+    let(:new_backup)    { instance_double described_class }
+    let(:p1)            { instance_double Project }
+    let(:p2)            { instance_double Project }
+
+    before do
+      allow(file_resource).to receive(:current_snapshot).and_return 'snapshot'
+      allow(file_resource).to receive(:staging_projects).and_return [p1, p2]
+      allow(p1).to receive(:archive).and_return 'archive'
+      allow(described_class).to receive(:new).with(
+        file_resource_snapshot: 'snapshot',
+        archive: 'archive'
+      ).and_return new_backup
+      allow(new_backup).to receive(:capture)
+      allow(new_backup).to receive(:save)
+    end
+
+    it 'calls capture on new backup' do
+      method
+      expect(new_backup).to have_received(:capture)
+    end
+
+    it 'calls save on new backup' do
+      method
+      expect(new_backup).to have_received(:save)
+    end
+
+    it 'returns the new backup' do
+      is_expected.to eq new_backup
+    end
+  end
+
   describe '#capture' do
     subject(:method) { backup.capture }
 

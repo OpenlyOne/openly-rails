@@ -59,5 +59,15 @@ feature 'Force Sync', :vcr do
     expect(page).to have_css '.file.modification', text: 'Doc ABC'
     expect(page).to have_css '.file.rename', text: 'Doc ABC'
     expect(page).to have_css '.file.movement', text: 'Doc ABC'
+
+    # and have a backup of the file
+    # TODO: Refactor
+    file_snapshot = FileResource.find_by_external_id(file.id).current_snapshot
+    external_id_of_backup = file_snapshot.backup.file_resource.external_id
+    external_backup =
+      Providers::GoogleDrive::FileSync.new(external_id_of_backup)
+    expect(external_backup.name).to eq(file_snapshot.name)
+    expect(external_backup.parent_id)
+      .to eq(project.archive.file_resource.external_id)
   end
 end
