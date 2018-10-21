@@ -17,6 +17,14 @@ class FileResource
 
     # TODO: after_destroy --> destroy backup if this is last reference to it
 
+    # Create a backup for the provided file resource
+    def self.backup(file_resource_to_backup)
+      new(
+        file_resource_snapshot: file_resource_to_backup.current_snapshot,
+        archive: file_resource_to_backup.staging_projects.first&.archive
+      ).tap(&:capture).tap(&:save)
+    end
+
     # Capture a backup of the file resource snapshot and store in archive
     def capture
       return false unless valid?(:capture)

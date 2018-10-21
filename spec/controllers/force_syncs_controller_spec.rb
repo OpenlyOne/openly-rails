@@ -27,6 +27,8 @@ RSpec.describe ForceSyncsController, type: :controller do
     let(:run_request) { post :create, params: params }
 
     before do
+      allow_any_instance_of(FileResource)
+        .to receive(:backup_on_save?).and_return false
       allow_any_instance_of(FileResource).to receive(:pull)
       allow_any_instance_of(FileResource).to receive(:pull_children)
     end
