@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # Revisions represent a snapshot of a project with all its files
+# rubocop:disable Metrics/ClassLength
+# TODO: Refactor, split into several classes
 class Revision < ApplicationRecord
   include Notifying
 
@@ -11,7 +13,13 @@ class Revision < ApplicationRecord
   has_many :children, class_name: 'Revision',
                       foreign_key: :parent_id,
                       dependent: :destroy
-  has_many :committed_files, dependent: :delete_all
+  has_many :committed_files, dependent: :delete_all do
+    # Get committed files that belong to the provided folder
+    def in_folder(folder)
+      includes(:file_resource_snapshot)
+        .where(file_resource_snapshots: { parent_id: folder.id })
+    end
+  end
   has_many :committed_file_snapshots, class_name: 'FileResource::Snapshot',
                                       through: :committed_files,
                                       source: :file_resource_snapshot
@@ -150,3 +158,4 @@ class Revision < ApplicationRecord
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

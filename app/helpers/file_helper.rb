@@ -24,13 +24,23 @@ module FileHelper
   # If the file snapshot has not been backed up, does not wrap block into a
   # link.
   def link_to_file_backup(file_snapshot, options = {}, &block)
-    path = file_snapshot.backup&.file_resource&.external_link
+    path = path_for_file_backup(file_snapshot)
 
-    if path
+    if path.present?
       options = options.reverse_merge target: '_blank'
       link_to(path, options) { capture(&block) }
     else
       content_tag(:span) { capture(&block) }
     end
+  end
+
+  def link_to_file_backup?(file_snapshot)
+    path_for_file_backup(file_snapshot).present?
+  end
+
+  private
+
+  def path_for_file_backup(file_snapshot)
+    file_snapshot.backup&.file_resource&.external_link
   end
 end

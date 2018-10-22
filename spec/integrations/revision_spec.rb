@@ -176,6 +176,38 @@ RSpec.describe Revision, type: :model do
     end
   end
 
+  describe 'association extension: committed_files#in_folder(folder)' do
+    subject(:method) do
+      revision.committed_files.in_folder(folder)
+    end
+
+    let(:revision)  { create :revision }
+    let(:folder)    { create :file_resource, :folder }
+    let(:parent)    { folder }
+    let!(:f1) { create :committed_file, revision: revision, parent: parent }
+    let!(:f2) { create :committed_file, revision: revision, parent: parent }
+    let!(:f3) { create :committed_file, revision: revision, parent: parent }
+
+    before { revision.update(is_published: true, title: 'origin') }
+
+    it 'returns files in folder' do
+      is_expected.to contain_exactly(f1, f2, f3)
+    end
+
+    context 'when folder has no children' do
+      let(:parent) { create(:file_resource, :folder) }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'when folder does not exist' do
+      let(:folder) { build(:file_resource, :folder) }
+      let(:parent) { create(:file_resource, :folder) }
+
+      it { is_expected.to be_empty }
+    end
+  end
+
   describe '#commit_all_files_staged_in_project' do
     subject(:committed_files)     { revision.committed_files }
     let(:revision)                { create :revision }

@@ -32,6 +32,17 @@ class CommittedFile < ApplicationRecord
       .order(:file_resource_id, revision_id: :desc)
   }
 
+  # Order committed files by
+  # 1) directory first and
+  # 2) file name in ascending alphabetical order, case insensitive
+  scope :order_by_name_with_folders_first, lambda {
+    joins(:file_resource_snapshot).merge(
+      FileResource.order_by_name_with_folders_first(
+        table: 'file_resource_snapshots'
+      )
+    )
+  }
+
   # Execute INSERT query based on the SELECT query
   # Order of columns must match order of select statements.
   # For example:

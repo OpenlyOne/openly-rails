@@ -1,0 +1,27 @@
+/ render a single committed file
+/ TODO: Refactor together with folders/_file_diff.slim
+
+.file.z-depth-1.black-text.black[
+  class=committed_file_snapshot.symbolic_mime_type
+  class=(link_to_file_backup?(committed_file_snapshot) ? 'hover-effect' : '')
+  title=committed_file_snapshot.name
+]
+
+  = render partial: 'folders/link_to_file_info',
+           locals: { file_id: committed_file_snapshot.external_id, project: project }
+
+  = link_to_file_backup(committed_file_snapshot, class: 'file-link') do
+
+    = image_tag committed_file_snapshot.thumbnail_image_or_fallback.url,
+                alt: 'File icon',
+                size: '200',
+                class: 'file-thumbnail responsive-img'
+
+    - unless committed_file_snapshot.thumbnail_image.present?
+      .file-thumbnail-fallback.valign-wrapper
+        = image_tag committed_file_snapshot.icon, size: '100'
+
+    .file-title
+      .file-icon.left
+        = image_tag committed_file_snapshot.icon, class: 'responsive-img'
+      .file-name.truncate = committed_file_snapshot.name

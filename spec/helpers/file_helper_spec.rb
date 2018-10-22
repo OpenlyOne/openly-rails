@@ -120,4 +120,27 @@ RSpec.describe FileHelper, type: :helper do
       end
     end
   end
+
+  describe '#link_to_file_backup?(file_snapshot)' do
+    subject(:method)  { helper.link_to_file_backup?(snapshot) {} }
+    let(:snapshot)    { instance_double FileResource::Snapshot }
+    let(:backup)      { instance_double FileResource::Backup }
+    let(:file)        { instance_double FileResource }
+
+    before do
+      allow(snapshot).to receive(:backup).and_return backup
+      allow(backup).to receive(:file_resource).and_return(file) if backup
+      allow(file).to receive(:external_link).and_return 'external-link'
+    end
+
+    context 'when file has backup' do
+      it { is_expected.to be true }
+    end
+
+    context 'when file does not have backup' do
+      let(:backup) { nil }
+
+      it { is_expected.to be false }
+    end
+  end
 end
