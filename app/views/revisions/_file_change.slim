@@ -23,7 +23,7 @@ div.file[class=file_change.symbolic_mime_type
     span.name-and-description
       / print: filename in bold
       b
-        = link_to_file(file_change.current_or_previous_snapshot, project, link_options) do
+        = link_to_file_backup(file_change.current_or_previous_snapshot, link_options) do
           = file_change.name
 
       / print: added/modified/moved/renamed/deleted text

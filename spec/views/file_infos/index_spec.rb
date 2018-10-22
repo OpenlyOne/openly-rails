@@ -149,9 +149,15 @@ RSpec.describe 'file_infos/index', type: :view do
     let(:r1)  { build_stubbed :revision }
     let(:r2)  { build_stubbed :revision }
     let(:r3)  { build_stubbed :revision }
-    let(:s1)  { build_stubbed :file_resource_snapshot, name: 'f1' }
-    let(:s2)  { build_stubbed :file_resource_snapshot, name: 'f2' }
-    let(:s3)  { build_stubbed :file_resource_snapshot, name: 'f3' }
+    let(:s1) do
+      build_stubbed :file_resource_snapshot, :with_backup, name: 'f1'
+    end
+    let(:s2) do
+      build_stubbed :file_resource_snapshot, :with_backup, name: 'f2'
+    end
+    let(:s3) do
+      build_stubbed :file_resource_snapshot, :with_backup, name: 'f3'
+    end
 
     it 'renders the title of each revision' do
       render
@@ -175,6 +181,14 @@ RSpec.describe 'file_infos/index', type: :view do
           href: profile_project_revisions_path(project.owner, project,
                                                anchor: revision.id)
         )
+      end
+    end
+
+    it 'renders a link to file backup for each revision' do
+      render
+      committed_file_diffs.each do |diff|
+        link = diff.current_snapshot.backup.file_resource.external_link
+        expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
 
