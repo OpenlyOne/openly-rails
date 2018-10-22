@@ -57,10 +57,47 @@ feature 'Time Travel' do
     #       "revisions/#{revision.id}"
     visit "/#{project.owner.to_param}/#{project.to_param}/" \
           "revisions/#{revision.id}/files"
-
     # then I should see files in the correct order
     file_order = FileResource.where(id: folders).order(:name).pluck(:name) +
                  FileResource.where(id: files).order(:name).pluck(:name)
     expect(page.all('.file').map(&:text)).to eq file_order
+  end
+
+  scenario 'User can view committed sub-folder' do
+    # given a variety of sub-folders and files
+    folder    = create :file_resource, :folder, name: 'Fol', parent: root
+    docs      = create :file_resource, :folder, name: 'Docs', parent: folder
+    code      = create :file_resource, :folder, name: 'Code', parent: docs
+    subfiles  = create_list :file_resource, 5, parent: code
+
+    # and a published revision
+    publish_revision
+
+    # when I visit the revision page
+    # TODO: Implement route splitter
+    # visit "#{project.owner.to_param}/#{project.to_param}/" \
+    #       "revisions/#{revision.id}"
+    visit "/#{project.owner.to_param}/#{project.to_param}/" \
+          "revisions/#{revision.id}/files"
+
+    # and click on the folder folder
+    click_on folder.name
+    # and click on the docs folder
+    click_on docs.name
+    # and click on the code folder
+    click_on code.name
+
+    # then I should be on the project's subfolder page
+    expect(page).to have_current_path(
+      "/#{project.owner.to_param}/#{project.to_param}/" \
+      "revisions/#{revision.id}/folders/#{code.external_id}"
+    )
+    # and see the files in the project subfolder
+    subfiles.each do |file|
+      expect(page).to have_text file.name
+    end
+    # and see the ancestry path
+    pending('Ancestry path is not yet implemented')
+    expect(page.find('.breadcrumbs').text).to eq 'Fol Docs Code'
   end
 end

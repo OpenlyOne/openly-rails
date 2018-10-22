@@ -24,4 +24,5 @@
 
     = render partial: 'committed_file_snapshot',
              object: child.file_resource_snapshot,
-             locals: { project: @project }
+             locals: {project: @project,
+                      revision: @revision}

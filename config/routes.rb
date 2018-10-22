@@ -84,7 +84,7 @@ Rails.application.routes.draw do
       resources :revisions, only: %i[index new create] do
         scope module: 'revision' do
           get 'files' => 'folders#root', as: :root_folder
-          # resources :folders, only: :show
+          resources :folders, only: :show
         end
       end
       # Routes for file infos

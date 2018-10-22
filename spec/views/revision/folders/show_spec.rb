@@ -57,6 +57,26 @@ RSpec.describe 'revision/folders/show', type: :view do
     end
   end
 
+  context 'when snapshots are folders' do
+    before do
+      snapshots.each do |snapshot|
+        allow(snapshot).to receive(:folder?).and_return true
+      end
+    end
+
+    it 'renders the links to folder' do
+      render
+      snapshots.each do |snapshot|
+        expect(rendered).to have_link(
+          snapshot.name,
+          href: profile_project_revision_folder_path(
+            project.owner, project.slug, revision.id, snapshot.external_id
+          )
+        )
+      end
+    end
+  end
+
   context 'when snapshots have backups' do
     before do
       snapshots.each do |snapshot|
@@ -72,18 +92,6 @@ RSpec.describe 'revision/folders/show', type: :view do
         link = snapshot.backup.file_resource.external_link
         expect(rendered).to have_css "a[href='#{link}'][target='_blank']"
       end
-    end
-  end
-
-  xit 'renders the links of folders' do
-    render
-    subfolders.each do |folder|
-      expect(rendered).to have_link(
-        folder.name,
-        href: profile_project_folder_path(
-          project.owner, project.slug, folder.external_id
-        )
-      )
     end
   end
 

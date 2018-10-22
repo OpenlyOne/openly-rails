@@ -11,7 +11,7 @@ RSpec.describe 'routes for revision folders', type: :routing do
     )
   end
 
-  xit 'has a show route' do
+  it 'has a show route' do
     expect(profile_project_revision_folder_path('handle', 'slug', '123', 'abc'))
       .to eq '/handle/slug/revisions/123/folders/abc'
     expect(get: '/handle/slug/revisions/123/folders/abc').to(

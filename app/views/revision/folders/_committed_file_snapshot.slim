@@ -3,14 +3,14 @@
 
 .file.z-depth-1.black-text.black[
   class=committed_file_snapshot.symbolic_mime_type
-  class=(link_to_file_backup?(committed_file_snapshot) ? 'hover-effect' : '')
+  class=(link_to_file_backup?(committed_file_snapshot, revision) ? 'hover-effect' : '')
   title=committed_file_snapshot.name
 ]
 
   = render partial: 'folders/link_to_file_info',
            locals: { file_id: committed_file_snapshot.external_id, project: project }
 
-  = link_to_file_backup(committed_file_snapshot, class: 'file-link') do
+  = link_to_file_backup(committed_file_snapshot, revision, class: 'file-link') do
 
     = image_tag committed_file_snapshot.thumbnail_image_or_fallback.url,
                 alt: 'File icon',
