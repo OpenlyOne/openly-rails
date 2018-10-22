@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe 'revision/folders/show', type: :view do
+RSpec.describe 'revisions/folders/show', type: :view do
   let(:folder)    { nil }
   let(:project)   { build_stubbed :project }
   let(:revision)  { build_stubbed :revision, :published, project: project }

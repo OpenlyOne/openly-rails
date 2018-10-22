@@ -4,7 +4,7 @@ require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
-RSpec.describe Revision::FoldersController, type: :controller do
+RSpec.describe Revisions::FoldersController, type: :controller do
   let!(:root)     { create :file_resource, :folder }
   let!(:folder)   { create :file_resource, :folder, parent: root }
   let(:project)   { create :project, :setup_complete, :skip_archive_setup }

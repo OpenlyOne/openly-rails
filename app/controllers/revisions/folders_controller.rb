@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Revision
+module Revisions
   # File browsing actions for a project revision
   class FoldersController < ApplicationController
     include CanSetProjectContext
