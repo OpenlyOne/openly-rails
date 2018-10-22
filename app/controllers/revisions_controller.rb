@@ -19,9 +19,13 @@ class RevisionsController < ApplicationController
       .order(id: :desc)
       .includes(:author)
       .preload_file_diffs_with_snapshots
+
+    preload_backups_for_file_diffs_in_revisions(@revisions)
   end
 
-  def new; end
+  def new
+    preload_backups_for_file_diffs_in_revisions(@revision)
+  end
 
   def create
     if @revision.publish(revision_params.except('id'))
@@ -29,6 +33,7 @@ class RevisionsController < ApplicationController
         profile_project_root_folder_path(@project.owner, @project)
       )
     else
+      preload_backups_for_file_diffs_in_revisions(@revision)
       render :new
     end
   end
@@ -60,6 +65,14 @@ class RevisionsController < ApplicationController
     @revision =
       Revision.preload_file_diffs_with_snapshots
               .find_by!(id: id, project: @project, author: current_user)
+  end
+
+  def preload_backups_for_file_diffs_in_revisions(revisions)
+    ActiveRecord::Associations::Preloader.new.preload(
+      Array(revisions).flat_map(&:file_diffs)
+                      .flat_map(&:current_or_previous_snapshot),
+      backup: [:file_resource]
+    )
   end
 
   def revision_params

@@ -65,4 +65,59 @@ RSpec.describe FileHelper, type: :helper do
       end
     end
   end
+
+  describe '#link_to_file_backup(file_snapshot, options = {}, &block)' do
+    subject(:method)  { helper.link_to_file_backup(snapshot) {} }
+    let(:snapshot)    { instance_double FileResource::Snapshot }
+    let(:backup)      { instance_double FileResource::Backup }
+    let(:file)        { instance_double FileResource }
+
+    before do
+      allow(snapshot).to receive(:backup).and_return backup
+      allow(backup).to receive(:file_resource).and_return(file) if backup
+      allow(file).to receive(:external_link).and_return 'external-link'
+    end
+
+    it 'returns url to backup' do
+      expect(helper).to receive(:link_to).with('external-link', kind_of(Hash))
+      method
+    end
+
+    it 'sets target to _blank' do
+      expect(helper).to receive(:link_to).with(
+        kind_of(String),
+        hash_including(target: '_blank')
+      )
+      method
+    end
+
+    context 'when file does not have backup' do
+      let(:backup) { nil }
+
+      it 'returns content tag span' do
+        expect(helper).to receive(:content_tag).with(:span)
+        method
+      end
+    end
+
+    context 'when options are passed' do
+      subject(:method)  { helper.link_to_file_backup(snapshot, options) {} }
+      let(:options)     { {} }
+
+      it 'does not modify the passed options hash' do
+        expect { method }.not_to(change { options })
+      end
+
+      context "when options include target: '_blank'" do
+        let(:options) { { target: '_blank' } }
+
+        it 'passes options to #link_to' do
+          expect(helper)
+            .to receive(:link_to)
+            .with(kind_of(String), hash_including(target: '_blank'))
+          method
+        end
+      end
+    end
+  end
 end
