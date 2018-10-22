@@ -67,7 +67,7 @@ feature 'Account' do
     # given I am a signed-in user
     account = create(:account)
     # and have lots of data (this is to test foreign key constraints)
-    create_list(:project, 3, owner: account.user)
+    create_list(:project, 3, :skip_archive_setup, owner: account.user)
     # sign in
     sign_in_as account
     # and I am on the homepage

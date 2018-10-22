@@ -5,7 +5,7 @@ feature 'User' do
     # given there is a user
     user = create(:user)
     # with three projects
-    projects = create_list(:project, 3, owner: user)
+    projects = create_list(:project, 3, :skip_archive_setup, owner: user)
 
     # when I visit the user profile
     visit "/#{user.handle}"

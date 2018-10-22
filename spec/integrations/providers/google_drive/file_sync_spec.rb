@@ -31,6 +31,33 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     it 'sets mime type to document' do
       expect(created_file.mime_type).to eq document_type
     end
+
+    it 'restricts access to creator' do
+      expect(created_file.permissions.map(&:email_address))
+        .to contain_exactly(Settings.google_drive_tracking_account)
+    end
+  end
+
+  describe '#content' do
+    subject(:file_with_content) do
+      described_class.create(
+        name: 'A File with Content',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
+      )
+    end
+
+    let(:content) { "Super super amazing content!\r\nHello world!" }
+
+    before do
+      # Write content to the file
+      Providers::GoogleDrive::ApiConnection
+        .default.update_file_content(file_with_content.id, content)
+    end
+
+    it 'retrieves the content' do
+      expect(file_with_content.content).to eq(content)
+    end
   end
 
   describe '#content_version' do
@@ -61,6 +88,43 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     context 'when file is folder' do
       let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
       it { is_expected.to eq 1 }
+    end
+  end
+
+  describe '#duplicate(name:, parent_id:)' do
+    subject(:duplicated_file) { @duplicated_file }
+
+    let(:original_file) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document
+      )
+    end
+
+    let(:subfolder) do
+      described_class.create(
+        name: 'Subfolder',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.folder
+      )
+    end
+
+    before do
+      # Write content to the original file
+      Providers::GoogleDrive::ApiConnection
+        .default
+        .update_file_content(original_file.id, "Amazing content!\r\nYes!")
+
+      # Duplicate the file
+      @duplicated_file =
+        original_file.duplicate(name: 'Duplicate', parent_id: subfolder.id)
+    end
+
+    it 'duplicates the file' do
+      expect(duplicated_file.content).to eq(original_file.content)
+      expect(duplicated_file.name).to eq 'Duplicate'
+      expect(duplicated_file.parent_id).to eq subfolder.id
     end
   end
 

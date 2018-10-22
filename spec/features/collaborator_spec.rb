@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 feature 'Collaborators' do
+  let(:project) { create(:project, :skip_archive_setup) }
+
   scenario 'As a collaborator, the project is listed on my profile' do
     # given there is a project
-    project = create :project
+    project
     # and I am signed in as a user
     me = create :user
     sign_in_as me.account
@@ -19,7 +21,7 @@ feature 'Collaborators' do
 
   scenario 'As a collaborator, I can view a private project' do
     # given there is a project
-    project = create :project
+    project
     # and I am signed in as a user
     me = create :user
     sign_in_as me.account
@@ -37,7 +39,7 @@ feature 'Collaborators' do
 
   scenario 'As a collaborator, I can setup a project' do
     # given there is a project
-    project = create :project
+    project
     # and I am signed in as a user
     me = create :user
     sign_in_as me.account
@@ -57,8 +59,9 @@ feature 'Collaborators' do
   end
 
   scenario 'As a collaborator, I can create a new revision' do
-    # given there is a project
-    project = create :project, :setup_complete
+    # given there is a project with complete setup
+    project
+    create(:project_setup, :completed, project: project)
     # and I am signed in as a user
     me = create :user
     sign_in_as me.account

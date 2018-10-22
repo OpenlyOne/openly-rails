@@ -6,6 +6,8 @@ class FileResource < ApplicationRecord
   include Snapshotable
   include Stageable
   include Syncable
+  # must be last, so that backup is made after snapshot is persisted
+  include Backupable
 
   self.inheritance_column = 'provider_id'
 

@@ -2,9 +2,16 @@
 
 FactoryBot.define do
   factory :profiles_base do
+    transient do
+      account_email nil
+    end
+
     name      { Faker::Name.name }
     about     { Faker::Lorem.paragraph }
-    account   { build(:account, user: Profiles::User.new(name: name)) }
+    account do
+      build(:account, user: Profiles::User.new(name: name),
+                      force_email: account_email)
+    end
     handle    { Faker::Internet.user_name(name.first(26).strip, %w[_]) }
     location  { "#{city}, #{state}, USA" }
 

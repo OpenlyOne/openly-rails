@@ -13,7 +13,9 @@ feature 'Folder Import', :vcr do
 
   scenario 'Files are imported' do
     # given there is a project
-    project = create(:project, title: 'My Awesome New Project!')
+    project = create(:project,
+                     title: 'My Awesome New Project!',
+                     owner_account_email: user_acct)
 
     # and a Google Drive folder that contains three files
     3.times do
@@ -48,5 +50,12 @@ feature 'Folder Import', :vcr do
     # and I should see one revision
     click_on 'Revisions'
     expect(page).to have_text 'Import Files'
+
+    # and have 3 files in archive
+    expect(project.archive.backups.count).to eq 3
+    external_archive =
+      Providers::GoogleDrive::FileSync
+      .new(project.archive.file_resource.external_id)
+    expect(external_archive.children.count).to eq 3
   end
 end

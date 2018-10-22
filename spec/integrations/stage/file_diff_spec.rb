@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
+
 RSpec.describe Stage::FileDiff, type: :model do
+  include_context 'skip project archive setup'
+
   describe '#find_by!(external_id:, project:)' do
     subject(:find) do
       Stage::FileDiff.find_by!(external_id: external_id, project: project)

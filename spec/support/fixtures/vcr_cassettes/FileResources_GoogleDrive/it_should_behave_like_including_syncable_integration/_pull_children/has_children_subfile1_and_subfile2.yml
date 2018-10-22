@@ -9,7 +9,7 @@ http_interactions:
         ID>&client_secret=<CLIENT SECRET>
     headers:
       User-Agent:
-      - Faraday v0.13.1
+      - Faraday v0.14.0
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:
@@ -21,49 +21,46 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
-      Expires:
-      - Mon, 01 Jan 1990 00:00:00 GMT
-      Date:
-      - Sun, 18 Mar 2018 20:41:44 GMT
+      Content-Type:
+      - application/json; charset=utf-8
       Vary:
       - Origin
+      - Referer
       - X-Origin
-      Content-Type:
-      - application/json; charset=UTF-8
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
+      Date:
+      - Thu, 18 Oct 2018 09:29:04 GMT
+      Server:
+      - ESF
+      Cache-Control:
+      - private
       X-Xss-Protection:
       - 1; mode=block
-      Server:
-      - GSE
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: |
+      string: |-
         {
-         "access_token": "<ACCESS TOKEN FOR TRACKING ACCOUNT>",
-         "token_type": "Bearer",
-         "expires_in": 3600
+          "access_token": "<ACCESS TOKEN FOR TRACKING ACCOUNT>",
+          "expires_in": 3600,
+          "scope": "https://www.googleapis.com/auth/drive",
+          "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:44 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:04 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-03-18
-        20:41:44 UTC","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-10-18
+        09:29:04 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -72,7 +69,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:44 GMT
+      - Thu, 18 Oct 2018 09:29:04 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -89,7 +86,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:44 GMT
+      - Thu, 18 Oct 2018 09:29:05 GMT
       Vary:
       - Origin
       - X-Origin
@@ -106,31 +103,41 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "19y8Twc_s3ZJSzz25i8hOgWikyijzq7G7",
-         "name": "Test @ 2018-03-18 20:41:44 UTC",
+         "id": "1Um3F4ayrkgAO3C4hztfvvYN9l-pEZ2BY",
+         "name": "Test @ 2018-10-18 09:29:04 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
           "0AIeK5UAEPQfeUk9PVA"
          ],
-         "thumbnailVersion": "0"
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "owner",
+           "displayName": "Upshift One",
+           "deleted": false
+          }
+         ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:45 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:05 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test File","parents":["19y8Twc_s3ZJSzz25i8hOgWikyijzq7G7"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test File","parents":["1Um3F4ayrkgAO3C4hztfvvYN9l-pEZ2BY"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -139,7 +146,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:45 GMT
+      - Thu, 18 Oct 2018 09:29:05 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -156,7 +163,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:45 GMT
+      - Thu, 18 Oct 2018 09:29:05 GMT
       Vary:
       - Origin
       - X-Origin
@@ -173,31 +180,41 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-",
+         "id": "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l",
          "name": "Test File",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "19y8Twc_s3ZJSzz25i8hOgWikyijzq7G7"
+          "1Um3F4ayrkgAO3C4hztfvvYN9l-pEZ2BY"
          ],
-         "thumbnailVersion": "0"
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "owner",
+           "displayName": "Upshift One",
+           "deleted": false
+          }
+         ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:45 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:05 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"sub1","parents":["1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"sub1","parents":["1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -206,7 +223,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:45 GMT
+      - Thu, 18 Oct 2018 09:29:05 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -223,7 +240,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Vary:
       - Origin
       - X-Origin
@@ -240,31 +257,41 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1z9F5S1TUl_jwI0i6GM7-nXMm1bS1AeKP",
+         "id": "1tCKPcDNmEGSH8u7zL36N5xTJDEetjVvx",
          "name": "sub1",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"
+          "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"
          ],
-         "thumbnailVersion": "0"
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "owner",
+           "displayName": "Upshift One",
+           "deleted": false
+          }
+         ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:46 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:06 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"sub2","parents":["1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"sub2","parents":["1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -273,7 +300,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -290,7 +317,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Vary:
       - Origin
       - X-Origin
@@ -307,28 +334,38 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1SAhi14j1fRJiNcKYCGJ2qWk0QuLixqUs",
+         "id": "1bLNyBUdCiSljLz0xinoXV9nhyDLLOW3Z",
          "name": "sub2",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"
+          "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"
          ],
-         "thumbnailVersion": "0"
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "owner",
+           "displayName": "Upshift One",
+           "deleted": false
+          }
+         ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:46 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:06 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-?fields=id,name,mimeType,parents,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -340,7 +377,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -351,9 +388,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -372,28 +409,38 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-",
+         "id": "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l",
          "name": "Test File",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
-          "19y8Twc_s3ZJSzz25i8hOgWikyijzq7G7"
+          "1Um3F4ayrkgAO3C4hztfvvYN9l-pEZ2BY"
          ],
-         "thumbnailVersion": "0"
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "owner",
+           "displayName": "Upshift One",
+           "deleted": false
+          }
+         ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:46 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:06 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -405,7 +452,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -423,9 +470,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Expires:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -437,8 +484,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
@@ -458,10 +504,10 @@ http_interactions:
          }
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:46 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:06 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-%27%20in%20parents
+    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/permissions,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l%27%20in%20parents
     body:
       encoding: UTF-8
       string: ''
@@ -473,7 +519,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:46 GMT
+      - Thu, 18 Oct 2018 09:29:06 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -484,9 +530,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -505,8 +551,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
@@ -515,32 +560,54 @@ http_interactions:
         {
          "files": [
           {
-           "id": "1SAhi14j1fRJiNcKYCGJ2qWk0QuLixqUs",
+           "id": "1bLNyBUdCiSljLz0xinoXV9nhyDLLOW3Z",
            "name": "sub2",
            "mimeType": "application/vnd.google-apps.folder",
            "trashed": false,
            "parents": [
-            "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"
+            "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"
            ],
-           "thumbnailVersion": "0"
+           "thumbnailVersion": "0",
+           "permissions": [
+            {
+             "kind": "drive#permission",
+             "id": "11673017242486491425",
+             "type": "user",
+             "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+             "role": "owner",
+             "displayName": "Upshift One",
+             "deleted": false
+            }
+           ]
           },
           {
-           "id": "1z9F5S1TUl_jwI0i6GM7-nXMm1bS1AeKP",
+           "id": "1tCKPcDNmEGSH8u7zL36N5xTJDEetjVvx",
            "name": "sub1",
            "mimeType": "application/vnd.google-apps.folder",
            "trashed": false,
            "parents": [
-            "1jNlK7gr_TlaiWDghoFiulQYQQdQxZo7-"
+            "1OBxZSn8rcgqfDhUGjmJOnNR2N3ZYlq2l"
            ],
-           "thumbnailVersion": "0"
+           "thumbnailVersion": "0",
+           "permissions": [
+            {
+             "kind": "drive#permission",
+             "id": "11673017242486491425",
+             "type": "user",
+             "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+             "role": "owner",
+             "displayName": "Upshift One",
+             "deleted": false
+            }
+           ]
           }
          ]
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:47 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:07 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1SAhi14j1fRJiNcKYCGJ2qWk0QuLixqUs/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/1bLNyBUdCiSljLz0xinoXV9nhyDLLOW3Z/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -552,7 +619,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -570,9 +637,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Expires:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -584,8 +651,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
@@ -605,10 +671,10 @@ http_interactions:
          }
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:47 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:07 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1z9F5S1TUl_jwI0i6GM7-nXMm1bS1AeKP/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/1tCKPcDNmEGSH8u7zL36N5xTJDEetjVvx/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -620,7 +686,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -638,9 +704,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Expires:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -652,8 +718,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
       Transfer-Encoding:
       - chunked
     body:
@@ -673,10 +738,10 @@ http_interactions:
          }
         }
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:47 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:07 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/19y8Twc_s3ZJSzz25i8hOgWikyijzq7G7
+    uri: https://www.googleapis.com/drive/v3/files/1Um3F4ayrkgAO3C4hztfvvYN9l-pEZ2BY
     body:
       encoding: UTF-8
       string: ''
@@ -688,7 +753,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -705,18 +770,17 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Sun, 18 Mar 2018 20:41:47 GMT
+      - Thu, 18 Oct 2018 09:29:07 GMT
       Vary:
       - Origin
       - X-Origin
       Server:
       - GSE
       Alt-Svc:
-      - hq=":443"; ma=2592000; quic=51303431; quic=51303339; quic=51303335,quic=":443";
-        ma=2592000; v="41,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39,35"
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Sun, 18 Mar 2018 20:41:47 GMT
+  recorded_at: Thu, 18 Oct 2018 09:29:07 GMT
 recorded_with: VCR 4.0.0

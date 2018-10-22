@@ -105,7 +105,7 @@ RSpec.describe Ability, type: :model do
 
   context 'Revisions' do
     actions = %i[new create]
-    let(:project)   { create :project }
+    let(:project)   { create :project, :skip_archive_setup }
     let(:revision)  { project.repository.build_revision }
     let(:object)    { [:revision, project] }
 

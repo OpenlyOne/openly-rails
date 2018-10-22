@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :staged_file do
-    project
+    association :project, :skip_archive_setup
     file_resource
     is_root false
 

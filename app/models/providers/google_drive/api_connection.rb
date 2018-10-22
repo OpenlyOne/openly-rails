@@ -40,6 +40,32 @@ module Providers
         drive_service.delete_file(id)
       end
 
+      # Copy a file by ID, optionally providing new name and parent ID
+      # TODO: Support duplication without explicit name and parent ID
+      def duplicate_file(id, name:, parent_id:)
+        duplicate_file!(id, name: name, parent_id: parent_id)
+      rescue Google::Apis::ClientError => error
+        # only rescue not found errors
+        raise unless error.message.starts_with?('cannotCopyFile')
+        nil
+      end
+
+      # Copy a file by ID, optionally providing new name and parent ID.
+      # Raise error if file cannot be copied.
+      # TODO: Support duplication without explicit name and parent ID
+      def duplicate_file!(id, name:, parent_id:)
+        target = GoogleDrive::File.new(name: name, parents: [parent_id])
+        drive_service.copy_file(id, target, fields: default_file_fields)
+      end
+
+      # Get the file's content by file ID
+      def file_content(id)
+        content_io = StringIO.new
+        drive_service.export_file(id, 'text/plain', download_dest: content_io)
+        # Remove BOM
+        content_io.string.sub(/^\xEF\xBB\xBF/, '')
+      end
+
       # Find a file by ID. Return nil if file not found
       def find_file(id)
         find_file!(id)
@@ -195,7 +221,7 @@ module Providers
 
       # The default fields for file query methods
       def default_file_fields
-        %w[id name mimeType parents trashed thumbnailLink
+        %w[id name mimeType parents permissions trashed thumbnailLink
            thumbnailVersion].join(',')
       end
 

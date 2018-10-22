@@ -4,7 +4,7 @@ require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe ProjectOverviewsController, :delayed_job, type: :controller do
-  let!(:project) { create :project }
+  let!(:project) { create :project, :skip_archive_setup }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,

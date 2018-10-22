@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 feature 'File Info' do
-  let(:project) { create :project, :setup_complete }
+  let(:project) { create :project, :setup_complete, :skip_archive_setup }
   let(:root)    { create :file_resource, :folder }
   before { project.root_folder = root }
   before { sign_in_as project.owner.account }
