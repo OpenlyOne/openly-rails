@@ -53,7 +53,7 @@ class FileResource
       self.file_resource = file_resource_class.create!(
         external_id: external_id,
         name: 'Backup',
-        mime_type: 'Backup',
+        mime_type: file_resource_snapshot.mime_type,
         content_version: 0
       )
     end

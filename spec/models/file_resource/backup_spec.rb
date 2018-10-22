@@ -157,12 +157,19 @@ RSpec.describe FileResource::Backup, type: :model do
   describe '#create_file_resource!(external_id)' do
     subject(:method) { backup.send(:create_file_resource!, 'ext-id') }
 
+    let(:snapshot) { instance_double FileResource::Snapshot }
+
+    before do
+      allow(backup).to receive(:file_resource_snapshot).and_return snapshot
+      allow(snapshot).to receive(:mime_type).and_return 'mime-type-of-snapshot'
+    end
+
     it 'creates a FileResource' do
       method
       expect(FileResource).to exist(
         external_id: 'ext-id',
         name: 'Backup',
-        mime_type: 'Backup',
+        mime_type: 'mime-type-of-snapshot',
         content_version: 0
       )
     end
