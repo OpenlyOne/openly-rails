@@ -1,10 +1,19 @@
 # CHANGELOG
 
+## v0.25 (Oct 22, 2018)
+
+**New Features:**
+- Files are automatically backed up whenever they are changed on Google Drive
+- Users can travel back in time to past revisions and browse through their
+  files and folders as they were at that point in time.
+
+**Enhancements:**
+- The color scheme is now 'blue darken-2' across the entire application
+
 ## v0.24 (Oct 8, 2018)
 
 **Enhancements:**
 - Improvements to the landing page: Column size, wording, compression
-
 
 ## v0.23 (Oct 4, 2018)
 
