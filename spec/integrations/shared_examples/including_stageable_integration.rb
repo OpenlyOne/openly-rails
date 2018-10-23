@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
+
 RSpec.shared_examples 'including stageable integration' do
+  include_context 'skip project archive setup'
+
   subject(:staged_projects) { stageable.staging_projects.to_a }
   let(:p1) { create :project }
   let(:p2) { create :project }

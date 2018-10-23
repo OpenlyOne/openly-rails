@@ -7,7 +7,7 @@ require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
-  let!(:project)      { create :project }
+  let!(:project)      { create :project, :skip_archive_setup }
   let(:file_resource) { create :file_resource, :folder }
   let(:link)          { file_resource.external_link }
   let(:default_params) do

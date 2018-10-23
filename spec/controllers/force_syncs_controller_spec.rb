@@ -9,7 +9,7 @@ require 'controllers/shared_examples/setting_project.rb'
 RSpec.describe ForceSyncsController, type: :controller do
   let(:root)    { create :file_resource, :folder }
   let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project, :setup_complete }
+  let(:project) { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -27,6 +27,8 @@ RSpec.describe ForceSyncsController, type: :controller do
     let(:run_request) { post :create, params: params }
 
     before do
+      allow_any_instance_of(FileResource)
+        .to receive(:backup_on_save?).and_return false
       allow_any_instance_of(FileResource).to receive(:pull)
       allow_any_instance_of(FileResource).to receive(:pull_children)
     end

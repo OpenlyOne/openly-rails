@@ -11,7 +11,9 @@ html
 
     = render 'application/favicon'
 
-  body class=[controller_action_identifier, color_scheme(@color_scheme)]
+  / body class=[controller_action_identifier, color_scheme(@color_scheme)]
+  / TODO: Set correct color once identified by design team
+  body class=[controller_action_identifier, color_scheme('blue darken-2')]
     main
       = render 'navbar'
       = yield

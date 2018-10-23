@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Project, type: :model do
-  subject(:project) { create :project }
+  subject(:project)         { create :project }
+  let(:skip_archive_setup)  { true }
+
+  before do
+    next unless skip_archive_setup
+    allow_any_instance_of(Project::Archive).to receive(:setup)
+  end
 
   describe 'deleteable', :delayed_job do
     before do

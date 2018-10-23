@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180425151936) do
+ActiveRecord::Schema.define(version: 20181018222521) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,6 +105,17 @@ ActiveRecord::Schema.define(version: 20180425151936) do
     t.index ["file_resource_id"], name: "index_file_diffs_on_file_resource_id"
     t.index ["previous_snapshot_id"], name: "index_file_diffs_on_previous_snapshot_id"
     t.index ["revision_id", "file_resource_id"], name: "index_file_diffs_on_revision_id_and_file_resource_id", unique: true
+  end
+
+  create_table "file_resource_backups", force: :cascade do |t|
+    t.bigint "file_resource_snapshot_id", null: false
+    t.bigint "archive_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["archive_id"], name: "index_file_resource_backups_on_archive_id"
+    t.index ["file_resource_id"], name: "index_file_resource_backups_on_file_resource_id"
+    t.index ["file_resource_snapshot_id"], name: "index_file_resource_backups_on_file_resource_snapshot_id", unique: true
   end
 
   create_table "file_resource_snapshots", force: :cascade do |t|
@@ -209,6 +220,15 @@ ActiveRecord::Schema.define(version: 20180425151936) do
     t.index ["project_id", "profile_id"], name: "index_profiles_projects_on_project_id_and_profile_id", unique: true
   end
 
+  create_table "project_archives", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "file_resource_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_resource_id"], name: "index_project_archives_on_file_resource_id"
+    t.index ["project_id"], name: "index_project_archives_on_project_id", unique: true
+  end
+
   create_table "project_setups", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.boolean "is_completed", default: false, null: false
@@ -281,12 +301,17 @@ ActiveRecord::Schema.define(version: 20180425151936) do
   add_foreign_key "file_diffs", "file_resource_snapshots", column: "previous_snapshot_id"
   add_foreign_key "file_diffs", "file_resources"
   add_foreign_key "file_diffs", "revisions"
+  add_foreign_key "file_resource_backups", "file_resource_snapshots"
+  add_foreign_key "file_resource_backups", "file_resources"
+  add_foreign_key "file_resource_backups", "project_archives", column: "archive_id"
   add_foreign_key "file_resource_snapshots", "file_resource_thumbnails", column: "thumbnail_id"
   add_foreign_key "file_resource_snapshots", "file_resources", column: "parent_id"
   add_foreign_key "file_resources", "file_resource_snapshots", column: "current_snapshot_id"
   add_foreign_key "file_resources", "file_resource_thumbnails", column: "thumbnail_id"
   add_foreign_key "file_resources", "file_resources", column: "parent_id"
   add_foreign_key "profiles", "accounts"
+  add_foreign_key "project_archives", "file_resources"
+  add_foreign_key "project_archives", "projects"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "resources", "profiles", column: "owner_id"
   add_foreign_key "revisions", "profiles", column: "author_id"

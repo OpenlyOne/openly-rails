@@ -51,9 +51,13 @@ class Project < ApplicationRecord
     end
   end
 
+  has_one :archive, dependent: :destroy
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id
+  # Set to true to skip archive setup
+  attr_accessor :skip_archive_setup
 
   # Delegations
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
@@ -61,6 +65,8 @@ class Project < ApplicationRecord
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
+  # Set up archive for storing file backups
+  after_create :setup_archive, unless: :skip_archive_setup
 
   # Scopes
   # Projects where profile is owner or collaborator
@@ -159,6 +165,13 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # Set up the archive folder for this project
+  def setup_archive
+    build_archive unless archive.present?
+    archive.setup unless archive.setup_completed?
+    archive.save
   end
 end
 # rubocop:enable Metrics/ClassLength

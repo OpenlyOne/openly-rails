@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
 require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
@@ -8,6 +9,8 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe ProjectsController, type: :controller do
+  include_context 'skip project archive setup'
+
   let!(:project)        { create(:project) }
   let(:default_params)  do
     {

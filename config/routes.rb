@@ -81,7 +81,12 @@ Rails.application.routes.draw do
       get 'files' => 'folders#root', as: :root_folder
       resources :folders, only: :show
       # Routes for revisions
-      resources :revisions, only: %i[index new create]
+      resources :revisions, only: %i[index new create] do
+        scope module: 'revisions' do
+          get 'files' => 'folders#root', as: :root_folder
+          resources :folders, only: :show
+        end
+      end
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create

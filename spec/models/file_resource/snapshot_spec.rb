@@ -23,6 +23,12 @@ RSpec.describe FileResource::Snapshot, type: :model do
     end
     it do
       is_expected
+        .to have_one(:backup)
+        .class_name('FileResource::Backup')
+        .dependent(:destroy)
+    end
+    it do
+      is_expected
         .to have_many(:committing_files)
         .class_name('CommittedFile')
         .with_foreign_key(:file_resource_snapshot_id)

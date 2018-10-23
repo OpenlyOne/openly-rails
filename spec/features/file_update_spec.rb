@@ -22,7 +22,7 @@ feature 'File Update', :vcr do
     allow_any_instance_of(FileUpdateJob).to receive(:list_changes_on_next_page)
   end
 
-  let(:current_account) { create :account }
+  let(:current_account) { create :account, email: user_acct }
   let(:project) { create :project, owner: current_account.user }
   let(:setup) { create :project_setup, link: link_to_folder, project: project }
   let(:link_to_folder) do
@@ -39,15 +39,18 @@ feature 'File Update', :vcr do
     given_project_is_imported_and_changes_committed
 
     # when I create a file in Google Drive within the project folder
-    create_google_drive_file(name: 'My New File',
-                             parent_id: google_drive_test_folder_id,
-                             api_connection: api_connection)
+    file = create_google_drive_file(name: 'My New File',
+                                    parent_id: google_drive_test_folder_id,
+                                    api_connection: api_connection)
 
     wait_for_google_to_propagate_changes
     run_file_update_job
 
     # then I should see the file among my project's files
     then_i_should_see_file_in_project(name: 'My New File', status: 'addition')
+    # and have a backup of the file snapshot
+    file_resource = FileResource.find_by_external_id(file.id)
+    and_have_a_backup_of_file_snapshot(file_resource.current_snapshot)
   end
 
   scenario 'In Google Drive, user updates file content' do
@@ -69,6 +72,13 @@ feature 'File Update', :vcr do
 
     # then I should see the file among my project's files as modified
     then_i_should_see_file_in_project(name: 'File', status: 'modification')
+
+    # and have a backup of the file snapshot as it is now
+    file_resource = FileResource.find_by_external_id(file_to_modify.id)
+    and_have_a_backup_of_file_snapshot(file_resource.current_snapshot)
+
+    # and have a backup of the file snapshot as it was before
+    and_have_a_backup_of_file_snapshot(file_resource.snapshots.first)
   end
 
   scenario 'In Google Drive, user renames file' do
@@ -90,6 +100,13 @@ feature 'File Update', :vcr do
 
     # then I should see the file among my project's files as modified
     then_i_should_see_file_in_project(name: 'New File Name', status: 'rename')
+
+    # and have a backup of the file snapshot as it is now
+    file_resource = FileResource.find_by_external_id(file_to_rename.id)
+    and_have_a_backup_of_file_snapshot(file_resource.current_snapshot)
+
+    # and have a backup of the file snapshot as it was before
+    and_have_a_backup_of_file_snapshot(file_resource.snapshots.first)
   end
 
   scenario 'In Google Drive, user moves file within project folder' do
@@ -195,6 +212,10 @@ feature 'File Update', :vcr do
     api_connection.delete_file(out_of_scope_folder.id)
   end
 
+  xscenario 'In Google Drive, user moves file from one repository to another' do
+    # TODO: Add scenario: User moves folder/file from one repository to another
+  end
+
   scenario 'In Google Drive, user moves file to the root of their drive' do
     # given a file within the project folder
     file_to_move =
@@ -260,6 +281,17 @@ feature 'File Update', :vcr do
     then_i_should_see_file_in_project(name: 'File', status: 'deletion')
   end
 end
+
+# rubocop:disable Metrics/AbcSize
+# TODO: Reduce complexity
+def and_have_a_backup_of_file_snapshot(file_snapshot)
+  external_id_of_backup = file_snapshot.backup.file_resource.external_id
+  external_backup = Providers::GoogleDrive::FileSync.new(external_id_of_backup)
+  expect(external_backup.name).to eq(file_snapshot.name)
+  expect(external_backup.parent_id)
+    .to eq(project.archive.file_resource.external_id)
+end
+# rubocop:enable Metrics/AbcSize
 
 def given_project_is_imported_and_changes_committed
   setup

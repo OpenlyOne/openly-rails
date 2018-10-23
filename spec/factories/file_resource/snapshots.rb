@@ -16,5 +16,12 @@ FactoryBot.define do
     trait :pdf do
       mime_type { Providers::GoogleDrive::MimeType.pdf }
     end
+
+    trait :with_backup do
+      backup do
+        build(:file_resource_backup,
+              file_resource_snapshot: FileResource::Snapshot.new)
+      end
+    end
   end
 end

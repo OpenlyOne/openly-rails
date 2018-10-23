@@ -1,0 +1,30 @@
+.page-subheading.gray.lighten-3.no-margin-bottom
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        p.flow-text.no-margin
+          b = @revision.title
+        p.no-margin
+          => link_to profile_path(@revision.author)
+            = @revision.author.name
+          | &middot;
+          =<> time_ago_in_words(@revision.created_at)
+          | ago
+
+
+- unless action_name == 'root'
+  = render partial: 'ancestors',
+           object: @ancestors,
+           locals: { current_folder: @folder,
+                     project: @project,
+                     revision: @revision }
+
+.spacing.v48px
+
+.container
+  - @children.each do |child|
+
+    = render partial: 'committed_file_snapshot',
+             object: child,
+             locals: {project: @project,
+                      revision: @revision}

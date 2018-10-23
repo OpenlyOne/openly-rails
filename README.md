@@ -1,6 +1,6 @@
 # Openly One
 
-[![GitHub release](https://img.shields.io/badge/version-0.23-blue.svg)](https://github.com/OpenlyOne/openly)
+[![GitHub release](https://img.shields.io/badge/version-0.25-blue.svg)](https://github.com/OpenlyOne/openly)
 [![Build Status](https://travis-ci.org/OpenlyOne/openly.svg?branch=master)](https://travis-ci.org/OpenlyOne/openly)
 [![codecov](https://codecov.io/gh/OpenlyOne/openly/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenlyOne/openly)
 

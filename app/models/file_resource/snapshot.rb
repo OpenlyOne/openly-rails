@@ -8,6 +8,9 @@ class FileResource
     # Associations
     belongs_to :file_resource, autosave: false, optional: false
     belongs_to :parent, class_name: 'FileResource', optional: true
+    has_one :backup, class_name: 'FileResource::Backup',
+                     dependent: :destroy,
+                     foreign_key: :file_resource_snapshot_id
 
     has_many :committing_files, class_name: 'CommittedFile',
                                 foreign_key: :file_resource_snapshot_id
@@ -48,6 +51,17 @@ class FileResource
       joins(:file_resource)
         .select('file_resource_snapshots.*')
         .select('file_resources.provider_id')
+    }
+
+    # Order committed files by
+    # 1) directory first and
+    # 2) file name in ascending alphabetical order, case insensitive
+    scope :order_by_name_with_folders_first, lambda {
+      merge(
+        FileResource.order_by_name_with_folders_first(
+          table: 'file_resource_snapshots'
+        )
+      )
     }
 
     # Validations

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'integrations/shared_contexts/skip_project_archive_setup'
+
 RSpec.describe Stage::FileDiff::Ancestry, type: :model do
+  include_context 'skip project archive setup'
+
   describe '.for(file_resource_snapshot:, project:)' do
     subject(:ancestors) do
       described_class.for(file_resource_snapshot: snapshot, project: project)

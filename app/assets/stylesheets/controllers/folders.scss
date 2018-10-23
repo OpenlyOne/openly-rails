@@ -60,7 +60,15 @@
     }
   }
 
+  // show file info icon on hover
   .file:hover {
+    .file-info {
+      display: block;
+    }
+  }
+
+  //scss-lint:disable MergeableSelector
+  .file.hover-effect:hover {
     // show box shadow
     &::after {
       opacity: 1;
@@ -72,11 +80,7 @@
       background-color: inherit;
       color: color('shades', 'white');
     }
-
-    // show file info icon on hover
-    .file-info {
-      display: block;
-    }
+    //scss-lint:enable MergeableSelector
   }
 
   // The icon for accessing more information about a file

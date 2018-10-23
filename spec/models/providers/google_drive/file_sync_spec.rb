@@ -128,6 +128,30 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#duplicate(name:, parent_id:)' do
+    subject(:duplicate) { file_sync.duplicate(name: 'abc', parent_id: 'p-id') }
+
+    let(:file) { Google::Apis::DriveV3::File.new(id: 'dup-id') }
+
+    before  { file_sync.instance_variable_set :@id, 'id' }
+    before  { allow(api).to receive(:duplicate_file).and_return file }
+    after   { duplicate }
+
+    it 'duplicates the file' do
+      duplicate
+      expect(api)
+        .to have_received(:duplicate_file)
+        .with('id', name: 'abc', parent_id: 'p-id')
+    end
+
+    it 'returns new instance with dup-id and @file' do
+      expect(duplicate).to be_an_instance_of(described_class)
+      expect(duplicate).not_to equal file_sync
+      expect(duplicate.id).to eq 'dup-id'
+      expect(duplicate.instance_variable_get(:@file)).to be_present
+    end
+  end
+
   describe '#mime_type' do
     subject(:mime_type) { file_sync.mime_type }
     let(:file)          { Google::Apis::DriveV3::File.new(mime_type: 'type') }
@@ -171,6 +195,24 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
 
     context 'when file is nil' do
+      let(:file) { nil }
+
+      it { is_expected.to eq nil }
+    end
+  end
+
+  describe '#permissions' do
+    subject(:permissions) { file_sync.permissions }
+
+    let(:file)  { Google::Apis::DriveV3::File.new(permissions: [p1, p2]) }
+    let(:p1)    { instance_double Google::Apis::DriveV3::Permission }
+    let(:p2)    { instance_double Google::Apis::DriveV3::Permission }
+
+    before { allow(file_sync).to receive(:file).and_return file }
+
+    it { is_expected.to contain_exactly(p1, p2) }
+
+    context 'when file is not is set' do
       let(:file) { nil }
 
       it { is_expected.to eq nil }

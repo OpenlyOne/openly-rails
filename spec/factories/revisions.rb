@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :revision do
     author
-    project
+    association :project, :skip_archive_setup
     title         { Faker::HarryPotter.quote }
     summary       { Faker::Lorem.paragraph }
     is_published  false

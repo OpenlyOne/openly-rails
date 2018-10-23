@@ -1,11 +1,13 @@
 / render a single file with diff/change indicator
 
-.file.z-depth-1[class=file_diff.symbolic_mime_type
-                class=(file_diff.changes.any? ? 'change' : 'no-change')
-                class=file_diff.change_types.join(' ')
-                class=(file_diff.text_color || 'black-text')
-                class=(file_diff.color || 'black')
-                title=file_diff.name]
+.file.hover-effect.z-depth-1[
+  class=file_diff.symbolic_mime_type
+  class=(file_diff.changes.any? ? 'change' : 'no-change')
+  class=file_diff.change_types.join(' ')
+  class=(file_diff.text_color || 'black-text')
+  class=(file_diff.color || 'black')
+  title=file_diff.name
+]
 
   = render partial: 'link_to_file_info',
            locals: { file_id: file_diff.external_id, project: project }
