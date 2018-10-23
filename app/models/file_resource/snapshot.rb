@@ -53,6 +53,17 @@ class FileResource
         .select('file_resources.provider_id')
     }
 
+    # Order committed files by
+    # 1) directory first and
+    # 2) file name in ascending alphabetical order, case insensitive
+    scope :order_by_name_with_folders_first, lambda {
+      merge(
+        FileResource.order_by_name_with_folders_first(
+          table: 'file_resource_snapshots'
+        )
+      )
+    }
+
     # Validations
     validates :file_resource_id,  presence: true
     validates :name,              presence: true

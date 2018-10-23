@@ -12,10 +12,12 @@
           | ago
 
 
-/ - unless action_name == 'root'
-/   = render partial: 'ancestors',
-/            object: @ancestors,
-/            locals: { current_folder: @folder, project: @project }
+- unless action_name == 'root'
+  = render partial: 'ancestors',
+           object: @ancestors,
+           locals: { current_folder: @folder,
+                     project: @project,
+                     revision: @revision }
 
 .spacing.v48px
 
@@ -23,6 +25,6 @@
   - @children.each do |child|
 
     = render partial: 'committed_file_snapshot',
-             object: child.file_resource_snapshot,
+             object: child,
              locals: {project: @project,
                       revision: @revision}

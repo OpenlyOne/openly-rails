@@ -97,7 +97,6 @@ feature 'Time Travel' do
       expect(page).to have_text file.name
     end
     # and see the ancestry path
-    pending('Ancestry path is not yet implemented')
     expect(page.find('.breadcrumbs').text).to eq 'Fol Docs Code'
   end
 end
