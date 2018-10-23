@@ -73,7 +73,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
     let(:mime_type) { Providers::GoogleDrive::MimeType.document }
 
-    it { is_expected.to eq 1 }
+    it { is_expected.to eq '1' }
 
     context 'when file content is updated' do
       before do
@@ -82,13 +82,15 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
           .update_file_content(file_sync.id, 'new file content')
       end
 
-      it { is_expected.to be > 1 }
+      it { is_expected.not_to eq '1' }
     end
 
     context 'when file is folder' do
       let(:mime_type) { Providers::GoogleDrive::MimeType.folder }
-      it { is_expected.to eq 1 }
+      it { is_expected.to eq '1' }
     end
+
+    # TODO: Add spec for binary file type and ensure that version ID is not 0!
   end
 
   describe '#duplicate(name:, parent_id:)' do
