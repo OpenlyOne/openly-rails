@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.25.2 (Oct 23, 2018)
+
+**Fixes:**
+- Project setup: Replace sharing dialog image, so that it shows the correct
+  tracking email address
+
 ## v0.25.1 (Oct 22, 2018)
 
 **Fixes:**
