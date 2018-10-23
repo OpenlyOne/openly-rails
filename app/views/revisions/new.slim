@@ -26,6 +26,7 @@
         = render partial: 'file_changes',
                  object: @revision.file_changes,
                  locals: { project: @project,
+                           revision: @revision,
                            show_link_to_file_info: true,
                            all_links_in_new_tab: true,
                            file_change_wrapper: 'file_change_checkbox' }

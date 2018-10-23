@@ -1,0 +1,21 @@
+/ render the ancestors as breadcrumbs
+
+nav.breadcrumbs.truncate.gray.lighten-3.black-text.z-depth-0
+  .container
+    .nav-wrapper
+      .col.s12
+
+        / print link back to home/root folder
+        = link_to(profile_project_revision_root_folder_path(project.owner, project, revision),
+                  class: "breadcrumb home") do
+          / home icon
+          svg viewBox='0 0 24 24'
+            path[fill="currentColor"
+                 d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"]
+
+        / print each ancestor
+        = render partial: 'ancestor',
+                collection: ancestors.reverse.push(current_folder),
+                locals: { current_folder: current_folder,
+                          project: project,
+                          revision: revision }

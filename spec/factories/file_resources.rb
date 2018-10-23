@@ -26,5 +26,13 @@ FactoryBot.define do
       mime_type nil
       is_deleted true
     end
+
+    trait :with_backup do
+      after(:create) do |file_resource|
+        create(:file_resource_backup,
+               file_resource_snapshot: file_resource.current_snapshot)
+        file_resource.current_snapshot.reload_backup
+      end
+    end
   end
 end

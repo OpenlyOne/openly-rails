@@ -2,7 +2,7 @@
 
 RSpec.describe 'revisions/index', type: :view do
   let(:project)     { build_stubbed :project }
-  let(:revisions)   { build_stubbed_list :revision, 3 }
+  let(:revisions)   { build_stubbed_list :revision, 3, :published }
 
   before do
     assign(:project, project)
@@ -60,6 +60,17 @@ RSpec.describe 'revisions/index', type: :view do
     end
   end
 
+  it 'renders a link to time travel back to that revision' do
+    render
+    revisions.each do |revision|
+      expect(rendered).to have_link(
+        revision.title,
+        href: profile_project_revision_root_folder_path(project.owner, project,
+                                                        revision)
+      )
+    end
+  end
+
   context 'when file diffs exist' do
     let(:diffs) do
       snapshots.map do |snapshot|
@@ -85,6 +96,21 @@ RSpec.describe 'revisions/index', type: :view do
       render
       diffs.each do |diff|
         link = diff.current_snapshot.backup.file_resource.external_link
+        expect(rendered).to have_link(text: diff.name, href: link)
+      end
+    end
+
+    it 'renders a link to each folder' do
+      diffs.each do |diff|
+        allow(diff.current_or_previous_snapshot)
+          .to receive(:folder?).and_return true
+      end
+
+      render
+      diffs.each do |diff|
+        link = profile_project_revision_folder_path(
+          project.owner, project.slug, revisions.first.id, diff.external_id
+        )
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end

@@ -36,4 +36,9 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Revision',
                        association: :file_diffs
+
+  # Bullet complains when we browse committed files that all have no backups
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'FileResource::Snapshot',
+                       association: :backup
 end
