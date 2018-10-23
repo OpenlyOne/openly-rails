@@ -251,10 +251,10 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
 
     before do
       allow(drive_service).to receive(:get_revision).and_return revision
-      allow(revision).to receive(:id).and_return '123456789'
+      allow(revision).to receive(:id).and_return '123abcXZY'
     end
 
-    it { is_expected.to eq 123_456_789 }
+    it { is_expected.to eq '123abcXZY' }
 
     it 'calls #get_revision on drive service' do
       expect(drive_service).to receive(:get_revision).with('id', 'head')
@@ -276,7 +276,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
       context 'Google::Apis::ClientError, revisionsNotSupported' do
         let(:error) { Google::Apis::ClientError.new('revisionsNotSupported') }
 
-        it { is_expected.to eq 1 }
+        it { is_expected.to eq '1' }
       end
 
       context 'Google::Apis::ClientError, revisionsNotSupported' do
@@ -284,7 +284,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
           Google::Apis::ClientError.new('insufficientFilePermissions')
         end
 
-        it { is_expected.to eq 1 }
+        it { is_expected.to eq '1' }
       end
 
       context 'Google::Apis::ClientError, revisionsNotSupported' do
@@ -292,7 +292,7 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
           Google::Apis::ClientError.new('notFound: Revision not found')
         end
 
-        it { is_expected.to eq 1 }
+        it { is_expected.to eq '1' }
       end
 
       context 'Google::Apis::ClientError of different type' do

@@ -104,13 +104,13 @@ module Providers
         raise unless error.message.start_with?('revisionsNotSupported',
                                                'insufficientFilePermissions',
                                                'notFound: Revision not found')
-        1
+        '1'
       end
 
       # Get the most recent revision # of this file.
       # Raise error if user does not have necessary permission to fetch revision
       def file_head_revision!(id)
-        drive_service.get_revision(id, 'head').id.to_i
+        drive_service.get_revision(id, 'head').id
       end
 
       # Retrieve the permission ID for the email account on the file identified
