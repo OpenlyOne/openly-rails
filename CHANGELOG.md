@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.25.1 (Oct 22, 2018)
+
+**Fixes:**
+- Uploading new versions of binary files now correctly show up as modified in
+  Openly (since we are no longer force-casting version IDs to integers)
+
 ## v0.25 (Oct 22, 2018)
 
 **New Features:**
