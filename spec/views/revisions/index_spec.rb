@@ -60,6 +60,17 @@ RSpec.describe 'revisions/index', type: :view do
     end
   end
 
+  it 'renders a link to time travel back to that revision' do
+    render
+    revisions.each do |revision|
+      expect(rendered).to have_link(
+        revision.title,
+        href: profile_project_revision_root_folder_path(project.owner, project,
+                                                        revision)
+      )
+    end
+  end
+
   context 'when file diffs exist' do
     let(:diffs) do
       snapshots.map do |snapshot|

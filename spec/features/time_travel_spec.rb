@@ -22,12 +22,11 @@ feature 'Time Travel' do
     # given there is a published revision with files
     publish_revision
 
-    # when I visit the revision page
-    # TODO: Implement route splitter
-    # visit "#{project.owner.to_param}/#{project.to_param}/" \
-    #       "revisions/#{revision.id}"
-    visit "/#{project.owner.to_param}/#{project.to_param}/" \
-          "revisions/#{revision.id}/files"
+    # when I visit the revisions page
+    visit profile_project_revisions_path(project.owner, project)
+
+    # and click on the revision title
+    click_on revision.title
 
     # then I should be on the revision's files page
     expect(page).to have_current_path(
@@ -51,12 +50,12 @@ feature 'Time Travel' do
     # and my revision is published
     publish_revision
 
-    # when I visit the revision page
-    # TODO: Implement route splitter
-    # visit "#{project.owner.to_param}/#{project.to_param}/" \
-    #       "revisions/#{revision.id}"
-    visit "/#{project.owner.to_param}/#{project.to_param}/" \
-          "revisions/#{revision.id}/files"
+    # when I visit the revisions page
+    visit profile_project_revisions_path(project.owner, project)
+
+    # and click on the revision title
+    click_on revision.title
+
     # then I should see files in the correct order
     file_order = FileResource.where(id: folders).order(:name).pluck(:name) +
                  FileResource.where(id: files).order(:name).pluck(:name)
@@ -73,12 +72,11 @@ feature 'Time Travel' do
     # and a published revision
     publish_revision
 
-    # when I visit the revision page
-    # TODO: Implement route splitter
-    # visit "#{project.owner.to_param}/#{project.to_param}/" \
-    #       "revisions/#{revision.id}"
-    visit "/#{project.owner.to_param}/#{project.to_param}/" \
-          "revisions/#{revision.id}/files"
+    # when I visit the revisions page
+    visit profile_project_revisions_path(project.owner, project)
+
+    # and click on the revision title
+    click_on revision.title
 
     # and click on the folder folder
     click_on folder.name

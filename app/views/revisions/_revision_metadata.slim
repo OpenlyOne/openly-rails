@@ -2,7 +2,9 @@
   h5.title.no-margin-top
     = render partial: 'revisions/revision_timestamp',
              locals: { project: project, revision: revision, device: :desktop }
-    b = revision.title
+    = link_to( profile_project_revision_root_folder_path(project.owner, project, revision),
+               class: 'black-text' )
+      b = revision.title
 
   - if revision.summary.present?
     .summary
