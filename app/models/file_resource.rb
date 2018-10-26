@@ -23,8 +23,10 @@ class FileResource < ApplicationRecord
     table ||= table_name
     folder_mime_type = Providers::GoogleDrive::MimeType.folder
     order(
-      "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
-      "#{table}.name asc"
+      Arel.sql(
+        "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
+        "#{table}.name asc"
+      )
     )
   }
 

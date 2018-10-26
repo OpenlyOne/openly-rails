@@ -4,10 +4,8 @@
 module Syncable
   extend ActiveSupport::Concern
 
-  # Allow initialization of sync adapter
-  def initialize(attributes = {})
-    self.sync_adapter = attributes.delete(:sync_adapter)
-    super
+  included do
+    attr_writer :sync_adapter
   end
 
   # Fetch the most recent information about this syncable resource from its
@@ -38,9 +36,11 @@ module Syncable
     super
   end
 
-  private
+  def sync_adapter
+    @sync_adapter ||= sync_adapter_class.new(external_id)
+  end
 
-  attr_writer :sync_adapter
+  private
 
   # Fetch children from sync adapter and convert to file resources
   def children_from_sync_adapter
@@ -69,10 +69,6 @@ module Syncable
   def reset_sync_adapter
     @sync_adapter = nil
     @destroy_on_save = nil
-  end
-
-  def sync_adapter
-    @sync_adapter ||= sync_adapter_class.new(external_id)
   end
 
   def sync_adapter_class

@@ -8,7 +8,7 @@ git_source(:github) do |repo_name|
 end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.6'
+gem 'rails', '~> 5.2.1'
 # Use postgresql as the database for Active Record
 gem 'pg', '~> 1.0.0'
 # Use Puma as the app server
@@ -77,7 +77,7 @@ group :development, :test do
   # and also as our debugger
   gem 'pry-byebug', '~> 3.6'
   # Use Rspec for testing
-  gem 'rspec-rails', '~> 3.7'
+  gem 'rspec-rails', '~> 3.8'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.7'
   # Use FactoryGirl for generating factories
