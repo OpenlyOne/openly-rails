@@ -6,6 +6,7 @@ RSpec.describe Project, type: :model do
 
   before do
     next unless skip_archive_setup
+
     allow_any_instance_of(Project::Archive).to receive(:setup)
   end
 

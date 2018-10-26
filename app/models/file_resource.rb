@@ -75,6 +75,7 @@ class FileResource < ApplicationRecord
   # Recursively collect parents
   def ancestors
     return [] if parent.nil?
+
     [parent] + parent.ancestors
   end
 
@@ -111,11 +112,13 @@ class FileResource < ApplicationRecord
 
   def cannot_be_its_own_ancestor
     return unless ancestors_ids.include? id
+
     errors.add(:base, 'File resource cannot be its own ancestor')
   end
 
   def cannot_be_its_own_parent
     return unless self == parent
+
     errors.add(:base, 'File resource cannot be its own parent')
   end
 

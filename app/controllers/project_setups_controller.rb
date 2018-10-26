@@ -51,17 +51,20 @@ class ProjectSetupsController < ApplicationController
 
   def redirect_to_show_if_setup_started_or_done
     return if @project.setup_not_started?
+
     redirect_to(profile_project_setup_path(@project.owner, @project),
                 notice: 'Files are already being imported...')
   end
 
   def redirect_to_new_if_setup_not_started
     return unless @project.setup_not_started?
+
     redirect_to(new_profile_project_setup_path(@project.owner, @project))
   end
 
   def redirect_to_project_if_setup_complete
     return unless @project.setup_completed?
+
     redirect_to([@project.owner, @project],
                 notice: 'Setup has been completed.')
   end

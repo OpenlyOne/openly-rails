@@ -41,6 +41,7 @@ class Ability
 
     # Admins can use the administration back end
     return unless user.admin?
+
     can :manage, :admin_panel
 
     # Define abilities for the passed in user here. For example:

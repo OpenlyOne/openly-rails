@@ -47,6 +47,7 @@ module Providers
       rescue Google::Apis::ClientError => error
         # only rescue not found errors
         raise unless error.message.starts_with?('cannotCopyFile')
+
         nil
       end
 
@@ -72,6 +73,7 @@ module Providers
       rescue Google::Apis::ClientError => error
         # only rescue not found errors
         raise unless error.message.starts_with?('notFound')
+
         nil
       end
 
@@ -104,6 +106,7 @@ module Providers
         raise unless error.message.start_with?('revisionsNotSupported',
                                                'insufficientFilePermissions',
                                                'notFound: Revision not found')
+
         '1'
       end
 

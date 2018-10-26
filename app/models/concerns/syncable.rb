@@ -62,6 +62,7 @@ module Syncable
   def external_parent_id=(parent_id)
     self.parent = nil
     return if parent_id.nil?
+
     self.parent = self.class.find_by_external_id(parent_id)
   end
 
@@ -80,6 +81,7 @@ module Syncable
   # the thumbnail
   def thumbnail_from_sync_adapter
     return unless sync_adapter.thumbnail?
+
     self.thumbnail =
       FileResource::Thumbnail
       .create_with(raw_image: proc { sync_adapter.thumbnail })

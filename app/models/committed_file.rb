@@ -63,6 +63,7 @@ class CommittedFile < ApplicationRecord
 
   def file_resource_snapshot_belongs_to_file_resource
     return if file_resource_snapshot&.file_resource_id == file_resource_id
+
     errors.add(:file_resource_snapshot, 'does not belong to file resource')
   end
 end

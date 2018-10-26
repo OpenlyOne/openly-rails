@@ -22,6 +22,7 @@ FactoryBot.define do
 
     after(:build) do |revision|
       next if revision.parent&.project.nil?
+
       revision.project = revision.parent.project
     end
   end

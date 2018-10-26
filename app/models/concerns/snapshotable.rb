@@ -31,6 +31,7 @@ module Snapshotable
   # Validate that current snapshot is associated with this snapshotable
   def current_snapshot_must_belong_to_snapshotable
     return if current_snapshot.snapshotable_id == id
+
     errors.add(:current_snapshot, "must belong to this #{model_name}")
   end
 
