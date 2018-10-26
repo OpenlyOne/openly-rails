@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :project_archive, class: 'Project::Archive' do
     transient do
-      project_owner_account_email nil
+      project_owner_account_email { nil }
     end
 
     project do

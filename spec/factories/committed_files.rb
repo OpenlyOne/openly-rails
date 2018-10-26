@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :committed_file do
     transient do
-      parent nil
+      parent { nil }
     end
 
     revision

@@ -6,14 +6,14 @@ FactoryBot.define do
     association :project, :skip_archive_setup
     title         { Faker::HarryPotter.quote }
     summary       { Faker::Lorem.paragraph }
-    is_published  false
+    is_published  { false }
 
     trait :drafted do
-      is_published false
+      is_published { false }
     end
 
     trait :published do
-      is_published true
+      is_published { true }
     end
 
     trait :with_parent do

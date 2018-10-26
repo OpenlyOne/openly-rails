@@ -5,6 +5,6 @@ FactoryBot.define do
     association :target, factory: :account
     association :notifier, factory: :user
     association :notifiable, factory: :revision
-    key 'revision.default'
+    key { 'revision.default' }
   end
 end
