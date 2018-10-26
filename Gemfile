@@ -120,9 +120,7 @@ group :test do
   # Behavior-Driven-Development
   gem 'capybara', '~> 2.18'
   # Additional RSpec matchers
-  gem 'shoulda-matchers', '~> 3.1',
-      git: 'https://github.com/thoughtbot/shoulda-matchers.git',
-      branch: 'master'
+  gem 'shoulda-matchers', '~> 4.0.0.rc1'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
   # VCR for capturing HTTP requests during tests

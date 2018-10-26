@@ -78,8 +78,10 @@ RSpec.shared_examples 'being a profile' do
     end
 
     it 'validates that color scheme is a valid option' do
+      # TODO: Remove shoulda-matchers test string hardcoding below
       is_expected.to validate_inclusion_of(:color_scheme)
         .in_array(Color.options)
+        .with_message('shoulda-matchers test string is not a valid option')
     end
   end
 
