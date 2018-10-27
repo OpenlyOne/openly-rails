@@ -118,7 +118,7 @@ group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
-  gem 'capybara', '~> 2.18'
+  gem 'capybara', '~> 3.10'
   # Additional RSpec matchers
   gem 'shoulda-matchers', '~> 4.0.0.rc1'
   # Cleans the test database after every test
