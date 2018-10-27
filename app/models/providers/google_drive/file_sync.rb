@@ -32,11 +32,13 @@ module Providers
       # TODO: Add support for getting content of different file formats
       def content
         return nil if deleted?
+
         @content ||= fetch_content
       end
 
       def content_version
         return nil if deleted?
+
         @content_version ||= fetch_content_version
       end
 
@@ -81,6 +83,7 @@ module Providers
       # Return the file's thumbnail
       def thumbnail
         return nil unless thumbnail?
+
         @thumbnail ||= fetch_thumbnail
       end
 
@@ -92,6 +95,7 @@ module Providers
       # Return true if the file has a thumbnail
       def thumbnail?
         return false if deleted?
+
         thumbnail_link.present?
       end
 

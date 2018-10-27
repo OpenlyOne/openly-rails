@@ -37,6 +37,7 @@ class FileResource
       )
 
       return false unless file.present?
+
       create_file_resource!(file.id)
     end
 

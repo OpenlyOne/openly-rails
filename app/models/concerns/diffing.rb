@@ -38,6 +38,7 @@ module Diffing
 
   def association(association_name)
     return super unless association_name == :thumbnail
+
     current_or_previous_snapshot.association(association_name)
   end
 
@@ -69,11 +70,13 @@ module Diffing
 
   def modification?
     return false unless update?
+
     current_content_version != previous_content_version
   end
 
   def movement?
     return false unless update?
+
     current_parent_id != previous_parent_id
   end
 
@@ -84,11 +87,13 @@ module Diffing
 
   def rename?
     return false unless update?
+
     current_name != previous_name
   end
 
   def update?
     return false if addition? || deletion?
+
     current_snapshot_id != previous_snapshot_id
   end
 

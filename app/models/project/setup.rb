@@ -91,6 +91,7 @@ class Project
     # Validation: File behind link is accessible by tracking account
     def file_is_accessible
       return unless file.deleted?
+
       errors.add(:link, 'appears to be inaccessible. Have you shared the ' \
                         'resource with ' \
                         "#{Settings.google_drive_tracking_account}?")
@@ -99,6 +100,7 @@ class Project
     # Validation: File behind link is a folder
     def file_is_folder
       return if file.folder?
+
       errors.add(:link, 'appears not to be a Google Drive folder')
     end
 
@@ -123,6 +125,7 @@ class Project
     # Validation: Link points to a Google Drive folder
     def link_is_valid
       return if id_from_link.present?
+
       errors.add(:link, 'appears not to be a valid Google Drive link')
     end
 

@@ -35,8 +35,10 @@ RSpec.shared_examples 'being backupable' do
     before do
       allow(backupable).to receive(:current_snapshot).and_return snapshot
       next unless snapshot.present?
+
       allow(snapshot).to receive(:backup).and_return backup
       next unless backup.present?
+
       allow(backup).to receive(:persisted?).and_return is_persisted
     end
 

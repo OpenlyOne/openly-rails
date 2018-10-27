@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :project do
     transient do
-      owner_account_email nil
+      owner_account_email { nil }
     end
 
     sequence(:title) do |n|
@@ -13,10 +13,10 @@ FactoryBot.define do
     tags            { Faker::Lorem.words }
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user, account_email: owner_account_email) }
-    is_public       false
+    is_public       { false }
 
     trait :public do
-      is_public true
+      is_public { true }
     end
 
     trait :setup_complete do
@@ -26,7 +26,7 @@ FactoryBot.define do
     end
 
     trait :skip_archive_setup do
-      skip_archive_setup true
+      skip_archive_setup { true }
     end
   end
 end

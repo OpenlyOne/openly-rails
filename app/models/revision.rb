@@ -117,11 +117,13 @@ class Revision < ApplicationRecord
 
   def can_only_have_one_origin_revision_per_project
     return unless published_origin_revision_exists_for_project?
+
     errors.add(:base, 'An origin revision already exists for this project')
   end
 
   def can_only_have_one_revision_with_parent
     return unless published_revision_with_parent_exists?
+
     errors.add(:base,
                'Someone has captured changes to this project since you ' \
                'started reviewing changes. To prevent you and your team from ' \
@@ -131,6 +133,7 @@ class Revision < ApplicationRecord
 
   def parent_must_belong_to_same_project
     return if parent.project_id == project_id
+
     errors.add(:parent, 'must belong to same project')
   end
 
@@ -154,6 +157,7 @@ class Revision < ApplicationRecord
 
     file_changes.select(&:selected?).each do |file_change|
       next if file_change.valid?
+
       errors[:base].push(*file_change.errors.full_messages)
     end
   end

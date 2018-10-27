@@ -41,4 +41,25 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'FileResource::Snapshot',
                        association: :backup
+
+  # Bullet complains about Ahoy including user
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Ahoy::Visit',
+                       association: :user
+
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'FileResources::GoogleDrive',
+                       association: :parent
+
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'FileResources::GoogleDrive',
+                       association: :thumbnail
+
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'FileResources::GoogleDrive',
+                       association: :current_snapshot
+
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'CommittedFile',
+                       association: :file_resource_snapshot
 end
