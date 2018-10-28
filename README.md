@@ -6,3 +6,5 @@
 
 Openly is a collaboration platform for individuals and teams with bold
 ambitions.
+
+Openly open sources its development process and files. Visit: https://www.openly.one/finn/openly-app/files
