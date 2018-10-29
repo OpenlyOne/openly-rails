@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 feature 'Folder' do
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
-  let(:root)    { create :file_resource, :folder }
-  let(:files)   { create_list :file_resource, 5, parent: root }
-  let(:create_revision) do
-    r = project.revisions.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'origin revision')
+  let(:project) do
+    create :project, :setup_complete, :skip_archive_setup, :with_repository
   end
-
-  before do
-    project.root_folder = root
-    files
+  let(:branch)  { project.master_branch }
+  let(:root)    { create :vcs_staged_file, :root, branch: branch }
+  let!(:files) do
+    create_list :vcs_staged_file, 5, parent: root
+  end
+  let(:create_revision) do
+    c = branch.commits.create_draft_and_commit_files!(project.owner)
+    c.update(is_published: true, title: 'origin revision')
   end
 
   before { sign_in_as project.owner.account }
@@ -35,8 +35,8 @@ feature 'Folder' do
   scenario 'User can view sub-folder' do
     # given there is a subfolder
     subfolder =
-      create :file_resource, :folder, name: 'A Unique Subfolder', parent: root
-    subfiles = create_list :file_resource, 5, parent: subfolder
+      create :vcs_staged_file, :folder, name: 'A Unique Subfolder', parent: root
+    subfiles = create_list :vcs_staged_file, 5, parent: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -57,7 +57,7 @@ feature 'Folder' do
   end
 
   scenario 'User can see files in correct order' do
-    folders = create_list :file_resource, 5, :folder, parent: root
+    folders = create_list :vcs_staged_file, 5, :folder, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -65,28 +65,28 @@ feature 'Folder' do
     click_on 'Files'
 
     # then I should see files in the correct order
-    file_order = FileResource.where(id: folders).order(:name).pluck(:name) +
-                 FileResource.where(id: files).order(:name).pluck(:name)
+    file_order = VCS::StagedFile.where(id: folders).order(:name).pluck(:name) +
+                 VCS::StagedFile.where(id: files).order(:name).pluck(:name)
     expect(page.all('.file').map(&:text)).to eq file_order
   end
 
   scenario 'User can see diffs in folder' do
-    folder                      = create :file_resource, :folder, parent: root
-    modified_file               = create :file_resource, parent: folder
-    moved_out_file              = create :file_resource, parent: folder
-    moved_in_file               = create :file_resource, parent: root
-    moved_in_and_modified_file  = create :file_resource, parent: root
-    removed_file                = create :file_resource, parent: folder
-    unchanged_file              = create :file_resource, parent: folder
+    folder                      = create :vcs_staged_file, :folder, parent: root
+    modified_file               = create :vcs_staged_file, parent: folder
+    moved_out_file              = create :vcs_staged_file, parent: folder
+    moved_in_file               = create :vcs_staged_file, parent: root
+    moved_in_and_modified_file  = create :vcs_staged_file, parent: root
+    removed_file                = create :vcs_staged_file, parent: folder
+    unchanged_file              = create :vcs_staged_file, parent: folder
     # and files are committed
     create_revision
 
     # when changes are made to files
-    added_file = create :file_resource, parent: folder
+    added_file = create :vcs_staged_file, parent: folder
     modified_file.update(content_version: 'new-version')
-    moved_out_file.update(parent: root)
-    moved_in_file.update(parent: folder)
-    moved_in_and_modified_file.update(parent: folder,
+    moved_out_file.update(file_record_parent_id: root.file_record_id)
+    moved_in_file.update(file_record_parent_id: folder.file_record_id)
+    moved_in_and_modified_file.update(file_record_parent_id: folder.file_record_id,
                                       content_version: 'new-version')
     removed_file.update(is_deleted: true)
 
@@ -111,9 +111,9 @@ feature 'Folder' do
   end
 
   context 'User can see correct ancestry path for folders' do
-    let(:folder) { create :file_resource, :folder, name: 'Fol', parent: root }
-    let(:docs) { create :file_resource, :folder, name: 'Docs', parent: folder }
-    let(:code) { create :file_resource, :folder, name: 'Code', parent: docs }
+    let(:folder) { create :vcs_staged_file, :folder, name: 'Fol', parent: root }
+    let(:docs) { create :vcs_staged_file, :folder, name: 'Docs', parent: folder }
+    let(:code) { create :vcs_staged_file, :folder, name: 'Code', parent: docs }
     let(:init_folders) { [folder, docs, code] }
     before do
       init_folders
@@ -134,7 +134,7 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed' do
-      before  { code.update(parent_id: nil) }
+      before  { code.update(parent: nil) }
       before  { action }
 
       it 'then ancestry path is root > folder > documents > code' do
@@ -143,8 +143,8 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed and documents is moved into root' do
-      before  { code.update(parent_id: nil) }
-      before  { docs.update(name: 'The Docs', parent_id: root.id) }
+      before  { code.update(parent: nil) }
+      before  { docs.update(name: 'The Docs', parent: root) }
       before  { action }
 
       it 'then ancestry path is root > documents > code' do
