@@ -22,7 +22,7 @@ module VCS::Syncable
   # Fetch and save the most recent information about this syncable resource
   def pull
     fetch
-    save!
+    save
   end
 
   # Fetch and save the children of this syncable resource from its provider
@@ -59,7 +59,7 @@ module VCS::Syncable
         self
         .class
         .create_with(
-          sync_adapter: sync_adapter,
+          sync_adapter: child_sync_adapter,
           file_record: VCS::FileRecord.new(repository_id: branch.repository_id)
         ).find_or_initialize_by(
           branch_id: branch_id,
@@ -67,7 +67,7 @@ module VCS::Syncable
         )
 
       # Pull (fetch+save) child if it is a new record
-      staged_child.tap { |child| child.pull if staged_child.new_record? }
+      staged_child.tap { |child| child.pull if child.new_record? }
     end
   end
 

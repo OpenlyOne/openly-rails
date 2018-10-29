@@ -28,9 +28,9 @@ FactoryBot.define do
       file_record_parent_id { nil }
     end
 
-    # trait :with_thumbnail do
-    #   association :thumbnail, factory: :file_resource_thumbnail
-    # end
+    trait :with_thumbnail do
+      association :thumbnail, factory: :vcs_file_thumbnail
+    end
 
     trait :deleted do
       name { nil }
@@ -39,12 +39,11 @@ FactoryBot.define do
       is_deleted { true }
     end
 
-    # trait :with_backup do
-    #   after(:create) do |file_resource|
-    #     create(:file_resource_backup,
-    #            file_resource_snapshot: file_resource.current_snapshot)
-    #     file_resource.current_snapshot.reload_backup
-    #   end
-    # end
+    trait :with_backup do
+      after(:create) do |staged_file|
+        create(:vcs_file_backup, file_snapshot: staged_file.current_snapshot)
+        staged_file.current_snapshot.reload_backup
+      end
+    end
   end
 end

@@ -11,6 +11,9 @@ module VCS
     has_many :committing_files, class_name: 'CommittedFile',
                                 foreign_key: :file_snapshot_id
 
+    has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
+                     inverse_of: :file_snapshot
+
     # Callbacks
     # Prevent updates to file snapshot; snapshots are immutable.
     before_update do

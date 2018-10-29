@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_28_132411) do
+ActiveRecord::Schema.define(version: 2018_10_29_183425) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -298,6 +298,14 @@ ActiveRecord::Schema.define(version: 2018_10_28_132411) do
     t.index ["project_id"], name: "index_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
   end
 
+  create_table "vcs_archives", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.text "external_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_vcs_archives_on_repository_id"
+  end
+
   create_table "vcs_branches", force: :cascade do |t|
     t.bigint "repository_id", null: false
     t.datetime "created_at", null: false
@@ -329,6 +337,14 @@ ActiveRecord::Schema.define(version: 2018_10_28_132411) do
     t.index ["commit_id", "file_snapshot_id"], name: "index_vcs_committed_files_on_commit_id_and_file_snapshot_id", unique: true
     t.index ["commit_id"], name: "index_vcs_committed_files_on_commit_id"
     t.index ["file_snapshot_id"], name: "index_vcs_committed_files_on_file_snapshot_id"
+  end
+
+  create_table "vcs_file_backups", force: :cascade do |t|
+    t.bigint "file_snapshot_id", null: false
+    t.text "external_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_snapshot_id"], name: "index_vcs_file_backups_on_file_snapshot_id"
   end
 
   create_table "vcs_file_diffs", force: :cascade do |t|
@@ -436,12 +452,14 @@ ActiveRecord::Schema.define(version: 2018_10_28_132411) do
   add_foreign_key "revisions", "revisions", column: "parent_id"
   add_foreign_key "staged_files", "file_resources"
   add_foreign_key "staged_files", "projects"
+  add_foreign_key "vcs_archives", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_branches", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_commits", "profiles", column: "author_id"
   add_foreign_key "vcs_commits", "vcs_branches", column: "branch_id"
   add_foreign_key "vcs_commits", "vcs_commits", column: "parent_id"
   add_foreign_key "vcs_committed_files", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_committed_files", "vcs_file_snapshots", column: "file_snapshot_id"
+  add_foreign_key "vcs_file_backups", "vcs_file_snapshots", column: "file_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "old_snapshot_id"

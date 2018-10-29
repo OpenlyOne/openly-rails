@@ -39,7 +39,7 @@ module VCS
 
     # Scopes
     scope :preload_file_diffs_with_snapshots, lambda {
-      preload(file_diffs: %i[current_snapshot previous_snapshot])
+      preload(file_diffs: %i[new_snapshot old_snapshot])
     }
 
     scope :last_per_branch, lambda {

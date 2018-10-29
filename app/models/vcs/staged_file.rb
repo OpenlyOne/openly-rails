@@ -12,7 +12,7 @@ module VCS
     # include Stageable
     include VCS::Syncable
     # must be last, so that backup is made after snapshot is persisted
-    # include Backupable
+    include VCS::Backupable
 
     # Associations
     # has_one :parent, ->(staged_file) { where(file_record_id: staged_file.file_record_parent_id) },
@@ -164,7 +164,7 @@ module VCS
         self.file_record_parent_id = new_parent.file_record_id
         @parent = new_parent
       else
-        mark_as_removed
+        mark_as_removed unless root?
       end
     end
 
@@ -202,7 +202,7 @@ module VCS
 
     # Return all children that are folders
     def subfolders
-      children.select(&:folder?)
+      staged_children.select(&:folder?)
     end
 
     private

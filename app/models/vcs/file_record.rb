@@ -7,7 +7,7 @@ module VCS
              through: :repository_branches,
              source: :staged_files
 
-    has_many :file_snapshots,  dependent: :destroy
+    has_many :file_snapshots, dependent: :destroy
     has_many :file_snapshots_of_children,
              class_name: 'VCS::FileSnapshot',
              foreign_key: :file_record_parent_id,
