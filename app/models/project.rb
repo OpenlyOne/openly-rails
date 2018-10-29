@@ -71,6 +71,7 @@ class Project < ApplicationRecord
 
   # Delegations
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
+  delegate :staged_files, to: :master_branch
 
   # Callbacks
   # Auto-generate slug from title
