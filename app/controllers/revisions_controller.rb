@@ -13,6 +13,7 @@ class RevisionsController < ApplicationController
 
   def index
     # TODO: Raise 404 if no revisions exist or redirect
+    # TODO: Change variable name from revision to commit
     @revisions =
       @project
       .master_branch
@@ -50,7 +51,7 @@ class RevisionsController < ApplicationController
   end
 
   def build_revision
-    revision = @project.revisions.create_draft_and_commit_files!(current_user)
+    revision = @project.master_branch.commits.create_draft_and_commit_files!(current_user)
     find_revision_by_id(revision.id)
   end
 
@@ -64,8 +65,9 @@ class RevisionsController < ApplicationController
 
   def find_revision_by_id(id)
     @revision =
-      Revision.preload_file_diffs_with_snapshots
-              .find_by!(id: id, project: @project, author: current_user)
+      VCS::Commit
+      .preload_file_diffs_with_snapshots
+      .find_by!(id: id, branch: @project.master_branch, author: current_user)
   end
 
   def preload_backups_for_file_diffs_in_revisions(revisions)

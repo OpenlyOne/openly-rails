@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
-  let(:project) { create :project, :setup_complete, :skip_archive_setup, :with_repository }
+  let(:project) { create :project, :setup_complete, :skip_archive_setup }
   let!(:root)   { create :vcs_staged_file, :root, branch: project.master_branch }
   let(:create_revision) do
     c = project.master_branch.commits.create_draft_and_commit_files!(project.owner)
@@ -46,7 +46,7 @@ feature 'Revision' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and the project has some files
-    create_list :file_resource, 5, parent: root
+    create_list :vcs_staged_file, 5, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -66,25 +66,25 @@ feature 'Revision' do
     # and see a success message
     expect(page).to have_text 'Revision successfully created.'
     # and have the revision persisted to the repository
-    expect(project.revisions.last).to be_present
+    expect(project.master_branch.commits.last).to be_present
     # and see no file modification icons
     expect(page).to have_css '.file.no-change', count: 5
   end
 
   context 'Selective capture' do
     let(:unchanged) do
-      create_list :file_resource, 2, name: 'unchanged', parent: root
+      create_list :vcs_staged_file, 2, name: 'unchanged', parent: root
     end
-    let(:folder)          { create :file_resource, :folder, parent: root }
-    let(:added_file)      { create :file_resource, parent: folder }
-    let(:modified_file)   { create :file_resource, parent: folder }
-    let(:moved_out_file)  { create :file_resource, parent: folder }
-    let(:moved_in_file)   { create :file_resource, parent: root }
-    let(:moved_in_and_modified_file) { create :file_resource, parent: root }
-    let(:removed_file)  { create :file_resource, parent: folder }
-    let(:moved_folder)  { create :file_resource, :folder, parent: root }
+    let(:folder)          { create :vcs_staged_file, :folder, parent: root }
+    let(:added_file)      { create :vcs_staged_file, parent: folder }
+    let(:modified_file)   { create :vcs_staged_file, parent: folder }
+    let(:moved_out_file)  { create :vcs_staged_file, parent: folder }
+    let(:moved_in_file)   { create :vcs_staged_file, parent: root }
+    let(:moved_in_and_modified_file) { create :vcs_staged_file, parent: root }
+    let(:removed_file)  { create :vcs_staged_file, parent: folder }
+    let(:moved_folder)  { create :vcs_staged_file, :folder, parent: root }
     let(:in_moved_folder) do
-      create_list :file_resource, 2, parent: moved_folder
+      create_list :vcs_staged_file, 2, parent: moved_folder
     end
 
     scenario 'User can review changes' do
@@ -159,7 +159,7 @@ feature 'Revision' do
       click_on 'Capture'
 
       # then the latest revision should have no diffs
-      expect(project.revisions.last.file_diffs).to be_none
+      expect(project.master_branch.commits.last.file_diffs).to be_none
     end
 
     scenario 'User can unselect some changes' do
@@ -190,9 +190,9 @@ feature 'Revision' do
       click_on 'Capture'
 
       # then the latest revision should have two file changes
-      expect(project.revisions.last.file_changes.count).to eq 2
-      expect(project.revisions.last.file_changes).to be_one(&:modification?)
-      expect(project.revisions.last.file_changes).to be_one(&:addition?)
+      expect(project.master_branch.commits.last.file_changes.count).to eq 2
+      expect(project.master_branch.commits.last.file_changes).to be_one(&:modification?)
+      expect(project.master_branch.commits.last.file_changes).to be_one(&:addition?)
     end
   end
 end
