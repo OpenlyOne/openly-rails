@@ -73,7 +73,10 @@ class Project < ApplicationRecord
   # Callbacks
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
+  # Set up repository and master branch
+  before_create :setup_repository
   # Set up archive for storing file backups
+  # TODO: Refactor into background job
   after_create :setup_archive, unless: :skip_archive_setup
 
   # Scopes
@@ -180,6 +183,12 @@ class Project < ApplicationRecord
     build_archive unless archive.present?
     archive.setup unless archive.setup_completed?
     archive.save
+  end
+
+  # Set up repository & master branch
+  def setup_repository
+    create_repository
+    create_master_branch(repository: repository)
   end
 end
 # rubocop:enable Metrics/ClassLength
