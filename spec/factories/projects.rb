@@ -28,5 +28,10 @@ FactoryBot.define do
     trait :skip_archive_setup do
       skip_archive_setup { true }
     end
+
+    trait :with_repository do
+      association :master_branch, factory: :vcs_branch
+      repository { master_branch.repository }
+    end
   end
 end

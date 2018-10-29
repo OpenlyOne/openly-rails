@@ -11,6 +11,14 @@ class Project < ApplicationRecord
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
+  belongs_to :master_branch, class_name: 'VCS::Branch',
+                             optional: true,
+                             dependent: :destroy
+
+  belongs_to :repository, class_name: 'VCS::Repository',
+                          dependent: :destroy,
+                          optional: true
+
   has_one :staged_root_folder,
           -> { where is_root: true },
           class_name: 'StagedFile',
