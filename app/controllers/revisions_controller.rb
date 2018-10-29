@@ -15,7 +15,8 @@ class RevisionsController < ApplicationController
     # TODO: Raise 404 if no revisions exist or redirect
     @revisions =
       @project
-      .revisions
+      .master_branch
+      .commits
       .order(id: :desc)
       .includes(:author)
       .preload_file_diffs_with_snapshots
@@ -71,7 +72,7 @@ class RevisionsController < ApplicationController
     ActiveRecord::Associations::Preloader.new.preload(
       Array(revisions).flat_map(&:file_diffs)
                       .flat_map(&:current_or_previous_snapshot),
-      backup: [:file_resource]
+      :backup
     )
   end
 

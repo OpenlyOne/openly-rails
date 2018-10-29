@@ -59,7 +59,9 @@ class Project < ApplicationRecord
     end
   end
 
-  has_one :archive, dependent: :destroy
+  has_one :archive, class_name: 'VCS::Archive', through: :repository
+  delegate :build_archive, to: :repository
+  delegate :archive, to: :repository, prefix: true
 
   # Attributes
   # Do not allow owner change
@@ -180,9 +182,12 @@ class Project < ApplicationRecord
 
   # Set up the archive folder for this project
   def setup_archive
-    build_archive unless archive.present?
-    archive.setup unless archive.setup_completed?
-    archive.save
+    return unless repository.present?
+
+    repository_archive.present? ||
+      repository.build_archive(name: title, owner_account_email: owner.account.email)
+    repository_archive.setup unless repository_archive.setup_completed?
+    repository_archive.save
   end
 
   # Set up repository & master branch

@@ -1,28 +1,27 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
-  let(:root)    { create :file_resource, :folder }
-  before { project.root_folder = root }
+  let(:project) { create :project, :setup_complete, :skip_archive_setup, :with_repository }
+  let!(:root)   { create :vcs_staged_file, :root, branch: project.master_branch }
   let(:create_revision) do
-    r = project.revisions.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'origin revision')
+    c = project.master_branch.commits.create_draft_and_commit_files!(project.owner)
+    c.update(is_published: true, title: 'origin revision')
   end
 
   scenario 'User can see past revisions' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and there is a file
-    file = create :file_resource, name: 'File1', parent: root
+    file = create :vcs_staged_file, name: 'File1', parent: root
     # with three revisions made by three different users
     users = create_list :user, 3
-    first_revision = project.revisions.create_draft_and_commit_files!(users[0])
+    first_revision = project.master_branch.commits.create_draft_and_commit_files!(users[0])
     first_revision.update(is_published: true, title: 'rev1')
     file.update(content_version: 'v2')
-    second_revision = project.revisions.create_draft_and_commit_files!(users[1])
+    second_revision = project.master_branch.commits.create_draft_and_commit_files!(users[1])
     second_revision.update(is_published: true, title: 'rev2')
     file.update(is_deleted: true)
-    third_revision = project.revisions.create_draft_and_commit_files!(users[2])
+    third_revision = project.master_branch.commits.create_draft_and_commit_files!(users[2])
     third_revision.update(is_published: true, title: 'rev3')
 
     # when I visit the project page

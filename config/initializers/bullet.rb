@@ -18,10 +18,10 @@ if defined? Bullet
     Bullet.raise = true
   end
 
-  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
-                       association: :previous_snapshot
-  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
-                       association: :current_snapshot
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
+                       association: :new_snapshot
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
+                       association: :old_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Profiles::User',
@@ -56,7 +56,7 @@ if defined? Bullet
                        association: :thumbnail
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResources::GoogleDrive',
+                       class_name: 'VCS::StagedFile',
                        association: :current_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,

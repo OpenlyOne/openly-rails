@@ -15,7 +15,8 @@ class Project
     attr_accessor :link
 
     # Delegations
-    delegate :root_folder, :root_folder=, to: :project
+    # delegate :root_folder, :root_folder=, to: :master_branch
+    delegate :master_branch, to: :project
 
     # Callbacks
     after_create :set_root_and_import_files, if: :id_from_link
@@ -81,15 +82,18 @@ class Project
     end
 
     def create_origin_revision_in_project
-      author    = project.owner
-      revision  = project.revisions.create_draft_and_commit_files!(author)
-      revision.update(is_published: true,
-                      title: 'Import Files',
-                      summary: 'Import Files from Google Drive.')
+      author  = project.owner
+      commit  = master_branch.commits.create_draft_and_commit_files!(author)
+      commit.update(is_published: true,
+                    title: 'Import Files',
+                    summary: 'Import Files from Google Drive.')
     end
 
     # Validation: File behind link is accessible by tracking account
     def file_is_accessible
+      # TODO: Add check for file.inaccessible?
+      # => Then we can remove the 'unless root?' from
+      # the line 'mark_as_removed unless root?' in VCS::StagedFile
       return unless file.deleted?
 
       errors.add(:link, 'appears to be inaccessible. Have you shared the ' \
@@ -116,10 +120,17 @@ class Project
     # Set file by finding an existing file resource or creating a new one from
     # the ID from link
     def file
-      @file ||=
-        FileResources::GoogleDrive
-        .find_or_initialize_by(external_id: id_from_link) # Find or initialize
-        .tap { |file| file.pull if file.new_record? }     # Pull if new record
+        master_branch
+        .staged_files
+        .build(
+          is_root: true,
+          external_id: id_from_link,
+          file_record: VCS::FileRecord.new(repository: master_branch.repository)
+        ).tap(&:pull)
+        # TODO: Refactor creation of file record. Should be automatic on pull
+    #     FileResources::GoogleDrive
+    #     .find_or_initialize_by(external_id: id_from_link) # Find or initialize
+    #     .tap { |file| file.pull if file.new_record? }     # Pull if new record
     end
 
     # Validation: Link points to a Google Drive folder
@@ -139,13 +150,13 @@ class Project
 
     # Set the root folder to file
     def set_root_folder
-      self.root_folder = file
+      # self.root_folder = file
+      file
     end
 
     # Start a (recursive) FolderImportJob for the root_folder
     def start_folder_import_job_for_root_folder
-      FolderImportJob
-        .perform_later(reference: self, file_resource_id: root_folder.id)
+      FolderImportJob.perform_later(reference: self, staged_file_id: master_branch.root.id)
     end
   end
 end
