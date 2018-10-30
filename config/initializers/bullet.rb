@@ -52,7 +52,7 @@ if defined? Bullet
                        association: :parent
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResources::GoogleDrive',
+                       class_name: 'VCS::StagedFile',
                        association: :thumbnail
 
   Bullet.add_whitelist type: :unused_eager_loading,

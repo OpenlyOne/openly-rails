@@ -18,15 +18,20 @@ class FileInfosController < ApplicationController
   # Attempt to find the file diff of stage (base) and last revision
   # (differentiator)
   def set_staged_file_diff
-    @staged_file_diff = Stage::FileDiff.find_by!(external_id: params[:id],
-                                                 project: @project)
+    staged_file =
+      @master_branch.staged_files
+                    .joins_staged_snapshot
+                    .find_by!(file_record_id: file_record_id)
+
+    @staged_file_diff = staged_file.diff(with_ancestry: true)
   rescue ActiveRecord::RecordNotFound
     @staged_file_diff = nil
   end
 
-  def file_resource_id
-    @file_resource_id ||=
-      FileResource.find_by!(external_id: params[:id]).id
+  def file_record_id
+    @file_record_id ||=
+      @master_branch.staged_files
+                    .find_by(external_id: params[:id]).file_record_id
   end
 
   # Find file in stage or version history
@@ -44,15 +49,15 @@ class FileInfosController < ApplicationController
 
   # Load file history
   def set_committed_file_diffs
-    # Note: Must use preload for current and previous snapshot to correctly set
-    #       provider ID.
     @committed_file_diffs =
-      FileDiff
-      .includes(revision: [:author])
-      .preload(:current_snapshot, :previous_snapshot)
-      .where(revisions: { project: @project, is_published: true },
-             file_resource_id: file_resource_id)
-      .merge(Revision.order(id: :desc))
+      VCS::FileDiff
+      .includes(commit: [:author])
+      .joins_current_or_previous_snapshot
+      .preload(:new_snapshot, :old_snapshot)
+      .where(
+        vcs_commits: { branch_id: @master_branch.id, is_published: true },
+        current_or_previous_snapshot: { file_record_id: file_record_id }
+      ).merge(VCS::Commit.order(id: :desc))
   end
 
   def set_user_can_force_sync_files

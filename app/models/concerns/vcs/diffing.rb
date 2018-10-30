@@ -31,7 +31,7 @@ module VCS::Diffing
       'Home'
     when 1, 2
       first_three_ancestors.reverse.join(' > ')
-    when 3
+    else
       first_three_ancestors.reverse.drop(1).unshift('..').join(' > ')
     end
   end

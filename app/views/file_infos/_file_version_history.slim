@@ -5,7 +5,7 @@ h3.with-separator.no-margin-bottom: span File History
 - committed_file_diffs.each do |diff|
 
   = render partial: 'revisions/revision',
-           object: diff.revision,
+           object: diff.commit,
            locals: { project: project,
                      file_changes: diff.changes,
                      show_link_to_file_info: false }
