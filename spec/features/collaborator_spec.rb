@@ -68,9 +68,8 @@ feature 'Collaborators' do
     # who is added to that project's Collaborators
     project.collaborators << me
     # and the project has some files
-    root = create :file_resource, :folder
-    project.root_folder = root
-    create_list :file_resource, 5, parent: root
+    root = create :vcs_staged_file, :root, branch: project.master_branch
+    create_list :vcs_staged_file, 5, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -90,7 +89,7 @@ feature 'Collaborators' do
     # and see a success message
     expect(page).to have_text 'Revision successfully created.'
     # and have the revision persisted to the repository
-    expect(project.revisions).to be_any
+    expect(project.master_branch.commits).to be_any
     # and see no file modification icons
     expect(page).to have_css '.file.no-change', count: 5
   end
