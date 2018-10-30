@@ -39,7 +39,7 @@ if defined? Bullet
 
   # Bullet complains when we browse committed files that all have no backups
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResource::Snapshot',
+                       class_name: 'VCS::FileSnapshot',
                        association: :backup
 
   # Bullet complains about Ahoy including user
