@@ -29,19 +29,18 @@ module Revisions
           # check if the diff has a parent
           next unless diff_without_parent?(diff, diffs_to_restore)
 
-          # perform restoration
-          VCS::Operations::FileRestore
-            .new(
-              snapshot: diff.new_snapshot,
-              file_record_id: diff.current_or_previous_snapshot.file_record_id,
-              target_branch: @master_branch
-            ).restore
-          # remove diff from list
+          # schedule restoration
+          FileRestoreJob.perform_later(
+            reference: @master_branch,
+            snapshot_id: diff.new_snapshot&.id,
+            file_record_id: diff.current_or_previous_snapshot.file_record_id
+          )
+
           diffs_to_restore.delete(diff)
         end
       end
 
-      redirect_to root_folder_path, notice: 'Revision successfully restored.'
+      redirect_to root_folder_path, notice: 'Revision is being restored...'
     end
 
     private
