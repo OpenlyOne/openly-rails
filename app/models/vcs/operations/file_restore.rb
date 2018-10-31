@@ -6,8 +6,9 @@ module VCS
     class FileRestore
       # Initialize a new instance of FileRestore and prepare for restoring the
       # provided snapshot to the provided target_branch
-      def initialize(snapshot:, target_branch:)
+      def initialize(snapshot:, file_record_id: nil, target_branch:)
         self.snapshot = snapshot
+        self.file_record_id = file_record_id || snapshot.file_record_id
         self.target_branch = target_branch
       end
 
@@ -21,14 +22,18 @@ module VCS
 
         # Update in stage
         staged_file.update(
-          snapshot_attributes.merge(external_id: external_id, is_deleted: false)
+          snapshot_attributes.merge(external_id: external_id,
+                                    is_deleted: snapshot.nil?)
         )
       end
 
       # The snapshot can only be restored if a backup is present OR
       # if the restoration is only affecting location and name
       def restorable?
-        # Snapshot must be present AND...
+        # Deletion is always possible
+        return true if diff.deletion?
+
+        # Otherwise, snapshot must be present AND...
         snapshot.present? &&
           # snapshot must be folder OR have backup OR diff is not
           # addition/modification (but movement/rename)
@@ -39,7 +44,7 @@ module VCS
 
       private
 
-      attr_accessor :snapshot, :target_branch
+      attr_accessor :snapshot, :target_branch, :file_record_id
       attr_writer :external_id
 
       # Create remote file from backup copy
@@ -64,16 +69,19 @@ module VCS
         )
       end
 
-      # Create remote file from backup copy and delete current file
-      def replace_file
-        add_file
-
-        # Delete file by removing it from its parent folder
-        # Calling the delete API endpoint results in insufficient permission
-        # error unless the action is performed by the file owner.
+      # Delete file by removing it from its parent folder
+      # Calling the delete API endpoint results in insufficient permission
+      # error unless the action is performed by the file owner.
+      def remove_file
         file_sync_class
           .new(staged_file.external_id)
           .relocate(to: nil, from: staged_file.parent.external_id)
+      end
+
+      # Create remote file from backup copy and delete current file
+      def replace_file
+        add_file
+        remove_file
       end
 
       # Move remote file
@@ -112,6 +120,9 @@ module VCS
         # Add file
         return add_file if diff.addition?
 
+        # Remove file
+        return remove_file if diff.deletion?
+
         # # Replace file
         return replace_file if diff.modification?
 
@@ -128,15 +139,18 @@ module VCS
       end
 
       def staged_parent
+        return nil unless snapshot.present?
+
         staged_parent_of_snapshot_to_restore || target_branch.root
       end
 
       def snapshot_attributes
-        snapshot
-          .attributes
-          .symbolize_keys
-          .slice(:name, :content_version, :mime_type)
-          .merge(parent: staged_parent)
+        {
+          name: snapshot&.name,
+          content_version: snapshot&.content_version,
+          mime_type: snapshot&.mime_type,
+          parent: staged_parent
+        }
       end
 
       # Identify the StagedFile to modify with the provided snapshot
@@ -144,7 +158,7 @@ module VCS
         @staged_file ||=
           target_branch
           .staged_files
-          .find_by(file_record_id: snapshot.file_record_id)
+          .find_by(file_record_id: file_record_id)
       end
     end
   end

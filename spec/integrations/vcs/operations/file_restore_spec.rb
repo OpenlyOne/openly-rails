@@ -70,6 +70,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     end
     let(:expected_parent)           { parent_of_snapshot_to_restore }
     let(:expected_content_version)  { snapshot_to_restore.content_version }
+    let(:expected_deletion_status)  { false }
 
     before do
       # capture the initial snapshot which we will later restore
@@ -90,18 +91,24 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     after do
       expect(file).to have_attributes(
-        file_record_id: snapshot_to_restore.file_record_id,
-        name: snapshot_to_restore.name,
-        file_record_parent_id: expected_parent.file_record_id,
+        file_record_id: file.file_record_id,
+        name: snapshot_to_restore&.name,
+        file_record_parent_id: expected_parent&.file_record_id,
         content_version: expected_content_version,
-        is_deleted: false
+        is_deleted: expected_deletion_status
       )
       expect(remote_file_after_restore).to have_attributes(
-        id: file.external_id,
-        name: snapshot_to_restore.name,
-        parent_id: expected_parent.external_id,
-        content_version: expected_content_version
+        expected_remote_attributes
       )
+    end
+
+    let(:expected_remote_attributes) do
+      {
+        id: file.external_id,
+        name: snapshot_to_restore&.name,
+        parent_id: expected_parent&.external_id,
+        content_version: expected_content_version
+      }
     end
 
     context "when restoring the file's current snapshot" do
@@ -183,6 +190,34 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       it 'is modifies the file' do
         expect(file_change).to be_modification
         expect(file.external_id).not_to eq remote_file.id
+      end
+    end
+
+    context 'when restoring a snapshot of nil' do
+      subject(:file_restore) do
+        described_class
+          .new(snapshot: snapshot_to_restore,
+               file_record_id: file.file_record_id,
+               target_branch: root.branch)
+      end
+      let(:file_actions)              { nil }
+      let(:snapshot_to_restore)       { nil }
+      let(:expected_parent)           { nil }
+      let(:expected_content_version)  { nil }
+      let(:expected_deletion_status)  { true }
+
+      # TODO: Refactor. Since we're just relocating the file, it remains
+      # accessible and name and content version do not change. THat's why we're
+      # doing the manual override here.
+      let(:expected_remote_attributes) do
+        {
+          id: file.external_id,
+          parent_id: expected_parent&.external_id
+        }
+      end
+
+      it 'deletes the file' do
+        expect(file_change).to be_deletion
       end
     end
   end
