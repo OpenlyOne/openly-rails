@@ -5,16 +5,19 @@ module VCS::Operations
   class FileAncestryTree
     # Initialize and generate tree
     # MUST PASS file_record_ids!
-    def self.generate(commit:, file_record_ids:, depth:)
-      tree = new(commit: commit, file_ids: file_record_ids)
+    def self.generate(commit:, parent_commit: nil, file_record_ids:, depth:)
+      tree = new(commit: commit,
+                 parent_commit: parent_commit,
+                 file_ids: file_record_ids)
       # Load generations depth + 1 times because 1st generation is just current
       # files
       tree.recursively_load_generations(depth: depth + 1)
       tree
     end
 
-    def initialize(commit:, file_ids:)
+    def initialize(commit:, parent_commit: nil, file_ids:)
       self.commit = commit
+      self.parent_commit = parent_commit || commit.parent
       initialize_tree(file_ids)
     end
 
@@ -59,7 +62,7 @@ module VCS::Operations
 
     private
 
-    attr_accessor :commit, :tree
+    attr_accessor :commit, :tree, :parent_commit
 
     # Add entries, must be an array of hashes in format:
     # {id: _, name: _, parent: _}
@@ -111,7 +114,7 @@ module VCS::Operations
     # parent revision for a given array of IDs
     def distinct_file_resources_between_revisions_with_ids(ids)
       VCS::CommittedFile
-        .distinct_file_resources_between_commits(commit, commit.parent_id)
+        .distinct_file_resources_between_commits(commit, parent_commit&.id)
         .joins(:file_snapshot)
         .select("#{snapshot_table_name}.name",
                 "#{snapshot_table_name}.file_record_parent_id")

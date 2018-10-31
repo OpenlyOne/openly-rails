@@ -11,9 +11,12 @@ module VCS::Diffing
            :thumbnail_image, :thumbnail_image_or_fallback,
            to: :current_or_previous_snapshot
 
-  delegate_methods = %i[content_version name parent_id]
-  delegate(*delegate_methods, to: :current_snapshot, prefix: :current)
-  delegate(*delegate_methods, to: :previous_snapshot, prefix: :previous)
+  delegate_methods = %i[content_version name parent_id file_record_parent_id
+                        file_record_id]
+  delegate(*delegate_methods,
+           to: :current_snapshot, prefix: :current, allow_nil: true)
+  delegate(*delegate_methods,
+           to: :previous_snapshot, prefix: :previous, allow_nil: true)
 
   delegate :color, :text_color, to: :primary_change, allow_nil: true
 

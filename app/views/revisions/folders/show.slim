@@ -2,6 +2,11 @@
   .container
     .row.no-margin-bottom
       .col.s12
+        =<> button_to 'Restore',
+                      profile_project_revision_restores_path(@project.owner, @project, @revision),
+                      method: :post,
+                      class: 'btn right primary-color primary-color-text',
+                      style: 'display: inline-block;'
         p.flow-text.no-margin
           b = @revision.title
         p.no-margin
@@ -10,6 +15,7 @@
           | &middot;
           =<> time_ago_in_words(@revision.created_at)
           | ago
+
 
 
 - unless action_name == 'root'
