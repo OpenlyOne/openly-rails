@@ -20,7 +20,9 @@ module VCS
         perform_restoration
 
         # Update in stage
-        staged_file.update(snapshot_attributes.merge(external_id: external_id))
+        staged_file.update(
+          snapshot_attributes.merge(external_id: external_id, is_deleted: false)
+        )
       end
 
       # The snapshot can only be restored if a backup is present OR

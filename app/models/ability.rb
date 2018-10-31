@@ -28,8 +28,9 @@ class Ability
       can? :manage, project.owner
     end
 
-    # User can force sync files & setup for projects in which they collaborate
-    can %i[force_sync setup], Project do |project|
+    # User can force sync and restore files & setup for projects in which they
+    # collaborate
+    can %i[force_sync restore_file setup], Project do |project|
       can?(:collaborate, project)
     end
 

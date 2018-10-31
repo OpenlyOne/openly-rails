@@ -8,7 +8,8 @@ h3.with-separator.no-margin-bottom: span File History
            object: diff.commit,
            locals: { project: project,
                      file_changes: diff.changes,
-                     show_link_to_file_info: false }
+                     show_link_to_file_info: false,
+                     path_to_restore_action: restore_action_path(@project, diff) }
 
 - if committed_file_diffs.none?
 

@@ -85,7 +85,6 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       # perform the restoration
       file_restore.restore
       file.reload
-      file.pull
     end
 
     after do
@@ -93,7 +92,8 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
         file_record_id: snapshot_to_restore.file_record_id,
         name: snapshot_to_restore.name,
         file_record_parent_id: expected_parent.file_record_id,
-        content_version: expected_content_version
+        content_version: expected_content_version,
+        is_deleted: false
       )
       expect(remote_file_after_restore).to have_attributes(
         id: file.external_id,

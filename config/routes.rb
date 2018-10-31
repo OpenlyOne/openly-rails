@@ -90,6 +90,7 @@ Rails.application.routes.draw do
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create
+      resources :file_restores, path: 'snapshots/:id/restore', only: :create
     end
   end
 
