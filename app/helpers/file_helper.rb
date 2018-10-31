@@ -45,7 +45,7 @@ module FileHelper
       profile_project_revision_folder_path(project.owner, project,
                                            revision.id, file.external_id)
     else
-      file.backup&.file_resource&.external_link
+      file.backup&.external_link
     end
   end
 end

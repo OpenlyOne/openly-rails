@@ -133,7 +133,8 @@ module Providers
         drive_service.list_changes(
           token,
           page_size: page_size,
-          fields: %w[nextPageToken newStartPageToken changes/file_id].join(',')
+          fields: %w[nextPageToken newStartPageToken
+                     changes/file_id changes/file/parents].join(',')
         )
       end
 

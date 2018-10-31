@@ -45,9 +45,28 @@ class FileUpdateJob < ApplicationJob
   def process_changes(change_list)
     # Iterate through each change
     change_list.changes.each do |change|
-      FileResources::GoogleDrive
-        .find_or_initialize_by(external_id: change.file_id)
-        .pull
+      process_change(change)
+    end
+  end
+
+  def process_change(change)
+    needles = [change.file_id].concat(change&.file&.parents.to_a).compact.uniq
+
+    branches =
+      VCS::Branch.joins(:staged_files).where(
+        vcs_staged_files: {
+          external_id: needles
+        }
+      )
+
+    branches.find_each do |branch|
+      VCS::StagedFile
+        .create_with(
+          file_record: VCS::FileRecord.new(repository_id: branch.repository_id)
+        ).find_or_initialize_by(
+          external_id: change.file_id,
+          branch_id: branch.id
+        ).pull
     end
   end
 end

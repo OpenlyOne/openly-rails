@@ -9,7 +9,7 @@
   - @children.each do |child|
 
     = render partial: 'file_diff',
-             object: child,
+             object: child.diff,
              locals: { project: @project }
 
 / button for committing changes

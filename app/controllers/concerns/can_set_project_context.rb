@@ -33,6 +33,8 @@ module CanSetProjectContext
   # rubocop:disable Naming/AccessorMethodName
   def set_project_by_handle_and_slug!(scope: Project)
     @project = scope.find_by_handle_and_slug!(profile_handle, profile_slug)
+    # TODO: Consider extraction
+    @master_branch = @project.master_branch
   end
   # rubocop:enable Naming/AccessorMethodName
 

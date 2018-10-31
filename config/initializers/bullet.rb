@@ -18,10 +18,10 @@ if defined? Bullet
     Bullet.raise = true
   end
 
-  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
-                       association: :previous_snapshot
-  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'FileDiff',
-                       association: :current_snapshot
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
+                       association: :new_snapshot
+  Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
+                       association: :old_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Profiles::User',
@@ -39,7 +39,7 @@ if defined? Bullet
 
   # Bullet complains when we browse committed files that all have no backups
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResource::Snapshot',
+                       class_name: 'VCS::FileSnapshot',
                        association: :backup
 
   # Bullet complains about Ahoy including user
@@ -52,14 +52,14 @@ if defined? Bullet
                        association: :parent
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResources::GoogleDrive',
+                       class_name: 'VCS::StagedFile',
                        association: :thumbnail
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'FileResources::GoogleDrive',
+                       class_name: 'VCS::StagedFile',
                        association: :current_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'CommittedFile',
-                       association: :file_resource_snapshot
+                       class_name: 'VCS::CommittedFile',
+                       association: :file_snapshot
 end

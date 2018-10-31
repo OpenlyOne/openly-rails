@@ -12,7 +12,7 @@
     .col.s12
       h4.no-margin-bottom
         .file-import-count
-          => @project.staged_non_root_files.count
+          => @master_branch.staged_files.count
         .file-import-count-description files imported so far.
 
   .spacing.v48px

@@ -9,12 +9,7 @@ class FolderImportJob < ApplicationJob
   def perform(*args)
     variables_from_arguments(*args)
 
-    file = FileResources::GoogleDrive.find(file_resource_id)
-
-    # Stage existing children of the folder
-    file.children.each do |child|
-      project.staged_files.create(file_resource: child)
-    end
+    file = VCS::StagedFile.find(staged_file_id)
 
     file.pull_children
 
@@ -26,13 +21,13 @@ class FolderImportJob < ApplicationJob
 
   private
 
-  attr_accessor :file_resource_id, :project, :setup
+  attr_accessor :staged_file_id, :project, :setup
 
   # Create a new FolderImportJob for the given file resource
-  def schedule_folder_import_job_for(file_resource)
+  def schedule_folder_import_job_for(staged_file)
     FolderImportJob.perform_later(
-      reference:        setup,
-      file_resource_id: file_resource.id
+      reference:      setup,
+      staged_file_id: staged_file.id
     )
   end
 
@@ -40,7 +35,6 @@ class FolderImportJob < ApplicationJob
   def variables_from_arguments(*args)
     reference_id          = args[0][:reference_id]
     self.setup            = Project::Setup.find(reference_id)
-    self.project          = setup.project
-    self.file_resource_id = args[0][:file_resource_id]
+    self.staged_file_id   = args[0][:staged_file_id]
   end
 end

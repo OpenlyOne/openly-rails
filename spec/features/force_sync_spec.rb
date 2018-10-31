@@ -62,12 +62,12 @@ feature 'Force Sync', :vcr do
 
     # and have a backup of the file
     # TODO: Refactor
-    file_snapshot = FileResource.find_by_external_id(file.id).current_snapshot
-    external_id_of_backup = file_snapshot.backup.file_resource.external_id
+    staged = project.staged_files.find_by_external_id(file.id)
+    external_id_of_backup = staged.current_snapshot.backup.external_id
     external_backup =
       Providers::GoogleDrive::FileSync.new(external_id_of_backup)
-    expect(external_backup.name).to eq(file_snapshot.name)
+    expect(external_backup.name).to eq(staged.name)
     expect(external_backup.parent_id)
-      .to eq(project.archive.file_resource.external_id)
+      .to eq(project.archive.external_id)
   end
 end

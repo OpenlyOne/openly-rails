@@ -22,29 +22,27 @@ class FoldersController < ApplicationController
   private
 
   def preload_thumbnails_for_children
-    FileResource::Thumbnail.preload_for(@children)
+    # FileResource::Thumbnail.preload_for(@children)
   end
 
   def set_ancestors
-    @ancestors = @folder&.ancestors_in_project.to_a
+    @ancestors = @folder.ancestors.to_a
   end
 
   def set_children
-    @children = @folder.children_as_diffs
+    @children = @folder.children.order_by_name_with_folders_first
   end
 
   def set_folder_from_param
-    @folder = Stage::FileDiff.find_by!(external_id: params[:id],
-                                       project: @project)
+    @folder = @master_branch.staged_folders.find_by_external_id(params[:id])
 
-    raise ActiveRecord::RecordNotFound unless @folder.folder?
+    raise ActiveRecord::RecordNotFound unless @folder.staged_snapshot.folder?
   end
 
   def set_folder_from_root
-    raise ActiveRecord::RecordNotFound unless @project.root_folder.present?
+    raise ActiveRecord::RecordNotFound unless @master_branch.root.present?
 
-    @folder = Stage::FileDiff.new(file_resource_id: @project.root_folder.id,
-                                  project: @project)
+    @folder = @master_branch.root
   end
 
   def set_user_can_commit_changes

@@ -35,6 +35,9 @@ feature 'Project' do
     expect(page).to have_text 'Project successfully created.'
     # and have set up an archive folder on Google Drive
     expect(Project.first.archive).to be_present
+    # and a repository and master branch
+    expect(Project.first.repository).to be_present
+    expect(Project.first.master_branch).to be_present
   end
 
   scenario 'User can view project' do
