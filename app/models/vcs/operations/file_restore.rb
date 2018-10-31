@@ -149,7 +149,8 @@ module VCS
           name: snapshot&.name,
           content_version: snapshot&.content_version,
           mime_type: snapshot&.mime_type,
-          parent: staged_parent
+          parent: staged_parent,
+          thumbnail_id: snapshot&.thumbnail_id
         }
       end
 

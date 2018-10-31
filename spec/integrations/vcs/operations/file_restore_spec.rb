@@ -95,7 +95,8 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
         name: snapshot_to_restore&.name,
         file_record_parent_id: expected_parent&.file_record_id,
         content_version: expected_content_version,
-        is_deleted: expected_deletion_status
+        is_deleted: expected_deletion_status,
+        thumbnail_id: snapshot_to_restore&.thumbnail_id
       )
       expect(remote_file_after_restore).to have_attributes(
         expected_remote_attributes
