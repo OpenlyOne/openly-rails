@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-feature 'Revision Restore', vcr: true do
+feature 'Revision Restore', :vcr, :delayed_job do
   let(:api_connection)  { Providers::GoogleDrive::ApiConnection.new(user_acct) }
   let(:user_acct)       { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
   let(:tracking_acct)   { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
@@ -53,6 +53,8 @@ feature 'Revision Restore', vcr: true do
 
     # and_i_set_up_my_project
     create :project_setup, link: link_to_folder, project: project
+    Delayed::Worker.new.work_off
+    Delayed::Job.find_each(&:invoke_job)
 
     # when_i_perform_a_variety_of_actions
     fol2.relocate(to: fol1.id, from: google_drive_test_folder_id)
@@ -86,6 +88,15 @@ feature 'Revision Restore', vcr: true do
 
     # and restore
     click_on 'Restore'
+
+    # then I should see 8 items pending
+    expect(page).to have_text('8 files left to restore.', normalize_ws: true)
+
+    # when the jobs process
+    Delayed::Worker.new.work_off
+
+    # and I refresh the page
+    click_on 'Refresh'
 
     # and capture changes
     click_on 'Capture Changes'

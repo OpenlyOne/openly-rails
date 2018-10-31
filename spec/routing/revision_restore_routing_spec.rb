@@ -12,8 +12,8 @@ RSpec.describe 'routes for revision restores', type: :routing do
     )
   end
 
-  xit 'has a show route' do
-    expect(profile_project_revisions_restores_status_path('handle', 'slug'))
+  it 'has a show route' do
+    expect(restore_status_profile_project_revisions_path('handle', 'slug'))
       .to eq '/handle/slug/revisions/restore/status'
     expect(get: '/handle/slug/revisions/restore/status').to(
       route_to('revisions/restores#show',

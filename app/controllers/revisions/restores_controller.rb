@@ -5,7 +5,7 @@ module Revisions
   class RestoresController < ApplicationController
     include CanSetProjectContext
 
-    before_action :set_revision
+    before_action :set_revision, only: :create
     before_action :authenticate_account!
     before_action :set_project_where_setup_is_complete
     before_action :authorize_project_access
@@ -40,7 +40,22 @@ module Revisions
         end
       end
 
-      redirect_to root_folder_path, notice: 'Revision is being restored...'
+      redirect_to(
+        restore_status_profile_project_revisions_path(@project.owner, @project),
+        notice: 'Revision is being restored...'
+      )
+    end
+
+    def show
+      @file_restores_remaining =
+        Delayed::Job
+        .where(queue: :file_restore, delayed_reference_id: @master_branch.id)
+        .count
+
+      # Show status page if file restores are remaining
+      return unless @file_restores_remaining.zero?
+
+      redirect_to(root_folder_path, notice: 'Revision successfully restored.')
     end
 
     private
@@ -62,7 +77,7 @@ module Revisions
     end
 
     def can_can_access_denied(exception)
-      super || redirect_to(revision_root_folder_path, alert: exception.message)
+      super || redirect_to(project_revisions_path, alert: exception.message)
     end
 
     def calculate_diffs(new_commit:, old_commit:)
@@ -83,9 +98,8 @@ module Revisions
       profile_project_root_folder_path(@project.owner, @project)
     end
 
-    def revision_root_folder_path
-      profile_project_revision_root_folder_path(@project.owner, @project,
-                                                @revision.id)
+    def project_revisions_path
+      profile_project_revisions_path(@project.owner, @project)
     end
 
     def set_revision

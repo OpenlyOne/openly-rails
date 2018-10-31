@@ -40,9 +40,7 @@ RSpec.describe Revisions::RestoresController, type: :controller do
     end
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) do
-        profile_project_revision_root_folder_path(
-          project.owner, project, revision.id
-        )
+        profile_project_revisions_path(project.owner, project)
       end
       let(:unauthorized_message) do
         'You are not authorized to restore revisions of this project.'
@@ -53,11 +51,56 @@ RSpec.describe Revisions::RestoresController, type: :controller do
     it 'redirects to files page with success message' do
       run_request
       expect(response).to redirect_to(
-        profile_project_root_folder_path(
+        restore_status_profile_project_revisions_path(
           project.owner, project
         )
       )
-      is_expected.to set_flash[:notice].to 'Revision successfully restored.'
+      is_expected.to set_flash[:notice].to 'Revision is being restored...'
+    end
+  end
+
+  describe 'GET #show' do
+    let(:params)          { default_params.except(:revision_id) }
+    let(:run_request)     { get :show, params: params }
+    let(:jobs_remaining)  { %i[j1 j2 j3] }
+
+    it_should_behave_like 'an authenticated action'
+    it_should_behave_like 'setting project where setup is complete'
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_revisions_path(project.owner, project)
+      end
+      let(:unauthorized_message) do
+        'You are not authorized to restore revisions of this project.'
+      end
+    end
+    it_should_behave_like 'authorizing project access'
+
+    before do
+      allow(Delayed::Job).to receive(:where).and_call_original
+      allow(Delayed::Job)
+        .to receive(:where)
+        .with(hash_including(queue: :file_restore))
+        .and_return jobs_remaining
+    end
+
+    it 'returns http success' do
+      run_request
+      expect(response).to have_http_status :success
+    end
+
+    context 'when all jobs are processed' do
+      let(:jobs_remaining) { [] }
+
+      it 'redirects to files page with success message' do
+        run_request
+        expect(response).to redirect_to(
+          profile_project_root_folder_path(
+            project.owner, project
+          )
+        )
+        is_expected.to set_flash[:notice].to 'Revision successfully restored.'
+      end
     end
   end
 end

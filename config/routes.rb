@@ -88,7 +88,8 @@ Rails.application.routes.draw do
 
           # revision restorations
           post 'restore' => 'restores#create', as: :restores
-          # get 'restore/status' => 'restores#show', as: :restore_status, on: :collection
+          get 'restore/status', to: 'restores#show', as: :restore_status,
+                                on: :collection
         end
       end
       # Routes for file infos
