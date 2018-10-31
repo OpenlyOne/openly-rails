@@ -28,7 +28,13 @@ module VCS
       # The snapshot can only be restored if a backup is present OR
       # if the restoration is only affecting location and name
       def restorable?
-        snapshot.backup.present? || (!diff.addition? && !diff.modification?)
+        # Snapshot must be present AND...
+        snapshot.present? &&
+          # snapshot must be folder OR have backup OR diff is not
+          # addition/modification (but movement/rename)
+          (snapshot.folder? ||
+          snapshot.backup.present? ||
+          (!diff.addition? && !diff.modification?))
       end
 
       private
@@ -38,12 +44,24 @@ module VCS
 
       # Create remote file from backup copy
       def add_file
-        replacement =
-          file_sync_class.new(snapshot.backup.external_id).duplicate(
-            name: snapshot.name,
-            parent_id: staged_parent.external_id
-          )
+        replacement = snapshot.folder? ? create_folder : duplicate_file
         self.external_id = replacement.id
+      end
+
+      # Duplicate or create file depending on whether this is a folder or not
+      def duplicate_file
+        file_sync_class.new(snapshot.backup.external_id).duplicate(
+          name: snapshot.name,
+          parent_id: staged_parent.external_id
+        )
+      end
+
+      def create_folder
+        file_sync_class.create(
+          name: snapshot.name,
+          parent_id: staged_parent.external_id,
+          mime_type: snapshot.mime_type
+        )
       end
 
       # Create remote file from backup copy and delete current file

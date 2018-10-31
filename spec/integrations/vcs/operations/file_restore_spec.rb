@@ -22,9 +22,10 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       file_sync_class.create(
         name: 'original name',
         parent_id: remote_subfolder.id,
-        mime_type: Providers::GoogleDrive::MimeType.document
+        mime_type: file_mime_type
       )
     end
+    let(:file_mime_type) { Providers::GoogleDrive::MimeType.document }
 
     let(:file_sync_class) { Providers::GoogleDrive::FileSync }
 
@@ -116,6 +117,14 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'is added' do
         expect(file_change).to be_addition
+      end
+
+      context 'when file to restore is folder' do
+        let(:file_mime_type) { Providers::GoogleDrive::MimeType.folder }
+
+        it 'is added' do
+          expect(file_change).to be_addition
+        end
       end
     end
 

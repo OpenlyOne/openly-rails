@@ -20,10 +20,11 @@ feature 'File Restore', vcr: true do
     Providers::GoogleDrive::FileSync.create(
       name: 'original name',
       parent_id: remote_subfolder.id,
-      mime_type: Providers::GoogleDrive::MimeType.document,
+      mime_type: remote_file_mime_type,
       api_connection: api_connection
     )
   end
+  let(:remote_file_mime_type) { Providers::GoogleDrive::MimeType.document }
   # share test folder
   before do
     api_connection
@@ -167,5 +168,44 @@ feature 'File Restore', vcr: true do
     # and have a new external ID
     expect(project.staged_files.reload.find_by(name: 'original name'))
       .not_to have_attributes(external_id: remote_file.id)
+  end
+
+  context 'when remote file is a folder' do
+    let(:remote_file_mime_type) { Providers::GoogleDrive::MimeType.document }
+
+    scenario 'it restores the folder' do
+      # when I delete the folder
+      remote_file.delete
+
+      # and force sync the folder
+      visit profile_project_root_folder_path(project.owner, project)
+      click_on remote_subfolder.name
+      find('.file-info').click
+      click_on 'Force Sync'
+
+      # and commit the folder
+      click_on 'Files'
+      click_on 'Capture Changes'
+      fill_in 'Title', with: 'Delete folder'
+      click_on 'Capture Changes'
+
+      # and restore the folder
+      click_on 'Revisions'
+      within '.revision', text: 'Delete folder' do
+        click_on 'More'
+      end
+      within '.revision', text: 'Import Files' do
+        click_on 'Restore'
+      end
+
+      # then the folder should be located in subfolder
+      click_on 'Files'
+      click_on remote_subfolder.name
+
+      expect(page).to have_text('original name')
+
+      # and be added
+      expect(page).to have_css '.file.addition', text: 'original name'
+    end
   end
 end
