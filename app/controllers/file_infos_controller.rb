@@ -10,6 +10,7 @@ class FileInfosController < ApplicationController
   before_action :set_committed_file_diffs
   before_action :set_file
   before_action :set_user_can_force_sync_files
+  before_action :preload_backups_for_committed_file_diffs
 
   def index; end
 
@@ -21,17 +22,27 @@ class FileInfosController < ApplicationController
     staged_file =
       @master_branch.staged_files
                     .joins_staged_snapshot
-                    .find_by!(file_record_id: file_record_id)
+                    .find_by(file_record_id: file_record_id)
 
-    @staged_file_diff = staged_file.diff(with_ancestry: true)
+    @staged_file_diff = staged_file&.diff(with_ancestry: true)
   rescue ActiveRecord::RecordNotFound
     @staged_file_diff = nil
   end
 
   def file_record_id
     @file_record_id ||=
-      @master_branch.staged_files
-                    .find_by(external_id: params[:id]).file_record_id
+      @project
+      .repository
+      .file_snapshots
+      .find_by!(external_id: params[:id])
+      .file_record_id
+  end
+
+  def preload_backups_for_committed_file_diffs
+    ActiveRecord::Associations::Preloader.new.preload(
+      Array(@committed_file_diffs).flat_map(&:current_or_previous_snapshot),
+      :backup
+    )
   end
 
   # Find file in stage or version history

@@ -42,6 +42,11 @@ module Providers
         @content_version ||= fetch_content_version
       end
 
+      # Remove the file
+      def delete
+        @file = api_connection.delete_file(id)
+      end
+
       def deleted?
         file&.trashed
       end
@@ -97,6 +102,11 @@ module Providers
         return false if deleted?
 
         thumbnail_link.present?
+      end
+
+      # Update file contents
+      def update_content(content)
+        @file = api_connection.update_file_content(id, content)
       end
 
       private

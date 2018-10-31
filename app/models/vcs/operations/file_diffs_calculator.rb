@@ -5,13 +5,19 @@ module VCS::Operations
   class FileDiffsCalculator
     # Initialize a new instance of FileDiffCalculator to calculate file diffs
     # between commit and its parent commit
-    def initialize(commit:)
+    # TODO: Rename from commit & parent_commit to new and old
+    def initialize(commit:, parent_commit: nil)
       self.commit = commit
+      self.parent_commit = parent_commit || commit.parent
     end
 
     # Persist diffs to database in FileDiffs table
     def cache_diffs!
       VCS::FileDiff.import(diffs, validate: false)
+    end
+
+    def file_diffs
+      diffs.map { |diff| VCS::FileDiff.new(diff) }
     end
 
     # Return diffs as attribute hashes
@@ -21,7 +27,7 @@ module VCS::Operations
 
     private
 
-    attr_accessor :commit
+    attr_accessor :commit, :parent_commit
 
     # Number of ancestors to load for each diff
     def ancestor_depth
@@ -39,6 +45,7 @@ module VCS::Operations
       @ancestry_tree ||=
         FileAncestryTree.generate(
           commit: commit,
+          parent_commit: parent_commit,
           file_record_ids: raw_diffs.map { |diff| diff['file_record_id'] },
           depth: ancestor_depth
         )
@@ -58,7 +65,7 @@ module VCS::Operations
     # commit
     def committed_files_where_snapshot_changed
       VCS::CommittedFile
-        .where_snapshot_changed_between_commits(commit, commit.parent_id)
+        .where_snapshot_changed_between_commits(commit, parent_commit&.id)
     end
 
     # Parse a single raw diff to an attribute diff
@@ -70,7 +77,7 @@ module VCS::Operations
           'new_snapshot_id' =>
             snapshot_id_from_raw_diff(raw_diff, commit.id),
           'old_snapshot_id' =>
-            snapshot_id_from_raw_diff(raw_diff, commit.parent_id)
+            snapshot_id_from_raw_diff(raw_diff, parent_commit&.id)
         )
     end
 

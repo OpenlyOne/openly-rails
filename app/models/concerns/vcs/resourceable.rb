@@ -13,6 +13,14 @@ module VCS::Resourceable
     provider_mime_type_class.folder?(mime_type)
   end
 
+  def folder_before_last_save?
+    provider_mime_type_class.folder?(mime_type_before_last_save)
+  end
+
+  def folder_now_or_before_last_save?
+    folder? || folder_before_last_save?
+  end
+
   def external_link
     provider_link_class.for(external_id: external_id, mime_type: mime_type)
   end

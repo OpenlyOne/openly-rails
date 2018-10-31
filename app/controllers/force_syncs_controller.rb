@@ -12,7 +12,8 @@ class ForceSyncsController < ApplicationController
 
   def create
     @file.pull
-    @file.pull_children if @file.folder?
+    # TODO: Add feature spec to test this!
+    @file.pull_children if @file.folder_now_or_before_last_save?
 
     redirect_to file_info_path, notice: 'File successfully synced.'
   end

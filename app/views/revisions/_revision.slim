@@ -3,6 +3,7 @@
 / allow overwriting of changes by passing file_changes in locals, as in the case
 / of file infos where we want to display changes for only one file
 - file_changes ||= revision.file_changes
+- path_to_restore_action ||= nil
 
 .row.revision id=revision.id
 
@@ -30,6 +31,12 @@
                        revision: revision,
                        show_link_to_file_info: show_link_to_file_info,
                        all_links_in_new_tab: false }
+
+    - if path_to_restore_action.present?
+      .spacing.v16px
+      = render partial: 'revisions/restore_button',
+               locals: { path_to_restore_action: path_to_restore_action }
+
 
 .spacing.v16px
 .divider

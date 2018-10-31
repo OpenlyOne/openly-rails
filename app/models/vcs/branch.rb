@@ -27,7 +27,8 @@ module VCS
                end
              end
 
-    has_many :commits, -> { published }, dependent: :destroy do
+    has_many :all_commits, class_name: 'VCS::Commit', dependent: :destroy
+    has_many :commits, -> { published } do
       def create_draft_and_commit_files!(author)
         Commit.create_draft_and_commit_files_for_branch!(
           proxy_association.owner,

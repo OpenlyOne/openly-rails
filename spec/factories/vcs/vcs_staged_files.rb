@@ -2,12 +2,17 @@ FactoryBot.define do
   factory :vcs_staged_file, class: 'VCS::StagedFile' do
     transient do
       parent { nil }
+      repository do
+        parent&.branch&.repository ||
+          branch&.repository ||
+          create(:vcs_repository)
+      end
     end
 
-    association :file_record, factory: :vcs_file_record
     with_parent
 
     branch          { parent&.branch || create(:vcs_branch) }
+    file_record     { create(:vcs_file_record, repository: repository) }
     external_id     { Faker::Crypto.unique.sha1 }
     name            { Faker::File.file_name('', nil, nil, '') }
     content_version { rand(1..1000) }
