@@ -23,8 +23,10 @@ class FileResource < ApplicationRecord
     table ||= table_name
     folder_mime_type = Providers::GoogleDrive::MimeType.folder
     order(
-      "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
-      "#{table}.name asc"
+      Arel.sql(
+        "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
+        "#{table}.name asc"
+      )
     )
   }
 
@@ -73,6 +75,7 @@ class FileResource < ApplicationRecord
   # Recursively collect parents
   def ancestors
     return [] if parent.nil?
+
     [parent] + parent.ancestors
   end
 
@@ -109,11 +112,13 @@ class FileResource < ApplicationRecord
 
   def cannot_be_its_own_ancestor
     return unless ancestors_ids.include? id
+
     errors.add(:base, 'File resource cannot be its own ancestor')
   end
 
   def cannot_be_its_own_parent
     return unless self == parent
+
     errors.add(:base, 'File resource cannot be its own parent')
   end
 

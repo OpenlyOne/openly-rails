@@ -85,11 +85,17 @@ Rails.application.routes.draw do
         scope module: 'revisions' do
           get 'files' => 'folders#root', as: :root_folder
           resources :folders, only: :show
+
+          # revision restorations
+          post 'restore' => 'restores#create', as: :restores
+          get 'restore/status', to: 'restores#show', as: :restore_status,
+                                on: :collection
         end
       end
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create
+      resources :file_restores, path: 'snapshots/:id/restore', only: :create
     end
   end
 

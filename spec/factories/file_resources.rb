@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :file_resource do
-    provider_id     0
+    provider_id     { 0 }
     external_id     { Faker::Crypto.unique.sha1 }
     name            { Faker::File.file_name('', nil, nil, '') }
     content_version { rand(1..1000) }
@@ -21,10 +21,10 @@ FactoryBot.define do
     end
 
     trait :deleted do
-      name nil
-      content_version nil
-      mime_type nil
-      is_deleted true
+      name { nil }
+      content_version { nil }
+      mime_type { nil }
+      is_deleted { true }
     end
 
     trait :with_backup do

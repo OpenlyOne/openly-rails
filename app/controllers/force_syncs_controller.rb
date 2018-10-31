@@ -8,12 +8,12 @@ class ForceSyncsController < ApplicationController
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
   before_action :authorize_action
-  before_action :set_staged_file_diff
   before_action :set_file_resource
 
   def create
     @file.pull
-    @file.pull_children if @file.folder?
+    # TODO: Add feature spec to test this!
+    @file.pull_children if @file.folder_now_or_before_last_save?
 
     redirect_to file_info_path, notice: 'File successfully synced.'
   end
@@ -42,13 +42,7 @@ class ForceSyncsController < ApplicationController
 
   # Set the file resource
   def set_file_resource
-    @file = FileResources::GoogleDrive.find_by!(external_id: file_id)
-  end
-
-  # Attempt to find the file diff of stage (base) and last revision
-  # (differentiator)
-  def set_staged_file_diff
-    @staged_file_diff = Stage::FileDiff.find_by!(external_id: file_id,
-                                                 project: @project)
+    @file =
+      @project.master_branch.staged_files.find_by!(external_id: file_id)
   end
 end

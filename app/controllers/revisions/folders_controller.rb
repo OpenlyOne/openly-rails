@@ -24,28 +24,30 @@ module Revisions
     # TODO: Refactor into ancestry generator class
     def set_ancestors
       @ancestors = []
-      ancestor = @revision.committed_file_snapshots
-                          .find_by(file_resource_id: @folder.parent_id)
+      ancestor =
+        @revision.committed_snapshots
+                 .find_by(file_record_id: @folder.file_record_parent_id)
 
       while ancestor.present?
         @ancestors << ancestor
-        ancestor = @revision.committed_file_snapshots
-                            .find_by(file_resource_id: ancestor.parent_id)
+        ancestor =
+          @revision.committed_snapshots
+                   .find_by(file_record_id: ancestor.file_record_parent_id)
       end
     end
 
     def set_children
       @children =
-        @revision.committed_file_snapshots
-                 .includes(:file_resource, backup: :file_resource)
-                 .where(parent_id: @folder.file_resource_id)
+        @revision.committed_snapshots
+                 .includes(:backup, :thumbnail)
+                 .where(file_record_parent_id: @folder.file_record_id)
                  .order_by_name_with_folders_first
     end
 
     def set_folder_from_param
       @folder =
         @revision
-        .committed_file_snapshots
+        .committed_snapshots
         .find_by!(external_id: params[:id])
 
       # TODO: Don't check if file resource is folder NOW, check if committed
@@ -54,11 +56,12 @@ module Revisions
     end
 
     def set_folder_from_root
-      @folder = FileResource::Snapshot.new(file_resource: @project.root_folder)
+      @folder =
+        VCS::FileSnapshot.new(file_record: @master_branch.root.file_record)
     end
 
     def set_revision
-      @revision = @project.revisions.find(params[:revision_id])
+      @revision = @master_branch.commits.find(params[:revision_id])
     end
   end
 end

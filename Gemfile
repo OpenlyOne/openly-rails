@@ -8,21 +8,21 @@ git_source(:github) do |repo_name|
 end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.6'
+gem 'rails', '~> 5.2.1'
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 1.0.0'
+gem 'pg', '~> 1.1'
 # Use Puma as the app server
-gem 'puma', '3.11.3'
+gem 'puma', '3.12.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.7'
 # Autoprefix CSS rules using values from Can I Use
-gem 'autoprefixer-rails', '~> 8.2'
+gem 'autoprefixer-rails', '~> 9.3'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 # Use slim templating
-gem 'slim', '~> 3.0'
+gem 'slim', '~> 4.0'
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'
 # Turbolinks makes navigating your web application faster. Read more:
@@ -47,7 +47,7 @@ gem 'config', '~> 1.7'
 # Sequenced for scoped IDs
 gem 'sequenced', '~> 3.1'
 # Google API Client Library for interacting with the Google Drive API
-gem 'google-api-client', '~> 0.19'
+gem 'google-api-client', '~> 0.24.3'
 # Delayed job for processing background jobs, such as Google Drive requests
 gem 'delayed_job_active_record', '~> 4.1'
 # Daemons for daemonizing the DelayedJob workers
@@ -77,7 +77,7 @@ group :development, :test do
   # and also as our debugger
   gem 'pry-byebug', '~> 3.6'
   # Use Rspec for testing
-  gem 'rspec-rails', '~> 3.7'
+  gem 'rspec-rails', '~> 3.8'
   # We will use bullet to avoid N+1 queries
   gem 'bullet', '~> 5.7'
   # Use FactoryGirl for generating factories
@@ -118,11 +118,9 @@ group :test do
   # Track code coverage with Codecov
   gem 'codecov', '~> 0.1', require: false
   # Behavior-Driven-Development
-  gem 'capybara', '~> 2.18'
+  gem 'capybara', '~> 3.10'
   # Additional RSpec matchers
-  gem 'shoulda-matchers', '~> 3.1',
-      git: 'https://github.com/thoughtbot/shoulda-matchers.git',
-      branch: 'master'
+  gem 'shoulda-matchers', '~> 4.0.0.rc1'
   # Cleans the test database after every test
   gem 'database_cleaner', '~> 1.6'
   # VCR for capturing HTTP requests during tests

@@ -19,6 +19,7 @@ module CanSetProjectContext
 
   def can_can_access_denied(exception)
     return unless exception.action == :access
+
     flash.now.alert = exception.message
     render 'projects/access_unauthorized', layout: 'application', status: 403
   end
@@ -29,11 +30,13 @@ module CanSetProjectContext
   end
 
   # Find and set project within the scope. Raise 404 if project does not exist
-  # rubocop:disable Style/AccessorMethodName
+  # rubocop:disable Naming/AccessorMethodName
   def set_project_by_handle_and_slug!(scope: Project)
     @project = scope.find_by_handle_and_slug!(profile_handle, profile_slug)
+    # TODO: Consider extraction
+    @master_branch = @project.master_branch
   end
-  # rubocop:enable Style/AccessorMethodName
+  # rubocop:enable Naming/AccessorMethodName
 
   # Find and set project where setup has been completed. Raise 404 if project
   # does not exist / is not complete

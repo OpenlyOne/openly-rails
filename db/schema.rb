@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181018222521) do
+ActiveRecord::Schema.define(version: 2018_10_29_183425) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
   enable_extension "citext"
+  enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -32,8 +32,8 @@ ActiveRecord::Schema.define(version: 20181018222521) do
     t.string "name"
     t.jsonb "properties"
     t.datetime "time"
-    t.index "properties jsonb_path_ops", name: "index_ahoy_events_on_properties_jsonb_path_ops", using: :gin
     t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
+    t.index ["properties"], name: "index_ahoy_events_on_properties_jsonb_path_ops", opclass: :jsonb_path_ops, using: :gin
     t.index ["user_id"], name: "index_ahoy_events_on_user_id"
     t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"
   end
@@ -246,8 +246,12 @@ ActiveRecord::Schema.define(version: 20181018222521) do
     t.citext "tags", default: [], array: true
     t.boolean "is_public", default: false, null: false
     t.bigint "owner_id", null: false
+    t.bigint "repository_id"
+    t.bigint "master_branch_id"
+    t.index ["master_branch_id"], name: "index_projects_on_master_branch_id"
     t.index ["owner_id", "slug"], name: "index_projects_on_owner_id_and_slug", unique: true
     t.index ["owner_id"], name: "index_projects_on_owner_id"
+    t.index ["repository_id"], name: "index_projects_on_repository_id"
   end
 
   create_table "resources", force: :cascade do |t|
@@ -294,6 +298,133 @@ ActiveRecord::Schema.define(version: 20181018222521) do
     t.index ["project_id"], name: "index_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
   end
 
+  create_table "vcs_archives", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.text "external_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_vcs_archives_on_repository_id"
+  end
+
+  create_table "vcs_branches", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_vcs_branches_on_repository_id"
+  end
+
+  create_table "vcs_commits", force: :cascade do |t|
+    t.bigint "branch_id", null: false
+    t.bigint "parent_id"
+    t.bigint "author_id", null: false
+    t.boolean "is_published", default: false, null: false
+    t.string "title"
+    t.text "summary"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_vcs_commits_on_author_id"
+    t.index ["branch_id"], name: "index_commits_on_published_root_commit", unique: true, where: "((parent_id IS NULL) AND (is_published IS TRUE))"
+    t.index ["branch_id"], name: "index_vcs_commits_on_branch_id"
+    t.index ["parent_id"], name: "index_commits_on_published_parent_id", unique: true, where: "(is_published IS TRUE)"
+    t.index ["parent_id"], name: "index_vcs_commits_on_parent_id"
+  end
+
+  create_table "vcs_committed_files", force: :cascade do |t|
+    t.bigint "commit_id", null: false
+    t.bigint "file_snapshot_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["commit_id", "file_snapshot_id"], name: "index_vcs_committed_files_on_commit_id_and_file_snapshot_id", unique: true
+    t.index ["commit_id"], name: "index_vcs_committed_files_on_commit_id"
+    t.index ["file_snapshot_id"], name: "index_vcs_committed_files_on_file_snapshot_id"
+  end
+
+  create_table "vcs_file_backups", force: :cascade do |t|
+    t.bigint "file_snapshot_id", null: false
+    t.text "external_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_snapshot_id"], name: "index_vcs_file_backups_on_file_snapshot_id"
+  end
+
+  create_table "vcs_file_diffs", force: :cascade do |t|
+    t.bigint "commit_id", null: false
+    t.bigint "new_snapshot_id"
+    t.bigint "old_snapshot_id"
+    t.text "first_three_ancestors", null: false, array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["commit_id"], name: "index_vcs_file_diffs_on_commit_id"
+    t.index ["new_snapshot_id"], name: "index_vcs_file_diffs_on_new_snapshot_id"
+    t.index ["old_snapshot_id"], name: "index_vcs_file_diffs_on_old_snapshot_id"
+  end
+
+  create_table "vcs_file_records", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_vcs_file_records_on_repository_id"
+  end
+
+  create_table "vcs_file_snapshots", force: :cascade do |t|
+    t.bigint "file_record_id", null: false
+    t.bigint "file_record_parent_id"
+    t.text "name", null: false
+    t.text "content_version", null: false
+    t.text "external_id", null: false
+    t.string "mime_type", null: false
+    t.bigint "thumbnail_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["file_record_id", "external_id", "content_version", "mime_type", "name", "file_record_parent_id"], name: "index_vcs_file_snapshots_on_metadata", unique: true
+    t.index ["file_record_id", "external_id", "content_version", "mime_type", "name"], name: "index_vcs_file_snapshots_on_metadata_without_parent", unique: true, where: "(file_record_parent_id IS NULL)"
+    t.index ["file_record_id"], name: "index_vcs_file_snapshots_on_file_record_id"
+    t.index ["file_record_parent_id"], name: "index_vcs_file_snapshots_on_file_record_parent_id"
+    t.index ["thumbnail_id"], name: "index_vcs_file_snapshots_on_thumbnail_id"
+  end
+
+  create_table "vcs_file_thumbnails", force: :cascade do |t|
+    t.text "external_id", null: false
+    t.text "version_id", null: false
+    t.string "image_file_name"
+    t.string "image_content_type"
+    t.bigint "image_file_size"
+    t.datetime "image_updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "vcs_repositories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "vcs_staged_files", force: :cascade do |t|
+    t.bigint "branch_id", null: false
+    t.bigint "file_record_id", null: false
+    t.text "external_id", null: false
+    t.bigint "file_record_parent_id"
+    t.text "name"
+    t.text "content_version"
+    t.string "mime_type"
+    t.boolean "is_deleted", default: false, null: false
+    t.bigint "current_snapshot_id"
+    t.bigint "committed_snapshot_id"
+    t.bigint "thumbnail_id"
+    t.boolean "is_root", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_id", "external_id"], name: "index_vcs_staged_files_on_branch_id_and_external_id", unique: true
+    t.index ["branch_id", "file_record_id"], name: "index_vcs_staged_files_on_branch_id_and_file_record_id", unique: true
+    t.index ["branch_id"], name: "index_vcs_staged_files_on_branch_id"
+    t.index ["branch_id"], name: "index_vcs_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
+    t.index ["committed_snapshot_id"], name: "index_vcs_staged_files_on_committed_snapshot_id"
+    t.index ["current_snapshot_id"], name: "index_vcs_staged_files_on_current_snapshot_id"
+    t.index ["file_record_id"], name: "index_vcs_staged_files_on_file_record_id"
+    t.index ["file_record_parent_id"], name: "index_vcs_staged_files_on_file_record_parent_id"
+    t.index ["thumbnail_id"], name: "index_vcs_staged_files_on_thumbnail_id"
+  end
+
   add_foreign_key "committed_files", "file_resource_snapshots"
   add_foreign_key "committed_files", "file_resources"
   add_foreign_key "committed_files", "revisions"
@@ -313,10 +444,32 @@ ActiveRecord::Schema.define(version: 20181018222521) do
   add_foreign_key "project_archives", "file_resources"
   add_foreign_key "project_archives", "projects"
   add_foreign_key "project_setups", "projects"
+  add_foreign_key "projects", "vcs_branches", column: "master_branch_id"
+  add_foreign_key "projects", "vcs_repositories", column: "repository_id"
   add_foreign_key "resources", "profiles", column: "owner_id"
   add_foreign_key "revisions", "profiles", column: "author_id"
   add_foreign_key "revisions", "projects"
   add_foreign_key "revisions", "revisions", column: "parent_id"
   add_foreign_key "staged_files", "file_resources"
   add_foreign_key "staged_files", "projects"
+  add_foreign_key "vcs_archives", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_branches", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_commits", "profiles", column: "author_id"
+  add_foreign_key "vcs_commits", "vcs_branches", column: "branch_id"
+  add_foreign_key "vcs_commits", "vcs_commits", column: "parent_id"
+  add_foreign_key "vcs_committed_files", "vcs_commits", column: "commit_id"
+  add_foreign_key "vcs_committed_files", "vcs_file_snapshots", column: "file_snapshot_id"
+  add_foreign_key "vcs_file_backups", "vcs_file_snapshots", column: "file_snapshot_id"
+  add_foreign_key "vcs_file_diffs", "vcs_commits", column: "commit_id"
+  add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"
+  add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "old_snapshot_id"
+  add_foreign_key "vcs_file_records", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_id"
+  add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_parent_id"
+  add_foreign_key "vcs_file_snapshots", "vcs_file_thumbnails", column: "thumbnail_id"
+  add_foreign_key "vcs_staged_files", "vcs_branches", column: "branch_id"
+  add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_id"
+  add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_parent_id"
+  add_foreign_key "vcs_staged_files", "vcs_file_snapshots", column: "committed_snapshot_id"
+  add_foreign_key "vcs_staged_files", "vcs_file_thumbnails", column: "thumbnail_id"
 end

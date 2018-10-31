@@ -82,7 +82,7 @@ RSpec.describe Ability, type: :model do
   end
 
   describe 'Collaborators of projects' do
-    actions = %i[force_sync setup]
+    actions = %i[force_sync restore_file restore_revision setup]
     let(:object)  { project }
     let(:project) { build_stubbed(:project) }
 

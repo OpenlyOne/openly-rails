@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :profiles_base do
     transient do
-      account_email nil
+      account_email { nil }
     end
 
     name      { Faker::Name.name }
