@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.26 (Oct 31, 2018)
+
+**New Features:**
+- Users can restore snapshots of files from past revisions
+- Users can roll back the project to a past revision
+
+**Enhancements:**
+- The application infrastructure was completely rewired to support branching and pull requests.
+
 ## v0.25.2 (Oct 23, 2018)
 
 **Fixes:**
