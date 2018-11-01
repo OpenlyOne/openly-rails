@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.26.1 (Nov 1, 2018)
+
+**Fixes:**
+- Bump Capistrano version in deploy.rb to v3.11.0 (to reenable Capistrano CLI)
+
 ## v0.26 (Oct 31, 2018)
 
 **New Features:**
