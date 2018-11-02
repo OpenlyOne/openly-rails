@@ -23,8 +23,7 @@ RSpec.describe Project::Setup, type: :model do
   end
 
   describe 'delegations' do
-    it { is_expected.to delegate_method(:root_folder).to(:project) }
-    it { is_expected.to respond_to(:root_folder=) }
+    it { is_expected.to delegate_method(:master_branch).to(:project) }
   end
 
   describe 'callbacks' do
@@ -90,14 +89,16 @@ RSpec.describe Project::Setup, type: :model do
   end
 
   describe '#create_origin_revision_in_project' do
-    let(:revision) { instance_double Revision }
+    let(:revision) { instance_double VCS::Commit }
 
     before do
       project = instance_double Project
+      branch  = instance_double VCS::Branch
       allow(setup).to receive(:project).and_return project
+      allow(setup).to receive(:master_branch).and_return branch
       allow(project).to receive(:owner).and_return 'author'
-      allow(project)
-        .to receive_message_chain(:revisions, :create_draft_and_commit_files!)
+      allow(branch)
+        .to receive_message_chain(:commits, :create_draft_and_commit_files!)
         .with('author')
         .and_return revision
       allow(revision).to receive(:update)
@@ -149,29 +150,39 @@ RSpec.describe Project::Setup, type: :model do
 
   describe '#file' do
     subject(:get_file)  { setup.send :file }
-    let(:file)          { instance_double FileResources::GoogleDrive }
-    let(:is_new_record) { false }
+    let(:file)          { instance_double VCS::StagedFile }
 
     before do
+      master_branch = instance_double VCS::Branch
+      record = instance_double VCS::FileRecord
+      allow(setup).to receive(:master_branch).and_return master_branch
       allow(setup).to receive(:id_from_link).and_return 'FILE-ID'
-      allow(FileResources::GoogleDrive)
-        .to receive(:find_or_initialize_by)
-        .with(external_id: 'FILE-ID')
+      allow(master_branch)
+        .to receive_message_chain(:staged_files, :build)
+        .with(is_root: true, external_id: 'FILE-ID', file_record: record)
         .and_return file
-      allow(file).to receive(:new_record?).and_return is_new_record
-      allow(file).to receive(:pull)
+      allow(master_branch).to receive(:repository).and_return 'repo'
+      allow(VCS::FileRecord)
+        .to receive(:new).with(repository: 'repo').and_return record
+      allow(file).to receive(:fetch)
     end
 
     it { is_expected.to eq file }
 
-    context 'when file is a new record' do
-      let(:is_new_record) { true }
+    it 'calls #fetch on file' do
+      get_file
+      expect(file).to have_received(:fetch)
+    end
 
-      it { is_expected.to eq file }
+    context 'when @file is set' do
+      before { setup.instance_variable_set(:@file, 'file') }
 
-      it 'calls #pull on file' do
-        expect(file).to receive(:pull)
-        get_file
+      it 'returns the value of @file' do
+        is_expected.to eq 'file'
+      end
+
+      it 'does not call #fetch again' do
+        expect(file).not_to have_received(:fetch)
       end
     end
   end

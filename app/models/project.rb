@@ -49,15 +49,8 @@ class Project < ApplicationRecord
            through: :non_root_file_resources_in_stage,
            source: :current_snapshot
 
-  has_many :all_revisions, class_name: 'Revision', dependent: :destroy
-  has_many :revisions, -> { where is_published: true } do
-    def create_draft_and_commit_files!(author)
-      ::Revision.create_draft_and_commit_files_for_project!(
-        proxy_association.owner,
-        author
-      )
-    end
-  end
+  has_many :revisions, class_name: 'VCS::Commit',
+                       through: :master_branch, source: :commits
 
   has_one :archive, class_name: 'VCS::Archive', through: :repository
   delegate :build_archive, to: :repository
