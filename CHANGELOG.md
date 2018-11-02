@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.26.2 (Nov 6, 2018)
+
+**Fixes:**
+- Upgrade gem 'loofah' to address
+  [CVE-2018-16468](https://nvd.nist.gov/vuln/detail/CVE-2018-16468)
+- Add model specs for models added in v0.26
+- Fix failing specs of models retired in v0.26
+- Fix style violations introduced in v0.26
+
 ## v0.26.1 (Nov 1, 2018)
 
 **Fixes:**
