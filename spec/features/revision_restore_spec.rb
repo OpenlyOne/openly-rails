@@ -49,10 +49,10 @@ feature 'Revision Restore', :vcr, :delayed_job do
     filF = create_file(name: 'File F', parent_id: google_drive_test_folder_id)
 
     # and pull each file in stage
-    project.master_branch.staged_files.each(&:pull)
+    project.master_branch.staged_files.reload.each(&:pull)
 
     # and pull in new children
-    project.master_branch.staged_folders.each(&:pull_children)
+    project.master_branch.staged_folders.reload.each(&:pull_children)
 
     # and go to my project
     sign_in_as current_account
@@ -84,13 +84,14 @@ feature 'Revision Restore', :vcr, :delayed_job do
     click_on 'Capture Changes'
 
     # then I should see no changes
+    pending 'Requires implementation of file_content'
     expect(page).to have_text 'No files changed'
 
     # when I pull each file in stage
-    project.master_branch.staged_files.each(&:pull)
+    project.master_branch.staged_files.reload.each(&:pull)
 
     # and pull in new children
-    project.master_branch.staged_folders.each(&:pull_children)
+    project.master_branch.staged_folders.reload.each(&:pull_children)
 
     # and capture changes again
     click_on 'Files'
