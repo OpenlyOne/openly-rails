@@ -83,10 +83,13 @@ RSpec.describe FileResource::Snapshot, type: :model do
              name: 'ZZZ',
              file_resource: create(:file_resource, :folder, name: 'abc')
       create :file_resource_snapshot,
+             name: 'abc',
              file_resource: create(:file_resource, name: 'HELLO')
       create :file_resource_snapshot,
+             name: 'zebra',
              file_resource: create(:file_resource, name: 'beta')
       create :file_resource_snapshot,
+             name: 'Bus',
              file_resource: create(:file_resource, name: 'zebra')
     end
 

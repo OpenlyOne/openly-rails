@@ -68,7 +68,7 @@ module VCS
     # Take ID and current snapshot ID of all (non-root) file resources currently
     # staged in branch and import them as committed files for this revision.
     def commit_all_files_staged_in_branch
-      CommittedFile.insert_from_select_query(
+      VCS::CommittedFile.insert_from_select_query(
         %i[commit_id file_snapshot_id],
         branch.staged_file_snapshots
               .without_root # only commit non-root snapshots
@@ -83,8 +83,8 @@ module VCS
 
     # Calculate and cache file diffs from parent revision to self
     def generate_diffs
-      FileDiff.where(commit: self).delete_all # Delete all existing diffs
-      Operations::FileDiffsCalculator.new(commit: self).cache_diffs!
+      VCS::FileDiff.where(commit: self).delete_all # Delete all existing diffs
+      VCS::Operations::FileDiffsCalculator.new(commit: self).cache_diffs!
       file_diffs.reset                          # Reset association
       true                                      # Return success
     end
