@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe 'revisions/index', type: :view do
-  let(:project)     { build_stubbed :project }
-  let(:revisions)   { build_stubbed_list :revision, 3, :published }
+  let(:project)       { build_stubbed :project, :with_repository }
+  let(:repository)    { project.repository }
+  let(:master_branch) { build_stubbed :vcs_branch, repository: repository }
+  let(:revisions)     { build_stubbed_list :vcs_commit, 3, :published }
 
   before do
     assign(:project, project)
+    assign(:master_branch, master_branch)
     assign(:revisions, revisions)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
@@ -74,20 +77,21 @@ RSpec.describe 'revisions/index', type: :view do
   context 'when file diffs exist' do
     let(:diffs) do
       snapshots.map do |snapshot|
-        FileDiff.new(file_resource_id: 12,
-                     current_snapshot: snapshot,
-                     first_three_ancestors: ancestors)
+        VCS::FileDiff.new(new_snapshot: snapshot,
+                          first_three_ancestors: ancestors)
       end
     end
     let(:snapshots) do
-      build_stubbed_list(:file_resource_snapshot, 3, :with_backup)
+      build_stubbed_list(
+        :vcs_file_snapshot, 3, :with_backup, file_record_id: 12
+      )
     end
 
     let(:ancestors) { [] }
 
     before do
-      root = instance_double FileResource
-      allow(project).to receive(:root_folder).and_return root
+      root = instance_double VCS::StagedFile
+      allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       allow(revisions.first).to receive(:file_diffs).and_return diffs
     end
@@ -95,7 +99,7 @@ RSpec.describe 'revisions/index', type: :view do
     it 'renders a link to each file backup' do
       render
       diffs.each do |diff|
-        link = diff.current_snapshot.backup.file_resource.external_link
+        link = diff.current_snapshot.backup.external_link
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
