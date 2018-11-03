@@ -44,6 +44,16 @@ FactoryBot.define do
       is_deleted { true }
     end
 
+    trait :with_snapshots do
+      current_snapshot { create(:vcs_file_snapshot, mime_type: mime_type) }
+      committed_snapshot { create(:vcs_file_snapshot, mime_type: mime_type) }
+    end
+
+    trait :unchanged do
+      with_snapshots
+      committed_snapshot { current_snapshot }
+    end
+
     trait :with_backup do
       after(:create) do |staged_file|
         create(:vcs_file_backup, file_snapshot: staged_file.current_snapshot)

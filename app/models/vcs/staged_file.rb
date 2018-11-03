@@ -178,12 +178,13 @@ module VCS
     end
 
     def diff(with_ancestry: false)
-      VCS::FileDiff.new.tap do |diff|
-        diff.new_snapshot_id = current_snapshot_id
-        diff.old_snapshot_id = committed_snapshot_id
-        # TODO: Add depth option for ancestry. Should be max 3
-        diff.first_three_ancestors = ancestors.map(&:name) if with_ancestry
-      end
+      @diff ||=
+        VCS::FileDiff.new.tap do |diff|
+          diff.new_snapshot_id = current_snapshot_id
+          diff.old_snapshot_id = committed_snapshot_id
+          # TODO: Add depth option for ancestry. Should be max 3
+          diff.first_three_ancestors = ancestors.map(&:name) if with_ancestry
+        end
     end
 
     def deleted?

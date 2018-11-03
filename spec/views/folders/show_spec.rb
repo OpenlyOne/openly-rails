@@ -3,27 +3,12 @@
 RSpec.describe 'folders/show', type: :view do
   let(:folder)            { nil }
   let(:project)           { build_stubbed :project }
-  let(:file_snapshots)    { build_stubbed_list :file_resource_snapshot, 5 }
-  let(:folder_snapshots) do
-    build_stubbed_list :file_resource_snapshot, 5, :folder
-  end
-  let(:ancestors)         { [] }
-  let(:children)          { subfolders + subfiles }
-  let(:subfolders) do
-    folder_snapshots.map do |snapshot|
-      Stage::FileDiff.new(project: project,
-                          staged_snapshot: snapshot,
-                          committed_snapshot: snapshot)
-    end
-  end
-  let(:subfiles) do
-    file_snapshots.map do |snapshot|
-      Stage::FileDiff.new(project: project,
-                          staged_snapshot: snapshot,
-                          committed_snapshot: snapshot)
-    end
-  end
-  let(:action) { 'root' }
+  let(:staged_files)    { build_list :vcs_staged_file, 5, :unchanged }
+  let(:staged_folders)  { build_list :vcs_staged_file, 5, :folder, :unchanged }
+  let(:ancestors)       { [] }
+  let(:children)        { staged_folders + staged_files }
+  let(:diffs)           { children.map(&:diff) }
+  let(:action)          { 'root' }
 
   before do
     assign(:project,      project)
@@ -35,36 +20,36 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the names of files and folders' do
     render
-    children.each do |child|
-      expect(rendered).to have_text child.name
+    diffs.each do |diff|
+      expect(rendered).to have_text diff.name
     end
   end
 
   it 'renders the thumbnails of files and folders' do
-    thumbnail = create :file_resource_thumbnail
-    children.each do |child|
-      allow(child.current_or_previous_snapshot)
+    thumbnail = create :vcs_file_thumbnail
+    diffs.each do |diff|
+      allow(diff.current_or_previous_snapshot)
         .to receive(:thumbnail).and_return thumbnail
     end
 
     render
 
-    children.each do |child|
-      expect(rendered).to have_css "img[src='#{child.thumbnail_image.url}']"
+    diffs.each do |diff|
+      expect(rendered).to have_css "img[src='#{diff.thumbnail_image.url}']"
     end
   end
 
   it 'renders the icons of files and folders' do
     render
-    children.each do |child|
-      expect(rendered).to have_css "img[src='#{view.asset_path(child.icon)}']"
+    diffs.each do |diff|
+      expect(rendered).to have_css "img[src='#{view.asset_path(diff.icon)}']"
     end
   end
 
   it 'renders the links of files' do
     render
-    subfiles.each do |file|
-      link = file.external_link
+    staged_files.map(&:diff).each do |diff|
+      link = diff.external_link
       expect(rendered)
         .to have_css "a[href='#{link}'][target='_blank']"
     end
@@ -72,11 +57,11 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of folders' do
     render
-    subfolders.each do |folder|
+    staged_folders.map(&:diff).each do |diff|
       expect(rendered).to have_link(
-        folder.name,
+        diff.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, folder.external_id
+          project.owner, project.slug, diff.external_id
         )
       )
     end
@@ -84,10 +69,10 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders a link to infos for each file' do
     render
-    children.each do |file|
+    diffs.each do |diff|
       link = profile_project_file_infos_path(project.owner,
                                              project,
-                                             file.external_id)
+                                             diff.external_id)
       expect(rendered).to have_link(text: '', href: link)
     end
   end
@@ -113,11 +98,13 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when action name is show' do
-    let(:action)      { 'show' }
-    let(:ancestors)   { [parent, grandparent] }
-    let(:grandparent) { build_stubbed :file_resource_snapshot, name: 'Docs' }
-    let(:parent)      { build_stubbed :file_resource_snapshot, name: 'Other' }
-    let(:folder)      { build_stubbed :file_resource_snapshot, name: 'Folder' }
+    let(:action)          { 'show' }
+    let(:ancestors)       { [parent, grandparent] }
+    let(:grandparent)     { build_stubbed :vcs_file_snapshot, name: 'Docs' }
+    let(:parent)          { build_stubbed :vcs_file_snapshot, name: 'Other' }
+    let(:folder_snapshot) { build_stubbed :vcs_file_snapshot, name: 'Folder' }
+    let(:folder) { build :vcs_staged_file, current_snapshot: folder_snapshot }
+
 
     it 'renders breadcrumbs' do
       render
@@ -141,7 +128,7 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been modified' do
-    before { allow(children.first).to receive(:modification?).and_return(true) }
+    before { allow(diffs.first).to receive(:modification?).and_return(true) }
 
     it 'adds a file indicator' do
       render
@@ -151,7 +138,7 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been added' do
-    before { allow(children.first).to receive(:addition?).and_return(true) }
+    before { allow(diffs.first).to receive(:addition?).and_return(true) }
 
     it 'adds a file indicator' do
       render
@@ -160,7 +147,7 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been moved' do
-    before { allow(children.first).to receive(:movement?).and_return(true) }
+    before { allow(diffs.first).to receive(:movement?).and_return(true) }
 
     it 'adds a file indicator' do
       render
@@ -169,7 +156,7 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been renamed' do
-    before { allow(children.first).to receive(:rename?).and_return(true) }
+    before { allow(diffs.first).to receive(:rename?).and_return(true) }
 
     it 'adds a file indicator' do
       render
@@ -178,7 +165,7 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when file has been deleted' do
-    before { allow(children.first).to receive(:deletion?).and_return(true) }
+    before { allow(diffs.first).to receive(:deletion?).and_return(true) }
 
     it 'adds a file indicator' do
       render
@@ -188,9 +175,9 @@ RSpec.describe 'folders/show', type: :view do
 
   context 'when file has been moved, renamed, and modified' do
     before do
-      allow(children.first).to receive(:movement?).and_return(true)
-      allow(children.first).to receive(:rename?).and_return(true)
-      allow(children.first).to receive(:modification?).and_return(true)
+      allow(diffs.first).to receive(:movement?).and_return(true)
+      allow(diffs.first).to receive(:rename?).and_return(true)
+      allow(diffs.first).to receive(:modification?).and_return(true)
     end
 
     it 'adds 3 file indicators' do
