@@ -7,68 +7,46 @@ RSpec.describe Project, type: :model do
   before do
     next unless skip_archive_setup
 
-    allow_any_instance_of(Project::Archive).to receive(:setup)
+    allow_any_instance_of(VCS::Archive).to receive(:setup)
   end
 
   describe 'deleteable', :delayed_job do
     before do
+      master_branch = project.master_branch
+
       # add collaborators
       project.collaborators = create_list :user, 2
 
       # add setup
+      root = create :vcs_staged_file, :root, branch: master_branch
+      allow_any_instance_of(Project::Setup).to receive(:file).and_return(root)
       create :project_setup, :with_link, project: project
 
       # add staged files
-      project.file_resources_in_stage = create_list :file_resource, 2
+      create_list :vcs_staged_file, 2, branch: master_branch
 
       # add drafted revisions with committed files and file diffs
-      revisions = create_list :revision, 2, project: project
+      revisions = create_list :vcs_commit, 2, branch: master_branch
       revisions.each do |revision|
-        revision.committed_files = create_list :committed_file, 2
-        revision.file_diffs = create_list :file_diff, 2
+        revision.committed_files = create_list :vcs_committed_file, 2
+        revision.file_diffs = create_list :vcs_file_diff, 2
       end
 
       # add published revisions
-      revision1 = create :revision, project: project
-      revision2 = create :revision, project: project, parent: revision1
+      revision1 = create :vcs_commit, branch: master_branch
+      revision2 = create :vcs_commit, branch: master_branch, parent: revision1
       [revision1, revision2].each do |revision|
-        revision.committed_files = create_list :committed_file, 2
-        revision.file_diffs = create_list :file_diff, 2
+        revision.committed_files = create_list :vcs_committed_file, 2
+        revision.file_diffs = create_list :vcs_file_diff, 2
       end
       revision1.update!(is_published: true, title: 'origin')
       revision2.update!(is_published: true, title: 'second revision')
+
+      project.reload
     end
 
     it { expect { project.destroy }.not_to raise_error }
     it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
-  end
-
-  describe 'non_root_file_resources_in_stage#with_current_snapshot' do
-    subject(:method) do
-      project.non_root_file_resources_in_stage.with_current_snapshot
-    end
-    let(:file_resources_with_current_snapshot) { create_list :file_resource, 5 }
-    let(:file_resources_without_current_snapshot) do
-      create_list :file_resource, 5, :deleted
-    end
-
-    before do
-      project.file_resources_in_stage << (
-        file_resources_with_current_snapshot +
-        file_resources_without_current_snapshot
-      )
-    end
-
-    it 'returns file resources where current_snapshot is present' do
-      expect(method.map(&:id))
-        .to contain_exactly(*file_resources_with_current_snapshot.map(&:id))
-    end
-
-    it 'does not return file resources where current_snapshot = nil' do
-      intersection_of_ids =
-        method.map(&:id) & file_resources_without_current_snapshot.map(&:id)
-      expect(intersection_of_ids).not_to be_any
-    end
   end
 
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
