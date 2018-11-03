@@ -7,24 +7,6 @@ feature 'Revision Restore', :vcr, :delayed_job do
 
   # create test folder
   before { prepare_google_drive_test(api_connection) }
-  let!(:remote_subfolder) do
-    Providers::GoogleDrive::FileSync.create(
-      name: 'Folder',
-      parent_id: google_drive_test_folder_id,
-      mime_type: Providers::GoogleDrive::MimeType.folder,
-      api_connection: api_connection
-    )
-  end
-
-  let!(:remote_file) do
-    Providers::GoogleDrive::FileSync.create(
-      name: 'original name',
-      parent_id: remote_subfolder.id,
-      mime_type: remote_file_mime_type,
-      api_connection: api_connection
-    )
-  end
-  let(:remote_file_mime_type) { Providers::GoogleDrive::MimeType.document }
 
   # delete test folder
   after { tear_down_google_drive_test(api_connection) }
@@ -53,7 +35,7 @@ feature 'Revision Restore', :vcr, :delayed_job do
 
     # and_i_set_up_my_project
     create :project_setup, link: link_to_folder, project: project
-    Delayed::Worker.new.work_off
+    Delayed::Worker.new(exit_on_complete: true).work_off
     Delayed::Job.find_each(&:invoke_job)
 
     # when_i_perform_a_variety_of_actions
@@ -93,7 +75,7 @@ feature 'Revision Restore', :vcr, :delayed_job do
     expect(page).to have_text('8 files left to restore.', normalize_ws: true)
 
     # when the jobs process
-    Delayed::Worker.new.work_off
+    Delayed::Worker.new(exit_on_complete: true).work_off
 
     # and I refresh the page
     click_on 'Refresh'
