@@ -21,8 +21,8 @@ FactoryBot.define do
 
     trait :with_backup do
       backup do
-        build(:file_resource_backup,
-              file_resource_snapshot: FileResource::Snapshot.new)
+        build(:vcs_file_backup,
+              file_snapshot: VCS::FileSnapshot.new)
       end
     end
   end
