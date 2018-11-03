@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe 'revisions/new', type: :view do
-  let(:project)       { build_stubbed :project }
+  let(:project)       { build_stubbed :project, :with_repository }
+  let(:repository)    { project.repository }
+  let(:master_branch) { build_stubbed :vcs_branch, repository: repository }
   let(:revision)      { build_stubbed :revision, project: project }
   let(:file_diffs)    { [] }
 
@@ -9,6 +11,7 @@ RSpec.describe 'revisions/new', type: :view do
 
   before do
     assign(:project, project)
+    assign(:master_branch, master_branch)
     assign(:revision, revision)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
@@ -61,18 +64,16 @@ RSpec.describe 'revisions/new', type: :view do
   context 'when file diffs exist' do
     let(:file_diffs) do
       snapshots.map do |snapshot|
-        FileDiff.new(file_resource_id: 12,
-                     current_snapshot: snapshot,
-                     first_three_ancestors: [])
+        VCS::FileDiff.new(new_snapshot: snapshot, first_three_ancestors: [])
       end
     end
     let(:snapshots) do
-      build_stubbed_list(:file_resource_snapshot, 3, :with_backup)
+      build_stubbed_list(:vcs_file_snapshot, 3, :with_backup)
     end
 
     before do
-      root = instance_double FileResource
-      allow(project).to receive(:root_folder).and_return root
+      root = instance_double VCS::StagedFile
+      allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       file_diffs.first.changes.each(&:unselect!)
     end
@@ -96,7 +97,7 @@ RSpec.describe 'revisions/new', type: :view do
     it 'renders a link to each file backup' do
       render
       file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.file_resource.external_link
+        link = diff.current_snapshot.backup.external_link
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
