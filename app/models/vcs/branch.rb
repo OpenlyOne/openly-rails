@@ -7,6 +7,10 @@ module VCS
         find_by(is_root: true)
       end
 
+      def without_root
+        where(is_root: false)
+      end
+
       def folders
         joins_staged_snapshot
           .where(

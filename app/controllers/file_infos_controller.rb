@@ -22,6 +22,7 @@ class FileInfosController < ApplicationController
   def set_staged_file_diff
     staged_file =
       @master_branch.staged_files
+                    .without_root
                     .joins_staged_snapshot
                     .find_by(file_record_id: file_record_id)
 
