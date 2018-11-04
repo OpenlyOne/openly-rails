@@ -3,16 +3,14 @@ module VCS
     belongs_to :repository
 
     # TODO: Make name & owners updatable
-
     attr_accessor :name, :owner_account_email
+
+    delegate :file_backups, to: :repository
+    alias backups file_backups
 
     # Validations
     validates :repository_id, uniqueness: { message: 'already has an archive' }
     validates :external_id, presence: true
-
-    def backups
-      repository.file_backups
-    end
 
     # Set up the archive folder with the provider by creating it and granting
     # view access to the repository owner
