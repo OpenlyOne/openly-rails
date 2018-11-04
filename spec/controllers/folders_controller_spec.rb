@@ -5,9 +5,12 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe FoldersController, type: :controller do
-  let(:root)    { create :file_resource, :folder }
-  let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
+  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
+  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let(:master_branch) { project.master_branch }
+  let(:project) do
+    create :project, :setup_complete, :skip_archive_setup, :with_repository
+  end
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -17,7 +20,6 @@ RSpec.describe FoldersController, type: :controller do
   end
   let(:current_account) { project.owner.account }
   before                { sign_in current_account }
-  before                { project.root_folder = root }
 
   describe 'GET #root' do
     let(:params)          { default_params.except :id }
@@ -25,7 +27,7 @@ RSpec.describe FoldersController, type: :controller do
 
     it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
-      before { StagedFile.delete_all }
+      before { VCS::StagedFile.delete_all }
     end
     it_should_behave_like 'authorizing project access'
 
@@ -41,12 +43,12 @@ RSpec.describe FoldersController, type: :controller do
 
     it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
-      before { StagedFile.delete_all }
+      before { VCS::StagedFile.delete_all }
     end
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      let(:file)  { create :file_resource, parent: folder }
+      let(:file)  { create :vcs_staged_file, parent: folder }
       before      { params[:id] = file.external_id }
 
       it 'raises a 404 error' do

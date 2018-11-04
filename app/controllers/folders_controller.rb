@@ -36,7 +36,7 @@ class FoldersController < ApplicationController
   def set_folder_from_param
     @folder = @master_branch.staged_folders.find_by_external_id(params[:id])
 
-    raise ActiveRecord::RecordNotFound unless @folder.staged_snapshot.folder?
+    raise ActiveRecord::RecordNotFound unless @folder&.staged_snapshot&.folder?
   end
 
   def set_folder_from_root
