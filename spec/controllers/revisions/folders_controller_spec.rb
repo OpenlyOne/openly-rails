@@ -5,15 +5,19 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe Revisions::FoldersController, type: :controller do
-  let!(:root)     { create :file_resource, :folder }
-  let!(:folder)   { create :file_resource, :folder, parent: root }
-  let(:project)   { create :project, :setup_complete, :skip_archive_setup }
-  let(:revision)  { create :revision, project: project }
+  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
+  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let(:master_branch) { project.master_branch }
+  let(:project) do
+    create :project, :setup_complete, :skip_archive_setup, :with_repository
+  end
+  let(:revision) { create :vcs_commit, branch: master_branch }
   let!(:committed_folder) do
-    create :committed_file, file_resource: folder, revision: revision
+    create :vcs_committed_file,
+           file_snapshot: folder.current_snapshot, commit: revision
   end
   let!(:committed_file) do
-    create :committed_file, revision: revision
+    create :vcs_committed_file, commit: revision
   end
   let(:default_params) do
     {
@@ -25,7 +29,6 @@ RSpec.describe Revisions::FoldersController, type: :controller do
   end
   let(:current_account) { project.owner.account }
   before                { sign_in current_account }
-  before                { project.root_folder = root }
   before                { revision.update(is_published: true, title: 'origin') }
 
   describe 'GET #root' do
@@ -33,7 +36,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
     let(:run_request)     { get :root, params: params }
 
     it_should_behave_like 'setting project where setup is complete'
-    it_should_behave_like 'raise 404 if non-existent', Revision
+    it_should_behave_like 'raise 404 if non-existent', VCS::Commit
     it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
@@ -47,11 +50,11 @@ RSpec.describe Revisions::FoldersController, type: :controller do
     let(:run_request)     { get :show, params: params }
 
     it_should_behave_like 'setting project where setup is complete'
-    it_should_behave_like 'raise 404 if non-existent', Revision
+    it_should_behave_like 'raise 404 if non-existent', VCS::Commit
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      before { params[:id] = committed_file.file_resource.external_id }
+      before { params[:id] = committed_file.file_snapshot.external_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound
