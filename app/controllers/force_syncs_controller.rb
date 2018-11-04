@@ -43,6 +43,7 @@ class ForceSyncsController < ApplicationController
   # Set the file resource
   def set_file_resource
     @file =
-      @project.master_branch.staged_files.find_by!(external_id: file_id)
+      @project.master_branch
+              .staged_files.without_root.find_by!(external_id: file_id)
   end
 end

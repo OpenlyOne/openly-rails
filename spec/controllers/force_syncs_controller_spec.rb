@@ -7,9 +7,12 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe ForceSyncsController, type: :controller do
-  let(:root)    { create :file_resource, :folder }
-  let(:folder)  { create :file_resource, :folder, parent: root }
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
+  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
+  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let(:master_branch) { project.master_branch }
+  let(:project) do
+    create :project, :setup_complete, :skip_archive_setup, :with_repository
+  end
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -20,17 +23,16 @@ RSpec.describe ForceSyncsController, type: :controller do
 
   let(:current_account) { project.owner.account }
   before                { sign_in current_account }
-  before                { project.root_folder = root }
 
   describe 'POST #create' do
     let(:params)      { default_params }
     let(:run_request) { post :create, params: params }
 
     before do
-      allow_any_instance_of(FileResource)
+      allow_any_instance_of(VCS::StagedFile)
         .to receive(:backup_on_save?).and_return false
-      allow_any_instance_of(FileResource).to receive(:pull)
-      allow_any_instance_of(FileResource).to receive(:pull_children)
+      allow_any_instance_of(VCS::StagedFile).to receive(:pull)
+      allow_any_instance_of(VCS::StagedFile).to receive(:pull_children)
     end
 
     it_should_behave_like 'an authenticated action'
@@ -58,15 +60,15 @@ RSpec.describe ForceSyncsController, type: :controller do
     end
 
     it 'calls #pull on file' do
-      expect_any_instance_of(FileResource).to receive(:pull)
+      expect_any_instance_of(VCS::StagedFile).to receive(:pull)
       run_request
     end
 
     context 'when file is a folder' do
       it 'calls #pull_children' do
-        expect_any_instance_of(FileResource)
+        expect_any_instance_of(VCS::StagedFile)
           .to receive(:folder?).and_return true
-        expect_any_instance_of(FileResource).to receive(:pull_children)
+        expect_any_instance_of(VCS::StagedFile).to receive(:pull_children)
         run_request
       end
     end
