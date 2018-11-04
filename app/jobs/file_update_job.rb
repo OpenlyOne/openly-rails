@@ -45,28 +45,26 @@ class FileUpdateJob < ApplicationJob
   def process_changes(change_list)
     # Iterate through each change
     change_list.changes.each do |change|
+      # TODO: Trigger ChangeProcessJob here
       process_change(change)
     end
   end
 
+  # TODO: Rename this to ChangesListJob. Extract into ChangeProcessJob.
   def process_change(change)
-    needles = [change.file_id].concat(change&.file&.parents.to_a).compact.uniq
+    external_ids =
+      [change.file_id].concat(change&.file&.parents.to_a).compact.uniq
 
-    branches =
-      VCS::Branch.joins(:staged_files).where(
-        vcs_staged_files: {
-          external_id: needles
-        }
-      )
+    # Find branches that have either the file or its parents staged
+    branches = VCS::Branch.where_staged_files_include_external_id(external_ids)
 
+    # Pull the file in each branch
     branches.find_each do |branch|
-      VCS::StagedFile
-        .create_with(
-          file_record: VCS::FileRecord.new(repository_id: branch.repository_id)
-        ).find_or_initialize_by(
-          external_id: change.file_id,
-          branch_id: branch.id
-        ).pull
+      # TODO: Extract into FileUpdateJob
+      VCS::StagedFile.find_or_initialize_by(
+        external_id: change.file_id,
+        branch: branch
+      ).pull
     end
   end
 end

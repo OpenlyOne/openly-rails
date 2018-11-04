@@ -36,5 +36,12 @@ module VCS
         )
       end
     end
+
+    # Return branches that have one or more staged files with the given
+    # external IDs
+    scope :where_staged_files_include_external_id, lambda { |external_ids|
+      joins(:staged_files)
+        .where(vcs_staged_files: { external_id: external_ids.to_a })
+    }
   end
 end

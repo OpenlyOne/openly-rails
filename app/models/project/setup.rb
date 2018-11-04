@@ -121,11 +121,8 @@ class Project
       @file ||=
         master_branch
         .staged_files
-        .build(
-          is_root: true,
-          external_id: id_from_link,
-          file_record: VCS::FileRecord.new(repository: master_branch.repository)
-        ).tap(&:fetch)
+        .build(is_root: true, external_id: id_from_link)
+        .tap(&:fetch)
     end
 
     # Validation: Link points to a Google Drive folder
@@ -138,7 +135,7 @@ class Project
     # Set a Google Drive Folder as root, begin folder import process, and
     # schedule a check for the completion of this setup process
     def set_root_and_import_files
-      file.save
+      file.tap(&:build_associations).tap(&:save)
       start_folder_import_job_for_root_folder
       schedule_setup_completion_check_job
     end

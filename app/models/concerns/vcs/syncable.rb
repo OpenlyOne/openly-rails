@@ -8,6 +8,13 @@ module VCS::Syncable
     attr_writer :sync_adapter
   end
 
+  # TODO: Extract to parent class
+  # Build the associations for this syncable resource, such as file record
+  def build_associations
+    self.file_record ||=
+      VCS::FileRecord.new(repository_id: branch.repository_id)
+  end
+
   # Fetch the most recent information about this syncable resource from its
   # provider
   def fetch
@@ -22,6 +29,7 @@ module VCS::Syncable
   # Fetch and save the most recent information about this syncable resource
   def pull
     fetch
+    build_associations
     save
   end
 
@@ -56,15 +64,12 @@ module VCS::Syncable
   def children_from_sync_adapter
     sync_adapter.children.map do |child_sync_adapter|
       staged_child =
-        self
-        .class
-        .create_with(
-          sync_adapter: child_sync_adapter,
-          file_record: VCS::FileRecord.new(repository_id: branch.repository_id)
-        ).find_or_initialize_by(
-          branch_id: branch_id,
-          external_id: child_sync_adapter.id
-        )
+        self.class
+            .create_with(sync_adapter: child_sync_adapter)
+            .find_or_initialize_by(
+              branch: branch,
+              external_id: child_sync_adapter.id
+            )
 
       # Pull (fetch+save) child if it is a new record
       staged_child.tap { |child| child.pull if child.new_record? }

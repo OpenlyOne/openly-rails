@@ -154,16 +154,13 @@ RSpec.describe Project::Setup, type: :model do
 
     before do
       master_branch = instance_double VCS::Branch
-      record = instance_double VCS::FileRecord
       allow(setup).to receive(:master_branch).and_return master_branch
       allow(setup).to receive(:id_from_link).and_return 'FILE-ID'
       allow(master_branch)
         .to receive_message_chain(:staged_files, :build)
-        .with(is_root: true, external_id: 'FILE-ID', file_record: record)
+        .with(is_root: true, external_id: 'FILE-ID')
         .and_return file
       allow(master_branch).to receive(:repository).and_return 'repo'
-      allow(VCS::FileRecord)
-        .to receive(:new).with(repository: 'repo').and_return record
       allow(file).to receive(:fetch)
     end
 
