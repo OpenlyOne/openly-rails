@@ -3,6 +3,7 @@ module VCS
     # TODO: Extract Notifying out
     include Notifying
 
+    # Associations
     belongs_to :branch
     has_one :repository, through: :branch
     belongs_to :parent, class_name: 'Commit', optional: true, autosave: false
