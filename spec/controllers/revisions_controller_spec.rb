@@ -9,7 +9,8 @@ require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe RevisionsController, type: :controller do
-  let!(:project) { create :project, :setup_complete, :skip_archive_setup }
+  let!(:project)      { create :project, :setup_complete, :skip_archive_setup }
+  let(:master_branch) { project.master_branch }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -53,7 +54,9 @@ RSpec.describe RevisionsController, type: :controller do
   end
 
   describe 'POST #create' do
-    let!(:revision_draft) { create :revision, project: project, author: author }
+    let!(:revision_draft) do
+      create :vcs_commit, branch: master_branch, author: author
+    end
     let(:author)          { current_account.user }
     let(:params)          { default_params.merge(add_params) }
     let(:run_request)     { post :create, params: params }
@@ -85,7 +88,7 @@ RSpec.describe RevisionsController, type: :controller do
     it_should_behave_like 'authorizing project access'
 
     it 'publishes the revision' do
-      expect_any_instance_of(Revision)
+      expect_any_instance_of(VCS::Commit)
         .to receive(:publish)
         .with(hash_including(title: 'Initial Commit', summary: 'Summary',
                              selected_file_change_ids: kind_of(Array)))
@@ -94,8 +97,8 @@ RSpec.describe RevisionsController, type: :controller do
 
     context 'when creation fails' do
       before do
-        project.root_folder = create(:file_resource, :folder)
-        allow_any_instance_of(Revision).to receive(:update).and_return false
+        create(:vcs_staged_file, :root, branch: master_branch)
+        allow_any_instance_of(VCS::Commit).to receive(:update).and_return false
       end
 
       it_should_behave_like 'successfully rendering view'
