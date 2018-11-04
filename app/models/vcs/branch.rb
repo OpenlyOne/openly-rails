@@ -1,5 +1,7 @@
 module VCS
   class Branch < ApplicationRecord
+
+    # Associations
     belongs_to :repository
 
     has_many :staged_files, dependent: :delete_all do
@@ -20,9 +22,6 @@ module VCS
       end
     end
 
-    delegate :root, to: :staged_files
-    delegate :folders, to: :staged_files, prefix: :staged
-
     has_many :staged_file_snapshots,
              through: :staged_files,
              source: :current_snapshot do
@@ -41,11 +40,17 @@ module VCS
       end
     end
 
+    # Delegations
+    delegate :root, to: :staged_files
+    delegate :folders, to: :staged_files, prefix: :staged
+
+    # Scopes
     # Return branches that have one or more staged files with the given
     # external IDs
     scope :where_staged_files_include_external_id, lambda { |external_ids|
       joins(:staged_files)
         .where(vcs_staged_files: { external_id: external_ids.to_a })
+        .distinct
     }
   end
 end
