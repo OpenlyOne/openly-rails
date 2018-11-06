@@ -8,17 +8,17 @@ module VCS::Operations
     def self.generate(commit:, parent_commit: nil, file_record_ids:, depth:)
       tree = new(commit: commit,
                  parent_commit: parent_commit,
-                 file_ids: file_record_ids)
+                 file_record_ids: file_record_ids)
       # Load generations depth + 1 times because 1st generation is just current
       # files
       tree.recursively_load_generations(depth: depth + 1)
       tree
     end
 
-    def initialize(commit:, parent_commit: nil, file_ids:)
+    def initialize(commit:, parent_commit: nil, file_record_ids:)
       self.commit = commit
       self.parent_commit = parent_commit || commit.parent
-      initialize_tree(file_ids)
+      initialize_tree(file_record_ids)
     end
 
     # Return the ancestor names for a given file ID
