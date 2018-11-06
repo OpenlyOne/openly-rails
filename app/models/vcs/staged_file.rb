@@ -14,15 +14,6 @@ module VCS
     # must be last, so that backup is made after snapshot is persisted
     include VCS::Backupable
 
-    # Associations
-    # has_one :parent, ->(staged_file) { where(file_record_id: staged_file.file_record_parent_id) },
-    #         class_name: model_name,
-    #         through: :branch,
-    #         source: :staged_files
-    # has_many :children, ->(staged_file) { where(file_record_parent_id: staged_file.file_record_id) },
-    #          through: :branch,
-    #          source: :staged_files
-
     scope :joins_staged_snapshot, lambda {
       joins(
         'INNER JOIN vcs_file_snapshots staged_snapshots ' \
@@ -46,55 +37,14 @@ module VCS
       )
     }
 
-    # has_many :snapshots, class_name: 'VCS::FileSnapshot', foreign_key: :file_record_id
-
-    # scope :with_committed_snapshot, lambda {
-    #   select("#{table_name}.*", 'committed_snapshots.id AS committed_snapshot_id')
-    #     .joins("INNER JOIN (#{VCS::Commit.last_per_branch.to_sql}) last_commits ON last_commits.branch_id = vcs_staged_files.branch_id")
-    #     .joins("INNER JOIN vcs_committed_files ON vcs_committed_files.commit_id = last_commits.id")
-    #     .joins("INNER JOIN vcs_file_snapshots committed_snapshots ON (committed_snapshots.file_record_id = vcs_staged_files.file_record_id AND committed_snapshots.id = vcs_committed_files.file_snapshot_id)")
-    # }
-    #
-    # scope :with_current_or_committed_snapshot, lambda {
-    #   select(
-    #     "#{table_name}.*",
-    #     'files_in_last_commit.committed_snapshot_id AS committed_snapshot_id'
-    #   )
-    #     .left_joins(:current_snapshot)
-    #     .joins(<<-SQL.squish
-    #       LEFT JOIN (#{VCS::StagedFile.with_committed_snapshot.to_sql})
-    #       files_in_last_commit ON files_in_last_commit.id = vcs_staged_files.id
-    #       SQL
-    #     ).where('vcs_staged_files.current_snapshot_id IS NOT NULL OR files_in_last_commit.id IS NOT NULL')
-    # }
-    #
-    # scope :joins_current_or_committed_snapshot, lambda {
-    #   with_current_or_committed_snapshot
-    #     .joins(
-    #       'INNER JOIN vcs_file_snapshots current_or_previous_snapshots ' \
-    #       "ON (COALESCE(#{table_name}.current_snapshot_id, "\
-    #                    'committed_snapshot_id) '\
-    #       '= current_or_previous_snapshots.id)'
-    #     )
-    # }
-    #
-    # scope :with_current_or_committed_snapshot_in_folder, lambda { |folder|
-    #   joins_current_or_committed_snapshot
-    #     .where(
-    #       'current_or_previous_snapshots.file_record_parent_id = ?',
-    #       folder.file_record_id
-    #     )
-    # }
-
     # Validations
     validates :external_id, presence: true
     validates :external_id, uniqueness: { scope: :branch_id },
                             if: :will_save_change_to_external_id?
 
-    # validate :cannot_be_its_own_parent, if: :parent_association_loaded?
-
     # Only perform validation if no errors have been encountered
     with_options unless: :any_errors? do
+      validate :cannot_be_its_own_parent
       validate :cannot_be_its_own_ancestor,
                if: :will_save_change_to_file_record_parent_id?
     end
@@ -191,6 +141,7 @@ module VCS
       is_deleted
     end
 
+    # TODO: Don't use mime type on staged_file, but on staged_snapshot instead
     def folder?
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
     end
@@ -217,17 +168,18 @@ module VCS
     def cannot_be_its_own_ancestor
       return unless ancestors_ids.include? file_record_id
 
-      errors.add(:base, 'File resource cannot be its own ancestor')
+      errors.add(:base, 'Staged file cannot be its own ancestor')
     end
 
     def cannot_be_its_own_parent
-      return unless self == parent
+      # check if IDs match
+      return unless file_record_id == file_record_parent_id
+      # both IDs are the same or they are both nil. This could mean that file is
+      # its own parent, or it could mean that both records are new, so lets
+      # check the actual instances
+      return unless file_record == file_record_parent
 
-      errors.add(:base, 'File resource cannot be its own parent')
-    end
-
-    def parent_association_loaded?
-      association(:parent).loaded?
+      errors.add(:base, 'Staged file cannot be its own parent')
     end
   end
 end

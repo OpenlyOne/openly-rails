@@ -36,11 +36,6 @@ module VCS::Syncable
   # Fetch and save the children of this syncable resource from its provider
   def pull_children
     self.staged_children = children_from_sync_adapter
-    # children_from_sync_adapter.each do |child|
-    #   child.update!(file_record_parent_id: file_record_id)
-    # end
-    # # TODO: Clear current snapshot of other children
-    # children.where.not(id: children_from_sync_adapter.map(&:id)).each(&:pull)
   end
 
   # Reset sync state when calling #reload

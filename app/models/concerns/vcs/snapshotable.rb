@@ -6,7 +6,6 @@ module VCS::Snapshotable
 
   included do
     # Associations
-    has_many :snapshots, class_name: 'VCS::FileSnapshot'
     belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot',
                                   autosave: false,
                                   optional: true
