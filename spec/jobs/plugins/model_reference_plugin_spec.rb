@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Dummy class for this spec
 class TestJob < ApplicationJob
   queue_as :default
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :vcs_committed_file, class: 'VCS::CommittedFile' do
     transient do

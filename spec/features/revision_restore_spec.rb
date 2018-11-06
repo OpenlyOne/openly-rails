@@ -23,10 +23,10 @@ feature 'Revision Restore', :vcr, :delayed_job do
     fol2 = create_folder(name: 'Fol 2', parent_id: google_drive_test_folder_id)
     fol3 = create_folder(name: 'Fol 3', parent_id: google_drive_test_folder_id)
 
-    filA = create_file(name: 'File A', parent: fol1, content: 'awesome')
-    filB = create_file(name: 'File B', parent: fol2, content: 'great')
-    filC = create_file(name: 'File C', parent: fol2)
-    filD = create_file(name: 'File D', parent: fol3)
+    file1 = create_file(name: 'File A', parent: fol1, content: 'awesome')
+    file2 = create_file(name: 'File B', parent: fol2, content: 'great')
+    create_file(name: 'File C', parent: fol2)
+    file4 = create_file(name: 'File D', parent: fol3)
 
     # and_i_share_it_with_the_tracking_account
     api_connection
@@ -41,12 +41,12 @@ feature 'Revision Restore', :vcr, :delayed_job do
     # when_i_perform_a_variety_of_actions
     fol2.relocate(to: fol1.id, from: google_drive_test_folder_id)
     fol3.relocate(to: nil, from: google_drive_test_folder_id)
-    filD.relocate(to: fol1.id, from: fol3.id)
-    filB.delete
+    file4.relocate(to: fol1.id, from: fol3.id)
+    file2.delete
     fol1.rename('new folder name')
-    filA.update_content('super awesome!')
-    filE = create_file(name: 'File E', parent: fol1)
-    filF = create_file(name: 'File F', parent_id: google_drive_test_folder_id)
+    file1.update_content('super awesome!')
+    create_file(name: 'File E', parent: fol1)
+    create_file(name: 'File F', parent_id: google_drive_test_folder_id)
 
     # and pull each file in stage
     project.master_branch.staged_files.reload.each(&:pull)

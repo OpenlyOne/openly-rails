@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :vcs_file_snapshot, class: 'VCS::FileSnapshot' do
     transient do

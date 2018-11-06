@@ -86,8 +86,9 @@ feature 'Folder' do
     modified_file.update(content_version: 'new-version')
     moved_out_file.update(file_record_parent_id: root.file_record_id)
     moved_in_file.update(file_record_parent_id: folder.file_record_id)
-    moved_in_and_modified_file.update(file_record_parent_id: folder.file_record_id,
-                                      content_version: 'new-version')
+    moved_in_and_modified_file
+      .update(file_record_parent_id: folder.file_record_id,
+              content_version: 'new-version')
     removed_file.update(is_deleted: true)
 
     # when I visit the project page
@@ -111,10 +112,10 @@ feature 'Folder' do
   end
 
   context 'User can see correct ancestry path for folders' do
-    let(:folder) { create :vcs_staged_file, :folder, name: 'Fol', parent: root }
-    let(:docs) { create :vcs_staged_file, :folder, name: 'Docs', parent: folder }
+    let(:fold) { create :vcs_staged_file, :folder, name: 'Fol', parent: root }
+    let(:docs) { create :vcs_staged_file, :folder, name: 'Docs', parent: fold }
     let(:code) { create :vcs_staged_file, :folder, name: 'Code', parent: docs }
-    let(:init_folders) { [folder, docs, code] }
+    let(:init_folders) { [fold, docs, code] }
     before do
       init_folders
       create_revision

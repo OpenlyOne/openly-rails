@@ -105,7 +105,6 @@ RSpec.describe 'folders/show', type: :view do
     let(:folder_snapshot) { build_stubbed :vcs_file_snapshot, name: 'Folder' }
     let(:folder) { build :vcs_staged_file, current_snapshot: folder_snapshot }
 
-
     it 'renders breadcrumbs' do
       render
       expect(rendered).to have_css(
