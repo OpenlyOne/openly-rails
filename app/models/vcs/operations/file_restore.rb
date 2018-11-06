@@ -4,6 +4,10 @@ module VCS
   module Operations
     # Restore a file snapshot to the provided target branch
     class FileRestore
+
+      delegate :addition?, :deletion?, :modification?, :rename?, :movement?,
+               to: :diff, prefix: :perform
+
       # Initialize a new instance of FileRestore and prepare for restoring the
       # provided snapshot to the provided target_branch
       def initialize(snapshot:, file_record_id: nil, target_branch:)
@@ -31,7 +35,7 @@ module VCS
       # if the restoration is only affecting location and name
       def restorable?
         # Deletion is always possible
-        return true if diff.deletion?
+        return true if perform_deletion?
 
         # Otherwise, snapshot must be present AND...
         snapshot.present? &&
@@ -39,7 +43,7 @@ module VCS
           # addition/modification (but movement/rename)
           (snapshot.folder? ||
           snapshot.backup.present? ||
-          (!diff.addition? && !diff.modification?))
+          (!perform_addition? && !perform_modification?))
       end
 
       private
@@ -118,17 +122,17 @@ module VCS
 
       def perform_restoration
         # Add file
-        return add_file if diff.addition?
+        return add_file if perform_addition?
 
         # Remove file
-        return remove_file if diff.deletion?
+        return remove_file if perform_deletion?
 
         # # Replace file
-        return replace_file if diff.modification?
+        return replace_file if perform_modification?
 
         # # Move/rename file
-        relocate_file if diff.movement?
-        rename_file if diff.rename?
+        relocate_file if perform_movement?
+        rename_file if perform_rename?
       end
 
       def staged_parent_of_snapshot_to_restore
