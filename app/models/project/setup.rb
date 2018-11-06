@@ -15,7 +15,6 @@ class Project
     attr_accessor :link
 
     # Delegations
-    # delegate :root_folder, :root_folder=, to: :master_branch
     delegate :master_branch, to: :project
 
     # Callbacks
@@ -117,20 +116,13 @@ class Project
       matches ? matches[0] : nil
     end
 
-    # Set file by finding an existing file resource or creating a new one from
-    # the ID from link
+    # Set file by fetching a new one from the ID from link
     def file
+      @file ||=
         master_branch
         .staged_files
-        .build(
-          is_root: true,
-          external_id: id_from_link,
-          file_record: VCS::FileRecord.new(repository: master_branch.repository)
-        ).tap(&:pull)
-        # TODO: Refactor creation of file record. Should be automatic on pull
-    #     FileResources::GoogleDrive
-    #     .find_or_initialize_by(external_id: id_from_link) # Find or initialize
-    #     .tap { |file| file.pull if file.new_record? }     # Pull if new record
+        .build(is_root: true, external_id: id_from_link)
+        .tap(&:fetch)
     end
 
     # Validation: Link points to a Google Drive folder
@@ -143,20 +135,17 @@ class Project
     # Set a Google Drive Folder as root, begin folder import process, and
     # schedule a check for the completion of this setup process
     def set_root_and_import_files
-      set_root_folder
+      file.tap(&:build_associations).tap(&:save)
       start_folder_import_job_for_root_folder
       schedule_setup_completion_check_job
     end
 
-    # Set the root folder to file
-    def set_root_folder
-      # self.root_folder = file
-      file
-    end
-
     # Start a (recursive) FolderImportJob for the root_folder
     def start_folder_import_job_for_root_folder
-      FolderImportJob.perform_later(reference: self, staged_file_id: master_branch.root.id)
+      FolderImportJob.perform_later(
+        reference: self,
+        staged_file_id: master_branch.root.id
+      )
     end
   end
 end

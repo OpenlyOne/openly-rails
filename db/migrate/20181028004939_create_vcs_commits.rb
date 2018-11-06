@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 class CreateVcsCommits < ActiveRecord::Migration[5.2]
   def change
     create_table :vcs_commits do |t|
-      t.belongs_to :branch, null: false, foreign_key: { to_table: :vcs_branches }
+      t.belongs_to :branch, null: false,
+                            foreign_key: { to_table: :vcs_branches }
       t.belongs_to :parent, foreign_key: { to_table: :vcs_commits }
       t.belongs_to :author, null: false, foreign_key: { to_table: :profiles }
       t.boolean :is_published, null: false, default: false

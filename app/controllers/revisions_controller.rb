@@ -51,8 +51,8 @@ class RevisionsController < ApplicationController
   end
 
   def build_revision
-    revision = @project.master_branch.commits.create_draft_and_commit_files!(current_user)
-    find_revision_by_id(revision.id)
+    commit = @master_branch.commits.create_draft_and_commit_files!(current_user)
+    find_revision_by_id(commit.id)
   end
 
   def can_can_access_denied(exception)

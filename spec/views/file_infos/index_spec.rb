@@ -2,13 +2,18 @@
 
 RSpec.describe 'file_infos/index', type: :view do
   let(:project)               { build_stubbed :project }
-  let(:file)                  { build_stubbed :file_resource_snapshot }
+  let(:master_branch)         { build_stubbed :vcs_branch }
+  let(:file)                  { build_stubbed :vcs_file_snapshot }
+  let(:staged_parent)         { nil }
   let(:staged_file_diff)      { nil }
   let(:committed_file_diffs)  { [] }
 
   before do
+    allow(project).to receive(:master_branch).and_return master_branch
     assign(:project, project)
+    assign(:master_branch, project.master_branch)
     assign(:file, file)
+    assign(:staged_parent, staged_parent)
     assign(:staged_file_diff, staged_file_diff)
     assign(:committed_file_diffs, committed_file_diffs)
   end
@@ -46,16 +51,11 @@ RSpec.describe 'file_infos/index', type: :view do
 
   context 'when staged file diff is present' do
     let(:staged_file_diff) do
-      Stage::FileDiff.new(project: project, staged_snapshot: snapshot,
-                          committed_snapshot: snapshot)
+      build_stubbed :vcs_file_diff,
+                    new_snapshot: snapshot, old_snapshot: snapshot
     end
-    let(:snapshot) do
-      build_stubbed :file_resource_snapshot, name: 'My Document', parent: parent
-    end
-    let(:parent)    { build_stubbed :file_resource }
-    let(:root)      { build_stubbed :file_resource }
-
-    before { allow(project).to receive(:root_folder).and_return root }
+    let(:snapshot) { build_stubbed :vcs_file_snapshot, name: 'My Document' }
+    let(:staged_parent) { build_stubbed :vcs_staged_file, :folder }
 
     it 'has a link to the file on Google Drive' do
       render
@@ -74,9 +74,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'has a link to the parent folder' do
       render
       link = profile_project_folder_path(project.owner, project,
-                                         staged_file_diff
-                                         .current_or_previous_snapshot
-                                         .parent.external_id)
+                                         staged_parent.external_id)
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 
@@ -93,7 +91,7 @@ RSpec.describe 'file_infos/index', type: :view do
     end
 
     context 'when parent is root folder' do
-      let(:parent) { root }
+      let(:staged_parent) { build_stubbed :vcs_staged_file, :root }
 
       it 'has a link to the root folder' do
         render
@@ -140,24 +138,26 @@ RSpec.describe 'file_infos/index', type: :view do
   end
 
   context 'when file has past versions' do
-    let(:revisions) { committed_file_diffs.map(&:revision) }
+    let(:revisions) { committed_file_diffs.map(&:commit) }
     let(:committed_file_diffs) do
-      [(build_stubbed :file_diff, current_snapshot: s1, revision: r1),
-       (build_stubbed :file_diff, current_snapshot: s2, revision: r2),
-       (build_stubbed :file_diff, current_snapshot: s3, revision: r3)]
+      [(build_stubbed :vcs_file_diff, new_snapshot: s1, commit: r1),
+       (build_stubbed :vcs_file_diff, new_snapshot: s2, commit: r2),
+       (build_stubbed :vcs_file_diff, new_snapshot: s3, commit: r3)]
     end
-    let(:r1)  { build_stubbed :revision }
-    let(:r2)  { build_stubbed :revision }
-    let(:r3)  { build_stubbed :revision }
+    let(:r1)  { build_stubbed :vcs_commit }
+    let(:r2)  { build_stubbed :vcs_commit }
+    let(:r3)  { build_stubbed :vcs_commit }
     let(:s1) do
-      build_stubbed :file_resource_snapshot, :with_backup, name: 'f1'
+      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f1'
     end
     let(:s2) do
-      build_stubbed :file_resource_snapshot, :with_backup, name: 'f2'
+      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f2'
     end
     let(:s3) do
-      build_stubbed :file_resource_snapshot, :with_backup, name: 'f3'
+      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f3'
     end
+
+    before { allow(view).to receive(:restorable?).and_return false }
 
     it 'renders the title of each revision' do
       render
@@ -187,7 +187,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'renders a link to file backup for each revision' do
       render
       committed_file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.file_resource.external_link
+        link = diff.current_snapshot.backup.external_link
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
@@ -206,6 +206,30 @@ RSpec.describe 'file_infos/index', type: :view do
         ".revision[id='#{r3.id}'] .file.addition",
         text: 'f3 added'
       )
+    end
+
+    context 'when diff is restorable' do
+      before do
+        allow(view)
+          .to receive(:restorable?)
+          .with(committed_file_diffs.first, master_branch)
+          .and_return true
+      end
+
+      it 'has restore action for diff 1' do
+        render
+        restore_action = profile_project_file_restores_path(
+          project.owner, project, committed_file_diffs.first.new_snapshot
+        )
+
+        expect(rendered).to have_css(
+          'form'\
+          "[action='#{restore_action}']"\
+          "[method='post']",
+          text: 'Restore',
+          count: 1
+        )
+      end
     end
   end
 end

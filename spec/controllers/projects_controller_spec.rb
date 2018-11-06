@@ -11,7 +11,7 @@ require 'controllers/shared_examples/setting_project.rb'
 RSpec.describe ProjectsController, type: :controller do
   include_context 'skip project archive setup'
 
-  let!(:project)        { create(:project) }
+  let!(:project)        { create(:project, :skip_archive_setup) }
   let(:default_params)  do
     {
       profile_handle: project.owner,
@@ -35,7 +35,10 @@ RSpec.describe ProjectsController, type: :controller do
   describe 'POST #create' do
     let(:params)      { { project: { title: 'title' } } }
     let(:run_request) { post :create, params: params }
-    before            { sign_in create(:account) }
+    before do
+      allow_any_instance_of(Project).to receive(:setup_archive)
+      sign_in create(:account)
+    end
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'a redirect with success' do
@@ -53,7 +56,7 @@ RSpec.describe ProjectsController, type: :controller do
   describe 'GET #show' do
     let(:params)          { default_params }
     let(:run_request)     { get :show, params: params }
-    let(:project)         { create :project, :setup_complete }
+    let(:project) { create :project, :setup_complete, :skip_archive_setup }
     let(:current_account) { project.owner.account }
     before                { sign_in current_account }
 
@@ -68,7 +71,7 @@ RSpec.describe ProjectsController, type: :controller do
     end
 
     context 'when setup has not started' do
-      let(:project) { create :project }
+      let(:project) { create :project, :skip_archive_setup }
 
       it 'redirects to setup page' do
         run_request
@@ -78,7 +81,7 @@ RSpec.describe ProjectsController, type: :controller do
     end
 
     context 'when setup is in progress' do
-      let(:project) { create :project }
+      let(:project) { create :project, :skip_archive_setup }
 
       before { create :project_setup, :skip_validation, project: project }
 

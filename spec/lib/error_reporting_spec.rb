@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# class TestJob < ApplicationJob
-#
-# end
-
 RSpec.describe 'error reporting' do
   # turn on error reporting
   around(:all) do |example|
@@ -30,6 +26,7 @@ RSpec.describe 'error reporting' do
     end
 
     it 'creates an ErrorReportJob' do
+      # Dummy class for this spec
       class JobDouble < ApplicationJob
         def perform(*_args)
           raise 'error during job'

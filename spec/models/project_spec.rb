@@ -17,64 +17,33 @@ RSpec.describe Project, type: :model do
     it { is_expected.to have_one(:setup).dependent(:destroy) }
     it do
       is_expected
-        .to have_one(:staged_root_folder)
-        .conditions(is_root: true)
-        .class_name('StagedFile')
-        .dependent(:delete)
-    end
-    it do
-      is_expected
-        .to have_one(:root_folder)
-        .class_name('FileResource')
-        .through(:staged_root_folder)
-        .source(:file_resource)
-        .dependent(false)
-    end
-    it { is_expected.to have_many(:staged_files).dependent(:destroy) }
-    it do
-      is_expected
-        .to have_many(:file_resources_in_stage)
-        .class_name('FileResource')
-        .through(:staged_files)
-        .source(:file_resource)
-        .dependent(false)
-    end
-    it do
-      is_expected
-        .to have_many(:staged_non_root_files)
-        .conditions(is_root: false)
-        .class_name('StagedFile')
-        .dependent(false)
-    end
-    it do
-      is_expected
-        .to have_many(:non_root_file_resources_in_stage)
-        .class_name('FileResource')
-        .through(:staged_non_root_files)
-        .source(:file_resource)
-        .dependent(false)
-    end
-    it do
-      is_expected
-        .to have_many(:non_root_file_snapshots_in_stage)
-        .class_name('FileResource::Snapshot')
-        .through(:non_root_file_resources_in_stage)
-        .source(:current_snapshot)
-        .dependent(false)
-    end
-    it do
-      is_expected
-        .to have_many(:all_revisions)
-        .class_name('Revision')
+        .to belong_to(:master_branch)
+        .class_name('VCS::Branch')
         .dependent(:destroy)
+        .optional
+    end
+    it do
+      is_expected
+        .to belong_to(:repository)
+        .class_name('VCS::Repository')
+        .dependent(:destroy)
+        .optional
     end
     it do
       is_expected
         .to have_many(:revisions)
-        .conditions(is_published: true)
+        .class_name('VCS::Commit')
+        .through(:master_branch)
+        .source(:commits)
         .dependent(false)
     end
-    it { is_expected.to have_one(:archive).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_one(:archive)
+        .class_name('VCS::Archive')
+        .through(:repository)
+        .dependent(false)
+    end
   end
 
   describe 'attributes' do
@@ -175,19 +144,6 @@ RSpec.describe Project, type: :model do
         project.slug = 'edit'
         is_expected.to be_invalid
       end
-    end
-  end
-
-  describe 'revisions#create_draft_and_commit_files!' do
-    subject(:method) do
-      project.revisions.create_draft_and_commit_files!('author')
-    end
-
-    it 'calls Revision#create_draft_and_commit_files_for_project!' do
-      expect(Revision)
-        .to receive(:create_draft_and_commit_files_for_project!)
-        .with(project, 'author')
-      method
     end
   end
 
@@ -316,11 +272,13 @@ RSpec.describe Project, type: :model do
   describe '#setup_archive' do
     subject(:project) { build_stubbed(:project) }
 
-    let(:archive)         { instance_double Project::Archive }
+    let(:archive)         { instance_double VCS::Archive }
+    let(:repository)      { instance_double VCS::Repository }
     let(:setup_completed) { false }
 
     before do
-      allow(project).to receive(:archive).and_return(archive)
+      allow(project).to receive(:repository).and_return repository
+      allow(project).to receive(:repository_archive).and_return(archive)
       allow(archive).to receive(:setup)
       allow(archive).to receive(:setup_completed?).and_return setup_completed
       allow(archive).to receive(:save)
@@ -333,12 +291,21 @@ RSpec.describe Project, type: :model do
       expect(archive).to have_received(:save)
     end
 
+    context 'when repository is not present' do
+      let(:repository) { nil }
+
+      it 'does not call #setup' do
+        expect(archive).not_to have_received(:setup)
+        expect(archive).not_to have_received(:save)
+      end
+    end
+
     context 'when setup is already complete' do
       let(:setup_completed) { true }
 
       it 'does not call #setup' do
         expect(archive).not_to have_received(:setup)
-        expect(archive).to have_received(:save)
+        expect(archive).not_to have_received(:save)
       end
     end
   end

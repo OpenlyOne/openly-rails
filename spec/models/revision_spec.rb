@@ -84,7 +84,8 @@ RSpec.describe Revision, type: :model do
     it { expect(draft).to receive(:commit_all_files_staged_in_project) }
   end
 
-  describe '#commit_all_files_staged_in_project' do
+  # TODO: Model is pending deletion
+  xdescribe '#commit_all_files_staged_in_project' do
     subject(:commit_files) { revision.commit_all_files_staged_in_project }
     let(:columns) { %i[file_resource_id file_resource_snapshot_id revision_id] }
     let(:rows)    { [%w[f1 s1 r], %w[f2 s2 r], %w[f3 s3 r]] }

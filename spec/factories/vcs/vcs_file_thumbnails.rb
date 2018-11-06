@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :vcs_file_thumbnail, class: 'VCS::FileThumbnail' do
     external_id { Faker::Crypto.unique.sha1 }

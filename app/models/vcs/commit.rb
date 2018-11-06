@@ -1,8 +1,13 @@
+# frozen_string_literal: true
+
 module VCS
+  # A commit is a snapshot of a branch with all its files
+  # rubocop:disable Metrics/ClassLength
   class Commit < ApplicationRecord
     # TODO: Extract Notifying out
     include Notifying
 
+    # Associations
     belongs_to :branch
     has_one :repository, through: :branch
     belongs_to :parent, class_name: 'Commit', optional: true, autosave: false
@@ -68,7 +73,7 @@ module VCS
     # Take ID and current snapshot ID of all (non-root) file resources currently
     # staged in branch and import them as committed files for this revision.
     def commit_all_files_staged_in_branch
-      CommittedFile.insert_from_select_query(
+      VCS::CommittedFile.insert_from_select_query(
         %i[commit_id file_snapshot_id],
         branch.staged_file_snapshots
               .without_root # only commit non-root snapshots
@@ -83,8 +88,8 @@ module VCS
 
     # Calculate and cache file diffs from parent revision to self
     def generate_diffs
-      FileDiff.where(commit: self).delete_all # Delete all existing diffs
-      Operations::FileDiffsCalculator.new(commit: self).cache_diffs!
+      VCS::FileDiff.where(commit: self).delete_all # Delete all existing diffs
+      VCS::Operations::FileDiffsCalculator.new(commit: self).cache_diffs!
       file_diffs.reset                          # Reset association
       true                                      # Return success
     end
@@ -98,8 +103,8 @@ module VCS
       is_published_in_database
     end
 
-    # Mark the file changes identified by the given IDs as selected and all other
-    # file changes as unselected
+    # Mark the file changes identified by the given IDs as selected and all
+    # other file changes as unselected
     def selected_file_change_ids=(ids)
       file_changes.each do |change|
         ids.include?(change.id) ? change.select! : change.unselect!
@@ -118,16 +123,36 @@ module VCS
       Project.find_by_repository_id(repository.id).present?
     end
 
-    # Update committed_snapshot_id of staged files
+    # Update each file in stage by joining it onto committed snapshots via
+    # file record id and setting the committed_snapshot_id of staged files to
+    # the id of committed snapshots
+    # rubocop:disable Metrics/MethodLength
     def update_staged_files
+      # Left join staged files on committed snapshots
+      # TODO: Extract into scope/query
+      staged_files_left_joining_committed_snapshots =
+        branch.staged_files.joins(
+          <<~SQL
+            LEFT JOIN (#{committed_snapshots.to_sql}) committed_snapshots
+            ON (committed_snapshots.file_record_id =
+            vcs_staged_files.file_record_id)
+          SQL
+        ).select('committed_snapshots.id, vcs_staged_files.file_record_id')
+
+      # Perform the update
       branch
         .staged_files
-        .where('committed_snapshots.file_record_id = vcs_staged_files.file_record_id')
-        .update_all(
-          'committed_snapshot_id = committed_snapshots.id ' \
-          'FROM (' \
-          "#{branch.staged_files.joins("LEFT JOIN (#{committed_snapshots.to_sql}) committed_snapshots ON committed_snapshots.file_record_id = vcs_staged_files.file_record_id").select('committed_snapshots.id, vcs_staged_files.file_record_id').to_sql}) committed_snapshots")
+        .where(
+          'committed_snapshots.file_record_id = vcs_staged_files.file_record_id'
+        ).update_all(
+          <<~SQL
+            committed_snapshot_id = committed_snapshots.id
+            FROM (#{staged_files_left_joining_committed_snapshots.to_sql})
+            committed_snapshots
+          SQL
+        )
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Apply selected changes to each file diff
     def apply_selected_file_changes
@@ -152,9 +177,9 @@ module VCS
 
       errors.add(:base,
                  'Someone has captured changes to this branch since you ' \
-                 'started reviewing changes. To prevent you and your team from ' \
-                 "overwriting each other's changes, you cannot capture the " \
-                 'changes you are currently reviewing.')
+                 'started reviewing changes. To prevent you and your team ' \
+                 "from overwriting each other's changes, you cannot capture " \
+                 'the changes you are currently reviewing.')
     end
 
     def parent_must_belong_to_same_branch
@@ -188,4 +213,5 @@ module VCS
       end
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

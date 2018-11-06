@@ -4,11 +4,11 @@ module VCS
   # A permanent backup of a file resource snapshot
   class FileBackup < ApplicationRecord
     # Associations
-    belongs_to :file_snapshot, class_name: 'VCS::FileSnapshot',
-                               dependent: false, inverse_of: :backup
+    belongs_to :file_snapshot, inverse_of: :backup
 
     # Validations
     validates :file_snapshot_id,
+              presence: { message: 'must exist' },
               uniqueness: { message: 'already has a backup' }
     validates :archive, presence: true, on: :capture
     validates :external_id, presence: true, on: %i[create update]

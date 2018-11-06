@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :vcs_file_diff, class: 'VCS::FileDiff' do
     association :commit, factory: :vcs_commit

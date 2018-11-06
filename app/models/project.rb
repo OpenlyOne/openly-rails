@@ -19,49 +19,10 @@ class Project < ApplicationRecord
                           dependent: :destroy,
                           optional: true
 
-  has_one :staged_root_folder,
-          -> { where is_root: true },
-          class_name: 'StagedFile',
-          dependent: :delete
-  has_one :root_folder, class_name: 'FileResource',
-                        through: :staged_root_folder,
-                        source: :file_resource
-
-  has_many :staged_files, dependent: :destroy
-  has_many :file_resources_in_stage, class_name: 'FileResource',
-                                     through: :staged_files,
-                                     source: :file_resource
-
-  has_many :staged_non_root_files,
-           -> { where is_root: false },
-           class_name: 'StagedFile'
-  has_many :non_root_file_resources_in_stage, class_name: 'FileResource',
-                                              through: :staged_non_root_files,
-                                              source: :file_resource do
-    # Return non root file resources in stage that have a current snapshot
-    def with_current_snapshot
-      where.not(file_resources: { current_snapshot: nil })
-    end
-  end
-
-  has_many :non_root_file_snapshots_in_stage,
-           class_name: 'FileResource::Snapshot',
-           through: :non_root_file_resources_in_stage,
-           source: :current_snapshot
-
-  has_many :all_revisions, class_name: 'Revision', dependent: :destroy
-  has_many :revisions, -> { where is_published: true } do
-    def create_draft_and_commit_files!(author)
-      ::Revision.create_draft_and_commit_files_for_project!(
-        proxy_association.owner,
-        author
-      )
-    end
-  end
+  has_many :revisions, class_name: 'VCS::Commit',
+                       through: :master_branch, source: :commits
 
   has_one :archive, class_name: 'VCS::Archive', through: :repository
-  delegate :build_archive, to: :repository
-  delegate :archive, to: :repository, prefix: true
 
   # Attributes
   # Do not allow owner change
@@ -70,6 +31,8 @@ class Project < ApplicationRecord
   attr_accessor :skip_archive_setup
 
   # Delegations
+  delegate :build_archive, to: :repository
+  delegate :archive, to: :repository, prefix: true
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
   delegate :staged_files, to: :master_branch
 
@@ -186,9 +149,11 @@ class Project < ApplicationRecord
     return unless repository.present?
 
     repository_archive.present? ||
-      repository.build_archive(name: title, owner_account_email: owner.account.email)
-    repository_archive.setup unless repository_archive.setup_completed?
-    repository_archive.save
+      build_archive(name: title, owner_account_email: owner.account.email)
+
+    return if repository_archive.setup_completed?
+
+    repository_archive.tap(&:setup).tap(&:save)
   end
 
   # Set up repository & master branch

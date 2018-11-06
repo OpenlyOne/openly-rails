@@ -6,6 +6,8 @@ require 'integrations/shared_examples/including_stageable_integration.rb'
 require 'integrations/shared_examples/including_syncable_integration.rb'
 
 RSpec.describe FileResources::GoogleDrive, type: :model do
+  before { skip('Model is pending deletion') }
+
   subject(:file) do
     FileResources::GoogleDrive.new(external_id: external_id)
   end

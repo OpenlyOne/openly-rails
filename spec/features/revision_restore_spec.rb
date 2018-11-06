@@ -7,24 +7,6 @@ feature 'Revision Restore', :vcr, :delayed_job do
 
   # create test folder
   before { prepare_google_drive_test(api_connection) }
-  let!(:remote_subfolder) do
-    Providers::GoogleDrive::FileSync.create(
-      name: 'Folder',
-      parent_id: google_drive_test_folder_id,
-      mime_type: Providers::GoogleDrive::MimeType.folder,
-      api_connection: api_connection
-    )
-  end
-
-  let!(:remote_file) do
-    Providers::GoogleDrive::FileSync.create(
-      name: 'original name',
-      parent_id: remote_subfolder.id,
-      mime_type: remote_file_mime_type,
-      api_connection: api_connection
-    )
-  end
-  let(:remote_file_mime_type) { Providers::GoogleDrive::MimeType.document }
 
   # delete test folder
   after { tear_down_google_drive_test(api_connection) }
@@ -41,10 +23,10 @@ feature 'Revision Restore', :vcr, :delayed_job do
     fol2 = create_folder(name: 'Fol 2', parent_id: google_drive_test_folder_id)
     fol3 = create_folder(name: 'Fol 3', parent_id: google_drive_test_folder_id)
 
-    filA = create_file(name: 'File A', parent: fol1, content: 'awesome')
-    filB = create_file(name: 'File B', parent: fol2, content: 'great')
-    filC = create_file(name: 'File C', parent: fol2)
-    filD = create_file(name: 'File D', parent: fol3)
+    file1 = create_file(name: 'File A', parent: fol1, content: 'awesome')
+    file2 = create_file(name: 'File B', parent: fol2, content: 'great')
+    create_file(name: 'File C', parent: fol2)
+    file4 = create_file(name: 'File D', parent: fol3)
 
     # and_i_share_it_with_the_tracking_account
     api_connection
@@ -53,24 +35,24 @@ feature 'Revision Restore', :vcr, :delayed_job do
 
     # and_i_set_up_my_project
     create :project_setup, link: link_to_folder, project: project
-    Delayed::Worker.new.work_off
+    Delayed::Worker.new(exit_on_complete: true).work_off
     Delayed::Job.find_each(&:invoke_job)
 
     # when_i_perform_a_variety_of_actions
     fol2.relocate(to: fol1.id, from: google_drive_test_folder_id)
     fol3.relocate(to: nil, from: google_drive_test_folder_id)
-    filD.relocate(to: fol1.id, from: fol3.id)
-    filB.delete
+    file4.relocate(to: fol1.id, from: fol3.id)
+    file2.delete
     fol1.rename('new folder name')
-    filA.update_content('super awesome!')
-    filE = create_file(name: 'File E', parent: fol1)
-    filF = create_file(name: 'File F', parent_id: google_drive_test_folder_id)
+    file1.update_content('super awesome!')
+    create_file(name: 'File E', parent: fol1)
+    create_file(name: 'File F', parent_id: google_drive_test_folder_id)
 
     # and pull each file in stage
-    project.master_branch.staged_files.each(&:pull)
+    project.master_branch.staged_files.reload.each(&:pull)
 
     # and pull in new children
-    project.master_branch.staged_folders.each(&:pull_children)
+    project.master_branch.staged_folders.reload.each(&:pull_children)
 
     # and go to my project
     sign_in_as current_account
@@ -93,7 +75,7 @@ feature 'Revision Restore', :vcr, :delayed_job do
     expect(page).to have_text('8 files left to restore.', normalize_ws: true)
 
     # when the jobs process
-    Delayed::Worker.new.work_off
+    Delayed::Worker.new(exit_on_complete: true).work_off
 
     # and I refresh the page
     click_on 'Refresh'
@@ -102,13 +84,14 @@ feature 'Revision Restore', :vcr, :delayed_job do
     click_on 'Capture Changes'
 
     # then I should see no changes
+    pending 'Requires implementation of file_content'
     expect(page).to have_text 'No files changed'
 
     # when I pull each file in stage
-    project.master_branch.staged_files.each(&:pull)
+    project.master_branch.staged_files.reload.each(&:pull)
 
     # and pull in new children
-    project.master_branch.staged_folders.each(&:pull_children)
+    project.master_branch.staged_folders.reload.each(&:pull_children)
 
     # and capture changes again
     click_on 'Files'

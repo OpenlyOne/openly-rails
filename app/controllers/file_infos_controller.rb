@@ -9,6 +9,7 @@ class FileInfosController < ApplicationController
   before_action :set_staged_file_diff
   before_action :set_committed_file_diffs
   before_action :set_file
+  before_action :set_staged_parent, if: :staged_file_diff_present?
   before_action :set_user_can_force_sync_files
   before_action :preload_backups_for_committed_file_diffs
 
@@ -21,6 +22,7 @@ class FileInfosController < ApplicationController
   def set_staged_file_diff
     staged_file =
       @master_branch.staged_files
+                    .without_root
                     .joins_staged_snapshot
                     .find_by(file_record_id: file_record_id)
 
@@ -71,7 +73,18 @@ class FileInfosController < ApplicationController
       ).merge(VCS::Commit.order(id: :desc))
   end
 
+  # Set the parent of file in stage
+  def set_staged_parent
+    @staged_parent =
+      @master_branch
+      .staged_files.find_by(file_record_id: @file.file_record_parent_id)
+  end
+
   def set_user_can_force_sync_files
     @user_can_force_sync_files = can?(:force_sync, @project)
+  end
+
+  def staged_file_diff_present?
+    @staged_file_diff.present?
   end
 end

@@ -3,6 +3,8 @@
 require 'integrations/shared_contexts/skip_project_archive_setup'
 
 RSpec.describe Stage::FileDiff, type: :model do
+  before { skip('Class is pending deletion') }
+
   include_context 'skip project archive setup'
 
   describe '#find_by!(external_id:, project:)' do
