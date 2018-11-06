@@ -3,8 +3,8 @@
 module VCS
   module Operations
     # Restore a file snapshot to the provided target branch
+    # rubocop:disable Metrics/ClassLength
     class FileRestore
-
       delegate :addition?, :deletion?, :modification?, :rename?, :movement?,
                to: :diff, prefix: :perform
 
@@ -166,5 +166,6 @@ module VCS
           .find_by(file_record_id: file_record_id)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

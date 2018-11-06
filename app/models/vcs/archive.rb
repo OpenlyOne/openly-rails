@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module VCS
+  # The archive for storing file backups, just like a .git folder
   class Archive < ApplicationRecord
     belongs_to :repository
 

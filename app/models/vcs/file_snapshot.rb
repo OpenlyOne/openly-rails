@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module VCS
+  # A unique snapshot of a staged file's data (name, content, parent, ...)
   class FileSnapshot < ApplicationRecord
     include VCS::Resourceable
 
@@ -41,7 +44,9 @@ module VCS
     # Snapshots where the file currently has the given parent
     scope :where_current_snapshot_parent, lambda { |parent|
       joins_current_snapshot
-        .where('current_snapshots_file_resources.file_record_parent_id = ?', parent)
+        .where(
+          'current_snapshots_file_resources.file_record_parent_id = ?', parent
+        )
     }
 
     # Snapshots that are committed in the given revision
@@ -76,7 +81,8 @@ module VCS
     validates :external_id,       presence: true
     validates :file_record_id,
               uniqueness: {
-                scope: %i[external_id content_version mime_type name file_record_parent_id],
+                scope: %i[external_id content_version mime_type name
+                          file_record_parent_id],
                 message: 'already has a snapshot with these attributes'
               },
               if: :new_record?
@@ -96,7 +102,8 @@ module VCS
 
     # The set of core attributes that uniquely identify a snapshot
     def self.core_attribute_keys
-      %i[file_record_id name external_id content_version mime_type file_record_parent_id]
+      %i[file_record_id name external_id content_version mime_type
+         file_record_parent_id]
     end
 
     # Find or create a snapshot from the set of core attributes, optionally

@@ -1,11 +1,17 @@
+# frozen_string_literal: true
+
 module VCS
+  # A file that is currently staged in a branch
+  # rubocop:disable Metrics/ClassLength
   class StagedFile < ApplicationRecord
     belongs_to :branch
     belongs_to :file_record
     belongs_to :file_record_parent, class_name: 'FileRecord', optional: true
 
-    belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot', optional: true
-    belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot', optional: true
+    belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot',
+                                    optional: true
+    belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot',
+                                  optional: true
 
     include VCS::Resourceable
     include VCS::Snapshotable
@@ -31,8 +37,10 @@ module VCS
 
       order(
         Arel.sql(
-          "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
-          "#{table}.name asc"
+          <<~SQL
+            #{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc,
+            #{table}.name asc
+          SQL
         )
       )
     }
@@ -106,7 +114,8 @@ module VCS
         branch
         .staged_files
         .joins_staged_snapshot
-        .find_by('staged_snapshots.file_record_id = ?', staged_snapshot&.file_record_parent_id)
+        .find_by('staged_snapshots.file_record_id = ?',
+                 staged_snapshot&.file_record_parent_id)
     end
 
     def parent=(new_parent)
@@ -120,7 +129,10 @@ module VCS
 
     # TODO: Rename is_deleted to is_removed
     def mark_as_removed
-      assign_attributes(file_record_parent_id: nil, name: nil, mime_type: nil, content_version: nil, is_deleted: true)
+      assign_attributes(
+        file_record_parent_id: nil, name: nil, mime_type: nil,
+        content_version: nil, is_deleted: true
+      )
     end
 
     def staged_snapshot
@@ -181,5 +193,6 @@ module VCS
 
       errors.add(:base, 'Staged file cannot be its own parent')
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

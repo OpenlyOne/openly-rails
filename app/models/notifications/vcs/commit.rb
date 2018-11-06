@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module Notifications
   module VCS
+    # Helper for commit notifications
     class Commit
       include Rails.application.routes.url_helpers
       attr_accessor :commit

@@ -1,6 +1,8 @@
-module VCS
-  class Branch < ApplicationRecord
+# frozen_string_literal: true
 
+module VCS
+  # A branch of the repository
+  class Branch < ApplicationRecord
     # Associations
     belongs_to :repository
 

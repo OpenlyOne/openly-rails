@@ -1,7 +1,7 @@
-# query 1 example
-# r = VCS::StagedFile.select('committed_snapshots.id AS committed_snapshot_id', 'vcs_file_snapshots.id AS current_snapshot_id', 'COALESCE(vcs_file_snapshots.id, committed_snapshots.id) AS current_or_committed_snapshot_id').left_joins(:current_snapshot).joins("INNER JOIN (#{VCS::Commit.last_per_branch.to_sql}) last_commits ON last_commits.branch_id = vcs_staged_files.branch_id").joins("INNER JOIN vcs_committed_files ON vcs_committed_files.commit_id = last_commits.id").joins("LEFT JOIN vcs_file_snapshots committed_snapshots ON (committed_snapshots.file_record_id = vcs_staged_files.file_record_id AND committed_snapshots.id = vcs_committed_files.file_snapshot_id)").where('committed_snapshots.id IS NOT NULL OR vcs_file_snapshots.id IS NOT NULL').distinct.first
+# frozen_string_literal: true
 
 module VCS
+  # Class for handling diffing of file snapshots
   class FileDiff < ApplicationRecord
     include VCS::Diffing
 
@@ -20,7 +20,10 @@ module VCS
     alias_attribute :previous_snapshot_id, :old_snapshot_id
     alias_attribute :revision, :commit
     delegate :file_record_id, to: :current_or_previous_snapshot, prefix: true
+    # rubocop:disable Style/Alias
+    # FIXME: alias does not seem to work for this delegated attribute
     alias_method :file_resource_id, :current_or_previous_snapshot_file_record_id
+    # rubocop:enable Style/Alias
 
     # Delegations
     delegate :committed_files, to: :commit
