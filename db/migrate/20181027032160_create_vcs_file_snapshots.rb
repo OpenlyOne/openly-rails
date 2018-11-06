@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 class CreateVcsFileSnapshots < ActiveRecord::Migration[5.2]
   def change
     create_table :vcs_file_snapshots do |t|
-      t.belongs_to :file_record, null: false, foreign_key: { to_table: :vcs_file_records }
-      t.belongs_to :file_record_parent, foreign_key: { to_table: :vcs_file_records }
+      t.belongs_to :file_record, null: false,
+                                 foreign_key: { to_table: :vcs_file_records }
+      t.belongs_to :file_record_parent,
+                   foreign_key: { to_table: :vcs_file_records }
       t.text :name, null: false
       t.text :content_version, null: false
       t.text :external_id, null: false

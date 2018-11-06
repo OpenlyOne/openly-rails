@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateVcsFileThumbnails < ActiveRecord::Migration[5.2]
   def change
     create_table :vcs_file_thumbnails do |t|
