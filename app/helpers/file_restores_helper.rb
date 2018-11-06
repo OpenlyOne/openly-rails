@@ -13,6 +13,8 @@ module FileRestoresHelper
   def restore_action_path(project, diff)
     return nil unless restorable?(diff, project.master_branch)
 
-    profile_project_file_restores_path(project.owner, project, diff.new_snapshot)
+    profile_project_file_restores_path(
+      project.owner, project, diff.new_snapshot
+    )
   end
 end

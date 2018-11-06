@@ -48,12 +48,16 @@ RSpec.describe 'projects/_head', type: :view do
   end
 
   context 'when setup is complete' do
-    let(:root) { build_stubbed :file_resource }
-    before { allow(project).to receive(:root_folder).and_return root }
+    let(:root) { build_stubbed :vcs_staged_file, :root }
 
-    before { allow(project).to receive(:setup_not_started?).and_return false }
-    before { allow(project).to receive(:setup_in_progress?).and_return false }
-    before { allow(project).to receive(:setup_completed?).and_return true }
+    before do
+      branch = instance_double VCS::Branch
+      allow(project).to receive(:master_branch).and_return branch
+      allow(branch).to receive(:root).and_return root
+      allow(project).to receive(:setup_not_started?).and_return false
+      allow(project).to receive(:setup_in_progress?).and_return false
+      allow(project).to receive(:setup_completed?).and_return true
+    end
 
     it 'renders a link to the project files' do
       render

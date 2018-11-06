@@ -1,0 +1,512 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://oauth2.googleapis.com/token
+    body:
+      encoding: ASCII-8BIT
+      string: grant_type=refresh_token&refresh_token=<REFRESH TOKEN FOR TRACKING ACCOUNT>&client_id=<CLIENT
+        ID>&client_secret=<CLIENT SECRET>
+    headers:
+      User-Agent:
+      - Faraday v0.15.3
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Fri, 02 Nov 2018 23:30:09 GMT
+      Server:
+      - ESF
+      Cache-Control:
+      - private
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |-
+        {
+          "access_token": "<ACCESS TOKEN FOR TRACKING ACCOUNT>",
+          "expires_in": 3600,
+          "scope": "https://www.googleapis.com/auth/drive",
+          "token_type": "Bearer"
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:09 GMT
+- request:
+    method: post
+    uri: https://oauth2.googleapis.com/token
+    body:
+      encoding: ASCII-8BIT
+      string: grant_type=refresh_token&refresh_token=<REFRESH TOKEN FOR USER ACCOUNT>&client_id=<CLIENT
+        ID>&client_secret=<CLIENT SECRET>
+    headers:
+      User-Agent:
+      - Faraday v0.15.3
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Fri, 02 Nov 2018 23:30:10 GMT
+      Server:
+      - ESF
+      Cache-Control:
+      - private
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |-
+        {
+          "access_token": "<ACCESS TOKEN FOR USER ACCOUNT>",
+          "expires_in": 3600,
+          "scope": "https://www.googleapis.com/auth/drive",
+          "token_type": "Bearer"
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:10 GMT
+- request:
+    method: post
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    body:
+      encoding: UTF-8
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-11-02
+        23:30:10 UTC","parents":["root"]}'
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:10 GMT
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Date:
+      - Fri, 02 Nov 2018 23:30:10 GMT
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "id": "1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ",
+         "name": "Test @ 2018-11-02 23:30:10 UTC",
+         "mimeType": "application/vnd.google-apps.folder",
+         "trashed": false,
+         "parents": [
+          "0AEIi2L68pCuiUk9PVA"
+         ],
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "13193959451567607887",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR USER ACCOUNT>",
+           "role": "owner",
+           "displayName": "Testuser Upshift One",
+           "deleted": false
+          }
+         ]
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:10 GMT
+- request:
+    method: post
+    uri: https://www.googleapis.com/drive/v3/files/1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ/permissions?sendNotificationEmail=false
+    body:
+      encoding: UTF-8
+      string: '{"emailAddress":"<EMAIL ADDRESS FOR TRACKING ACCOUNT>","role":"reader","type":"user"}'
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:10 GMT
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Date:
+      - Fri, 02 Nov 2018 23:30:11 GMT
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "kind": "drive#permission",
+         "id": "11673017242486491425",
+         "type": "user",
+         "role": "reader"
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:11 GMT
+- request:
+    method: post
+    uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    body:
+      encoding: UTF-8
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test File","parents":["1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ"]}'
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:11 GMT
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Date:
+      - Fri, 02 Nov 2018 23:30:12 GMT
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "id": "1IZtqfIuZ1q4aLc6Djd27fThbL3Ty6LFi",
+         "name": "Test File",
+         "mimeType": "application/vnd.google-apps.folder",
+         "trashed": false,
+         "parents": [
+          "1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ"
+         ],
+         "thumbnailVersion": "0",
+         "permissions": [
+          {
+           "kind": "drive#permission",
+           "id": "11673017242486491425",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
+           "role": "reader",
+           "displayName": "Upshift One",
+           "deleted": false
+          },
+          {
+           "kind": "drive#permission",
+           "id": "13193959451567607887",
+           "type": "user",
+           "emailAddress": "<EMAIL ADDRESS FOR USER ACCOUNT>",
+           "role": "owner",
+           "displayName": "Testuser Upshift One",
+           "deleted": false
+          }
+         ]
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:12 GMT
+- request:
+    method: get
+    uri: https://www.googleapis.com/drive/v3/files/1IZtqfIuZ1q4aLc6Djd27fThbL3Ty6LFi?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:12 GMT
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Expires:
+      - Fri, 02 Nov 2018 23:30:12 GMT
+      Date:
+      - Fri, 02 Nov 2018 23:30:12 GMT
+      Cache-Control:
+      - private, max-age=0, must-revalidate, no-transform
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "id": "1IZtqfIuZ1q4aLc6Djd27fThbL3Ty6LFi",
+         "name": "Test File",
+         "mimeType": "application/vnd.google-apps.folder",
+         "trashed": false,
+         "parents": [
+          "1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ"
+         ],
+         "thumbnailVersion": "0"
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:13 GMT
+- request:
+    method: get
+    uri: https://www.googleapis.com/drive/v3/files/1IZtqfIuZ1q4aLc6Djd27fThbL3Ty6LFi/revisions/head
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:13 GMT
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      Vary:
+      - Origin
+      - X-Origin
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
+      Date:
+      - Fri, 02 Nov 2018 23:30:13 GMT
+      Expires:
+      - Fri, 02 Nov 2018 23:30:13 GMT
+      Cache-Control:
+      - private, max-age=0
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+         "error": {
+          "errors": [
+           {
+            "domain": "global",
+            "reason": "revisionsNotSupported",
+            "message": "The file does not support revisions."
+           }
+          ],
+          "code": 403,
+          "message": "The file does not support revisions."
+         }
+        }
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:13 GMT
+- request:
+    method: delete
+    uri: https://www.googleapis.com/drive/v3/files/1gk6dbscnlb2C9aqgOqzFu_SAZGiF72xZ
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - "<USER AGENT>"
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Fri, 02 Nov 2018 23:30:13 GMT
+      Authorization:
+      - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - Mon, 01 Jan 1990 00:00:00 GMT
+      Date:
+      - Fri, 02 Nov 2018 23:30:13 GMT
+      Vary:
+      - Origin
+      - X-Origin
+      Server:
+      - GSE
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39,35"
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Fri, 02 Nov 2018 23:30:13 GMT
+recorded_with: VCR 4.0.0

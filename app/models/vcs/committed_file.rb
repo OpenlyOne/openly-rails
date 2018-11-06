@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module VCS
+  # Handles associations between commits and file snapshots
   class CommittedFile < ApplicationRecord
     belongs_to :commit
     belongs_to :file_snapshot
@@ -29,14 +32,6 @@ module VCS
         .where(commit_id: [commit1, commit2].compact)
         .order("#{FileSnapshot.table_name}.file_record_id", commit_id: :desc)
     }
-
-    # scope :with_file_record_id, lambda {
-    #   joins(:file_snapshot)
-    #     .select(
-    #       "#{table_name}.*, " \
-    #       "#{VCS::FileSnapshot.table_name}.file_record_id"
-    #     )
-    # }
 
     # Execute INSERT query based on the SELECT query
     # Order of columns must match order of select statements.

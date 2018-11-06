@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module VCS
+  # The entry point for version control. It all starts with a repository.
   class Repository < ApplicationRecord
     has_many :branches, dependent: :destroy
 

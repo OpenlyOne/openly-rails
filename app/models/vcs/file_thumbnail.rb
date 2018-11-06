@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module VCS
+  # Thumbnails for files
   class FileThumbnail < ApplicationRecord
     # Attachments
     has_attached_file :image,

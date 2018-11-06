@@ -4,7 +4,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
   let(:folder)    { nil }
   let(:project)   { build_stubbed :project }
   let(:revision)  { build_stubbed :revision, :published, project: project }
-  let(:children)  { build_stubbed_list :file_resource_snapshot, 5 }
+  let(:children)  { build_stubbed_list :vcs_file_snapshot, 5 }
   let(:ancestors) { [] }
   let(:action)    { 'root' }
 
@@ -23,6 +23,20 @@ RSpec.describe 'revisions/folders/show', type: :view do
     expect(rendered).to have_text(revision.author.name)
     expect(rendered)
       .to have_text("#{time_ago_in_words(revision.created_at)} ago")
+  end
+
+  it 'has a button to restore the revision' do
+    render
+    restore_action = profile_project_revision_restores_path(
+      project.owner, project, revision.id
+    )
+
+    expect(rendered).to have_css(
+      'form'\
+      "[action='#{restore_action}']"\
+      "[method='post']",
+      text: 'Restore'
+    )
   end
 
   it 'renders the names of files and folders' do
@@ -86,14 +100,14 @@ RSpec.describe 'revisions/folders/show', type: :view do
       children.each do |child|
         association = child.association(:backup)
         association.target =
-          build_stubbed(:file_resource_backup, file_resource_snapshot: child)
+          build_stubbed(:vcs_file_backup, file_snapshot: child)
       end
     end
 
     it 'renders the links of file backups' do
       render
       children.each do |child|
-        link = child.backup.file_resource.external_link
+        link = child.backup.external_link
         expect(rendered).to have_css "a[href='#{link}'][target='_blank']"
       end
     end

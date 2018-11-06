@@ -2,11 +2,11 @@
   .container
     .row.no-margin-bottom
       .col.s12
-        =<> button_to 'Restore',
-                      profile_project_revision_restores_path(@project.owner, @project, @revision),
+        =<> button_to profile_project_revision_restores_path(@project.owner, @project, @revision),
                       method: :post,
                       class: 'btn right primary-color primary-color-text',
                       style: 'display: inline-block;'
+          | Restore
         p.flow-text.no-margin
           b = @revision.title
         p.no-margin

@@ -1,9 +1,16 @@
+# frozen_string_literal: true
+
 module VCS
+  # A repository-wide unique record for identifying files across branches and
+  # versions
   class FileRecord < ApplicationRecord
     belongs_to :repository
 
     has_many :repository_branches, through: :repository, source: :branches
-    has_many :staged_instances, ->(file_record) { where(file_record_id: file_record.id) },
+    has_many :staged_instances,
+             lambda { |file_record|
+               where(file_record_id: file_record.id)
+             },
              through: :repository_branches,
              source: :staged_files
 

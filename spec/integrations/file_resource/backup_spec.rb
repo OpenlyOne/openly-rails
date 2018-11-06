@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe FileResource::Backup, type: :model do
+  before { skip('Model is pending deletion') }
+
   let(:project)         { build(:project, title: 'Demo', owner: owner) }
   let(:owner)           { build(:user, account: account) }
   let(:account)         { build(:account, email: account_email) }

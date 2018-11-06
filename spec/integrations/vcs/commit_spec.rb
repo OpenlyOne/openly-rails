@@ -11,8 +11,8 @@ RSpec.describe VCS::Commit, type: :model do
     subject(:commit) do
       create(:vcs_commit, :drafted, branch: branch, author: author)
     end
-    let(:branch)        { project.master_branch }
-    let(:project) { create(:project, :skip_archive_setup, :with_repository) }
+    let(:branch)     { project.master_branch }
+    let(:project)    { create(:project, :skip_archive_setup, :with_repository) }
     let(:owner)         { project.owner }
     let(:collaborator1) { create :user }
     let(:collaborator2) { create :user }

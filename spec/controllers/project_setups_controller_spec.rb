@@ -7,9 +7,10 @@ require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
-  let!(:project)      { create :project, :skip_archive_setup }
-  let(:file_resource) { create :file_resource, :folder }
-  let(:link)          { file_resource.external_link }
+  let!(:project)      { create :project, :skip_archive_setup, :with_repository }
+  let(:file)          { build :vcs_staged_file, :root, branch: master_branch }
+  let(:master_branch) { project.master_branch }
+  let(:link)          { file.external_link }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -17,7 +18,10 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     }
   end
   let(:current_account) { project.owner.account }
-  before                { sign_in current_account }
+  before do
+    allow_any_instance_of(Project::Setup).to receive(:file).and_return(file)
+    sign_in current_account
+  end
 
   describe 'GET #new' do
     let(:params)      { default_params }
@@ -60,7 +64,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     let(:add_params) do
       {
         project_setup: {
-          link: file_resource.external_link
+          link: file.external_link
         }
       }
     end

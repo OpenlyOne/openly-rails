@@ -3,6 +3,8 @@
 require 'integrations/shared_contexts/skip_project_archive_setup'
 
 RSpec.describe Revision, type: :model do
+  before { skip('Model is pending deletion') }
+
   include_context 'skip project archive setup'
 
   subject(:revision) { build(:revision) }

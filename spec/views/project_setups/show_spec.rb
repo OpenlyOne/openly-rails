@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe 'project_setups/show', type: :view do
-  let(:setup)   { build_stubbed(:project_setup) }
-  let(:project) { setup.project }
+  let(:project)       { build_stubbed :project, :with_repository }
+  let(:repository)    { project.repository }
+  let(:master_branch) { build_stubbed :vcs_branch, repository: repository }
+  let(:setup)         { build_stubbed(:project_setup, project: project) }
 
   before { assign(:project, project) }
+  before { assign(:master_branch, master_branch) }
   before { assign(:setup, setup) }
 
   before do
-    allow(project).to receive(:staged_non_root_files).and_return %w[1 2 3]
+    allow(master_branch).to receive(:staged_files).and_return %w[1 2 3]
   end
 
   it 'displays the number of files already imported' do

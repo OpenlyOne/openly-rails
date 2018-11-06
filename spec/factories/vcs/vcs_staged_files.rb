@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :vcs_staged_file, class: 'VCS::StagedFile' do
     transient do
@@ -42,6 +44,16 @@ FactoryBot.define do
       content_version { nil }
       mime_type { nil }
       is_deleted { true }
+    end
+
+    trait :with_snapshots do
+      current_snapshot { create(:vcs_file_snapshot, mime_type: mime_type) }
+      committed_snapshot { create(:vcs_file_snapshot, mime_type: mime_type) }
+    end
+
+    trait :unchanged do
+      with_snapshots
+      committed_snapshot { current_snapshot }
     end
 
     trait :with_backup do

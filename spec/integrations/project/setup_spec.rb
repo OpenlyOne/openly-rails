@@ -1,17 +1,50 @@
 # frozen_string_literal: true
 
-RSpec.describe Project::Setup, type: :model do
+RSpec.describe Project::Setup, type: :model, vcr: true do
   subject(:setup) { build :project_setup }
   let(:project)   { setup.project }
-  let(:file)      { create :file_resource, :folder }
-  let(:link)      { file.external_link }
+
+  before  { prepare_google_drive_test(api_connection) }
+  after   { tear_down_google_drive_test(api_connection) }
+
+  let(:mime_type)         { folder_type }
+  let(:folder_type)       { Providers::GoogleDrive::MimeType.folder }
+  let(:document_type)     { Providers::GoogleDrive::MimeType.document }
+  let(:user_acct)         { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+  let(:tracking_acct)     { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
+  let(:api_connection) do
+    Providers::GoogleDrive::ApiConnection.new(user_acct)
+  end
+  let(:share_folder) do
+    api_connection
+      .share_file(google_drive_test_folder_id, tracking_acct)
+  end
+  let(:link) do
+    Providers::GoogleDrive::Link.for(external_id: remote_root.id,
+                                     mime_type: folder_type)
+  end
+
+  # share test folder
+  before { share_folder }
+
+  # Create folder
+  let!(:remote_root) do
+    Providers::GoogleDrive::FileSync.create(
+      name: 'Test File',
+      parent_id: google_drive_test_folder_id,
+      mime_type: mime_type,
+      api_connection: api_connection
+    )
+  end
+
+  before { setup.link = link }
 
   describe '#begin(attributes)', :delayed_job do
     before { setup.begin(link: link) }
 
     it 'sets root folder' do
-      expect(project.staged_root_folder).to be_present
-      expect(project.root_folder.id).to eq file.id
+      expect(project.staged_files.root).to be_present
+      expect(project.staged_files.root.external_id).to eq remote_root.id
     end
 
     it 'creates a FolderImportJob' do
@@ -53,42 +86,7 @@ RSpec.describe Project::Setup, type: :model do
     end
   end
 
-  describe 'validations', :vcr do
-    before  { prepare_google_drive_test(api_connection) }
-    after   { tear_down_google_drive_test(api_connection) }
-
-    let(:mime_type)         { folder_type }
-    let(:folder_type)       { Providers::GoogleDrive::MimeType.folder }
-    let(:document_type)     { Providers::GoogleDrive::MimeType.document }
-    let(:user_acct)         { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-    let(:tracking_acct)     { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
-    let(:api_connection) do
-      Providers::GoogleDrive::ApiConnection.new(user_acct)
-    end
-    let(:share_folder) do
-      api_connection
-        .share_file(google_drive_test_folder_id, tracking_acct)
-    end
-    let(:link) do
-      Providers::GoogleDrive::Link.for(external_id: @created_file.id,
-                                       mime_type: folder_type)
-    end
-
-    # share test folder
-    before { share_folder }
-
-    # Create folder
-    before do
-      @created_file = Providers::GoogleDrive::FileSync.create(
-        name: 'Test File',
-        parent_id: google_drive_test_folder_id,
-        mime_type: mime_type,
-        api_connection: api_connection
-      )
-    end
-
-    before { setup.link = link }
-
+  describe 'validations' do
     context 'when link to google drive folder is valid' do
       it 'is valid' do
         is_expected.to be_valid
@@ -97,7 +95,7 @@ RSpec.describe Project::Setup, type: :model do
 
     context 'when link ends with ?usp=sharing' do
       let(:raw_link) do
-        Providers::GoogleDrive::Link.for(external_id: @created_file.id,
+        Providers::GoogleDrive::Link.for(external_id: remote_root.id,
                                          mime_type: folder_type)
       end
       let(:link) { "#{raw_link}?usp=sharing" }
@@ -108,7 +106,7 @@ RSpec.describe Project::Setup, type: :model do
     end
 
     context 'when link is drive.google.com/open?id=...' do
-      let(:link) { "https://drive.google.com/open?id=#{@created_file.id}" }
+      let(:link) { "https://drive.google.com/open?id=#{remote_root.id}" }
 
       it 'is valid' do
         is_expected.to be_valid
@@ -150,7 +148,7 @@ RSpec.describe Project::Setup, type: :model do
     context 'when link is a google drive doc' do
       let(:mime_type) { document_type }
       let(:link) do
-        Providers::GoogleDrive::Link.for(external_id: @created_file.id,
+        Providers::GoogleDrive::Link.for(external_id: remote_root.id,
                                          mime_type: mime_type)
       end
 

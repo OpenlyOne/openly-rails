@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 feature 'Revision' do
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
-  let!(:root)   { create :vcs_staged_file, :root, branch: project.master_branch }
+  let(:project)       { create :project, :setup_complete, :skip_archive_setup }
+  let(:master_branch) { project.master_branch }
+  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
   let(:create_revision) do
-    c = project.master_branch.commits.create_draft_and_commit_files!(project.owner)
+    c = master_branch.commits.create_draft_and_commit_files!(project.owner)
     c.update(is_published: true, title: 'origin revision')
   end
 
@@ -15,14 +16,14 @@ feature 'Revision' do
     file = create :vcs_staged_file, name: 'File1', parent: root
     # with three revisions made by three different users
     users = create_list :user, 3
-    first_revision = project.master_branch.commits.create_draft_and_commit_files!(users[0])
-    first_revision.update(is_published: true, title: 'rev1')
+    commit1 = master_branch.commits.create_draft_and_commit_files!(users[0])
+    commit1.update(is_published: true, title: 'rev1')
     file.update(content_version: 'v2')
-    second_revision = project.master_branch.commits.create_draft_and_commit_files!(users[1])
-    second_revision.update(is_published: true, title: 'rev2')
+    commit2 = master_branch.commits.create_draft_and_commit_files!(users[1])
+    commit2.update(is_published: true, title: 'rev2')
     file.update(is_deleted: true)
-    third_revision = project.master_branch.commits.create_draft_and_commit_files!(users[2])
-    third_revision.update(is_published: true, title: 'rev3')
+    commit3 = master_branch.commits.create_draft_and_commit_files!(users[2])
+    commit3.update(is_published: true, title: 'rev3')
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -31,7 +32,7 @@ feature 'Revision' do
 
     # then I should see each revision in reverse chronological order
     expect(page.find_all('.revision .metadata .title b').map(&:text))
-      .to eq [third_revision, second_revision, first_revision].map(&:title)
+      .to eq [commit3, commit2, commit1].map(&:title)
     # with their author
     expect(page.find_all('.revision .profile').map(&:text))
       .to eq [users.last.name, users.second.name, users.first.name]
@@ -66,7 +67,7 @@ feature 'Revision' do
     # and see a success message
     expect(page).to have_text 'Revision successfully created.'
     # and have the revision persisted to the repository
-    expect(project.master_branch.commits.last).to be_present
+    expect(master_branch.commits.last).to be_present
     # and see no file modification icons
     expect(page).to have_css '.file.no-change', count: 5
   end
@@ -159,7 +160,7 @@ feature 'Revision' do
       click_on 'Capture'
 
       # then the latest revision should have no diffs
-      expect(project.master_branch.commits.last.file_diffs).to be_none
+      expect(master_branch.commits.last.file_diffs).to be_none
     end
 
     scenario 'User can unselect some changes' do
@@ -190,9 +191,9 @@ feature 'Revision' do
       click_on 'Capture'
 
       # then the latest revision should have two file changes
-      expect(project.master_branch.commits.last.file_changes.count).to eq 2
-      expect(project.master_branch.commits.last.file_changes).to be_one(&:modification?)
-      expect(project.master_branch.commits.last.file_changes).to be_one(&:addition?)
+      expect(master_branch.commits.last.file_changes.count).to eq 2
+      expect(master_branch.commits.last.file_changes).to be_one(&:modification?)
+      expect(master_branch.commits.last.file_changes).to be_one(&:addition?)
     end
   end
 end

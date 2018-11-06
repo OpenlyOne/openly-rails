@@ -1,11 +1,17 @@
+# frozen_string_literal: true
+
 module VCS
+  # A file that is currently staged in a branch
+  # rubocop:disable Metrics/ClassLength
   class StagedFile < ApplicationRecord
     belongs_to :branch
     belongs_to :file_record
     belongs_to :file_record_parent, class_name: 'FileRecord', optional: true
 
-    belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot', optional: true
-    belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot', optional: true
+    belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot',
+                                    optional: true
+    belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot',
+                                  optional: true
 
     include VCS::Resourceable
     include VCS::Snapshotable
@@ -13,15 +19,6 @@ module VCS
     include VCS::Syncable
     # must be last, so that backup is made after snapshot is persisted
     include VCS::Backupable
-
-    # Associations
-    # has_one :parent, ->(staged_file) { where(file_record_id: staged_file.file_record_parent_id) },
-    #         class_name: model_name,
-    #         through: :branch,
-    #         source: :staged_files
-    # has_many :children, ->(staged_file) { where(file_record_parent_id: staged_file.file_record_id) },
-    #          through: :branch,
-    #          source: :staged_files
 
     scope :joins_staged_snapshot, lambda {
       joins(
@@ -40,61 +37,22 @@ module VCS
 
       order(
         Arel.sql(
-          "#{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc, " \
-          "#{table}.name asc"
+          <<~SQL
+            #{table}.mime_type IN (#{connection.quote(folder_mime_type)}) desc,
+            #{table}.name asc
+          SQL
         )
       )
     }
-
-    # has_many :snapshots, class_name: 'VCS::FileSnapshot', foreign_key: :file_record_id
-
-    # scope :with_committed_snapshot, lambda {
-    #   select("#{table_name}.*", 'committed_snapshots.id AS committed_snapshot_id')
-    #     .joins("INNER JOIN (#{VCS::Commit.last_per_branch.to_sql}) last_commits ON last_commits.branch_id = vcs_staged_files.branch_id")
-    #     .joins("INNER JOIN vcs_committed_files ON vcs_committed_files.commit_id = last_commits.id")
-    #     .joins("INNER JOIN vcs_file_snapshots committed_snapshots ON (committed_snapshots.file_record_id = vcs_staged_files.file_record_id AND committed_snapshots.id = vcs_committed_files.file_snapshot_id)")
-    # }
-    #
-    # scope :with_current_or_committed_snapshot, lambda {
-    #   select(
-    #     "#{table_name}.*",
-    #     'files_in_last_commit.committed_snapshot_id AS committed_snapshot_id'
-    #   )
-    #     .left_joins(:current_snapshot)
-    #     .joins(<<-SQL.squish
-    #       LEFT JOIN (#{VCS::StagedFile.with_committed_snapshot.to_sql})
-    #       files_in_last_commit ON files_in_last_commit.id = vcs_staged_files.id
-    #       SQL
-    #     ).where('vcs_staged_files.current_snapshot_id IS NOT NULL OR files_in_last_commit.id IS NOT NULL')
-    # }
-    #
-    # scope :joins_current_or_committed_snapshot, lambda {
-    #   with_current_or_committed_snapshot
-    #     .joins(
-    #       'INNER JOIN vcs_file_snapshots current_or_previous_snapshots ' \
-    #       "ON (COALESCE(#{table_name}.current_snapshot_id, "\
-    #                    'committed_snapshot_id) '\
-    #       '= current_or_previous_snapshots.id)'
-    #     )
-    # }
-    #
-    # scope :with_current_or_committed_snapshot_in_folder, lambda { |folder|
-    #   joins_current_or_committed_snapshot
-    #     .where(
-    #       'current_or_previous_snapshots.file_record_parent_id = ?',
-    #       folder.file_record_id
-    #     )
-    # }
 
     # Validations
     validates :external_id, presence: true
     validates :external_id, uniqueness: { scope: :branch_id },
                             if: :will_save_change_to_external_id?
 
-    # validate :cannot_be_its_own_parent, if: :parent_association_loaded?
-
     # Only perform validation if no errors have been encountered
     with_options unless: :any_errors? do
+      validate :cannot_be_its_own_parent
       validate :cannot_be_its_own_ancestor,
                if: :will_save_change_to_file_record_parent_id?
     end
@@ -156,7 +114,8 @@ module VCS
         branch
         .staged_files
         .joins_staged_snapshot
-        .find_by('staged_snapshots.file_record_id = ?', staged_snapshot&.file_record_parent_id)
+        .find_by('staged_snapshots.file_record_id = ?',
+                 staged_snapshot&.file_record_parent_id)
     end
 
     def parent=(new_parent)
@@ -170,7 +129,10 @@ module VCS
 
     # TODO: Rename is_deleted to is_removed
     def mark_as_removed
-      assign_attributes(file_record_parent_id: nil, name: nil, mime_type: nil, content_version: nil, is_deleted: true)
+      assign_attributes(
+        file_record_parent_id: nil, name: nil, mime_type: nil,
+        content_version: nil, is_deleted: true
+      )
     end
 
     def staged_snapshot
@@ -178,18 +140,20 @@ module VCS
     end
 
     def diff(with_ancestry: false)
-      VCS::FileDiff.new.tap do |diff|
-        diff.new_snapshot_id = current_snapshot_id
-        diff.old_snapshot_id = committed_snapshot_id
-        # TODO: Add depth option for ancestry. Should be max 3
-        diff.first_three_ancestors = ancestors.map(&:name) if with_ancestry
-      end
+      @diff ||=
+        VCS::FileDiff.new.tap do |diff|
+          diff.new_snapshot_id = current_snapshot_id
+          diff.old_snapshot_id = committed_snapshot_id
+          # TODO: Add depth option for ancestry. Should be max 3
+          diff.first_three_ancestors = ancestors.map(&:name) if with_ancestry
+        end
     end
 
     def deleted?
       is_deleted
     end
 
+    # TODO: Don't use mime type on staged_file, but on staged_snapshot instead
     def folder?
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
     end
@@ -216,17 +180,19 @@ module VCS
     def cannot_be_its_own_ancestor
       return unless ancestors_ids.include? file_record_id
 
-      errors.add(:base, 'File resource cannot be its own ancestor')
+      errors.add(:base, 'Staged file cannot be its own ancestor')
     end
 
     def cannot_be_its_own_parent
-      return unless self == parent
+      # check if IDs match
+      return unless file_record_id == file_record_parent_id
+      # both IDs are the same or they are both nil. This could mean that file is
+      # its own parent, or it could mean that both records are new, so lets
+      # check the actual instances
+      return unless file_record == file_record_parent
 
-      errors.add(:base, 'File resource cannot be its own parent')
+      errors.add(:base, 'Staged file cannot be its own parent')
     end
-
-    def parent_association_loaded?
-      association(:parent).loaded?
-    end
+    # rubocop:enable Metrics/ClassLength
   end
 end

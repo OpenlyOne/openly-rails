@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Controller for restoring an individual file to a prior snapshot
 class FileRestoresController < ApplicationController
   include CanSetProjectContext
 

@@ -70,9 +70,9 @@ RSpec.describe FileHelper, type: :helper do
     subject(:method) do
       helper.link_to_file_backup(snapshot, revision, project) {}
     end
-    let(:snapshot)    { instance_double FileResource::Snapshot }
+    let(:snapshot)    { instance_double VCS::FileSnapshot }
     let(:backup_path) { 'some-path' }
-    let(:revision)    { instance_double Revision }
+    let(:revision)    { instance_double VCS::Commit }
     let(:project)     { instance_double Project }
     let(:is_folder)   { false }
 
@@ -145,8 +145,8 @@ RSpec.describe FileHelper, type: :helper do
     subject(:method) do
       helper.link_to_file_backup?(snapshot, revision, project)
     end
-    let(:snapshot)    { instance_double FileResource::Snapshot }
-    let(:revision)    { instance_double Revision }
+    let(:snapshot)    { instance_double VCS::FileSnapshot }
+    let(:revision)    { instance_double VCS::Commit }
     let(:project)     { instance_double Project }
 
     before do
@@ -171,12 +171,12 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#file_backup_path(file, revision, project)' do
     subject(:method) { helper.send(:file_backup_path, file, revision, project) }
-    let(:file)          { instance_double FileResource::Snapshot }
-    let(:revision)      { instance_double Revision }
+    let(:file)          { instance_double VCS::FileSnapshot }
+    let(:revision)      { instance_double VCS::Commit }
     let(:project)       { instance_double Project }
     let(:is_folder)     { false }
     let(:backup) { nil }
-    let(:file_resource) { instance_double FileResource }
+    let(:file_resource) { instance_double VCS::StagedFile }
 
     before do
       allow(file).to receive(:folder?).and_return(is_folder)
@@ -212,12 +212,11 @@ RSpec.describe FileHelper, type: :helper do
     end
 
     context 'when file has backup' do
-      let(:backup) { instance_double FileResource::Backup }
+      let(:backup) { instance_double VCS::FileBackup }
 
       before do
         allow(file).to receive(:backup).and_return backup
-        allow(backup).to receive(:file_resource).and_return file_resource
-        allow(file_resource).to receive(:external_link).and_return 'external'
+        allow(backup).to receive(:external_link).and_return 'external'
       end
 
       it { is_expected.to eq 'external' }

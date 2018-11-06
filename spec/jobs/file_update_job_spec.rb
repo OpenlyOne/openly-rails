@@ -78,31 +78,91 @@ RSpec.describe FileUpdateJob, type: :job do
   describe '#process_changes(change_list)' do
     subject(:process_changes) { job.send :process_changes, change_list }
     let(:change_list) { instance_double Google::Apis::DriveV3::ChangeList }
-    let(:change1)     { instance_double Google::Apis::DriveV3::Change }
-    let(:change2)     { instance_double Google::Apis::DriveV3::Change }
-    let(:file1)       { instance_double FileResources::GoogleDrive }
-    let(:file2)       { instance_double FileResources::GoogleDrive }
 
     before do
-      allow(change_list).to receive(:changes).and_return [change1, change2]
-      allow(change1).to receive(:file_id).and_return 'file1'
-      allow(change2).to receive(:file_id).and_return 'file2'
-
-      allow(FileResources::GoogleDrive)
-        .to receive(:find_or_initialize_by)
-        .with(external_id: 'file1')
-        .and_return file1
-      allow(FileResources::GoogleDrive)
-        .to receive(:find_or_initialize_by)
-        .with(external_id: 'file2')
-        .and_return file2
+      allow(change_list).to receive(:changes).and_return %w[c1 c2]
+      allow(job).to receive(:process_change)
     end
 
-    after { process_changes }
+    it 'calls #process_change with each change' do
+      process_changes
+      expect(job).to have_received(:process_change).with('c1')
+      expect(job).to have_received(:process_change).with('c2')
+    end
+  end
+
+  describe '#process_change(change)' do
+    subject(:process_change) { job.send :process_change, change }
+    let(:change)    { instance_double Google::Apis::DriveV3::Change }
+    let(:file)      { instance_double Google::Apis::DriveV3::File }
+    let(:parents)   { %w[p1 p2 p3] }
+    let(:branches)  { instance_double ActiveRecord::Relation }
+    let(:branch1)   { instance_double VCS::Branch }
+    let(:branch2)   { instance_double VCS::Branch }
+    let(:file1)     { instance_double VCS::StagedFile }
+    let(:file2)     { instance_double VCS::StagedFile }
+
+    before do
+      allow(change).to receive(:file_id).and_return 'id'
+      allow(change).to receive(:file).and_return file
+      allow(file).to receive(:parents).and_return parents if file.present?
+
+      allow(VCS::Branch)
+        .to receive(:where_staged_files_include_external_id)
+        .and_return branches
+
+      allow(branches)
+        .to receive(:find_each)
+        .and_yield(branch1)
+        .and_yield(branch2)
+
+      allow(VCS::StagedFile)
+        .to receive(:find_or_initialize_by)
+        .with(external_id: 'id', branch: branch1)
+        .and_return file1
+      allow(VCS::StagedFile)
+        .to receive(:find_or_initialize_by)
+        .with(external_id: 'id', branch: branch2)
+        .and_return file2
+
+      allow(file1).to receive(:pull)
+      allow(file2).to receive(:pull)
+    end
+
+    it 'finds branches with the correct staged files' do
+      process_change
+      expect(VCS::Branch)
+        .to have_received(:where_staged_files_include_external_id)
+        .with(%w[id p1 p2 p3])
+    end
 
     it 'calls #pull on each file' do
-      expect(file1).to receive(:pull)
-      expect(file2).to receive(:pull)
+      process_change
+      expect(file1).to have_received(:pull)
+      expect(file2).to have_received(:pull)
+    end
+
+    context 'when file is not present' do
+      let(:file) { nil }
+
+      it 'find branches with staged files with external id of change' do
+        process_change
+        expect(VCS::Branch)
+          .to have_received(:where_staged_files_include_external_id)
+          .with(['id'])
+      end
+    end
+
+    context 'when staged files are not found in any branches' do
+      before do
+        allow(branches).to receive(:find_each).and_return []
+      end
+
+      it 'does not pull any file' do
+        process_change
+        expect(file1).not_to have_received(:pull)
+        expect(file2).not_to have_received(:pull)
+      end
     end
   end
 end

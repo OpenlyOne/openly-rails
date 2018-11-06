@@ -343,7 +343,10 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
 
   describe '#list_changes(token, page_size = 100)' do
     subject(:list_changes) { api.list_changes('token') }
-    let(:fields) { 'nextPageToken,newStartPageToken,changes/file_id' }
+    let(:fields) do
+      %w[nextPageToken newStartPageToken changes/file_id changes/file/parents]
+        .join(',')
+    end
 
     before do
       allow(drive_service)
