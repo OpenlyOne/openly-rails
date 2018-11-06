@@ -12,6 +12,7 @@ module Revisions
     before_action :authorize_action
 
     # TODO: Extract logic out of controller
+    # rubocop:disable Metrics/MethodLength
     def create
       current_commit = build_commit_with_files_staged_in_branch
 
@@ -45,6 +46,7 @@ module Revisions
         notice: 'Revision is being restored...'
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def show
       @file_restores_remaining =
