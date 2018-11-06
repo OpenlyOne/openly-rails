@@ -4,12 +4,14 @@ module VCS
 
     # Associations
     belongs_to :file_record, autosave: false
-    belongs_to :file_record_parent, class_name: 'FileRecord', optional: true
+    belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
+                                    optional: true
 
-    has_many :staging_files, class_name: 'VCS::StagedFile', foreign_key: :file_record_id
+    has_many :staging_files, class_name: 'VCS::StagedFile',
+                             foreign_key: :file_record_id
 
-    has_many :committing_files, class_name: 'CommittedFile',
-                                foreign_key: :file_snapshot_id
+    # has_many :committing_files, class_name: 'CommittedFile',
+    #                             foreign_key: :file_snapshot_id
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
                      inverse_of: :file_snapshot
