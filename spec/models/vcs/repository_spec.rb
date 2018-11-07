@@ -7,6 +7,7 @@ RSpec.describe VCS::Repository, type: :model do
     it { is_expected.to have_many(:branches).dependent(:destroy) }
     it { is_expected.to have_one(:archive).dependent(:destroy) }
     it { is_expected.to have_many(:file_records).dependent(:destroy) }
+    it { is_expected.to have_many(:contents).dependent(:destroy) }
     it do
       is_expected
         .to have_many(:file_snapshots)

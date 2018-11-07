@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_063808) do
+ActiveRecord::Schema.define(version: 2018_11_07_173759) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -339,6 +339,13 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
     t.index ["file_snapshot_id"], name: "index_vcs_committed_files_on_file_snapshot_id"
   end
 
+  create_table "vcs_contents", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_vcs_contents_on_repository_id"
+  end
+
   create_table "vcs_file_backups", force: :cascade do |t|
     t.bigint "file_snapshot_id", null: false
     t.text "external_id", null: false
@@ -460,6 +467,7 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
   add_foreign_key "vcs_commits", "vcs_commits", column: "parent_id"
   add_foreign_key "vcs_committed_files", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_committed_files", "vcs_file_snapshots", column: "file_snapshot_id"
+  add_foreign_key "vcs_contents", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_file_backups", "vcs_file_snapshots", column: "file_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"

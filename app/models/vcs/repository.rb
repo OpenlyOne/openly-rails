@@ -7,6 +7,7 @@ module VCS
 
     has_one :archive, dependent: :destroy
     has_many :file_records, dependent: :destroy
+    has_many :contents, dependent: :destroy
     has_many :file_snapshots, through: :file_records
     has_many :file_backups, through: :file_snapshots, source: :backup
 
