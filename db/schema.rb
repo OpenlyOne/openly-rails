@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_06_234927) do
+ActiveRecord::Schema.define(version: 2018_11_07_063808) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -392,7 +392,7 @@ ActiveRecord::Schema.define(version: 2018_11_06_234927) do
     t.datetime "image_updated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "file_record_id"
+    t.bigint "file_record_id", null: false
   end
 
   create_table "vcs_repositories", force: :cascade do |t|
