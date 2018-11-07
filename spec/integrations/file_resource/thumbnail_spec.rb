@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe FileResource::Thumbnail, type: :model do
-  describe 'attachment path for image' do
+  xdescribe 'attachment path for image' do
     subject           { thumbnail.image.path }
     let(:thumbnail)   { create :file_resource_thumbnail }
     let(:external_id) { thumbnail.external_id }
@@ -15,7 +15,7 @@ RSpec.describe FileResource::Thumbnail, type: :model do
     end
   end
 
-  describe 'attachment url for image' do
+  xdescribe 'attachment url for image' do
     subject           { thumbnail.image.url }
     let(:thumbnail)   { create :file_resource_thumbnail }
     let(:external_id) { thumbnail.external_id }

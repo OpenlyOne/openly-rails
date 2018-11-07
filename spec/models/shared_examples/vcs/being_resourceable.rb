@@ -6,7 +6,7 @@ RSpec.shared_examples 'vcs: being resourceable' do
       is_expected
         .to belong_to(:thumbnail)
         .class_name('VCS::FileThumbnail')
-        .dependent(:destroy)
+        .dependent(false)
         .optional
     end
   end

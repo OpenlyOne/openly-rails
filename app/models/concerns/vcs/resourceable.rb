@@ -6,8 +6,8 @@ module VCS
     extend ActiveSupport::Concern
 
     included do
-      belongs_to :thumbnail, class_name: 'VCS::FileThumbnail', optional: true,
-                             dependent: :destroy
+      # TODO: Delete orphaned thumbnail records
+      belongs_to :thumbnail, class_name: 'VCS::FileThumbnail', optional: true
     end
 
     def folder?
