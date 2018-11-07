@@ -9,6 +9,7 @@ module VCS
     belongs_to :file_record, autosave: false
     belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
                                     optional: true
+    belongs_to :content, optional: true
 
     has_many :staging_files, class_name: 'VCS::StagedFile',
                              foreign_key: :file_record_id
@@ -18,6 +19,7 @@ module VCS
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
                      inverse_of: :file_snapshot
+    has_one :repository, through: :file_record
 
     # Callbacks
     # Prevent updates to file snapshot; snapshots are immutable.

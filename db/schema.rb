@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_175325) do
+ActiveRecord::Schema.define(version: 2018_11_07_181029) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -383,6 +383,7 @@ ActiveRecord::Schema.define(version: 2018_11_07_175325) do
     t.bigint "thumbnail_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "content_id"
     t.index ["file_record_id", "external_id", "content_version", "mime_type", "name", "file_record_parent_id"], name: "index_vcs_file_snapshots_on_metadata", unique: true
     t.index ["file_record_id", "external_id", "content_version", "mime_type", "name"], name: "index_vcs_file_snapshots_on_metadata_without_parent", unique: true, where: "(file_record_parent_id IS NULL)"
     t.index ["file_record_id"], name: "index_vcs_file_snapshots_on_file_record_id"
@@ -485,6 +486,7 @@ ActiveRecord::Schema.define(version: 2018_11_07_175325) do
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "old_snapshot_id"
   add_foreign_key "vcs_file_records", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_file_snapshots", "vcs_contents", column: "content_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_parent_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_thumbnails", column: "thumbnail_id"

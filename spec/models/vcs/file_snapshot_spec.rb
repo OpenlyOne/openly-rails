@@ -24,6 +24,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .dependent(false)
         .optional
     end
+    it { is_expected.to belong_to(:content).optional }
     it do
       is_expected
         .to have_one(:backup)
@@ -38,13 +39,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .with_foreign_key(:file_record_id)
         .dependent(false)
     end
-    # it do
-    #   is_expected
-    #     .to have_many(:committing_files)
-    #     .class_name('CommittedFile')
-    #     .with_foreign_key(:file_resource_snapshot_id)
-    #     .dependent(false)
-    # end
+    it { is_expected.to have_one(:repository).through(:file_record) }
   end
 
   describe 'attributes' do
