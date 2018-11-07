@@ -42,6 +42,7 @@ module VCS
     # Parse the file resource to a hash of attributes
     def self.attributes_from_staged_file(staged_file)
       {
+        file_record_id: staged_file.file_record_id,
         external_id: staged_file.external_id,
         version_id:  staged_file.thumbnail_version_id
       }

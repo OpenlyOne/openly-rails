@@ -59,12 +59,17 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     let(:file)  { instance_double VCS::StagedFile }
 
     before do
+      allow(file).to receive(:file_record_id).and_return 'FRID'
       allow(file).to receive(:external_id).and_return 'external-id'
       allow(file).to receive(:thumbnail_version_id).and_return 'version-id'
     end
 
     it do
-      is_expected.to eq(external_id: 'external-id', version_id: 'version-id')
+      is_expected.to eq(
+        file_record_id: 'FRID',
+        external_id: 'external-id',
+        version_id: 'version-id'
+      )
     end
   end
 
