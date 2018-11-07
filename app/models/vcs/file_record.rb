@@ -5,6 +5,7 @@ module VCS
   # versions
   class FileRecord < ApplicationRecord
     belongs_to :repository
+    has_many :file_thumbnails, dependent: :destroy
 
     has_many :repository_branches, through: :repository, source: :branches
     has_many :staged_instances,

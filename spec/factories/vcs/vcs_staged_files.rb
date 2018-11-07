@@ -36,7 +36,7 @@ FactoryBot.define do
     end
 
     trait :with_thumbnail do
-      association :thumbnail, factory: :vcs_file_thumbnail
+      thumbnail { create :vcs_file_thumbnail, file_record_id: file_record_id }
     end
 
     trait :deleted do

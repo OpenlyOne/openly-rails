@@ -5,6 +5,18 @@ RSpec.describe VCS::FileThumbnail, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:file_record) }
+    it do
+      is_expected
+        .to have_many(:file_snapshots)
+        .with_foreign_key(:thumbnail_id)
+        .dependent(:nullify)
+    end
+    it do
+      is_expected
+        .to have_many(:staged_files)
+        .with_foreign_key(:thumbnail_id)
+        .dependent(:nullify)
+    end
   end
 
   describe 'attachments' do

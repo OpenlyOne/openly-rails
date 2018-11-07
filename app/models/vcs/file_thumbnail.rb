@@ -6,6 +6,9 @@ module VCS
     # Associations
     belongs_to :file_record
 
+    has_many :file_snapshots, foreign_key: :thumbnail_id, dependent: :nullify
+    has_many :staged_files, foreign_key: :thumbnail_id, dependent: :nullify
+
     # Attachments
     has_attached_file :image,
                       styles: { original: '200x200#' },

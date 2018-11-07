@@ -52,6 +52,9 @@ RSpec.describe Project, type: :model do
 
     it { expect { project.destroy }.not_to raise_error }
     it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
+    it 'destroys associated file thumbnails' do
+      expect { project.destroy }.to change(VCS::FileThumbnail, :count).to(0)
+    end
   end
 
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
