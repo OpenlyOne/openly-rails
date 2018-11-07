@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_173759) do
+ActiveRecord::Schema.define(version: 2018_11_07_175325) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -402,6 +402,18 @@ ActiveRecord::Schema.define(version: 2018_11_07_173759) do
     t.bigint "file_record_id", null: false
   end
 
+  create_table "vcs_remote_contents", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.bigint "content_id", null: false
+    t.text "remote_file_id", null: false
+    t.text "remote_content_version_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_vcs_remote_contents_on_content_id"
+    t.index ["repository_id", "remote_file_id", "remote_content_version_id"], name: "index_vcs_remote_contents_on_remote_file_contents", unique: true
+    t.index ["repository_id"], name: "index_vcs_remote_contents_on_repository_id"
+  end
+
   create_table "vcs_repositories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -477,6 +489,8 @@ ActiveRecord::Schema.define(version: 2018_11_07_173759) do
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_parent_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_file_thumbnails", "vcs_file_records", column: "file_record_id"
+  add_foreign_key "vcs_remote_contents", "vcs_contents", column: "content_id"
+  add_foreign_key "vcs_remote_contents", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_staged_files", "vcs_branches", column: "branch_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_parent_id"

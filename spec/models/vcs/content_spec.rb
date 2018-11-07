@@ -5,5 +5,6 @@ RSpec.describe VCS::Content, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:repository).dependent(false) }
+    it { is_expected.to have_many(:remote_contents).dependent(:delete_all) }
   end
 end

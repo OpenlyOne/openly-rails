@@ -5,5 +5,6 @@ module VCS
   class Content < ApplicationRecord
     # Associations
     belongs_to :repository
+    has_many :remote_contents, dependent: :delete_all
   end
 end
