@@ -3,14 +3,17 @@
 module VCS
   # Thumbnails for files
   class FileThumbnail < ApplicationRecord
+    # Associations
+    belongs_to :file_record
+
     # Attachments
     has_attached_file :image,
                       styles: { original: '200x200#' },
                       path: ':attachment_path/:class/' \
-                            ':external_id/:version_id/' \
+                            ':file_record_id/:external_id/:version_id/' \
                             ':hash.:content_type_extension',
                       url:  ':attachment_url/:class/' \
-                            ':external_id/:version_id/' \
+                            ':file_record_id/:external_id/:version_id/' \
                             ':hash.:content_type_extension',
                       default_url: '/fallback/file_resources/thumbnail.png',
                       hash_secret: ENV['THUMBNAIL_HASH_SECRET']
@@ -26,8 +29,8 @@ module VCS
                    content_type: %w[image/jpeg image/gif image/png],
                    message: 'must be JPEG, PNG, or GIF'
     validates :version_id, uniqueness: {
-      scope: %i[external_id],
-      message: 'with external ID already exists'
+      scope: %i[file_record_id external_id],
+      message: 'with external ID already exists for this file record'
     }, if: :new_record?
 
     # Callbacks

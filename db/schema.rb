@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_29_183425) do
+ActiveRecord::Schema.define(version: 2018_11_06_234927) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -392,6 +392,7 @@ ActiveRecord::Schema.define(version: 2018_10_29_183425) do
     t.datetime "image_updated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "file_record_id"
   end
 
   create_table "vcs_repositories", force: :cascade do |t|
@@ -467,6 +468,7 @@ ActiveRecord::Schema.define(version: 2018_10_29_183425) do
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_parent_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_thumbnails", column: "thumbnail_id"
+  add_foreign_key "vcs_file_thumbnails", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_staged_files", "vcs_branches", column: "branch_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_parent_id"

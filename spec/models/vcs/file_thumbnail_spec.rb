@@ -3,9 +3,19 @@
 RSpec.describe VCS::FileThumbnail, type: :model do
   subject(:thumbnail) { build :vcs_file_thumbnail }
 
-  it { should have_attached_file(:image) }
+  describe 'associations' do
+    it { is_expected.to belong_to(:file_record) }
+  end
+
+  describe 'attachments' do
+    it { is_expected.to have_attached_file(:image) }
+  end
 
   describe 'validations' do
+    it do
+      is_expected
+        .to validate_presence_of(:file_record).with_message('must exist')
+    end
     it { is_expected.to validate_attachment_presence(:image) }
     it do
       is_expected
@@ -21,8 +31,8 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it do
       is_expected
         .to validate_uniqueness_of(:version_id)
-        .scoped_to(:external_id)
-        .with_message('with external ID already exists')
+        .scoped_to(%i[file_record_id external_id])
+        .with_message('with external ID already exists for this file record')
     end
   end
 
