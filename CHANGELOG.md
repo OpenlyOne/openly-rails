@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.26.3 (Nov 7, 2018)
+
+**Fixes:**
+- Deleting projects is now possible again (it caused server errors due to the
+  way that file thumbnails were implemented)
+
 ## v0.26.2 (Nov 6, 2018)
 
 **Fixes:**

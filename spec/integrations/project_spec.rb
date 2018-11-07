@@ -23,7 +23,12 @@ RSpec.describe Project, type: :model do
       create :project_setup, :with_link, project: project
 
       # add staged files
-      create_list :vcs_staged_file, 2, branch: master_branch
+      create_list :vcs_staged_file, 2, :with_thumbnail, :with_backup,
+                  branch: master_branch
+
+      # Reuse the thumbnail for another snapshot
+      create :vcs_file_snapshot, thumbnail: VCS::FileThumbnail.first,
+                                 file_record: VCS::FileRecord.first
 
       # add drafted revisions with committed files and file diffs
       revisions = create_list :vcs_commit, 2, branch: master_branch
@@ -47,6 +52,9 @@ RSpec.describe Project, type: :model do
 
     it { expect { project.destroy }.not_to raise_error }
     it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
+    it 'destroys associated file thumbnails' do
+      expect { project.destroy }.to change(VCS::FileThumbnail, :count).to(0)
+    end
   end
 
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do

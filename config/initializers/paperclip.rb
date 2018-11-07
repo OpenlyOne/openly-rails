@@ -11,9 +11,9 @@ Paperclip.interpolates :attachment_url do |_attachment, _style|
   Settings.attachment_storage.sub(/^public/, '')
 end
 
-# Paperclip interpolator for the instance's provider ID attribute
-Paperclip.interpolates :provider_id do |attachment, _style|
-  attachment.instance.provider_id
+# Paperclip interpolator for the instance's file record ID
+Paperclip.interpolates :file_record_id do |attachment, _style|
+  attachment.instance.file_record_id.to_s
 end
 
 # Paperclip interpolator for the instance's external ID attribute
