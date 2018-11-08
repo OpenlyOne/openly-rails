@@ -13,7 +13,7 @@ module VCS
              to: :current_or_previous_snapshot
 
     delegate_methods = %i[content_version name parent_id file_record_parent_id
-                          file_record_id]
+                          file_record_id content_id]
     delegate(*delegate_methods,
              to: :current_snapshot, prefix: :current, allow_nil: true)
     delegate(*delegate_methods,
@@ -75,7 +75,7 @@ module VCS
     def modification?
       return false unless update?
 
-      current_content_version != previous_content_version
+      current_content_id != previous_content_id
     end
 
     def movement?
