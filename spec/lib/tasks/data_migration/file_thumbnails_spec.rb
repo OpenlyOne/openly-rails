@@ -3,7 +3,7 @@
 require 'lib/shared_contexts/rake.rb'
 
 # TODO: Archive because no longer relevant as data has been migrated
-RSpec.describe 'data_migration:file_thumbnails', skip: true do
+RSpec.describe 'data_migration:file_thumbnails', :archived do
   include_context 'rake'
 
   let(:run_the_task) { subject.invoke }

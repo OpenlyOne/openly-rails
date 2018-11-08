@@ -2,7 +2,7 @@
 
 require 'lib/shared_contexts/rake.rb'
 
-RSpec.describe 'data_migration:file_snapshots_content' do
+RSpec.describe 'data_migration:file_snapshots_content', :archived do
   include_context 'rake'
 
   let(:run_the_task) { subject.invoke }
