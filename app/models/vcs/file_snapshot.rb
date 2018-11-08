@@ -2,6 +2,7 @@
 
 module VCS
   # A unique snapshot of a staged file's data (name, content, parent, ...)
+  # rubocop:disable Metrics/ClassLength
   class FileSnapshot < ApplicationRecord
     include VCS::Resourceable
 
@@ -183,4 +184,5 @@ module VCS
       self.class.supplemental_attributes(attributes)
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
