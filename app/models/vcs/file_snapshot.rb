@@ -9,7 +9,7 @@ module VCS
     belongs_to :file_record, autosave: false
     belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
                                     optional: true
-    belongs_to :content, optional: true
+    belongs_to :content
 
     has_many :staging_files, class_name: 'VCS::StagedFile',
                              foreign_key: :file_record_id

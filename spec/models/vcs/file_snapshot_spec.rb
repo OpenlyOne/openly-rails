@@ -24,7 +24,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .dependent(false)
         .optional
     end
-    it { is_expected.to belong_to(:content).optional }
+    it { is_expected.to belong_to(:content) }
     it do
       is_expected
         .to have_one(:backup)
@@ -52,6 +52,9 @@ RSpec.describe VCS::FileSnapshot, type: :model do
     it { is_expected.to validate_presence_of(:content_version) }
     it { is_expected.to validate_presence_of(:mime_type) }
     it { is_expected.to validate_presence_of(:external_id) }
+    it do
+      is_expected.to validate_presence_of(:content).with_message('must exist')
+    end
 
     context 'uniqueness validation' do
       subject(:snapshot) { build :vcs_file_snapshot }

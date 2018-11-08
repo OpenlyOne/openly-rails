@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_235258) do
+ActiveRecord::Schema.define(version: 2018_11_08_015945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -383,7 +383,7 @@ ActiveRecord::Schema.define(version: 2018_11_07_235258) do
     t.bigint "thumbnail_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "content_id"
+    t.bigint "content_id", null: false
     t.index ["file_record_id", "content_id", "file_record_parent_id", "name", "mime_type"], name: "index_vcs_file_snapshots_on_metadata", unique: true
     t.index ["file_record_id", "content_id", "name", "mime_type"], name: "index_vcs_file_snapshots_on_metadata_without_parent", unique: true, where: "(file_record_parent_id IS NULL)"
     t.index ["file_record_id"], name: "index_vcs_file_snapshots_on_file_record_id"
