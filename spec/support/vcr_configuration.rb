@@ -88,4 +88,9 @@ VCR.configure do |c|
     raise("Request: #{interaction.request.uri} " \
           'includes unfiltered Bearer access token')
   end
+
+  # Do not try to convert file uploads to UTF-8
+  c.preserve_exact_body_bytes do |http_message|
+    !http_message.body.valid_encoding?
+  end
 end
