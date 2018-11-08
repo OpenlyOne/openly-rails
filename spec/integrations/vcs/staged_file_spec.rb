@@ -2,6 +2,7 @@
 
 require 'integrations/shared_contexts/skip_project_archive_setup'
 require 'integrations/shared_examples/including_snapshotable_integration.rb'
+require 'integrations/shared_examples/vcs/including_downloadable_integration.rb'
 require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 
 RSpec.describe VCS::StagedFile, type: :model do
@@ -29,6 +30,25 @@ RSpec.describe VCS::StagedFile, type: :model do
     let(:mime_type) { Providers::GoogleDrive::MimeType.document }
     let(:folder_mime_type)  { Providers::GoogleDrive::MimeType.folder }
     let(:file_sync_class)   { Providers::GoogleDrive::FileSync }
+
+    before { prepare_google_drive_test }
+    after  { tear_down_google_drive_test }
+
+    let!(:root) do
+      create(:vcs_staged_file, :root, :folder,
+             branch: branch, external_id: parent_id)
+    end
+  end
+
+  it_should_behave_like 'vcs: including downloadable integration' do
+    let(:downloadable)    { file }
+    let(:parent_id)       { google_drive_test_folder_id }
+    let(:mime_type)       { Providers::GoogleDrive::MimeType.document }
+    let(:file_sync_class) { Providers::GoogleDrive::FileSync }
+    let(:user_acct)       { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:account)         { create :account, email: user_acct }
+    let(:project)         { create :project, owner: account.user }
+    let(:branch)          { project.master_branch }
 
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }

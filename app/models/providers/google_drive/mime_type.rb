@@ -4,7 +4,7 @@ module Providers
   module GoogleDrive
     # Parser for various GoogleDrive-supported mime types
     class MimeType
-      # TODO: Add word document formats
+      # TODO: Add word document formats: word_docx, word_doc, open_document_text
       MIME_TYPES = {
         document: 'application/vnd.google-apps.document',
         drawing: 'application/vnd.google-apps.drawing',
@@ -26,6 +26,9 @@ module Providers
         presentation: 'application/vnd.openxmlformats-officedocument'\
                       '.presentationml.presentation'
       }.freeze
+
+      # The mime types that represent texts
+      TEXT_TYPES = %i[document pdf].freeze
 
       class << self
         # Define getters such as .document, .folder, and .spreadsheet
@@ -61,6 +64,10 @@ module Providers
 
       def export_as
         EXPORT_FORMATS[to_sym]
+      end
+
+      def text_type?
+        TEXT_TYPES.include? to_sym
       end
 
       def to_sym

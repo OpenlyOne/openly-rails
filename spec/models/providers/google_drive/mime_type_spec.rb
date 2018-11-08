@@ -71,4 +71,26 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
 
     it { is_expected.to eq described_class::EXPORT_FORMATS[:document] }
   end
+
+  describe '#text_type?' do
+    subject { described_class.new(mime_type) }
+
+    context 'when mime type is document' do
+      let(:mime_type) { type.document }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is PDF' do
+      let(:mime_type) { type.pdf }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is other' do
+      let(:mime_type) { 'word-document' }
+
+      it { is_expected.not_to be_text_type }
+    end
+  end
 end

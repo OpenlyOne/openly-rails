@@ -8,11 +8,14 @@ module VCS
     included do
       # Callbacks
       after_save :perform_backup, if: :backup_on_save?
+
+      # Delegations
+      delegate :backup, to: :current_snapshot, allow_nil: true
     end
 
     # Has this file resource already been backed up?
     def backed_up?
-      current_snapshot&.backup&.persisted?
+      backup&.persisted?
     end
 
     # Should this file resource be backed up on save?
