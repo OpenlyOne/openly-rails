@@ -58,8 +58,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
       it do
         is_expected
           .to validate_uniqueness_of(:file_record_id)
-          .scoped_to(:external_id, :content_version, :mime_type, :name,
-                     :file_record_parent_id)
+          .scoped_to(:name, :content_id, :mime_type, :file_record_parent_id)
           .with_message('already has a snapshot with these attributes')
       end
     end
