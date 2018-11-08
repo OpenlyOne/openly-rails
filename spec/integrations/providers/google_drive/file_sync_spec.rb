@@ -38,6 +38,46 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
   end
 
+  describe '.upload(name:, parent_id:, mime_type:, file:, ...)' do
+    subject(:uploaded_file) do
+      described_class.upload(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: document_type,
+        file: word_doc
+      )
+    end
+
+    let(:document_type) do
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    end
+    let(:path_to_file_fixtures) do
+      Rails.root.join('spec', 'support', 'fixtures', 'files')
+    end
+    let(:word_doc) { File.new(path_to_file_fixtures.join('file.docx')) }
+
+    it 'creates a file with the correct metadata' do
+      expect(uploaded_file.name).to eq 'Test File'
+      expect(uploaded_file.parent_id).to eq google_drive_test_folder_id
+      expect(uploaded_file.mime_type).to eq document_type
+    end
+
+    it 'uploads the document' do
+      downloaded_file = Tempfile.new.tap(&:binmode)
+      begin
+        uploaded_file.download(destination: downloaded_file)
+        expect(FileUtils).to be_identical(downloaded_file, word_doc)
+      ensure
+        downloaded_file.close!
+      end
+    end
+
+    it 'restricts access to creator' do
+      expect(uploaded_file.permissions.map(&:email_address))
+        .to contain_exactly(Settings.google_drive_tracking_account)
+    end
+  end
+
   describe '#content' do
     subject(:file_with_content) do
       described_class.create(
@@ -91,6 +131,66 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
 
     # TODO: Add spec for binary file type and ensure that version ID is not 0!
+  end
+
+  describe '.download(destination:)' do
+    subject(:download) { file.download(destination: downloaded_file) }
+
+    let(:downloaded_file) { Tempfile.new.tap(&:binmode) }
+    let(:file) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type_class) { Providers::GoogleDrive::MimeType }
+
+    before  { download }
+    after   { downloaded_file.close! }
+
+    context 'when file to download is word doc' do
+      let(:file) do
+        described_class.upload(
+          name: 'Test File',
+          parent_id: google_drive_test_folder_id,
+          mime_type: document_type,
+          file: word_doc
+        )
+      end
+      let(:document_type) do
+        'application/vnd.openxmlformats-officedocument.wordprocessingml' \
+        '.document'
+      end
+      let(:path_to_file_fixtures) do
+        Rails.root.join('spec', 'support', 'fixtures', 'files')
+      end
+      let(:word_doc) { File.new(path_to_file_fixtures.join('file.docx')) }
+
+      it 'downloads the document exactly as uploaded' do
+        expect(FileUtils).to be_identical(downloaded_file, word_doc)
+      end
+    end
+
+    context 'when file is a Google Doc' do
+      let(:mime_type) { mime_type_class.document }
+
+      it 'downloads as .docx' do
+        downloaded_file.rewind
+        expect(Henkei.new(downloaded_file).mimetype.content_type)
+          .to eq mime_type_class.new(mime_type).export_as
+      end
+    end
+
+    context 'when file is a Google Sheet' do
+      xit 'downloads as .xlxs'
+    end
+    context 'when file is a Google Slides presentation' do
+      xit 'downloads as .pptx'
+    end
+    context 'when file is a Google Drawing' do
+      xit 'downloads as .png'
+    end
   end
 
   describe '#duplicate(name:, parent_id:)' do

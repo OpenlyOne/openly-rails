@@ -4,6 +4,7 @@ module Providers
   module GoogleDrive
     # Parser for various GoogleDrive-supported mime types
     class MimeType
+      # TODO: Add word document formats
       MIME_TYPES = {
         document: 'application/vnd.google-apps.document',
         drawing: 'application/vnd.google-apps.drawing',
@@ -13,6 +14,17 @@ module Providers
         pdf: 'application/pdf',
         presentation: 'application/vnd.google-apps.presentation',
         spreadsheet: 'application/vnd.google-apps.spreadsheet'
+      }.freeze
+
+      # TODO: Reference word document formats
+      EXPORT_FORMATS = {
+        document: 'application/vnd.openxmlformats-officedocument'\
+                  '.wordprocessingml.document',
+        spreadsheet: 'application/vnd.openxmlformats-officedocument'\
+                     '.spreadsheetml.sheet',
+        drawing: 'image/png',
+        presentation: 'application/vnd.openxmlformats-officedocument'\
+                      '.presentationml.presentation'
       }.freeze
 
       class << self
@@ -35,6 +47,24 @@ module Providers
         def to_symbol(mime_type)
           MIME_TYPES.key(mime_type) || :other
         end
+      end
+
+      attr_accessor :type
+
+      def initialize(type)
+        self.type = type
+      end
+
+      def exportable?
+        EXPORT_FORMATS.key?(to_sym)
+      end
+
+      def export_as
+        EXPORT_FORMATS[to_sym]
+      end
+
+      def to_sym
+        self.class.to_symbol(type)
       end
     end
   end

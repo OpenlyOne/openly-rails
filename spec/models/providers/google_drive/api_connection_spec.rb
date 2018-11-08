@@ -98,6 +98,16 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { expect(drive_service).to receive(:delete_file).with('file-id') }
   end
 
+  describe '#download_file(id, destination:)' do
+    subject(:download_file) { api.download_file('id', destination: 'dest') }
+    after                   { download_file }
+
+    it do
+      expect(drive_service)
+        .to receive(:get_file).with('id', download_dest: 'dest')
+    end
+  end
+
   describe '#duplicate_file(id, name:, parent_id:)' do
     subject(:duplicate_file) do
       api.duplicate_file('file-id', name: 'duplicate', parent_id: 'parent-id')
@@ -159,6 +169,18 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
         expect(args[1].name).to eq 'duplicate'
         expect(args[1].parents).to match_array('parent-id')
       end
+    end
+  end
+
+  describe '#export_file(id, format:, destination:)' do
+    subject(:export_file) do
+      api.export_file('id', format: 'format', destination: 'dest')
+    end
+    after { export_file }
+
+    it do
+      expect(drive_service)
+        .to receive(:export_file).with('id', 'format', download_dest: 'dest')
     end
   end
 
@@ -535,6 +557,48 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
         .with('file-id', nil,
               add_parents: add, remove_parents: remove,
               fields: 'default')
+    end
+  end
+
+  describe '#upload_file(name:, parent_id:, file:, mime_type:)' do
+    subject(:upload_file) { api.upload_file(args) }
+    let(:args) do
+      { name: 'name', parent_id: 'parent-id', file: 'file', mime_type: 'doc' }
+    end
+    before  { allow(api).to receive(:default_file_fields).and_return 'default' }
+    before  { allow(drive_service).to receive(:create_file) }
+    before  { upload_file }
+
+    it 'calls #create_file on drive service' do
+      expect(drive_service)
+        .to have_received(:create_file)
+        .with(
+          kind_of(Google::Apis::DriveV3::File),
+          upload_source: 'file',
+          content_type: 'doc',
+          fields: 'default'
+        )
+    end
+
+    it 'calls #create_file with name' do
+      expect(drive_service)
+        .to have_received(:create_file) do |*args|
+        expect(args[0].name).to eq 'name'
+      end
+    end
+
+    it 'calls #create_file with parent_id' do
+      expect(drive_service)
+        .to have_received(:create_file) do |*args|
+        expect(args[0].parents.first).to eq 'parent-id'
+      end
+    end
+
+    it 'calls #create_file with mime_type' do
+      expect(drive_service)
+        .to have_received(:create_file) do |*args|
+        expect(args[0].mime_type).to eq 'doc'
+      end
     end
   end
 
