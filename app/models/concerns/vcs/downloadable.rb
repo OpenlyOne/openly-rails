@@ -24,11 +24,10 @@ module VCS
     # Perform the downloading of content and save to plain_text column of
     # snapshot's content
     def download_content
-      downloader =
-        VCS::Operations::ContentDownloader
-        .new(remote_file_id: backup.external_id)
-      content.update!(plain_text: downloader.plain_text)
-      downloader.done
+      ContentDownloadJob.perform_later(
+        remote_file_id: backup.external_id,
+        content_id: content.id
+      )
     end
 
     private

@@ -72,21 +72,21 @@ RSpec.shared_examples 'vcs: being downloadable' do
   describe '#download_content' do
     subject(:download_content) { backupable.download_content }
 
+    let(:backup)  { instance_double VCS::FileBackup }
+    let(:content) { instance_double VCS::Content }
+
     before do
-      allow(VCS::Operations::Downloader).to receive(:new).and_return downloader
-      allow(downloader).to receive(:plain_text).and_return 'plain_text'
-      allow(downloadable).to receive(:content).and_return content
-      allow(content).to receive(:update!)
-      allow(downloader).to receive(:done)
-      download_content
+      allow(ContentDownloadJob).to receive(:perform_later)
+      allow(backupable).to receive(:backup).and_return backup
+      allow(backupable).to receive(:content).and_return content
+      allow(backup).to receive(:external_id).and_return 'ext-id'
+      allow(content).to receive(:id).and_return 'content-id'
     end
 
-    it 'updates content with plain text' do
-      expect(content).to have_received(:update!).with(plain_text: 'plain_text')
-    end
-
-    it 'closes downloader' do
-      expect(downloader).to have_received(:done)
+    it 'creates ContentDownloadJob' do
+      expect(ContentDownloadJob)
+        .to have_received(:perform_later)
+        .with(remote_file_id: 'ext-id', content_id: 'content-id')
     end
   end
 end
