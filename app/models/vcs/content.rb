@@ -6,5 +6,10 @@ module VCS
     # Associations
     belongs_to :repository
     has_many :remote_contents, dependent: :delete_all
+
+    # Return true if the plain text attribute is present
+    def downloaded?
+      !plain_text.nil?
+    end
   end
 end

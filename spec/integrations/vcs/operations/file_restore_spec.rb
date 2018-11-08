@@ -74,6 +74,10 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:expected_snapshot_id)      { snapshot_to_restore&.id }
 
     before do
+      # Disable downloading of content
+      allow_any_instance_of(VCS::StagedFile)
+        .to receive(:download_on_save?).and_return false
+
       # capture the initial snapshot which we will later restore
       file.pull
       snapshot_to_restore

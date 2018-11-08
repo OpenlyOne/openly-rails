@@ -70,6 +70,8 @@ gem 'inky-rb', '~> 1.3', require: 'inky'
 gem 'premailer-rails', '~> 1.10'
 # Administration Panel
 gem 'administrate', '0.10'
+# Extract text and metadata from files and documents
+gem 'henkei', '~> 1.18'
 
 group :development, :test do
   # We will use pry rails as our console

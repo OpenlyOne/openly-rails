@@ -15,6 +15,15 @@ module Providers
         new(file.id, file: file, api_connection: api_connection)
       end
 
+      def self.upload(name:, parent_id:, mime_type:, file:, api_connection: nil)
+        api_connection ||= default_api_connection
+        remote_file = api_connection.upload_file(name: name,
+                                                 parent_id: parent_id,
+                                                 file: file,
+                                                 mime_type: mime_type)
+        new(remote_file.id, file: remote_file, api_connection: api_connection)
+      end
+
       def self.default_api_connection
         ApiConnection.default
       end
@@ -49,6 +58,17 @@ module Providers
 
       def deleted?
         file&.trashed
+      end
+
+      # Download the file to the given destination
+      def download(destination:)
+        type = MimeType.new(mime_type)
+        if type.exportable?
+          api_connection.export_file(id, format: type.export_as,
+                                         destination: destination)
+        else
+          api_connection.download_file(id, destination: destination)
+        end
       end
 
       # TODO: support duplication without explicit name and parent_id

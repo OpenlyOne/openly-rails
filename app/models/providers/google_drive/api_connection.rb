@@ -40,6 +40,11 @@ module Providers
         drive_service.delete_file(id)
       end
 
+      # Download the file to the provided destination
+      def download_file(id, destination:)
+        drive_service.get_file(id, download_dest: destination)
+      end
+
       # Copy a file by ID, optionally providing new name and parent ID
       # TODO: Support duplication without explicit name and parent ID
       def duplicate_file(id, name:, parent_id:)
@@ -57,6 +62,12 @@ module Providers
       def duplicate_file!(id, name:, parent_id:)
         target = GoogleDrive::File.new(name: name, parents: [parent_id])
         drive_service.copy_file(id, target, fields: default_file_fields)
+      end
+
+      # Export a Google Drive file to the given format and download to
+      # destination
+      def export_file(id, format:, destination:)
+        drive_service.export_file(id, format, download_dest: destination)
       end
 
       # Get the file's content by file ID
@@ -201,6 +212,21 @@ module Providers
         drive_service.update_file(
           id, nil,
           add_parents: add.compact, remove_parents: remove.compact,
+          fields: default_file_fields
+        )
+      end
+
+      # Upload the passed file to Google Drive
+      def upload_file(name:, parent_id:, file:, mime_type:)
+        drive_file = GoogleDrive::File.new(name: name,
+                                           parents: [parent_id],
+                                           mime_type: mime_type)
+
+        # TODO: Use Henkei gem to automatically detect mime type of upload
+        # =>    source
+        drive_service.create_file(
+          drive_file,
+          upload_source: file, content_type: mime_type,
           fields: default_file_fields
         )
       end

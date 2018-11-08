@@ -17,8 +17,10 @@ module VCS
     include VCS::Snapshotable
     # include Stageable
     include VCS::Syncable
-    # must be last, so that backup is made after snapshot is persisted
+    # must not be before VCS::Snapshotable, so that backup is made after
+    # snapshot is persisted
     include VCS::Backupable
+    include VCS::Downloadable
 
     scope :joins_staged_snapshot, lambda {
       joins(
