@@ -84,7 +84,6 @@ feature 'Revision Restore', :vcr, :delayed_job do
     click_on 'Capture Changes'
 
     # then I should see no changes
-    pending 'Requires implementation of file_content'
     expect(page).to have_text 'No files changed'
 
     # when I pull each file in stage

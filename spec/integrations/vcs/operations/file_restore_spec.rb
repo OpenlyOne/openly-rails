@@ -71,6 +71,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:expected_parent)           { parent_of_snapshot_to_restore }
     let(:expected_content_version)  { snapshot_to_restore.content_version }
     let(:expected_deletion_status)  { false }
+    let(:expected_snapshot_id)      { snapshot_to_restore&.id }
 
     before do
       # capture the initial snapshot which we will later restore
@@ -90,6 +91,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     end
 
     after do
+      expect(file.current_snapshot_id).to eq expected_snapshot_id
       expect(file).to have_attributes(
         file_record_id: file.file_record_id,
         name: snapshot_to_restore&.name,
@@ -132,6 +134,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
         it 'is added' do
           expect(file_change).to be_addition
+          expect(file.current_snapshot_id).to eq snapshot_to_restore.id
         end
       end
     end
@@ -158,6 +161,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'moves the file' do
         expect(file_change).to be_movement
+        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
       end
 
       context 'when parent of snapshot to restore does not exist' do
@@ -167,6 +171,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
           subfolder.reload.pull
         end
         let(:expected_parent) { root }
+        let(:expected_snapshot_id) { file.current_snapshot_id }
 
         it 'moves snapshot to home folder' do
           expect(file_change).to be_movement
@@ -179,6 +184,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'renames the file' do
         expect(file_change).to be_rename
+        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
       end
     end
 
@@ -191,6 +197,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       it 'is modifies the file' do
         expect(file_change).to be_modification
         expect(file.external_id).not_to eq remote_file.id
+        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
       end
     end
 
