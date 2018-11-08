@@ -34,11 +34,19 @@ class FileRestoresController < ApplicationController
   end
 
   def file_info_path
+    # TODO: Redirect to file infos path by file record ID. That is the only
+    # =>    stable identifier.
     profile_project_file_infos_path(@project.owner, @project,
-                                    @snapshot.external_id)
+                                    staged_file.external_id)
   end
 
   def set_file_snapshot
     @snapshot = VCS::FileSnapshot.find(params[:id])
+  end
+
+  # TODO: Remove after redirecting to file infos path based on file record ID
+  def staged_file
+    @master_branch
+      .staged_files.find_by(file_record_id: @snapshot.file_record_id)
   end
 end

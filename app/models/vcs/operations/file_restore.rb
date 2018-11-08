@@ -27,6 +27,7 @@ module VCS
         # Update in stage
         staged_file.update(
           snapshot_attributes.merge(external_id: external_id,
+                                    content_version: content_version,
                                     is_deleted: snapshot.nil?)
         )
       end
@@ -49,12 +50,24 @@ module VCS
       private
 
       attr_accessor :snapshot, :target_branch, :file_record_id
-      attr_writer :external_id
+      attr_writer :external_id, :content_version
 
       # Create remote file from backup copy
       def add_file
         replacement = snapshot.folder? ? create_folder : duplicate_file
         self.external_id = replacement.id
+        self.content_version = replacement.content_version
+
+        # Create a new remote content record that points at the same content
+        # version as the snapshot that we're restoring. Essentially, we're
+        # mapping the new remote file's content to the existing local content,
+        # saying that they're one and the same.
+        # TODO: Add helper method for creating a new remote version of content
+        snapshot.content.remote_contents.create!(
+          repository: snapshot.repository,
+          remote_file_id: external_id,
+          remote_content_version_id: content_version
+        )
       end
 
       # Duplicate or create file depending on whether this is a folder or not
@@ -116,6 +129,10 @@ module VCS
         @external_id ||= staged_file.external_id
       end
 
+      def content_version
+        @content_version ||= snapshot&.content_version
+      end
+
       def file_sync_class
         Providers::GoogleDrive::FileSync
       end
@@ -151,7 +168,6 @@ module VCS
       def snapshot_attributes
         {
           name: snapshot&.name,
-          content_version: snapshot&.content_version,
           mime_type: snapshot&.mime_type,
           parent: staged_parent,
           thumbnail_id: snapshot&.thumbnail_id

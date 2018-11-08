@@ -27,5 +27,14 @@ FactoryBot.define do
               file_snapshot: VCS::FileSnapshot.new)
       end
     end
+
+    after(:build) do |snapshot|
+      snapshot.content =
+        VCS::Operations::ContentGenerator.generate(
+          repository: snapshot.repository,
+          remote_file_id: snapshot.external_id,
+          remote_content_version_id: snapshot.content_version
+        )
+    end
   end
 end

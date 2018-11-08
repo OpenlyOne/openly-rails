@@ -10,6 +10,9 @@ module VCS
     has_many :file_snapshots, through: :file_records
     has_many :file_backups, through: :file_snapshots, source: :backup
 
+    has_many :contents, dependent: :destroy
+    has_many :remote_contents, dependent: :delete_all
+
     # TODO: Delete all associated records in this repository on destroy rather
     # =>    than deleting them 1 by 1
     # =>    Add #cleanup method that deletes orphaned records

@@ -24,6 +24,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .dependent(false)
         .optional
     end
+    it { is_expected.to belong_to(:content) }
     it do
       is_expected
         .to have_one(:backup)
@@ -38,13 +39,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .with_foreign_key(:file_record_id)
         .dependent(false)
     end
-    # it do
-    #   is_expected
-    #     .to have_many(:committing_files)
-    #     .class_name('CommittedFile')
-    #     .with_foreign_key(:file_resource_snapshot_id)
-    #     .dependent(false)
-    # end
+    it { is_expected.to have_one(:repository).through(:file_record) }
   end
 
   describe 'attributes' do
@@ -57,14 +52,16 @@ RSpec.describe VCS::FileSnapshot, type: :model do
     it { is_expected.to validate_presence_of(:content_version) }
     it { is_expected.to validate_presence_of(:mime_type) }
     it { is_expected.to validate_presence_of(:external_id) }
+    it do
+      is_expected.to validate_presence_of(:content).with_message('must exist')
+    end
 
     context 'uniqueness validation' do
       subject(:snapshot) { build :vcs_file_snapshot }
       it do
         is_expected
           .to validate_uniqueness_of(:file_record_id)
-          .scoped_to(:external_id, :content_version, :mime_type, :name,
-                     :file_record_parent_id)
+          .scoped_to(:name, :content_id, :mime_type, :file_record_parent_id)
           .with_message('already has a snapshot with these attributes')
       end
     end

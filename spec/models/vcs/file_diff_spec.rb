@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'models/shared_examples/being_diffing.rb'
+require 'models/shared_examples/vcs/being_diffing.rb'
 
 RSpec.describe VCS::FileDiff, type: :model do
   subject(:diff) { build_stubbed :vcs_file_diff }
 
-  it_should_behave_like 'being diffing' do
+  it_should_behave_like 'vcs: being diffing' do
     let(:diffing) do
       build_stubbed :vcs_file_diff,
                     new_snapshot: new_snapshot,

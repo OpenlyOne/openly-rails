@@ -4,7 +4,7 @@ require 'models/shared_examples/being_a_file_diff_change.rb'
 
 RSpec.describe FileDiff::Changes::Modification, type: :model do
   subject(:change)  { described_class.new(diff: diff) }
-  let(:diff)        { instance_double FileDiff }
+  let(:diff)        { instance_double VCS::FileDiff }
 
   it_should_behave_like 'being a file diff change' do
     before { allow(diff).to receive(:ancestor_path).and_return 'path' }
@@ -19,12 +19,14 @@ RSpec.describe FileDiff::Changes::Modification, type: :model do
 
   describe '#unapply' do
     subject { change.current_snapshot }
-    let(:current_snapshot) { instance_double FileResource::Snapshot }
-    let(:previous_snapshot) { instance_double FileResource::Snapshot }
+    let(:current_snapshot) { instance_double VCS::FileSnapshot }
+    let(:previous_snapshot) { instance_double VCS::FileSnapshot }
 
     before do
       allow(change).to receive(:current_snapshot).and_return current_snapshot
       allow(change).to receive(:previous_snapshot).and_return previous_snapshot
+      allow(previous_snapshot)
+        .to receive(:content_id).and_return 'previous-content-id'
       allow(previous_snapshot)
         .to receive(:content_version).and_return 'previous-content-version'
       allow(previous_snapshot)
@@ -38,6 +40,7 @@ RSpec.describe FileDiff::Changes::Modification, type: :model do
     after { change.send :unapply }
 
     it 'resets content' do
+      is_expected.to receive(:content_id=).with 'previous-content-id'
       is_expected.to receive(:content_version=).with 'previous-content-version'
       is_expected.to receive(:mime_type=).with 'previous-mime-type'
       is_expected.to receive(:external_id=).with 'previous-external-id'

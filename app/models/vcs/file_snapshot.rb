@@ -9,6 +9,7 @@ module VCS
     belongs_to :file_record, autosave: false
     belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
                                     optional: true
+    belongs_to :content
 
     has_many :staging_files, class_name: 'VCS::StagedFile',
                              foreign_key: :file_record_id
@@ -18,6 +19,7 @@ module VCS
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
                      inverse_of: :file_snapshot
+    has_one :repository, through: :file_record
 
     # Callbacks
     # Prevent updates to file snapshot; snapshots are immutable.
@@ -81,8 +83,7 @@ module VCS
     validates :external_id,       presence: true
     validates :file_record_id,
               uniqueness: {
-                scope: %i[external_id content_version mime_type name
-                          file_record_parent_id],
+                scope: %i[name content_id mime_type file_record_parent_id],
                 message: 'already has a snapshot with these attributes'
               },
               if: :new_record?
@@ -95,15 +96,36 @@ module VCS
       )
     end
 
+    # TODO: Content generation should not be happening here. Move to StagedFile
+    # =>    instead
+    def self.repository(attributes)
+      VCS::FileRecord.find(attributes[:file_record_id])&.repository
+    end
+
+    # TODO: Content generation should not be happening here. Move to StagedFile
+    # =>    instead
+    def self.content_id(attributes)
+      attributes.symbolize_keys!
+      VCS::Operations::ContentGenerator.generate(
+        repository: repository(attributes),
+        remote_file_id: attributes[:external_id],
+        remote_content_version_id: attributes[:content_version]
+      )&.id
+    end
+
+    # TODO: Content generation should not be happening here. Move to StagedFile
+    # =>    instead
     # The set of core attributes that uniquely identify a snapshot
     def self.core_attributes(attributes)
-      attributes.symbolize_keys.slice(*core_attribute_keys)
+      attributes
+        .symbolize_keys
+        .reverse_merge(content_id: content_id(attributes))
+        .slice(*core_attribute_keys)
     end
 
     # The set of core attributes that uniquely identify a snapshot
     def self.core_attribute_keys
-      %i[file_record_id name external_id content_version mime_type
-         file_record_parent_id]
+      %i[file_record_id name content_id mime_type file_record_parent_id]
     end
 
     # Find or create a snapshot from the set of core attributes, optionally
@@ -121,7 +143,7 @@ module VCS
 
     # The set of supplemental attributes to a snapshot
     def self.supplemental_attribute_keys
-      %i[thumbnail_id]
+      %i[thumbnail_id external_id content_version]
     end
 
     # Return provider ID of file resource, either preloaded or from file
