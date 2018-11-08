@@ -11,6 +11,9 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
     it { is_expected.to have_key(:form) }
     it { is_expected.to have_key(:presentation) }
     it { is_expected.to have_key(:spreadsheet) }
+    it { is_expected.to have_key(:word_docx) }
+    it { is_expected.to have_key(:word_doc) }
+    it { is_expected.to have_key(:open_document_text) }
   end
 
   describe 'EXPORT_FORMATS' do
@@ -83,6 +86,24 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
 
     context 'when mime type is PDF' do
       let(:mime_type) { type.pdf }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is word docx' do
+      let(:mime_type) { type.word_docx }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is word doc' do
+      let(:mime_type) { type.word_doc }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is open document text' do
+      let(:mime_type) { type.open_document_text }
 
       it { is_expected.to be_text_type }
     end

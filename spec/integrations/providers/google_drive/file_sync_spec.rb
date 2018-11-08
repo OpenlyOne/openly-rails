@@ -48,9 +48,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       )
     end
 
-    let(:document_type) do
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    end
+    let(:document_type) { Providers::GoogleDrive::MimeType.word_docx }
     let(:path_to_file_fixtures) do
       Rails.root.join('spec', 'support', 'fixtures', 'files')
     end
@@ -154,13 +152,9 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
         described_class.upload(
           name: 'Test File',
           parent_id: google_drive_test_folder_id,
-          mime_type: document_type,
+          mime_type: Providers::GoogleDrive::MimeType.word_docx,
           file: word_doc
         )
-      end
-      let(:document_type) do
-        'application/vnd.openxmlformats-officedocument.wordprocessingml' \
-        '.document'
       end
       let(:path_to_file_fixtures) do
         Rails.root.join('spec', 'support', 'fixtures', 'files')

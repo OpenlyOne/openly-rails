@@ -13,7 +13,11 @@ module Providers
         other: 'other',
         pdf: 'application/pdf',
         presentation: 'application/vnd.google-apps.presentation',
-        spreadsheet: 'application/vnd.google-apps.spreadsheet'
+        spreadsheet: 'application/vnd.google-apps.spreadsheet',
+        word_docx: 'application/vnd.openxmlformats-officedocument' \
+                   '.wordprocessingml.document',
+        word_doc: 'application/msword',
+        open_document_text: 'application/vnd.oasis.opendocument.text'
       }.freeze
 
       # TODO: Reference word document formats
@@ -28,7 +32,7 @@ module Providers
       }.freeze
 
       # The mime types that represent texts
-      TEXT_TYPES = %i[document pdf].freeze
+      TEXT_TYPES = %i[document pdf word_docx word_doc open_document_text].freeze
 
       class << self
         # Define getters such as .document, .folder, and .spreadsheet
