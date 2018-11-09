@@ -35,3 +35,8 @@ div.file[class=file_change.symbolic_mime_type
                          project: project,
                          device: :desktop,
                         link_options: link_options }
+
+  - if file_change.modification? && file_change.content_change.present?
+    div.content-change
+      = render partial: 'revisions/content_change_fragment',
+               collection: file_change.content_change.fragments
