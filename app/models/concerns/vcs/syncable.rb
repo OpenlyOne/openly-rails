@@ -7,6 +7,8 @@ module VCS
 
     included do
       attr_writer :sync_adapter
+      # Set force sync to execute all jobs synchronously
+      attr_accessor :force_sync
     end
 
     # TODO: Extract to parent class
@@ -28,7 +30,8 @@ module VCS
     end
 
     # Fetch and save the most recent information about this syncable resource
-    def pull
+    def pull(force_sync: false)
+      self.force_sync = force_sync
       fetch
       build_associations
       save

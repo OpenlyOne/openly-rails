@@ -77,6 +77,7 @@ RSpec.shared_examples 'vcs: being downloadable' do
 
     before do
       allow(ContentDownloadJob).to receive(:perform_later)
+      allow(ContentDownloadJob).to receive(:perform_now)
       allow(backupable).to receive(:backup).and_return backup
       allow(backupable).to receive(:content).and_return content
       allow(backup).to receive(:external_id).and_return 'ext-id'
@@ -87,6 +88,16 @@ RSpec.shared_examples 'vcs: being downloadable' do
       expect(ContentDownloadJob)
         .to have_received(:perform_later)
         .with(remote_file_id: 'ext-id', content_id: 'content-id')
+    end
+
+    context 'when force_sync is true' do
+      before { allow(backupable).to receive(:force_sync).and_return true }
+
+      it 'executes ContentDownloadJob immediately' do
+        expect(ContentDownloadJob)
+          .to have_received(:perform_now)
+          .with(remote_file_id: 'ext-id', content_id: 'content-id')
+      end
     end
   end
 end
