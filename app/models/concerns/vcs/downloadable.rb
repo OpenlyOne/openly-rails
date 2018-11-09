@@ -24,7 +24,13 @@ module VCS
     # Perform the downloading of content and save to plain_text column of
     # snapshot's content
     def download_content
-      ContentDownloadJob.perform_later(
+      # Execute job synchronously if forcing synchronous execution
+      # TODO: force_sync attribute is provided by Syncable concern. This is a
+      # =>    serious code smell.
+      method = force_sync ? :perform_now : :perform_later
+
+      ContentDownloadJob.send(
+        method,
         remote_file_id: backup.external_id,
         content_id: content.id
       )

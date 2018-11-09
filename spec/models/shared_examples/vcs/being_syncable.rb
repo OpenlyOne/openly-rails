@@ -41,6 +41,15 @@ RSpec.shared_examples 'vcs: being syncable' do
     it { expect(syncable).to receive(:fetch) }
     it { expect(syncable).to receive(:build_associations) }
     it { expect(syncable).to receive(:save) }
+
+    context 'when passing force_sync: true' do
+      subject(:pull) { syncable.pull(force_sync: true) }
+
+      it 'sets force_sync attribute on syncable' do
+        pull
+        expect(syncable.force_sync).to be true
+      end
+    end
   end
 
   describe '#pull_children' do

@@ -11,7 +11,7 @@ class FileDiff
     delegate :ancestor_path, :current_snapshot, :current_snapshot=,
              :current_or_previous_snapshot, :file_resource_id, :external_id,
              :icon, :name, :parent_id, :previous_parent_id, :previous_snapshot,
-             :symbolic_mime_type, :revision,
+             :symbolic_mime_type, :revision, :content_change,
              to: :diff
 
     delegate :unselected_file_changes, to: :revision

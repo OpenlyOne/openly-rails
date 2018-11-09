@@ -117,6 +117,27 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_text 'My Document moved to Home'
         expect(rendered).to have_text 'My Document deleted from Home'
       end
+
+      context 'when diff is modification and has content change' do
+        let(:content_change) do
+          VCS::Operations::ContentDiffer.new(
+            new_content: 'hi',
+            old_content: 'bye'
+          )
+        end
+
+        before do
+          allow(staged_file_diff).to receive(:modification?).and_return true
+          allow(staged_file_diff)
+            .to receive(:content_change).and_return content_change
+        end
+
+        it 'shows the diff' do
+          render
+          expect(rendered).to have_css('.fragment.addition', text: 'hi')
+          expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+        end
+      end
     end
 
     context 'when current user can force sync files in project' do

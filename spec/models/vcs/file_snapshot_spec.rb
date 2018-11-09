@@ -124,6 +124,25 @@ RSpec.describe VCS::FileSnapshot, type: :model do
     it { is_expected.to eq new_snapshot }
   end
 
+  describe '#plain_text_content' do
+    subject(:plain_text) { snapshot.plain_text_content }
+
+    let(:content) { instance_double VCS::Content }
+
+    before do
+      allow(snapshot).to receive(:content).and_return content
+      allow(content).to receive(:plain_text).and_return 'plain' if content
+    end
+
+    it { is_expected.to eq 'plain' }
+
+    context 'when content is nil' do
+      let(:content) { nil }
+
+      it { is_expected.to be nil }
+    end
+  end
+
   describe '#snapshot!' do
     subject             { snapshot.snapshot! }
     let(:new_snapshot)  { instance_double described_class }
