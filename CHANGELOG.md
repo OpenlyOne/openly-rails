@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.27 (Nov 8, 2018)
+
+**New Features:**
+- Users can see file content changes for text-based documents (Google Docs,
+  Word .docx, Word .doc, Open Office .odt, and PDF) on revisions, capture
+  changes, and file info pages
+
 ## v0.26.3 (Nov 7, 2018)
 
 **Fixes:**
