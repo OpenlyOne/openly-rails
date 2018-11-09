@@ -25,6 +25,12 @@ RSpec.shared_examples 'vcs: being backupable' do
     end
   end
 
+  describe 'delegations' do
+    it do
+      is_expected.to delegate_method(:backup).to(:current_snapshot).allow_nil
+    end
+  end
+
   describe '#backed_up?' do
     subject { backupable }
 

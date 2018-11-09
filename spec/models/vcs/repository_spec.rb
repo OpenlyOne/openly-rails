@@ -20,5 +20,7 @@ RSpec.describe VCS::Repository, type: :model do
         .source(:backup)
         .dependent(false)
     end
+    it { is_expected.to have_many(:contents).dependent(:destroy) }
+    it { is_expected.to have_many(:remote_contents).dependent(:delete_all) }
   end
 end

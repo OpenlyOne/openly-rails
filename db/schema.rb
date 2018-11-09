@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_063808) do
+ActiveRecord::Schema.define(version: 2018_11_08_043556) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -339,6 +339,14 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
     t.index ["file_snapshot_id"], name: "index_vcs_committed_files_on_file_snapshot_id"
   end
 
+  create_table "vcs_contents", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "plain_text"
+    t.index ["repository_id"], name: "index_vcs_contents_on_repository_id"
+  end
+
   create_table "vcs_file_backups", force: :cascade do |t|
     t.bigint "file_snapshot_id", null: false
     t.text "external_id", null: false
@@ -376,8 +384,9 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
     t.bigint "thumbnail_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["file_record_id", "external_id", "content_version", "mime_type", "name", "file_record_parent_id"], name: "index_vcs_file_snapshots_on_metadata", unique: true
-    t.index ["file_record_id", "external_id", "content_version", "mime_type", "name"], name: "index_vcs_file_snapshots_on_metadata_without_parent", unique: true, where: "(file_record_parent_id IS NULL)"
+    t.bigint "content_id", null: false
+    t.index ["file_record_id", "content_id", "file_record_parent_id", "name", "mime_type"], name: "index_vcs_file_snapshots_on_metadata", unique: true
+    t.index ["file_record_id", "content_id", "name", "mime_type"], name: "index_vcs_file_snapshots_on_metadata_without_parent", unique: true, where: "(file_record_parent_id IS NULL)"
     t.index ["file_record_id"], name: "index_vcs_file_snapshots_on_file_record_id"
     t.index ["file_record_parent_id"], name: "index_vcs_file_snapshots_on_file_record_parent_id"
     t.index ["thumbnail_id"], name: "index_vcs_file_snapshots_on_thumbnail_id"
@@ -393,6 +402,18 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "file_record_id", null: false
+  end
+
+  create_table "vcs_remote_contents", force: :cascade do |t|
+    t.bigint "repository_id", null: false
+    t.bigint "content_id", null: false
+    t.text "remote_file_id", null: false
+    t.text "remote_content_version_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_id"], name: "index_vcs_remote_contents_on_content_id"
+    t.index ["repository_id", "remote_file_id", "remote_content_version_id"], name: "index_vcs_remote_contents_on_remote_file_contents", unique: true
+    t.index ["repository_id"], name: "index_vcs_remote_contents_on_repository_id"
   end
 
   create_table "vcs_repositories", force: :cascade do |t|
@@ -460,15 +481,19 @@ ActiveRecord::Schema.define(version: 2018_11_07_063808) do
   add_foreign_key "vcs_commits", "vcs_commits", column: "parent_id"
   add_foreign_key "vcs_committed_files", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_committed_files", "vcs_file_snapshots", column: "file_snapshot_id"
+  add_foreign_key "vcs_contents", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_file_backups", "vcs_file_snapshots", column: "file_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "old_snapshot_id"
   add_foreign_key "vcs_file_records", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_file_snapshots", "vcs_contents", column: "content_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_parent_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_file_thumbnails", "vcs_file_records", column: "file_record_id"
+  add_foreign_key "vcs_remote_contents", "vcs_contents", column: "content_id"
+  add_foreign_key "vcs_remote_contents", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_staged_files", "vcs_branches", column: "branch_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_parent_id"

@@ -71,4 +71,21 @@
       }
     }
   }
+
+  .content-change {
+    border-left: 2px solid color('gray', 'lighten-2');
+    color: color('gray', 'base');
+    margin: 5px 0 5px 28px;
+    padding-left: 5px;
+    white-space: pre-line;
+
+    .addition {
+      color: color('green', 'base');
+    }
+
+    .deletion {
+      color: color('red', 'base');
+      text-decoration: line-through;
+    }
+  }
 }

@@ -29,12 +29,16 @@ class FileDiff
       end
 
       # Undo modification of the file resource
+      # TODO: Remove rolling back of external ID & content version
+      # rubocop:disable Metrics/AbcSize
       def unapply
+        current_snapshot.content_id      = previous_snapshot.content_id
         current_snapshot.content_version = previous_snapshot.content_version
         current_snapshot.mime_type       = previous_snapshot.mime_type
         current_snapshot.external_id     = previous_snapshot.external_id
         current_snapshot.thumbnail_id    = previous_snapshot.thumbnail_id
       end
+      # rubocop:enable Metrics/AbcSize
     end
   end
 end

@@ -11,7 +11,7 @@ class ForceSyncsController < ApplicationController
   before_action :set_file_resource
 
   def create
-    @file.pull
+    @file.pull(force_sync: true)
     # TODO: Add feature spec to test this!
     @file.pull_children if @file.folder_now_or_before_last_save?
 

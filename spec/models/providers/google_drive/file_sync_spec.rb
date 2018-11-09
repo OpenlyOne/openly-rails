@@ -57,6 +57,50 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '.upload(name:, parent_id:, file:, mime_type:, ...)' do
+    subject(:upload_sync) { described_class.upload(args) }
+    let(:args) do
+      { name: 'name', parent_id: 'parent-id', file: 'file', mime_type: 'doc' }
+    end
+    let(:file) { instance_double Providers::GoogleDrive::File }
+
+    before { allow(api).to receive(:upload_file).and_return file }
+    before { allow(file).to receive(:id).and_return 'file-id' }
+    before { allow(described_class).to receive(:new) }
+
+    it 'calls API#upload_file with args' do
+      expect(api).to receive(:upload_file).with(args)
+      upload_sync
+    end
+
+    it 'returns new instance of FileSync' do
+      expect(described_class)
+        .to receive(:new)
+        .with('file-id', file: file, api_connection: api)
+        .and_return('new_instance')
+      is_expected.to eq 'new_instance'
+    end
+
+    context 'when api_connection is passed' do
+      let(:custom_api) { instance_double Providers::GoogleDrive::ApiConnection }
+      before { args.merge!(api_connection: custom_api) }
+      before { allow(custom_api).to receive(:upload_file).and_return file }
+
+      it 'calls #create_file on custom api connection' do
+        expect(custom_api).to receive(:upload_file)
+        upload_sync
+      end
+
+      it 'returns new instance of FileSync with custom api' do
+        expect(described_class)
+          .to receive(:new)
+          .with('file-id', hash_including(api_connection: custom_api))
+          .and_return('new_instance')
+        is_expected.to eq 'new_instance'
+      end
+    end
+  end
+
   describe '#initialize' do
     subject(:method)  { described_class.new('id', arguments) }
     let(:arguments)   { {} }
@@ -125,6 +169,43 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
       before { file.trashed = true }
 
       it { is_expected.to be_deleted }
+    end
+  end
+
+  describe '#download(destination:)' do
+    subject(:download) { file_sync.download(destination: 'destination') }
+
+    before do
+      type = instance_double Providers::GoogleDrive::MimeType
+      allow(file_sync).to receive(:mime_type).and_return 'mime-type'
+      allow(Providers::GoogleDrive::MimeType)
+        .to receive(:new).with('mime-type').and_return type
+      allow(type).to receive(:exportable?).and_return is_exportable
+      allow(type).to receive(:export_as).and_return 'export-format'
+      allow(api).to receive(:export_file)
+      allow(api).to receive(:download_file)
+    end
+
+    context 'when file is exportable' do
+      let(:is_exportable) { true }
+
+      it 'calls #export_file' do
+        download
+        expect(api)
+          .to have_received(:export_file)
+          .with('id', format: 'export-format', destination: 'destination')
+      end
+    end
+
+    context 'when file is not exportable' do
+      let(:is_exportable) { false }
+
+      it 'calls #download_file' do
+        download
+        expect(api)
+          .to have_received(:download_file)
+          .with('id', destination: 'destination')
+      end
     end
   end
 

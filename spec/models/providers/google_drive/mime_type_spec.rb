@@ -11,6 +11,17 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
     it { is_expected.to have_key(:form) }
     it { is_expected.to have_key(:presentation) }
     it { is_expected.to have_key(:spreadsheet) }
+    it { is_expected.to have_key(:word_docx) }
+    it { is_expected.to have_key(:word_doc) }
+    it { is_expected.to have_key(:open_document_text) }
+  end
+
+  describe 'EXPORT_FORMATS' do
+    subject { type::EXPORT_FORMATS }
+    it { is_expected.to have_key(:document) }
+    it { is_expected.to have_key(:spreadsheet) }
+    it { is_expected.to have_key(:drawing) }
+    it { is_expected.to have_key(:presentation) }
   end
 
   describe 'getter methods' do
@@ -37,6 +48,70 @@ RSpec.describe Providers::GoogleDrive::MimeType, type: :model do
     context 'when mime type is not defined' do
       let(:mime_type) { 'other-mime-type' }
       it              { is_expected.to eq :other }
+    end
+  end
+
+  describe '#exportable?' do
+    subject(:type) { described_class.new(mime_type) }
+
+    context 'when mime_type is document' do
+      let(:mime_type) { described_class.document }
+
+      it { is_expected.to be_exportable }
+    end
+
+    context 'when mime_type is PDF' do
+      let(:mime_type) { described_class.pdf }
+
+      it { is_expected.not_to be_exportable }
+    end
+  end
+
+  describe '#export_as' do
+    subject(:export_as) { type.export_as }
+
+    let(:type) { described_class.new(described_class.document) }
+
+    it { is_expected.to eq described_class::EXPORT_FORMATS[:document] }
+  end
+
+  describe '#text_type?' do
+    subject { described_class.new(mime_type) }
+
+    context 'when mime type is document' do
+      let(:mime_type) { type.document }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is PDF' do
+      let(:mime_type) { type.pdf }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is word docx' do
+      let(:mime_type) { type.word_docx }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is word doc' do
+      let(:mime_type) { type.word_doc }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is open document text' do
+      let(:mime_type) { type.open_document_text }
+
+      it { is_expected.to be_text_type }
+    end
+
+    context 'when mime type is other' do
+      let(:mime_type) { 'word-document' }
+
+      it { is_expected.not_to be_text_type }
     end
   end
 end

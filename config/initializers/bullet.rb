@@ -62,4 +62,8 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'VCS::CommittedFile',
                        association: :file_snapshot
+
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'VCS::FileSnapshot',
+                       association: :content
 end

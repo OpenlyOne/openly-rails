@@ -85,6 +85,9 @@ RSpec.configure do |config|
     view.lookup_context.view_paths.unshift 'app/views/application'
   end
 
+  # Skip archived specs, such as data migrations
+  config.filter_run_excluding(archived: true)
+
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and
   # `post` in specs under `spec/controllers`.

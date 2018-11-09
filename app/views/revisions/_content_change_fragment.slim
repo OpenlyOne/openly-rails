@@ -1,0 +1,7 @@
+- if content_change_fragment.no_change?
+  - content = content_change_fragment.truncated_content(250)
+- else
+  - content = content_change_fragment.content
+
+span.fragment[class=content_change_fragment.type]
+  = content.gsub(/\n(\n)+/, "\n\n")
