@@ -37,6 +37,26 @@ RSpec.shared_examples 'vcs: being diffing' do
         .to delegate_method(:parent_id)
         .to(:current_snapshot).with_prefix(:current)
     end
+    it do
+      is_expected
+        .to delegate_method(:file_record_id)
+        .to(:current_snapshot).with_prefix(:current)
+    end
+    it do
+      is_expected
+        .to delegate_method(:file_record_parent_id)
+        .to(:current_snapshot).with_prefix(:current)
+    end
+    it do
+      is_expected
+        .to delegate_method(:content_id)
+        .to(:current_snapshot).with_prefix(:current)
+    end
+    it do
+      is_expected
+        .to delegate_method(:plain_text_content)
+        .to(:current_snapshot).with_prefix(:current)
+    end
 
     it do
       is_expected
@@ -51,6 +71,26 @@ RSpec.shared_examples 'vcs: being diffing' do
     it do
       is_expected
         .to delegate_method(:parent_id)
+        .to(:previous_snapshot).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:file_record_id)
+        .to(:previous_snapshot).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:file_record_parent_id)
+        .to(:previous_snapshot).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:content_id)
+        .to(:previous_snapshot).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:plain_text_content)
         .to(:previous_snapshot).with_prefix(:previous)
     end
 
@@ -208,6 +248,39 @@ RSpec.shared_examples 'vcs: being diffing' do
     end
 
     it { is_expected.to eq %i[c1 c2] }
+  end
+
+  describe '#content_change' do
+    subject(:content_change) { diffing.content_change }
+
+    let(:differ) { instance_double VCS::Operations::ContentDiffer }
+    let(:current_content)   { 'current' }
+    let(:previous_content)  { 'previous' }
+
+    before do
+      allow(diffing)
+        .to receive(:current_plain_text_content).and_return current_content
+      allow(diffing)
+        .to receive(:previous_plain_text_content).and_return previous_content
+      allow(VCS::Operations::ContentDiffer)
+        .to receive(:new)
+        .with(new_content: current_content, old_content: previous_content)
+        .and_return differ
+    end
+
+    it { is_expected.to eq differ }
+
+    context 'when current_content is nil' do
+      let(:current_content) { nil }
+
+      it { is_expected.to be nil }
+    end
+
+    context 'when previous_content is nil' do
+      let(:previous_content) { nil }
+
+      it { is_expected.to be nil }
+    end
   end
 
   describe '#deletion?' do

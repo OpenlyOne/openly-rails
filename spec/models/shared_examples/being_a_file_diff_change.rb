@@ -23,6 +23,8 @@ RSpec.shared_examples 'being a file diff change' do
     it { is_expected.to delegate_method(:previous_parent_id).to(:diff) }
     it { is_expected.to delegate_method(:previous_snapshot).to(:diff) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
+    it { is_expected.to delegate_method(:revision).to(:diff) }
+    it { is_expected.to delegate_method(:content_change).to(:diff) }
 
     it do
       is_expected.to delegate_method(:unselected_file_changes).to(:revision)

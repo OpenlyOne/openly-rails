@@ -147,6 +147,11 @@ module VCS
       %i[thumbnail_id external_id content_version]
     end
 
+    # The plain text content of this snapshot
+    def plain_text_content
+      content&.plain_text
+    end
+
     # Return provider ID of file resource, either preloaded or from file
     # resource
     def provider_id

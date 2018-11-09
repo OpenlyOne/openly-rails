@@ -13,7 +13,7 @@ module VCS
              to: :current_or_previous_snapshot
 
     delegate_methods = %i[content_version name parent_id file_record_parent_id
-                          file_record_id content_id]
+                          file_record_id content_id plain_text_content]
     delegate(*delegate_methods,
              to: :current_snapshot, prefix: :current, allow_nil: true)
     delegate(*delegate_methods,
@@ -66,6 +66,19 @@ module VCS
         change_types.map do |type|
           "FileDiff::Changes::#{type.to_s.humanize}".constantize.new(diff: self)
         end
+    end
+
+    # Return an instance of ContentDiffer for diffing the previous and current
+    # text contents of this diff
+    def content_change
+      return nil if previous_plain_text_content.nil?
+      return nil if current_plain_text_content.nil?
+
+      @content_change ||=
+        VCS::Operations::ContentDiffer.new(
+          new_content: current_plain_text_content,
+          old_content: previous_plain_text_content
+        )
     end
 
     def deletion?
