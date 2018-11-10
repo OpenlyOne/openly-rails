@@ -33,6 +33,18 @@
     @include slim;
   }
 
+  &.beta {
+    @include slim;
+    background: transparent;
+    border: 2px solid color('white', 'base');
+    font-weight: bold;
+    height: 20px;
+    line-height: 16px;
+    margin-left: 5px;
+    padding: 0 6px;
+    vertical-align: text-top;
+  }
+
   &.right {
     margin-left: 5px;
     margin-right: 0;
