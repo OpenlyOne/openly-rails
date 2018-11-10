@@ -1,24 +1,23 @@
-
-
 {
-    "master_picture": "app/assets/images/logo-transparent.png",
+    "master_picture": "app/assets/images/logo.png",
     "favicon_design": {
         "ios": {
             "picture_aspect": "background_and_margin",
             "background_color": "#ffffff",
-            "margin": "18%",
+            "margin": "0%",
             "assets": {
                 "ios6_and_prior_icons": false,
                 "ios7_and_later_icons": false,
                 "precomposed_icons": false,
                 "declare_only_default_icon": true
-            }
+            },
+            "app_name": "Openly"
         },
         "desktop_browser": [
 
         ],
         "windows": {
-            "picture_aspect": "white_silhouette",
+            "picture_aspect": "no_change",
             "background_color": "#2d89ef",
             "on_conflict": "override",
             "assets": {
@@ -29,10 +28,11 @@
                     "big": false,
                     "rectangle": false
                 }
-            }
+            },
+            "app_name": "Openly"
         },
         "android_chrome": {
-            "picture_aspect": "shadow",
+            "picture_aspect": "no_change",
             "theme_color": "#ffffff",
             "manifest": {
                 "name": "Openly",
@@ -47,8 +47,9 @@
             }
         },
         "safari_pinned_tab": {
-            "picture_aspect": "silhouette",
-            "theme_color": "#3768d8"
+            "picture_aspect": "black_and_white",
+            "threshold": 65,
+            "theme_color": "#1e76fd"
         }
     },
     "settings": {
