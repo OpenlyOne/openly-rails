@@ -25,6 +25,14 @@ class ApplicationController < ActionController::Base
     current_account.try(:user)
   end
 
+  # Lograge: Append information
+  # Credits: https://github.com/ankane/production_rails
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.uuid
+    payload[:user_id] = current_user.id if current_user
+  end
+
   protected
 
   def configure_permitted_parameters

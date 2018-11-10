@@ -72,6 +72,8 @@ gem 'premailer-rails', '~> 1.10'
 gem 'administrate', '0.10'
 # Extract text and metadata from files and documents
 gem 'henkei', '~> 1.18'
+# Tame Rails logs to make them more useful & readable
+gem 'lograge', '~> 0.10'
 
 group :development, :test do
   # We will use pry rails as our console

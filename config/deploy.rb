@@ -56,6 +56,7 @@ set :rollbar_role, (proc { :app })
 set :linked_dirs,
     %W[public/.well-known
        tmp/pids
+       log
        #{Settings.attachment_storage}]
 
 namespace :puma do
@@ -128,6 +129,25 @@ namespace :deploy do
   after  :migrate,        'paperclip:build_missing_styles'
   after  :finishing,      :cleanup
   after  :published,      :generate_500_html
+end
+
+# Tail a log, such as production
+# Example: cap production logs:tail[production]
+# Credit: http://www.talkingquickly.co.uk/2013/12/tailing-log-files-with-
+# =>      capistrano-3/
+namespace :logs do
+  task :tail, :file do |_task, args|
+    if args[:file]
+      on roles(:app) do
+        execute "tail -f #{shared_path}/log/#{args[:file]}.log"
+      end
+    else
+      puts "please specify a logfile e.g: 'cap production logs:tail[logfile]"
+      puts "will tail 'shared_path/log/logfile.log'"
+      puts "remember if you use zsh you'll need to format it as:"
+      puts "rake 'logs:tail[logfile]' (single quotes)"
+    end
+  end
 end
 
 # rubocop:enable Metrics/BlockLength
