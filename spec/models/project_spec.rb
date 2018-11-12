@@ -83,6 +83,36 @@ RSpec.describe Project, type: :model do
       end
     end
 
+    context 'before create' do
+      subject(:project) { build(:project) }
+
+      before do
+        allow(project).to receive(:create_repository)
+        allow(project).to receive(:create_master_branch_with_repository)
+        allow(project).to receive(:setup_archive)
+        before_save_hook if defined?(before_save_hook)
+        project.save
+      end
+
+      it { is_expected.to have_received(:create_repository) }
+      it { is_expected.to have_received(:create_master_branch_with_repository) }
+
+      context 'when repository is present' do
+        let(:before_save_hook)  { project.repository = VCS::Repository.new }
+
+        it { is_expected.not_to have_received(:create_repository) }
+      end
+
+      context 'when master_branch is present' do
+        let(:before_save_hook) { project.master_branch = VCS::Branch.new }
+
+        it do
+          is_expected
+            .not_to have_received(:create_master_branch_with_repository)
+        end
+      end
+    end
+
     context 'after create' do
       subject(:project) { build(:project) }
 
