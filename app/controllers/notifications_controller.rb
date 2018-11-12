@@ -6,7 +6,7 @@ class NotificationsController < ApplicationController
 
   # GET /notifications
   def index
-    @notifications = notifications.includes(:notifier, notifiable: [:project])
+    @notifications = notifications.includes(:notifier, :notifiable)
   end
 
   # GET /notifications/:id
