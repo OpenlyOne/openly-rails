@@ -28,5 +28,18 @@ RSpec.describe VCS::Branch, type: :model do
         is_expected.to match_array [file1, file2, file3].map(&:branch)
       end
     end
+
+    context 'when branch includes removed files that match' do
+      before do
+        VCS::StagedFile.update_all(
+          current_snapshot_id: nil,
+          committed_snapshot_id: nil
+        )
+      end
+
+      it 'does not return branch' do
+        is_expected.to be_empty
+      end
+    end
   end
 end
