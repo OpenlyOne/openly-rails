@@ -40,7 +40,8 @@ class Project < ApplicationRecord
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Set up repository and master branch
-  before_create :setup_repository
+  before_create :create_repository,                     unless: :repository
+  before_create :create_master_branch_with_repository,  unless: :master_branch
   # Set up archive for storing file backups
   # TODO: Refactor into background job
   after_create :setup_archive, unless: :skip_archive_setup
@@ -133,6 +134,11 @@ class Project < ApplicationRecord
 
   private
 
+  # Build master branch for the repository
+  def create_master_branch_with_repository
+    create_master_branch(repository: repository)
+  end
+
   # Generate the project slug from the title by replacing whitespace with
   # dashes and removing all non-alphanumeric characters
   def generate_slug_from_title
@@ -154,12 +160,6 @@ class Project < ApplicationRecord
     return if repository_archive.setup_completed?
 
     repository_archive.tap(&:setup).tap(&:save)
-  end
-
-  # Set up repository & master branch
-  def setup_repository
-    create_repository
-    create_master_branch(repository: repository)
   end
 end
 # rubocop:enable Metrics/ClassLength

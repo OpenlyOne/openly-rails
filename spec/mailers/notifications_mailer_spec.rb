@@ -12,7 +12,7 @@ RSpec.describe NotificationsMailer, type: :mailer do
   end
 
   describe '#notification_email' do
-    let(:notification) { build_stubbed :notification }
+    let(:notification) { create :notification }
     let(:mail) { described_class.notification_email(notification).deliver_now }
 
     it 'sets the correct subject' do

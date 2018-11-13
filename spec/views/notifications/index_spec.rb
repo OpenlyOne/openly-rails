@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'notifications/index', type: :view do
-  let(:notifications) { build_stubbed_list :notification, 3 }
+  let(:notifications) { create_list :notification, 3 }
   let(:unopened)      { false }
 
   before do
@@ -25,7 +25,8 @@ RSpec.describe 'notifications/index', type: :view do
     render
     notifications.each do |notification|
       notifier = notification.notifier
-      project = notification.notifiable.project
+      project =
+        Project.find_by_repository_id(notification.notifiable.repository.id)
       expect(rendered).to have_text(
         "#{notifier.name} created a revision in #{project.title}"
       )
