@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.27.1 (Nov 13, 2018)
+
+**Fixes:**
+- When adding a file to a folder that once was present in a repository,
+  FileUpdateJob no longer fails.
+
 ## v0.27 (Nov 8, 2018)
 
 **New Features:**
