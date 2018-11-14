@@ -51,6 +51,7 @@ module VCS
     # external IDs
     scope :where_staged_files_include_external_id, lambda { |external_ids|
       joins(:staged_files)
+        .merge(VCS::StagedFile.joins_staged_snapshot)
         .where(vcs_staged_files: { external_id: external_ids.to_a })
         .distinct
     }
