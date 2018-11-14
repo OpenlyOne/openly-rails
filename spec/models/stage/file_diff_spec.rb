@@ -3,6 +3,8 @@
 require 'models/shared_examples/being_diffing.rb'
 
 RSpec.describe Stage::FileDiff, type: :model do
+  before { skip('Model is pending deletion') }
+
   subject(:diff) { build :staged_file_diff }
 
   it_should_behave_like 'being diffing' do

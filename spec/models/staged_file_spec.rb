@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe StagedFile, type: :model do
+  before { skip('Model is pending deletion') }
+
   subject(:staged_file) { build :staged_file }
 
   describe 'associations' do

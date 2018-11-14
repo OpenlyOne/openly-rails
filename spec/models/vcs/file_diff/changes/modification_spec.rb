@@ -2,7 +2,7 @@
 
 require 'models/shared_examples/being_a_file_diff_change.rb'
 
-RSpec.describe FileDiff::Changes::Modification, type: :model do
+RSpec.describe VCS::FileDiff::Changes::Modification, type: :model do
   subject(:change)  { described_class.new(diff: diff) }
   let(:diff)        { instance_double VCS::FileDiff }
 

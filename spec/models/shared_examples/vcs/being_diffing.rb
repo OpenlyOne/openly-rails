@@ -241,9 +241,9 @@ RSpec.shared_examples 'vcs: being diffing' do
 
     before do
       allow(diffing).to receive(:change_types).and_return %i[addition movement]
-      allow(FileDiff::Changes::Addition)
+      allow(VCS::FileDiff::Changes::Addition)
         .to receive(:new).with(diff: diffing).and_return :c1
-      allow(FileDiff::Changes::Movement)
+      allow(VCS::FileDiff::Changes::Movement)
         .to receive(:new).with(diff: diffing).and_return :c2
     end
 

@@ -3,6 +3,8 @@
 require 'models/shared_examples/being_notifying.rb'
 
 RSpec.describe Revision, type: :model do
+  before { skip('Model is pending deletion') }
+
   subject(:revision) { build_stubbed :revision }
 
   it_should_behave_like 'being notifying' do

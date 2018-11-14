@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe FileDiff::Change, type: :model do
+RSpec.describe VCS::FileDiff::Change, type: :model do
   subject(:change)  { described_class.new(diff: diff) }
-  let(:diff)        { instance_double FileDiff }
+  let(:diff)        { instance_double VCS::FileDiff }
 
   describe 'parent class methods' do
     it { is_expected.to respond_to(:color) }

@@ -64,7 +64,8 @@ module VCS
     def changes
       @changes ||=
         change_types.map do |type|
-          "FileDiff::Changes::#{type.to_s.humanize}".constantize.new(diff: self)
+          "VCS::FileDiff::Changes::#{type.to_s.humanize}"
+            .constantize.new(diff: self)
         end
     end
 

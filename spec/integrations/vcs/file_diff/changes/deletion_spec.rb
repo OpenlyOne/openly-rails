@@ -2,44 +2,41 @@
 
 require 'integrations/shared_contexts/skip_project_archive_setup'
 
-RSpec.describe FileDiff::Changes::Deletion, type: :model do
+RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   include_context 'skip project archive setup'
 
-  subject             { revision }
+  subject             { commit }
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:child1_change) { file_diffs.find(child1_diff.id).changes.first }
   let(:child2_change) { file_diffs.find(child2_diff.id).changes.first }
-  let(:file)          { create :file_resource, name: 'c-name' }
-  let(:child1)        { create :file_resource, name: 'child1', parent: file }
-  let(:child2)        { create :file_resource, name: 'child2', parent: file }
+  let(:file)          { create :vcs_staged_file, name: 'c-name' }
+  let(:child1)        { create :vcs_staged_file, name: 'child1', parent: file }
+  let(:child2)        { create :vcs_staged_file, name: 'child2', parent: file }
   let(:child_changes) { [child1_change, child2_change] }
-  let(:revision)      { create :revision }
-  let(:file_diffs)    { revision.file_diffs.reload }
+  let(:commit)        { create :vcs_commit }
+  let(:file_diffs)    { commit.file_diffs.reload }
 
   let!(:diff) do
-    create :file_diff,
-           file_resource: file,
+    create :vcs_file_diff,
            current_snapshot: nil,
            previous_snapshot: file.current_snapshot,
-           revision: revision
+           commit: commit
   end
 
-  before { revision.assign_attributes(title: 'origin', is_published: true) }
+  before { commit.assign_attributes(title: 'origin', is_published: true) }
 
   describe 'validation: must_not_unselect_deletion_of_children' do
     let!(:child1_diff) do
-      create :file_diff,
-             file_resource: child1,
+      create :vcs_file_diff,
              current_snapshot: nil,
              previous_snapshot: child1.current_snapshot,
-             revision: revision
+             commit: commit
     end
     let!(:child2_diff) do
-      create :file_diff,
-             file_resource: child2,
+      create :vcs_file_diff,
              current_snapshot: nil,
              previous_snapshot: child2.current_snapshot,
-             revision: revision
+             commit: commit
     end
     let(:hook)  { nil }
     before      { hook }
@@ -70,24 +67,24 @@ RSpec.describe FileDiff::Changes::Deletion, type: :model do
   end
 
   describe 'validation: must_not_unselect_movement_of_children' do
+    let(:new_parent) { create :vcs_staged_file }
+
     before do
-      child1.update!(parent: nil)
-      child2.update!(parent: nil)
+      child1.update!(parent: new_parent)
+      child2.update!(parent: new_parent)
     end
 
     let!(:child1_diff) do
-      create :file_diff,
-             file_resource: child1,
+      create :vcs_file_diff,
              current_snapshot: child1.current_snapshot,
              previous_snapshot_id: child1.current_snapshot_id_before_last_save,
-             revision: revision
+             commit: commit
     end
     let!(:child2_diff) do
-      create :file_diff,
-             file_resource: child2,
+      create :vcs_file_diff,
              current_snapshot: child2.current_snapshot,
              previous_snapshot_id: child2.current_snapshot_id_before_last_save,
-             revision: revision
+             commit: commit
     end
     let(:hook)  { nil }
     before      { hook }
