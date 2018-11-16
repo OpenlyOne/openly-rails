@@ -58,6 +58,21 @@ RSpec.describe Project, type: :model do
           .to have_received(:grant_read_access_to_archive).with(collaborator)
       end
     end
+
+    context 'when removing collaborator' do
+      let(:collaborator) { create :user }
+
+      before do
+        allow(project).to receive(:remove_read_access_to_archive)
+        project.collaborators << collaborator
+        project.collaborators.delete(collaborator)
+      end
+
+      it do
+        is_expected
+          .to have_received(:remove_read_access_to_archive).with(collaborator)
+      end
+    end
   end
 
   describe 'attributes' do
@@ -217,6 +232,35 @@ RSpec.describe Project, type: :model do
       let(:archive) { nil }
 
       it { expect { grant_access }.not_to raise_error }
+    end
+  end
+
+  describe '#remove_read_access_from_archive(collaborator)' do
+    subject(:remove_access) do
+      project.send(:remove_read_access_to_archive, collaborator)
+    end
+
+    let(:collaborator)  { instance_double Profiles::User }
+    let(:account)       { instance_double Account }
+    let(:archive)       { instance_double VCS::Archive }
+
+    before do
+      allow(collaborator).to receive(:account).and_return account
+      allow(account).to receive(:email).and_return 'email@email.com'
+      allow(project).to receive(:archive).and_return archive
+      allow(archive).to receive(:remove_read_access_from) if archive
+    end
+
+    it do
+      remove_access
+      expect(archive)
+        .to have_received(:remove_read_access_from).with('email@email.com')
+    end
+
+    context 'when archive does not exist' do
+      let(:archive) { nil }
+
+      it { expect { remove_access }.not_to raise_error }
     end
   end
 

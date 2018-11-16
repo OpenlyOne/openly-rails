@@ -9,7 +9,8 @@ class Project < ApplicationRecord
                           class_name: 'Profiles::User',
                           association_foreign_key: 'profile_id',
                           validate: false,
-                          before_add: :grant_read_access_to_archive
+                          before_add: :grant_read_access_to_archive,
+                          before_remove: :remove_read_access_to_archive
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
@@ -155,6 +156,11 @@ class Project < ApplicationRecord
   # Grant view access to archive to the new collaborator
   def grant_read_access_to_archive(collaborator)
     archive&.grant_read_access_to(collaborator.account.email)
+  end
+
+  # Remove view access to archive from the removed collaborator
+  def remove_read_access_to_archive(collaborator)
+    archive&.remove_read_access_from(collaborator.account.email)
   end
 
   # Set up the archive folder for this project

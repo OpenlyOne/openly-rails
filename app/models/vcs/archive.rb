@@ -25,6 +25,12 @@ module VCS
       default_api_connection.share_file(external_id, email, :reader)
     end
 
+    # Remove the given email address as a viewer from the archive folder
+    def remove_read_access_from(email)
+      # TODO: Call method #unshare on remote_archive
+      default_api_connection.unshare_file(external_id, email)
+    end
+
     # Set up the archive folder with the provider by creating it and granting
     # view access to the repository owner
     def setup

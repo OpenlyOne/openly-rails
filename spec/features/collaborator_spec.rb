@@ -37,7 +37,7 @@ feature 'Collaborators: As a collaborator' do
     )
   end
 
-  context 'when project has an archive' do
+  context 'when project has an archive', :vcr do
     let(:api_connection) do
       Providers::GoogleDrive::ApiConnection.new(owner_acct)
     end
@@ -68,7 +68,8 @@ feature 'Collaborators: As a collaborator' do
     # delete test folder
     after { tear_down_google_drive_test(api_connection) }
 
-    let(:owner_account) { create :account, email: owner_acct }
+    let(:collaborator_account)  { create :account, email: collaborator_acct }
+    let(:owner_account)         { create :account, email: owner_acct }
     let(:project) { create :project, owner: owner_account.user }
     let(:link_to_folder) do
       "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
@@ -81,17 +82,16 @@ feature 'Collaborators: As a collaborator' do
       create :project_setup, link: link_to_folder, project: project
 
       # given I am signed in as a user
-      me = create :account, email: collaborator_acct
-      sign_in_as me
+      sign_in_as collaborator_account
       # who is added to that project's collaborators
-      project.collaborators << me.user
+      project.collaborators << collaborator_account.user
 
       # and I wait 5 seconds for Google Drive to propagate the sharing settings
       # to the folder's files
       sleep 5 if VCR.current_cassette.recording?
     end
 
-    scenario 'I have view access to the archive', :vcr do
+    scenario 'I have view access to the archive' do
       # when I visit the project page
       visit "#{project.owner.to_param}/#{project.to_param}"
 
@@ -108,6 +108,27 @@ feature 'Collaborators: As a collaborator' do
         Providers::GoogleDrive::FileSync
         .new(archived_file_id, api_connection: collaborator_api_connection)
       expect(file.name).to eq 'My Google Drive File'
+    end
+
+    context 'when I am removed as a collaborator' do
+      before do
+        # remove me as collaborator
+        project.collaborators.delete(collaborator_account.user)
+
+        # and I wait 5 seconds for Google Drive to propagate the sharing
+        # settings to the folder's files
+        sleep 5 if VCR.current_cassette.recording?
+      end
+
+      scenario 'I no longer have read access to the archive' do
+        # and fetch a file that has been backed up
+        backup_id = project.repository.file_backups.first.external_id
+        expect { collaborator_api_connection.find_file!(backup_id) }
+          .to raise_error(
+            Google::Apis::ClientError,
+            "notFound: File not found: #{backup_id}."
+          )
+      end
     end
   end
 
