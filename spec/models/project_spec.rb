@@ -44,6 +44,20 @@ RSpec.describe Project, type: :model do
         .through(:repository)
         .dependent(false)
     end
+
+    context 'when adding collaborator' do
+      let(:collaborator) { create :user }
+
+      before do
+        allow(project).to receive(:grant_read_access_to_archive)
+        project.collaborators << collaborator
+      end
+
+      it do
+        is_expected
+          .to have_received(:grant_read_access_to_archive).with(collaborator)
+      end
+    end
   end
 
   describe 'attributes' do
@@ -174,6 +188,35 @@ RSpec.describe Project, type: :model do
         project.slug = 'edit'
         is_expected.to be_invalid
       end
+    end
+  end
+
+  describe '#grant_read_access_to_archive(collaborator)' do
+    subject(:grant_access) do
+      project.send(:grant_read_access_to_archive, collaborator)
+    end
+
+    let(:collaborator)  { instance_double Profiles::User }
+    let(:account)       { instance_double Account }
+    let(:archive)       { instance_double VCS::Archive }
+
+    before do
+      allow(collaborator).to receive(:account).and_return account
+      allow(account).to receive(:email).and_return 'email@email.com'
+      allow(project).to receive(:archive).and_return archive
+      allow(archive).to receive(:grant_read_access_to) if archive
+    end
+
+    it do
+      grant_access
+      expect(archive)
+        .to have_received(:grant_read_access_to).with('email@email.com')
+    end
+
+    context 'when archive does not exist' do
+      let(:archive) { nil }
+
+      it { expect { grant_access }.not_to raise_error }
     end
   end
 

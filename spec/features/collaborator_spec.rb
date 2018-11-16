@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-feature 'Collaborators' do
+feature 'Collaborators: As a collaborator' do
   let(:project) { create(:project, :skip_archive_setup) }
 
-  scenario 'As a collaborator, the project is listed on my profile' do
+  scenario 'the project is listed on my profile' do
     # given there is a project
     project
     # and I am signed in as a user
@@ -19,7 +19,7 @@ feature 'Collaborators' do
     expect(page).to have_text project.title
   end
 
-  scenario 'As a collaborator, I can view a private project' do
+  scenario 'I can view a private project' do
     # given there is a project
     project
     # and I am signed in as a user
@@ -37,7 +37,81 @@ feature 'Collaborators' do
     )
   end
 
-  scenario 'As a collaborator, I can setup a project' do
+  context 'when project has an archive' do
+    let(:api_connection) do
+      Providers::GoogleDrive::ApiConnection.new(owner_acct)
+    end
+    let(:collaborator_api_connection) do
+      Providers::GoogleDrive::ApiConnection.new(collaborator_acct)
+    end
+    let(:owner_acct)        { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:collaborator_acct) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+    let(:tracking_acct)     { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
+
+    # create test folder
+    before { prepare_google_drive_test(api_connection) }
+    before { refresh_google_drive_authorization(collaborator_api_connection) }
+    # with remote file
+    let!(:remote_file) do
+      Providers::GoogleDrive::FileSync.create(
+        name: 'My Google Drive File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: Providers::GoogleDrive::MimeType.document,
+        api_connection: api_connection
+      )
+    end
+    # share test folder
+    before do
+      api_connection
+        .share_file(google_drive_test_folder_id, tracking_acct, :writer)
+    end
+    # delete test folder
+    after { tear_down_google_drive_test(api_connection) }
+
+    let(:owner_account) { create :account, email: owner_acct }
+    let(:project) { create :project, owner: owner_account.user }
+    let(:link_to_folder) do
+      "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
+    end
+
+    before do
+      # and I wait 5 seconds for Google Drive to propagate the sharing settings
+      # to the folder's files
+      sleep 5 if VCR.current_cassette.recording?
+      create :project_setup, link: link_to_folder, project: project
+
+      # given I am signed in as a user
+      me = create :account, email: collaborator_acct
+      sign_in_as me
+      # who is added to that project's collaborators
+      project.collaborators << me.user
+
+      # and I wait 5 seconds for Google Drive to propagate the sharing settings
+      # to the folder's files
+      sleep 5 if VCR.current_cassette.recording?
+    end
+
+    scenario 'I have view access to the archive', :vcr do
+      # when I visit the project page
+      visit "#{project.owner.to_param}/#{project.to_param}"
+
+      # and go to Revisions
+      click_on 'Revisions'
+
+      # then I should be able to see the committed files
+      anchor_to_archived_file = page.find('a', text: 'My Google Drive File')
+      link_to_archived_file = anchor_to_archived_file['href']
+      archived_file_id = link_to_archived_file.match(/[-\w]{25,}/)[0]
+
+      # and fetch the committed file
+      file =
+        Providers::GoogleDrive::FileSync
+        .new(archived_file_id, api_connection: collaborator_api_connection)
+      expect(file.name).to eq 'My Google Drive File'
+    end
+  end
+
+  scenario 'I can setup a project' do
     # given there is a project
     project
     # and I am signed in as a user
@@ -58,7 +132,7 @@ feature 'Collaborators' do
     )
   end
 
-  scenario 'As a collaborator, I can create a new revision' do
+  scenario 'I can create a new revision' do
     # given there is a project with complete setup
     project
     create(:project_setup, :completed, project: project)

@@ -5,9 +5,11 @@
 class Project < ApplicationRecord
   # Associations
   belongs_to :owner, class_name: 'Profiles::Base'
-  has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
-                                          association_foreign_key: 'profile_id',
-                                          validate: false
+  has_and_belongs_to_many :collaborators,
+                          class_name: 'Profiles::User',
+                          association_foreign_key: 'profile_id',
+                          validate: false,
+                          before_add: :grant_read_access_to_archive
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
@@ -148,6 +150,11 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # Grant view access to archive to the new collaborator
+  def grant_read_access_to_archive(collaborator)
+    archive&.grant_read_access_to(collaborator.account.email)
   end
 
   # Set up the archive folder for this project

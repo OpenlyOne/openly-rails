@@ -39,4 +39,21 @@ RSpec.describe VCS::Archive, type: :model do
         .case_insensitive
     end
   end
+
+  describe '#grant_read_access_to(email)' do
+    let(:api) { instance_double Providers::GoogleDrive::ApiConnection }
+
+    before do
+      allow(archive).to receive(:default_api_connection).and_return api
+      allow(archive).to receive(:external_id).and_return 'remote-archive-id'
+      allow(api).to receive(:share_file)
+      archive.grant_read_access_to('email@email.com')
+    end
+
+    it 'shares the remote archive with the given email' do
+      expect(api)
+        .to have_received(:share_file)
+        .with('remote-archive-id', 'email@email.com', :reader)
+    end
+  end
 end
