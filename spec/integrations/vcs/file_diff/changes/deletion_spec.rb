@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require 'integrations/shared_contexts/skip_project_archive_setup'
-
 RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
-  include_context 'skip project archive setup'
-
   subject             { commit }
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:child1_change) { file_diffs.find(child1_diff.id).changes.first }

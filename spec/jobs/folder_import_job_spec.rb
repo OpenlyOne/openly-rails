@@ -8,7 +8,7 @@ RSpec.describe FolderImportJob, type: :job do
 
   describe '#perform' do
     subject(:perform_job) { job.perform(x: 'y') }
-    let(:file)            { instance_double FileResources::GoogleDrive }
+    let(:file)            { instance_double VCS::StagedFile }
     let(:subfolders)      { %w[sub1 sub2 sub3] }
 
     before do

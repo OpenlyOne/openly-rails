@@ -4,7 +4,7 @@ RSpec.describe FileHelper, type: :helper do
   describe '#link_to_file(file, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { build_stubbed :project }
-    let(:file)        { instance_double FileResource::Snapshot }
+    let(:file)        { instance_double VCS::FileSnapshot }
     let(:is_folder)   { false }
 
     before { allow(file).to receive(:folder?).and_return is_folder }

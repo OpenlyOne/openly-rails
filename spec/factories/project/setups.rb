@@ -7,10 +7,10 @@ FactoryBot.define do
     link { '' }
 
     trait :with_link do
-      link { file_resource.external_link }
+      link { file.external_link }
 
       transient do
-        file_resource { create :file_resource, :folder }
+        file { create :vcs_staged_file, :folder }
       end
     end
 

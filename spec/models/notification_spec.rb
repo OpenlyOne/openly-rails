@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'models/shared_examples/acting_as_hash_id.rb'
+require 'models/shared_examples/having_jobs.rb'
 
 RSpec.describe Notification, type: :model do
   subject(:notification) { build_stubbed :notification }
@@ -10,6 +11,10 @@ RSpec.describe Notification, type: :model do
   end
 
   it_should_behave_like 'acting as hash ID'
+
+  it_should_behave_like 'having jobs' do
+    let(:owning_object) { notification }
+  end
 
   describe 'aliases' do
     it do
@@ -32,11 +37,11 @@ RSpec.describe Notification, type: :model do
 
   describe '.notification_helper_for(notifying_object, options = {})' do
     subject       { Notification.notification_helper_for(object, source: 'y') }
-    let(:object)  { instance_double Revision }
+    let(:object)  { instance_double VCS::Commit }
 
     before do
-      allow(object).to receive(:model_name).and_return 'Revision'
-      allow(Notifications::Revision)
+      allow(object).to receive(:model_name).and_return 'VCS::Commit'
+      allow(Notifications::VCS::Commit)
         .to receive(:new).with(object, source: 'y').and_return 'instance'
     end
 
@@ -47,7 +52,7 @@ RSpec.describe Notification, type: :model do
 
   describe '#partial_name' do
     subject                 { notification.partial_name }
-    let(:notifying_object)  { instance_double Revision }
+    let(:notifying_object)  { instance_double VCS::Commit }
     let(:active_model_name) { instance_double ActiveModel::Name }
 
     before do
@@ -66,7 +71,7 @@ RSpec.describe Notification, type: :model do
 
   describe '#title' do
     subject               { notification.title }
-    let(:revision_helper) { instance_double Notifications::Revision }
+    let(:revision_helper) { instance_double Notifications::VCS::Commit }
 
     before do
       allow(notification)

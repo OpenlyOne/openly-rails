@@ -146,7 +146,7 @@ RSpec.shared_examples 'vcs: being diffing' do
   end
 
   describe '#association(association_name)' do
-    let(:snapshot) { instance_double FileResource::Snapshot }
+    let(:snapshot) { instance_double VCS::FileSnapshot }
 
     before do
       allow(diffing)

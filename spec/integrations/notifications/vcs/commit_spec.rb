@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
-RSpec.describe Notifications::Revision, type: :model do
+RSpec.describe Notifications::VCS::Commit, type: :model do
   subject(:notification)  { described_class.new(revision) }
-  let(:revision)          { create(:revision, :drafted) }
+  let(:revision)          { create(:vcs_commit, :drafted, branch: branch) }
+  let(:branch)            { create :vcs_branch }
 
   describe '#recipients' do
     subject(:recipients)  { notification.recipients }
     let(:author)          { revision.author }
-    let(:project)         { revision.project }
+    let(:project) do
+      create :project, :skip_archive_setup, :with_repository,
+             master_branch: branch
+    end
     let(:owner)           { project.owner }
     let(:collaborator1)   { author }
     let(:collaborator2)   { create :user }

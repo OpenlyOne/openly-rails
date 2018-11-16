@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-RSpec.describe Notifications::Revision, type: :model do
+RSpec.describe Notifications::VCS::Commit, type: :model do
   subject(:notification)  { described_class.new(revision) }
-  let(:revision)          { instance_double Revision }
+  let(:revision)          { instance_double VCS::Commit }
 
   describe '#path' do
     subject(:path)  { notification.path }
     let(:project)   { instance_double Project }
 
     before do
-      allow(revision).to receive(:project).and_return project
+      allow(notification).to receive(:project).and_return project
       allow(project).to receive(:owner).and_return 'owner'
       allow(notification)
         .to receive(:profile_project_revisions_path)
