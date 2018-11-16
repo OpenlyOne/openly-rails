@@ -11,8 +11,9 @@ VCR.configure do |c|
 
   # List of Google accounts used in specs
   google_accounts = {
-    'TRACKING ACCOUNT': ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'],
-    'USER ACCOUNT':     ENV['GOOGLE_DRIVE_USER_ACCOUNT']
+    'TRACKING ACCOUNT':     ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'],
+    'USER ACCOUNT':         ENV['GOOGLE_DRIVE_USER_ACCOUNT'],
+    'COLLABORATOR ACCOUNT': ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT']
   }
 
   # transform email values to drive services
