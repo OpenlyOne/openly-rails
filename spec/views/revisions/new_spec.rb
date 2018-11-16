@@ -4,7 +4,7 @@ RSpec.describe 'revisions/new', type: :view do
   let(:project)       { build_stubbed :project, :with_repository }
   let(:repository)    { project.repository }
   let(:master_branch) { build_stubbed :vcs_branch, repository: repository }
-  let(:revision)      { build_stubbed :revision, project: project }
+  let(:revision)      { build_stubbed :vcs_commit, branch: master_branch }
   let(:file_diffs)    { [] }
 
   before { allow(revision).to receive(:file_diffs).and_return(file_diffs) }

@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require 'integrations/shared_contexts/skip_project_archive_setup'
-
 RSpec.describe VCS::Commit, type: :model do
-  include_context 'skip project archive setup'
-
   subject(:commit) { build(:vcs_commit) }
 
   describe 'notifications' do

@@ -11,7 +11,7 @@ h3.with-separator
   = render partial: 'revisions/file_changes',
            object: staged_file_diff.changes,
            locals: { project: project,
-                     revision: Revision.new,
+                     revision: VCS::Commit.new,
                      show_link_to_file_info: false,
                      all_links_in_new_tab: false }
 
