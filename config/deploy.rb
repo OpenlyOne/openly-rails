@@ -57,7 +57,8 @@ set :linked_dirs,
     %W[public/.well-known
        tmp/pids
        log
-       #{Settings.attachment_storage}]
+       #{Settings.attachment_storage}
+       #{Settings.backup_storage}]
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
