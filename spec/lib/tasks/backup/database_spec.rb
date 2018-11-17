@@ -36,7 +36,7 @@ RSpec.describe 'backup:database' do
     end
   end
 
-  context 'when restoring backup', :no_db_cleaner do
+  context 'when restoring backup', :no_db_cleaner, :slow do
     before do
       # create backup
       create_list(:account, 3)
