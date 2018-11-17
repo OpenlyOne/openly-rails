@@ -119,7 +119,7 @@ namespace :deploy do
     on roles(:web) do |host|
       public_500_html = File.join(release_path, 'public/500.html')
       execute :curl,
-              '-k',
+              '-k -L',
               "https://#{host.hostname}/500", "> #{public_500_html}"
     end
   end
