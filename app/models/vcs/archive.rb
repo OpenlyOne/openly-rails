@@ -15,13 +15,31 @@ module VCS
     validates :repository_id, uniqueness: { message: 'already has an archive' }
     validates :external_id, presence: true
 
+    def default_api_connection
+      api_connection_class.default
+    end
+
+    # Add the given email address as a viewer to the archive folder
+    def grant_read_access_to(email)
+      # TODO: Call method #share on remote_archive
+      default_api_connection.share_file(external_id, email, :reader)
+    end
+
+    # Remove the given email address as a viewer from the archive folder
+    def remove_read_access_from(email)
+      # TODO: Call method #unshare on remote_archive
+      default_api_connection.unshare_file(external_id, email)
+    end
+
     # Set up the archive folder with the provider by creating it and granting
     # view access to the repository owner
     def setup
       raise 'Already set up' if setup_completed?
 
       create_external_folder
-      grant_view_access_to_repository_owner
+      # TODO: Move this to project and archive no longer needs to know the
+      # =>    owner account
+      grant_read_access_to(owner_account_email)
     end
 
     # Return true if setup has been completed (i.e. file resource is present)
@@ -39,13 +57,6 @@ module VCS
         mime_type: mime_type_class.folder
       )
       self.external_id = folder.id
-    end
-
-    # Grants view access to the archive folder to the repository owner
-    def grant_view_access_to_repository_owner
-      api_connection_class
-        .default
-        .share_file(external_id, owner_account_email, :reader)
     end
 
     def api_connection_class

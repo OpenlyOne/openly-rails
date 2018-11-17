@@ -192,6 +192,8 @@ module Providers
       # Stop sharing the file with the given email account
       def unshare_file(id, email)
         permission_id = file_permission_id_by_email(id, email)
+        return true unless permission_id.present?
+
         drive_service.delete_permission(id, permission_id)
       end
 
