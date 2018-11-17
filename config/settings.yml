@@ -10,6 +10,8 @@ app_slug: <%= ENV['APPLICATION_SLUG'] || 'openly' %>
 app_url: "www.<%= ENV['APPLICATION_DOMAIN'] %>"
 # The location for storing Paperclip attachments, such as profile pictures
 attachment_storage: 'public/system'
+# The location for storing backups of database and attachments
+backup_storage: 'backup'
 # Allow users to register new accounts
 enable_account_registration: true
 # The account used to access, monitor, and manage files
