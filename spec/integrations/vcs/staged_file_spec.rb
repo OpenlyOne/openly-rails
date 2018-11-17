@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'integrations/shared_contexts/skip_project_archive_setup'
-require 'integrations/shared_examples/including_snapshotable_integration.rb'
 require 'integrations/shared_examples/vcs/including_downloadable_integration.rb'
+require 'integrations/shared_examples/vcs/including_snapshotable_integration.rb'
 require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 
 RSpec.describe VCS::StagedFile, type: :model do
@@ -17,10 +16,10 @@ RSpec.describe VCS::StagedFile, type: :model do
   let(:file_record) { create :vcs_file_record }
   let(:external_id) { 'id' }
 
-  it_should_behave_like 'including snapshotable integration' do
-    let(:file)                    { build :file_resources_google_drive }
+  it_should_behave_like 'vcs: including snapshotable integration' do
+    let(:file)                    { build :vcs_staged_file }
     let(:snapshotable)            { file }
-    let(:snapshotable_model_name) { 'FileResources::GoogleDrive' }
+    let(:snapshotable_model_name) { 'VCS::StagedFile' }
   end
 
   it_should_behave_like 'vcs: including syncable integration' do
@@ -60,8 +59,6 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe 'snapshotable + syncable', :vcr do
-    include_context 'skip project archive setup'
-
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }
     let!(:file_sync) do

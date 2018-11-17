@@ -54,14 +54,14 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
 
     context 'on update' do
-      let(:thumbnail) { create :file_resource_thumbnail }
+      let(:thumbnail) { create :vcs_file_thumbnail }
       it do
         expect { thumbnail.save }.to raise_error ActiveRecord::ReadOnlyRecord
       end
     end
 
     context 'on destroy' do
-      let(:thumbnail) { create :file_resource_thumbnail }
+      let(:thumbnail) { create :vcs_file_thumbnail }
       it { expect { thumbnail.destroy }.not_to raise_error }
     end
   end

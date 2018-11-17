@@ -124,8 +124,8 @@ RSpec.describe VCS::Commit, type: :model do
     subject { commit.file_changes }
 
     before do
-      diff1 = instance_double FileDiff
-      diff2 = instance_double FileDiff
+      diff1 = instance_double VCS::FileDiff
+      diff2 = instance_double VCS::FileDiff
       allow(commit).to receive(:file_diffs).and_return [diff1, diff2]
       allow(diff1).to receive(:changes).and_return %w[c1 c2]
       allow(diff2).to receive(:changes).and_return %w[c3]
@@ -199,9 +199,9 @@ RSpec.describe VCS::Commit, type: :model do
   end
 
   describe '#selected_file_change_ids=(ids)' do
-    let(:change1) { instance_double FileDiff::Change }
-    let(:change2) { instance_double FileDiff::Change }
-    let(:change3) { instance_double FileDiff::Change }
+    let(:change1) { instance_double VCS::FileDiff::Change }
+    let(:change2) { instance_double VCS::FileDiff::Change }
+    let(:change3) { instance_double VCS::FileDiff::Change }
 
     before do
       allow(commit)
@@ -221,8 +221,8 @@ RSpec.describe VCS::Commit, type: :model do
   end
 
   describe '#apply_selected_file_changes' do
-    let(:diff1) { instance_double FileDiff }
-    let(:diff2) { instance_double FileDiff }
+    let(:diff1) { instance_double VCS::FileDiff }
+    let(:diff2) { instance_double VCS::FileDiff }
     let(:unselected_file_changes) { %w[c1 c2] }
 
     before do

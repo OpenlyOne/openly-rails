@@ -5,9 +5,12 @@
 class Project < ApplicationRecord
   # Associations
   belongs_to :owner, class_name: 'Profiles::Base'
-  has_and_belongs_to_many :collaborators, class_name: 'Profiles::User',
-                                          association_foreign_key: 'profile_id',
-                                          validate: false
+  has_and_belongs_to_many :collaborators,
+                          class_name: 'Profiles::User',
+                          association_foreign_key: 'profile_id',
+                          validate: false,
+                          before_add: :grant_read_access_to_archive,
+                          before_remove: :remove_read_access_to_archive
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
@@ -40,7 +43,8 @@ class Project < ApplicationRecord
   # Auto-generate slug from title
   before_validation :generate_slug_from_title, if: :title?, unless: :slug?
   # Set up repository and master branch
-  before_create :setup_repository
+  before_create :create_repository,                     unless: :repository
+  before_create :create_master_branch_with_repository,  unless: :master_branch
   # Set up archive for storing file backups
   # TODO: Refactor into background job
   after_create :setup_archive, unless: :skip_archive_setup
@@ -133,6 +137,11 @@ class Project < ApplicationRecord
 
   private
 
+  # Build master branch for the repository
+  def create_master_branch_with_repository
+    create_master_branch(repository: repository)
+  end
+
   # Generate the project slug from the title by replacing whitespace with
   # dashes and removing all non-alphanumeric characters
   def generate_slug_from_title
@@ -142,6 +151,16 @@ class Project < ApplicationRecord
       .strip                    # trim whitespaces
       .tr(' ', '-')             # replace whitespaces with dashes
       .downcase                 # all lowercase
+  end
+
+  # Grant view access to archive to the new collaborator
+  def grant_read_access_to_archive(collaborator)
+    archive&.grant_read_access_to(collaborator.account.email)
+  end
+
+  # Remove view access to archive from the removed collaborator
+  def remove_read_access_to_archive(collaborator)
+    archive&.remove_read_access_from(collaborator.account.email)
   end
 
   # Set up the archive folder for this project
@@ -154,12 +173,6 @@ class Project < ApplicationRecord
     return if repository_archive.setup_completed?
 
     repository_archive.tap(&:setup).tap(&:save)
-  end
-
-  # Set up repository & master branch
-  def setup_repository
-    create_repository
-    create_master_branch(repository: repository)
   end
 end
 # rubocop:enable Metrics/ClassLength

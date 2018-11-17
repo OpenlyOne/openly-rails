@@ -1,7 +1,7 @@
-= link_to notification_path(revision_notification),
+= link_to notification_path(vcs_commit_notification),
           class: 'notification collection-item avatar' do
 
-  = image_tag revision_notification.notifier.picture.url, class: 'circle'
+  = image_tag vcs_commit_notification.notifier.picture.url, class: 'circle'
 
   - if vcs_commit_notification.unread?
     .right.chip.primary-color.primary-color-text.slim-on-mobile new

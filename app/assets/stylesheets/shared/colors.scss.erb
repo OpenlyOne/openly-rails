@@ -76,10 +76,11 @@ $colors: map-merge($colors, ('white': ('base': #fff)));
     @include light-seam(bottom);
   }
 
+  // CHANGED: Do not invert color of Openly bee logo
   // NAVIGATION: Invert color of logo if white text
-  &.primary-white-text .brand-logo > img {
-    filter: invert(1);
-  }
+  // &.primary-white-text .brand-logo > img {
+  //   filter: invert(1);
+  // }
 
   // NAVIGATION: Use light overlay if black text
   &.primary-black-text .nav-overlay {

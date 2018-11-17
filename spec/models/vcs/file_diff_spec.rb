@@ -54,8 +54,8 @@ RSpec.describe VCS::FileDiff, type: :model do
   describe '#apply_selected_changes' do
     let(:diff1) { instance_double VCS::FileDiff }
     let(:diff2) { instance_double VCS::FileDiff }
-    let(:change1) { instance_double FileDiff::Change }
-    let(:change2) { instance_double FileDiff::Change }
+    let(:change1) { instance_double VCS::FileDiff::Change }
+    let(:change2) { instance_double VCS::FileDiff::Change }
 
     before do
       allow(diff).to receive(:changes).and_return [change1, change2]

@@ -2,8 +2,9 @@
 
 RSpec.describe 'revisions/folders/show', type: :view do
   let(:folder)    { nil }
-  let(:project)   { build_stubbed :project }
-  let(:revision)  { build_stubbed :revision, :published, project: project }
+  let(:project)   { build_stubbed :project, :with_repository }
+  let(:master)    { project.master_branch }
+  let(:revision)  { build_stubbed :vcs_commit, :published, branch: master }
   let(:children)  { build_stubbed_list :vcs_file_snapshot, 5 }
   let(:ancestors) { [] }
   let(:action)    { 'root' }
@@ -47,7 +48,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
   end
 
   it 'renders the thumbnails of files and folders' do
-    thumbnail = create :file_resource_thumbnail
+    thumbnail = create :vcs_file_thumbnail
     children.each do |child|
       allow(child)
         .to receive(:thumbnail).and_return thumbnail
@@ -126,9 +127,9 @@ RSpec.describe 'revisions/folders/show', type: :view do
   context 'when action name is show' do
     let(:action)      { 'show' }
     let(:ancestors)   { [parent, grandparent] }
-    let(:grandparent) { build_stubbed :file_resource_snapshot, name: 'Docs' }
-    let(:parent)      { build_stubbed :file_resource_snapshot, name: 'Other' }
-    let(:folder)      { build_stubbed :file_resource_snapshot, name: 'Folder' }
+    let(:grandparent) { build_stubbed :vcs_file_snapshot, name: 'Docs' }
+    let(:parent)      { build_stubbed :vcs_file_snapshot, name: 'Other' }
+    let(:folder)      { build_stubbed :vcs_file_snapshot, name: 'Folder' }
 
     it 'renders breadcrumbs' do
       render
