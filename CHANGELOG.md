@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.28 (Nov 16, 2018)
+
+**Enhancements:**
+- Grant archive access to project collaborators (and remove access when
+  collaborators are removed)
+- Replace logo with new bee logo and add 'beta' badge to navbar
+- Improve logging by:
+    - sharing logs between deployments
+    - piping delayed job output to a dedicated delayed_job_production.log file
+    - using Lograge to summarize log output
+
+**Fixes:**
+- The notifications page no longer crashes when one has notifications about new
+  revisions
+- Notification emails no longer have the old Upshift logo
+- Upgrade rack gem to v2.0.6 to fix
+  [CVE-2018-16471](https://nvd.nist.gov/vuln/detail/CVE-2018-16471) and
+  [CVE-2018-16470](https://nvd.nist.gov/vuln/detail/CVE-2018-16470)
+- Remove old models & specs (e.g. FileResource)
+
 ## v0.27.1 (Nov 13, 2018)
 
 **Fixes:**
