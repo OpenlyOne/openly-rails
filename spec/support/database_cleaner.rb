@@ -38,11 +38,15 @@ RSpec.configure do |config|
     end
   end
 
-  config.before(:each) do
+  config.before(:each) do |example|
+    next if example.metadata[:no_db_cleaner]
+
     DatabaseCleaner.start
   end
 
-  config.append_after(:each) do
+  config.append_after(:each) do |example|
+    next if example.metadata[:no_db_cleaner]
+
     DatabaseCleaner.clean
   end
 end
