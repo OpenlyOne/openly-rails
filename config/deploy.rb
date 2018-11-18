@@ -57,7 +57,8 @@ set :linked_dirs,
     %W[public/.well-known
        tmp/pids
        log
-       #{Settings.attachment_storage}]
+       #{Settings.attachment_storage}
+       #{Settings.backup_storage}]
 
 namespace :puma do
   desc 'Create Directories for Puma Pids and Socket'
@@ -96,6 +97,36 @@ task :invoke, [:command] => 'deploy:set_rails_env' do |_task, args|
   end
 end
 
+namespace :backup do
+  desc 'Backup database & attachments'
+  task :all do
+    invoke 'backup:database'
+    invoke 'backup:attachments'
+  end
+
+  desc 'Backup the database'
+  task :database do
+    on roles(:app) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'backup:database'
+        end
+      end
+    end
+  end
+
+  desc 'Backup the attachments'
+  task :attachments do
+    on roles(:app) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'backup:attachments'
+        end
+      end
+    end
+  end
+end
+
 namespace :deploy do
   desc 'Make sure local git is in sync with remote.'
   task :check_revision do
@@ -125,6 +156,7 @@ namespace :deploy do
   end
 
   before :starting,       :check_revision
+  after  :finishing,      'backup:all'
   after  :finishing,      :compile_assets
   after  :migrate,        'paperclip:build_missing_styles'
   after  :finishing,      :cleanup

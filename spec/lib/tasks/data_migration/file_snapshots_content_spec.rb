@@ -6,7 +6,6 @@ RSpec.describe 'data_migration:file_snapshots_content', :archived do
   include_context 'rake'
 
   let(:run_the_task) { subject.invoke }
-  let(:task_path)    { "lib/tasks/#{task_name.tr(':', '/')}" }
 
   let!(:snapshots) { create_list(:vcs_file_snapshot, 3) }
 

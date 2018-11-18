@@ -7,7 +7,6 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   include_context 'rake'
 
   let(:run_the_task) { subject.invoke }
-  let(:task_path)    { "lib/tasks/#{task_name.tr(':', '/')}" }
 
   let!(:old_thumbnails) do
     build_list(:vcs_file_thumbnail, 3, file_record_id: nil).each do |record|
