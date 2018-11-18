@@ -6,6 +6,11 @@ namespace :backup do
   namespace :attachments do
     desc 'Backup: Attachments: Backup the attachments using recursive copy'
     task capture: %i[environment create_directory] do
+      unless AttachmentsBackupTaskHelper.perform_backup?
+        puts 'Skipping backup of attachments because no attachments exist'
+        next
+      end
+
       backup_path = AttachmentsBackupTaskHelper.path_for_new_backup
 
       puts "Capturing backup of attachments to #{backup_path}..."

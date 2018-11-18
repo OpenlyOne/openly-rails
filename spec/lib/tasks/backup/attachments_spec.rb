@@ -43,4 +43,10 @@ RSpec.describe 'backup:attachments' do
       expect(backups.count).to eq 2
     end
   end
+
+  context 'when attachment folder does not exist' do
+    before { FileUtils.rm_rf Rails.root.join(Settings.attachment_storage) }
+
+    it { expect { run_task }.not_to raise_error }
+  end
 end

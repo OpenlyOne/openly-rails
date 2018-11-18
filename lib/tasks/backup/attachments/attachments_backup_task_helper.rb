@@ -19,6 +19,13 @@ class AttachmentsBackupTaskHelper < BackupTaskHelper
     backup_directory.join("#{timestamp}_#{Rails.env}_attachments")
   end
 
+  # Should the backup be performed?
+  # Yes, if attachment folder exists
+  # No, if no attachments exist
+  def self.perform_backup?
+    File.exist?(attachments_directory)
+  end
+
   def self.timestamp
     Time.now.strftime('%Y-%m-%d-%Hh-%Mm-%Ss')
   end
