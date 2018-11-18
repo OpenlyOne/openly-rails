@@ -54,6 +54,7 @@ RSpec.describe 'backup:all' do
       ActiveRecord::Base.remove_connection
       system('rake db:drop RAILS_ENV=test', out: File::NULL)
       system('rake db:create RAILS_ENV=test', out: File::NULL)
+      system('rake db:schema:load RAILS_ENV=test', out: File::NULL)
       ActiveRecord::Base.establish_connection
     end
 
