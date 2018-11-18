@@ -35,36 +35,4 @@ RSpec.describe 'backup:database' do
       expect(backups.count).to eq 2
     end
   end
-
-  context 'when restoring backup', :no_db_cleaner, :slow do
-    before do
-      # create backup
-      create_list(:account, 3)
-      run_task
-
-      # clear database
-      ActiveRecord::Base.remove_connection
-      system('rake db:drop RAILS_ENV=test', out: File::NULL)
-      system('rake db:create RAILS_ENV=test', out: File::NULL)
-    end
-
-    # Ensure state restoration
-    after do
-      system('rake db:create RAILS_ENV=test', out: File::NULL, err: File::NULL)
-      ActiveRecord::Base.establish_connection
-    end
-
-    it 'succeeds' do
-      # import database
-      `pg_restore \
-       -d #{Rails.configuration.database_configuration['test']['database']} \
-       -1 \
-       #{backups.first.to_s}`
-
-      # reconnect to database
-      ActiveRecord::Base.establish_connection
-
-      expect(Account.count).to eq 3
-    end
-  end
 end
