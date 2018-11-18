@@ -98,12 +98,29 @@ task :invoke, [:command] => 'deploy:set_rails_env' do |_task, args|
 end
 
 namespace :backup do
+  desc 'Backup database & attachments'
+  task :all do
+    invoke 'backup:database'
+    invoke 'backup:attachments'
+  end
+
   desc 'Backup the database'
   task :database do
     on roles(:app) do
       within release_path do
         with rails_env: fetch(:rails_env) do
           execute :rake, 'backup:database'
+        end
+      end
+    end
+  end
+
+  desc 'Backup the attachments'
+  task :attachments do
+    on roles(:app) do
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+          execute :rake, 'backup:attachments'
         end
       end
     end
@@ -139,7 +156,7 @@ namespace :deploy do
   end
 
   before :starting,       :check_revision
-  after  :finishing,      'backup:database'
+  after  :finishing,      'backup:all'
   after  :finishing,      :compile_assets
   after  :migrate,        'paperclip:build_missing_styles'
   after  :finishing,      :cleanup
