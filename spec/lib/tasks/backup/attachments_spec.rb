@@ -7,10 +7,9 @@ RSpec.describe 'backup:attachments' do
 
   subject(:run_task) { task.invoke }
 
-  let(:task_path) { "lib/tasks/#{task_name.tr(':', '/')}" }
-  let(:depends_on_task_paths) do
-    ['lib/tasks/backup/attachments/capture',
-     'lib/tasks/backup/attachments/create_directory']
+  let(:tasks_to_load) do
+    ['backup:attachments:capture',
+     'backup:attachments:create_directory']
   end
   let(:backups)      { Pathname.new(backups_path).children }
   let(:backups_path) { Rails.root.join(Settings.backup_storage, 'attachments') }

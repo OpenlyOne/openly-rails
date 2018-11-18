@@ -7,14 +7,13 @@ RSpec.describe 'backup:all' do
 
   subject(:run_task) { task.invoke }
 
-  let(:task_path) { "lib/tasks/#{task_name.tr(':', '/')}" }
-  let(:depends_on_task_paths) do
-    ['lib/tasks/backup/database',
-     'lib/tasks/backup/database/capture',
-     'lib/tasks/backup/database/create_directory',
-     'lib/tasks/backup/attachments',
-     'lib/tasks/backup/attachments/capture',
-     'lib/tasks/backup/attachments/create_directory']
+  let(:tasks_to_load) do
+    ['backup:database',
+     'backup:database:capture',
+     'backup:database:create_directory',
+     'backup:attachments',
+     'backup:attachments:capture',
+     'backup:attachments:create_directory']
   end
   let(:database_backups)    { Pathname.new(database_backups_path).children }
   let(:attachment_backups)  { Pathname.new(attachment_backups_path).children }

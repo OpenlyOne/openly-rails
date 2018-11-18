@@ -7,10 +7,9 @@ RSpec.describe 'backup:database' do
 
   subject(:run_task) { task.invoke }
 
-  let(:task_path) { "lib/tasks/#{task_name.tr(':', '/')}" }
-  let(:depends_on_task_paths) do
-    ['lib/tasks/backup/database/capture',
-     'lib/tasks/backup/database/create_directory']
+  let(:tasks_to_load) do
+    ['backup:database:capture',
+     'backup:database:create_directory']
   end
   let(:backups)       { Pathname.new(backups_path).children }
   let(:backups_path)  { Rails.root.join(Settings.backup_storage, 'database') }
