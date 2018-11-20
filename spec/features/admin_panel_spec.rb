@@ -22,3 +22,26 @@ feature 'Admin Panel' do
     expect(page).to have_text admin.email
   end
 end
+
+feature 'Analytics Dashboard' do
+  scenario 'Guest cannot access admin panel' do
+    expect { visit '/admin/analytics' }
+      .to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  scenario 'User cannot access admin panel' do
+    account = create :account
+    sign_in_as account
+
+    expect { visit '/admin/analytics' }
+      .to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  scenario 'Admin can access admin panel' do
+    admin = create :account, :admin
+    sign_in_as admin
+
+    visit '/admin/analytics'
+    expect(page).to have_text 'New Query'
+  end
+end
