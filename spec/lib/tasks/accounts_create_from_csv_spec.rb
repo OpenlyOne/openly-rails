@@ -5,7 +5,6 @@ require 'lib/shared_contexts/rake.rb'
 RSpec.describe 'accounts:create_from_csv' do
   include_context 'rake'
 
-  let(:task_path)   { "lib/tasks/#{task_name.tr(':', '/')}" }
   let(:path_to_csv) { 'spec/support/fixtures/accounts/import.csv' }
 
   let(:account1)    { Account.find_by_email('a1@example.com') }

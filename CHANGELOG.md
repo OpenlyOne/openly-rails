@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.29 (Nov 19, 2018)
+
+**New Features:**
+- Analytics dashboard for admin accounts for visualizing data like Monthly
+  Active Users or number of files tracked
+
+**Enhancements:**
+- Database & (Paperclip) attachments are automatically backed up on deployment
+
+**Fixes:**
+- Notifications on the notifications page are now ordered in anti-chronological
+  order (most recent first)
+- Generation of the 500 server error page now works even when curl has to follow
+  redirects
+
 ## v0.28 (Nov 16, 2018)
 
 **Enhancements:**

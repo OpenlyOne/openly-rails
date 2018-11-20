@@ -87,6 +87,7 @@ RSpec.configure do |config|
 
   # Skip archived specs, such as data migrations
   config.filter_run_excluding(archived: true)
+  config.filter_run_excluding(slow: true) unless ENV['ALL_TESTS']
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and

@@ -7,6 +7,9 @@ Rails.application.routes.draw do
       resources :accounts
       resources :resources
 
+      # Analytics Dashboard
+      mount Blazer::Engine, at: 'analytics', as: :analytics
+
       root to: 'accounts#index'
     end
   end

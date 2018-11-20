@@ -35,6 +35,11 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def authenticate_admin
+    authenticate_account!
+    authorize! :manage, :admin_panel
+  end
+
   def configure_permitted_parameters
     # Specify permitted parameters for sign up. This is necessary since we want
     # to allow nested attributes for user.

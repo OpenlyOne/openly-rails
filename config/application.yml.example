@@ -39,6 +39,9 @@ production:
   PRODUCTION_DATABASE_PASSWORD: <your postgres user's password>
   GOOGLE_DRIVE_CREDENTIALS_PATH: '/var/apps/app-name/shared/credentials/google-drive.yaml'
   THUMBNAIL_HASH_SECRET: <token for thumbnail path obfuscation
+  # Make sure to use a user with read-only access
+  # Read: https://github.com/ankane/blazer#permissions
+  BLAZER_DATABASE_URL: "postgres://user:password@hostname:5432/database"
 
 test:
   GOOGLE_DRIVE_TRACKING_ACCOUNT: <optionally, use a different account for tracking file changes in test environment>

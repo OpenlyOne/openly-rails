@@ -23,6 +23,6 @@ class NotificationsController < ApplicationController
   private
 
   def notifications
-    Notification.where(target: current_account)
+    Notification.where(target: current_account).order(id: :desc)
   end
 end
