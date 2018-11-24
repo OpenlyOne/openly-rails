@@ -22,9 +22,6 @@ module Profiles
     has_many :projects, foreign_key: :owner_id,
                         dependent: :destroy,
                         inverse_of: :owner
-    has_many :resources, foreign_key: :owner_id,
-                         dependent: :destroy,
-                         inverse_of: :owner
     has_and_belongs_to_many :collaborations, class_name: 'Project',
                                              foreign_key: 'profile_id',
                                              validate: false

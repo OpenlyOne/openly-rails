@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   authenticated :account, ->(account) { account.admin? } do
     namespace :admin do
       resources :accounts
-      resources :resources
 
       # Analytics Dashboard
       mount Blazer::Engine, at: 'analytics', as: :analytics
@@ -59,9 +58,6 @@ Rails.application.routes.draw do
 
   # Routes for notifications
   resources :notifications, only: %i[index show]
-
-  # Routes for resources
-  resources :resources, only: :show
 
   # Routes for creating new projects
   get   '/projects/new' => 'projects#new',    as: :new_project
