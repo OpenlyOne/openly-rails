@@ -3,12 +3,10 @@
 RSpec.describe 'profiles/show', type: :view do
   let(:profile)   { build(:user, :with_social_links) }
   let(:projects)  { build_stubbed_list(:project, 3, owner: profile) }
-  let(:resources) { build_stubbed_list(:resource, 3, owner: profile) }
 
   before do
     assign(:profile, profile)
     assign(:projects, projects)
-    assign(:resources, resources)
   end
 
   it 'renders the name of the profile' do
