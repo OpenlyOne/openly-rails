@@ -18,7 +18,8 @@ namespace :backup do
       FileUtils.copy_entry(
         AttachmentsBackupTaskHelper.attachments_directory,
         backup_path,
-        preserve: true
+        true, # preserve file permissions
+        true  # dereference source (b/c source is a symlink in production)
       )
 
       backup_size =
