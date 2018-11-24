@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_20_031717) do
+ActiveRecord::Schema.define(version: 2018_11_24_192534) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -215,17 +215,6 @@ ActiveRecord::Schema.define(version: 2018_11_20_031717) do
     t.index ["repository_id"], name: "index_projects_on_repository_id"
   end
 
-  create_table "resources", force: :cascade do |t|
-    t.string "title", null: false
-    t.text "description"
-    t.text "mime_type", null: false
-    t.bigint "owner_id", null: false
-    t.text "link", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["owner_id"], name: "index_resources_on_owner_id"
-  end
-
   create_table "signups", force: :cascade do |t|
     t.text "email"
     t.datetime "created_at", null: false
@@ -385,7 +374,6 @@ ActiveRecord::Schema.define(version: 2018_11_20_031717) do
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"
   add_foreign_key "projects", "vcs_repositories", column: "repository_id"
-  add_foreign_key "resources", "profiles", column: "owner_id"
   add_foreign_key "vcs_archives", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_branches", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_commits", "profiles", column: "author_id"
