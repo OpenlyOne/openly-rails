@@ -1,0 +1,12 @@
+/ render the contribution's timestamp
+- if device == :desktop
+  - class_tag = 'hide-on-small-only'
+  - is_slim   = false
+- elsif device == :mobile
+  - class_tag = 'hide-on-med-and-up'
+  - is_slim   = true
+
+div class=[class_tag]
+  span.chip.right[class=('slim' if is_slim)]
+    => time_ago_in_words(contribution.created_at)
+    | ago

@@ -29,13 +29,13 @@ feature 'Revision' do
     visit "#{project.owner.to_param}/#{project.to_param}"
     # and click on Contributions
     click_on 'Contributions'
-    # and click on New...
-    click_on 'New...'
-    # and enter a revision title
+    # and click on New Contribution
+    click_on 'New Contribution'
+    # and enter a contribution title
     fill_in 'Title', with: 'A Contribution'
     fill_in 'Description', with: 'My new contribution'
-    # and click on 'Create'
-    click_on 'Create'
+    # and click on 'Create Contribution'
+    click_on 'Create Contribution'
 
     # then I should be on the contribution page
     expect(page).to have_current_path(

@@ -1,0 +1,30 @@
+/ render a single contribution
+
+.row.contribution id=contribution.id
+
+  .spacing.v8px
+
+  = render partial: 'contribution_timestamp',
+           locals: { project: project, contribution: contribution, device: :mobile }
+
+  .spacing.v8px
+
+
+  .col.l2.m3.s12.center-align
+    = render partial: 'profiles/profile',
+             object: contribution.creator
+
+  .col.l10.m9.s12
+    h5.title.no-margin-top
+      = render partial: 'contribution_timestamp',
+               locals: { project: project, contribution: contribution, device: :desktop }
+      = link_to( profile_project_contribution_path(project.owner, project, contribution),
+                 class: 'black-text' )
+        b = contribution.title
+
+    .description
+      = simple_format html_escape(contribution.description)
+
+.spacing.v16px
+.divider
+.spacing.v16px
