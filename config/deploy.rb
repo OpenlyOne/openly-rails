@@ -156,8 +156,8 @@ namespace :deploy do
   end
 
   before :starting,       :check_revision
-  after  :finishing,      'backup:all'
   after  :finishing,      :compile_assets
+  before :migrate,        'backup:all'
   after  :migrate,        'paperclip:build_missing_styles'
   after  :finishing,      :cleanup
   after  :published,      :generate_500_html
