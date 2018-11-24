@@ -52,24 +52,6 @@ RSpec.describe 'profiles/show', type: :view do
     end
   end
 
-  it 'lists resources with title & description' do
-    render
-    resources.each do |resource|
-      expect(rendered).to have_text resource.title
-      expect(rendered).to have_text resource.description
-    end
-  end
-
-  it 'links to resources' do
-    render
-    resources.each do |resource|
-      expect(rendered).to have_link(
-        'Open in Google Drive',
-        href: resource_path(resource)
-      )
-    end
-  end
-
   context 'when current user can edit profile' do
     before { assign(:user_can_edit_profile, true) }
 
