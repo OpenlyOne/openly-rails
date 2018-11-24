@@ -13,6 +13,7 @@ RSpec.describe 'backup:attachments' do
   end
   let(:backups)      { Pathname.new(backups_path).children }
   let(:backups_path) { Rails.root.join(Settings.backup_storage, 'attachments') }
+  let(:attachments_path) { Rails.root.join(Settings.attachment_storage) }
 
   before { allow(STDOUT).to receive(:puts) }
 
@@ -44,8 +45,23 @@ RSpec.describe 'backup:attachments' do
   end
 
   context 'when attachment folder does not exist' do
-    before { FileUtils.rm_rf Rails.root.join(Settings.attachment_storage) }
+    before { FileUtils.rm_rf attachments_path }
 
     it { expect { run_task }.not_to raise_error }
+  end
+
+  context 'when attachment folder is a symlink' do
+    let(:new_attachments_path) { "#{attachments_path}-real" }
+
+    before do
+      FileUtils.mv(attachments_path, new_attachments_path)
+      FileUtils.ln_s(new_attachments_path, attachments_path)
+    end
+
+    it 'dereferences the attachments folder and backs up its files' do
+      run_task
+      expect(File).not_to be_symlink(backups.first)
+      expect(backups.first.children.count).to eq 1
+    end
   end
 end
