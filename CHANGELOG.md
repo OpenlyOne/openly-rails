@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.29.1 (Nov 24, 2018)
+
+**Fixes:**
+- Dereference source directory when backing up (Paperclip) attachments, so that
+  the actual files are copied and not just a symlink
+- On deployment, backup database and attachment before running migrations
+
 ## v0.29 (Nov 19, 2018)
 
 **New Features:**
