@@ -27,6 +27,8 @@ class Project < ApplicationRecord
 
   has_one :archive, class_name: 'VCS::Archive', through: :repository
 
+  has_many :contributions, dependent: :destroy
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_22_060536) do
+ActiveRecord::Schema.define(version: 2019_01_22_213123) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -116,6 +116,17 @@ ActiveRecord::Schema.define(version: 2019_01_22_060536) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_blazer_queries_on_creator_id"
+  end
+
+  create_table "contributions", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "creator_id", null: false
+    t.string "title", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_contributions_on_creator_id"
+    t.index ["project_id"], name: "index_contributions_on_project_id"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -368,6 +379,8 @@ ActiveRecord::Schema.define(version: 2019_01_22_060536) do
     t.index ["thumbnail_id"], name: "index_vcs_versions_on_thumbnail_id"
   end
 
+  add_foreign_key "contributions", "profiles", column: "creator_id"
+  add_foreign_key "contributions", "projects"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"

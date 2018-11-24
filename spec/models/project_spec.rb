@@ -45,6 +45,8 @@ RSpec.describe Project, type: :model do
         .dependent(false)
     end
 
+    it { is_expected.to have_many(:contributions).dependent(:destroy) }
+
     context 'when adding collaborator' do
       let(:collaborator) { create :user }
 

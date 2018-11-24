@@ -16,6 +16,12 @@ RSpec.describe Profiles::User, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:account) }
     it { is_expected.to have_many(:visits).class_name('Ahoy::Visit') }
+    it do
+      is_expected
+        .to have_many(:contributions)
+        .with_foreign_key(:creator_id)
+        .dependent(:destroy)
+    end
   end
 
   describe 'attributes' do
