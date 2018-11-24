@@ -147,4 +147,31 @@ RSpec.describe Ability, type: :model do
       it_should_behave_like 'not having authorization', actions
     end
   end
+
+  context 'Contributions' do
+    actions = %i[new create]
+    let(:project)       { create :project, :skip_archive_setup }
+    let(:contribution)  { project.contributions.build }
+    let(:object)        { contribution }
+    let(:user)          { build_stubbed :user }
+
+    before do
+      allow(Ability).to receive(:new).with(user).and_return ability
+      allow(ability).to receive(:can?).and_call_original
+      allow(ability)
+        .to receive(:can?).with(:access, project).and_return can_access
+    end
+
+    context 'when user can access project' do
+      let(:can_access) { true }
+
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user cannot access project' do
+      let(:can_access) { false }
+
+      it_should_behave_like 'not having authorization', actions
+    end
+  end
 end

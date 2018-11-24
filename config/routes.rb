@@ -98,8 +98,12 @@ Rails.application.routes.draw do
                                    only: :show
         end
       end
+      # Routes for contributions
+      resources :contributions, only: %i[index new create show]
+
       # Routes for changes
       resources :file_changes, path: 'changes', only: :show
+
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create

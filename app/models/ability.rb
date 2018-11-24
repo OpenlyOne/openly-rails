@@ -45,6 +45,11 @@ class Ability
       can?(:collaborate, project)
     end
 
+    # Users can create contributions for projects that they can access
+    can %i[new create], Contribution do |contribution|
+      can?(:access, contribution.project)
+    end
+
     # Admins can use the administration back end
     return unless user.admin?
 
