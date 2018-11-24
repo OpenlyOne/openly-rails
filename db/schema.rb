@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_24_192534) do
+ActiveRecord::Schema.define(version: 2018_11_24_200148) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -167,7 +167,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_192534) do
     t.citext "handle", null: false
     t.string "picture_file_name"
     t.string "picture_content_type"
-    t.integer "picture_file_size"
+    t.bigint "picture_file_size"
     t.datetime "picture_updated_at"
     t.text "about"
     t.text "location"
@@ -176,7 +176,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_192534) do
     t.text "link_to_twitter"
     t.string "banner_file_name"
     t.string "banner_content_type"
-    t.integer "banner_file_size"
+    t.bigint "banner_file_size"
     t.datetime "banner_updated_at"
     t.string "color_scheme", default: "blue darken-2", null: false
     t.index ["account_id"], name: "index_profiles_on_account_id", unique: true
@@ -200,13 +200,13 @@ ActiveRecord::Schema.define(version: 2018_11_24_192534) do
 
   create_table "projects", force: :cascade do |t|
     t.string "title", null: false
+    t.bigint "owner_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.citext "slug", null: false
     t.text "description"
     t.citext "tags", default: [], array: true
     t.boolean "is_public", default: false, null: false
-    t.bigint "owner_id", null: false
     t.bigint "repository_id"
     t.bigint "master_branch_id"
     t.index ["master_branch_id"], name: "index_projects_on_master_branch_id"
