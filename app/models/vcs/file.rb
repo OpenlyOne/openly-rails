@@ -10,6 +10,7 @@ module VCS
     has_many :thumbnails, dependent: :destroy
 
     has_many :repository_branches, through: :repository, source: :branches
+    has_many :staged_instances, class_name: 'VCS::FileInBranch'
 
     has_many :versions, dependent: :destroy
     has_many :versions_of_children,

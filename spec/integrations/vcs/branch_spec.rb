@@ -42,4 +42,30 @@ RSpec.describe VCS::Branch, type: :model do
       end
     end
   end
+
+  describe '#create_remote_root_folder' do
+    subject(:create_remote_root_folder) { branch.create_remote_root_folder }
+
+    let(:branch) { create :vcs_branch }
+
+    context 'when root folder does not exist', :vcr do
+      before { refresh_google_drive_authorization }
+
+      it 'creates remote and local folder' do
+        create_remote_root_folder
+
+        expect(branch.root).to be_present
+        expect(branch.root).not_to be_deleted
+        external_root =
+          Providers::GoogleDrive::FileSync.new(branch.root.remote_file_id)
+        expect(external_root.name).to start_with 'Branch #'
+      end
+    end
+
+    context 'when root folder already exists' do
+      before { create :vcs_file_in_branch, :root, branch: branch }
+
+      it { is_expected.to be false }
+    end
+  end
 end

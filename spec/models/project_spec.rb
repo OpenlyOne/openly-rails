@@ -94,6 +94,7 @@ RSpec.describe Project, type: :model do
         .to(:setup)
         .with_prefix
     end
+    it { is_expected.to delegate_method(:branches).to(:repository) }
   end
 
   describe 'callbacks' do

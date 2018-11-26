@@ -7,8 +7,10 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
   describe '#restore' do
     subject(:file_restore) do
       described_class
-        .new(version: version_to_restore, target_branch: root.branch)
+        .new(version: version_to_restore, target_branch: target_branch)
     end
+
+    let(:target_branch) { project.master_branch }
 
     let!(:remote_subfolder) do
       file_sync_class.create(
@@ -63,7 +65,10 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let(:version_before_performing_restoration)  { file.current_version }
     let(:version_to_restore)                     { file.current_version }
-    let(:remote_file_after_restore) { file_sync_class.new(file.remote_file_id) }
+    let(:remote_file_after_restore) do
+      file_sync_class.new(restored_file.remote_file_id)
+    end
+    let(:restored_file) { file }
     let(:parent_of_version_to_restore) do
       root.branch
           .files
@@ -101,8 +106,8 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     end
 
     after do
-      expect(file.current_version_id).to eq expected_version_id
-      expect(file).to have_attributes(
+      expect(restored_file.current_version_id).to eq expected_version_id
+      expect(restored_file).to have_attributes(
         file_id: file.file_id,
         name: version_to_restore&.name,
         parent_id: expected_parent&.file_id,
@@ -110,12 +115,13 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
         is_deleted: expected_deletion_status,
         thumbnail_id: version_to_restore&.thumbnail_id
       )
-      expect(file.remote).to have_attributes(expected_remote_attributes)
+      expect(restored_file.remote)
+        .to have_attributes(expected_remote_attributes)
     end
 
     let(:expected_remote_attributes) do
       {
-        id: file.remote_file_id,
+        id: restored_file.remote_file_id,
         name: version_to_restore&.name,
         parent_id: expected_parent&.remote_file_id,
         content_version: expected_content_version
@@ -232,6 +238,26 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'deletes the file' do
         expect(file_change).to be_deletion
+      end
+    end
+
+    context 'when restoring to a new branch' do
+      let(:target_branch) do
+        project.branches.create!.tap(&:create_remote_root_folder)
+      end
+      let(:file_actions)  { nil }
+      let(:restored_file) { target_branch.files.without_root.first }
+      let(:remote_file) do
+        file_sync_class.create(
+          name: 'original name',
+          parent_id: google_drive_test_folder_id,
+          mime_type: file_mime_type
+        )
+      end
+      let(:expected_parent) { target_branch.files.root }
+
+      it 'is added' do
+        expect(target_branch.files.without_root.count).to eq 1
       end
     end
   end

@@ -186,7 +186,7 @@ module VCS
         @file_in_branch ||=
           target_branch
           .files
-          .find_by(file_id: file_id)
+          .find_or_create_by(file_id: file_id)
       end
     end
     # rubocop:enable Metrics/ClassLength

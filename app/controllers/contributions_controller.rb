@@ -18,7 +18,7 @@ class ContributionsController < ApplicationController
   def new; end
 
   def create
-    if @contribution.update(contribution_params)
+    if @contribution.setup(contribution_params)
       redirect_with_success_to(
         profile_project_contribution_path(
           @project.owner, @project, @contribution

@@ -20,6 +20,10 @@ RSpec.describe VCS::File, type: :model do
         .source(:branches)
         .dependent(false)
     end
+    it do
+      is_expected
+        .to have_many(:staged_instances).class_name('VCS::FileInBranch')
+    end
     it { is_expected.to have_many(:versions).dependent(:destroy) }
     it do
       is_expected

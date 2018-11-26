@@ -29,10 +29,7 @@ RSpec.describe Revisions::RestoresController, type: :controller do
 
     let(:restorer) { instance_double VCS::Operations::FileRestore }
 
-    before do
-      allow(VCS::Operations::FileRestore).to receive(:new).and_return restorer
-      allow(restorer).to receive(:restore)
-    end
+    before { allow_any_instance_of(VCS::Branch).to receive(:restore_commit) }
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'setting project where setup is complete'

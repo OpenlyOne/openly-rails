@@ -57,5 +57,54 @@ module VCS
           }
         ).distinct
     }
+
+    # Create a root folder for this branch remotely and locally
+    # TODO: Refactor with #push method and reduce complexity
+    # rubocop:disable Metrics/MethodLength
+    def create_remote_root_folder
+      return false if root.present?
+
+      # Create remote
+      root_folder = sync_adapter_class.create(
+        name: "Branch ##{id}",
+        parent_id: 'root',
+        mime_type: mime_type_class.folder
+      )
+
+      # Create local
+      files.build(
+        remote_file_id: root_folder.id,
+        is_root: true,
+        file: repository.files.root
+      ).tap(&:pull)
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    # Copy files from specified commit to stage
+    # TODO: Author should be extracted out of this operation. It is
+    # =>    not needed. But we need to remove the not null constraint from the
+    # =>    database (which we need to do anyway to make it possible for
+    # =>    users to delete their accounts).
+    def restore_commit(commit, author:)
+      VCS::Operations::CommitRestore.restore(
+        commit: commit,
+        target_branch: self,
+        author: author
+      )
+    end
+
+    private
+
+    def mime_type_class
+      "Providers::#{provider}::MimeType".constantize
+    end
+
+    def provider
+      'GoogleDrive'
+    end
+
+    def sync_adapter_class
+      "Providers::#{provider}::FileSync".constantize
+    end
   end
 end

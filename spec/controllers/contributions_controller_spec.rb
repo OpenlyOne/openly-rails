@@ -68,6 +68,13 @@ RSpec.describe ContributionsController, type: :controller do
       }
     end
 
+    before do
+      allow_any_instance_of(Contribution)
+        .to receive(:create_fork_off_master_branch) do |contribution|
+        contribution.branch = contribution.project_branches.create!
+      end
+    end
+
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'an authorized action' do

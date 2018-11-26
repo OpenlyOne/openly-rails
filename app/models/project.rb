@@ -38,6 +38,7 @@ class Project < ApplicationRecord
   # Delegations
   delegate :build_archive, to: :repository
   delegate :archive, to: :repository, prefix: true
+  delegate :branches, to: :repository
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
   delegate :files, to: :master_branch
 
