@@ -86,13 +86,11 @@ RSpec.describe Contribution, type: :model do
   end
 
   describe '#create_fork_off_master_branch' do
-    let(:new_project_branch)  { instance_double VCS::Branch }
-    let(:root)                { instance_double VCS::FileInBranch }
-    let(:creator)             { instance_double Profiles::User }
-    let(:account)             { instance_double Account }
-    let(:api_connection) do
-      instance_double Providers::GoogleDrive::ApiConnection
-    end
+    let(:new_project_branch) { instance_double VCS::Branch }
+    let(:root)    { instance_double VCS::FileInBranch }
+    let(:creator) { instance_double Profiles::User }
+    let(:account) { instance_double Account }
+    let(:remote)  { instance_double Providers::GoogleDrive::FileSync }
 
     before do
       allow(contribution).to receive(:branch=)
@@ -101,11 +99,9 @@ RSpec.describe Contribution, type: :model do
         .and_return new_project_branch
       allow(contribution).to receive(:branch).and_return new_project_branch
       allow(new_project_branch).to receive(:create_remote_root_folder)
-      allow(Providers::GoogleDrive::ApiConnection)
-        .to receive(:default).and_return(api_connection)
-      allow(api_connection).to receive(:share_file)
       allow(new_project_branch).to receive(:root).and_return root
-      allow(root).to receive(:remote_file_id).and_return 'ext-root-id'
+      allow(root).to receive(:remote).and_return remote
+      allow(remote).to receive(:grant_write_access_to)
       allow(contribution).to receive(:creator).and_return creator
       allow(creator).to receive(:account).and_return account
       allow(account).to receive(:email).and_return 'em@il'
@@ -126,8 +122,7 @@ RSpec.describe Contribution, type: :model do
     end
 
     it 'grants contribution creator write access to remote folder' do
-      expect(api_connection)
-        .to have_received(:share_file).with('ext-root-id', 'em@il', :writer)
+      expect(remote).to have_received(:grant_write_access_to).with('em@il')
     end
 
     it 'restores the last commit to the new branch' do

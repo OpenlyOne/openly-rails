@@ -65,14 +65,14 @@ RSpec.describe Project, type: :model do
       let(:collaborator) { create :user }
 
       before do
-        allow(project).to receive(:remove_read_access_to_archive)
+        allow(project).to receive(:revoke_access_to_archive)
         project.collaborators << collaborator
         project.collaborators.delete(collaborator)
       end
 
       it do
         is_expected
-          .to have_received(:remove_read_access_to_archive).with(collaborator)
+          .to have_received(:revoke_access_to_archive).with(collaborator)
       end
     end
   end
@@ -326,9 +326,9 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '#remove_read_access_from_archive(collaborator)' do
-    subject(:remove_access) do
-      project.send(:remove_read_access_to_archive, collaborator)
+  describe '#revoke_access_to_archive(collaborator)' do
+    subject(:revoke_acess) do
+      project.send(:revoke_access_to_archive, collaborator)
     end
 
     let(:collaborator)  { instance_double Profiles::User }
@@ -339,19 +339,19 @@ RSpec.describe Project, type: :model do
       allow(collaborator).to receive(:account).and_return account
       allow(account).to receive(:email).and_return 'email@email.com'
       allow(project).to receive(:archive).and_return archive
-      allow(archive).to receive(:remove_read_access_from) if archive
+      allow(archive).to receive(:revoke_access_from) if archive
     end
 
     it do
-      remove_access
+      revoke_acess
       expect(archive)
-        .to have_received(:remove_read_access_from).with('email@email.com')
+        .to have_received(:revoke_access_from).with('email@email.com')
     end
 
     context 'when archive does not exist' do
       let(:archive) { nil }
 
-      it { expect { remove_access }.not_to raise_error }
+      it { expect { revoke_acess }.not_to raise_error }
     end
   end
 

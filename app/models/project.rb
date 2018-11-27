@@ -10,7 +10,7 @@ class Project < ApplicationRecord
                           association_foreign_key: 'profile_id',
                           validate: false,
                           before_add: :grant_read_access_to_archive,
-                          before_remove: :remove_read_access_to_archive
+                          before_remove: :revoke_access_to_archive
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
@@ -190,8 +190,8 @@ class Project < ApplicationRecord
   end
 
   # Remove view access to archive from the removed collaborator
-  def remove_read_access_to_archive(collaborator)
-    archive&.remove_read_access_from(collaborator.account.email)
+  def revoke_access_to_archive(collaborator)
+    archive&.revoke_access_from(collaborator.account.email)
   end
 
   # Set up the archive folder for this project

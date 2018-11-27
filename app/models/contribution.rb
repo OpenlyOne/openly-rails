@@ -41,11 +41,7 @@ class Contribution < ApplicationRecord
     branch.create_remote_root_folder
 
     # grant write access to contribution creator
-    Providers::GoogleDrive::ApiConnection
-      .default
-      .share_file(branch.root.remote_file_id, creator.account.email, :writer)
-    # TODO: Refactor to this:
-    # branch.remote_root.grant_write_access_to(creator.account.email)
+    branch.root.remote.grant_write_access_to(creator.account.email)
 
     # copy files from last commit
     branch.restore_commit(project_revisions.last, author: creator)

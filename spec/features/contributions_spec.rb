@@ -89,12 +89,13 @@ feature 'Contributions', :vcr do
       .to contain_exactly(folder.name, file1.name, file2.name)
 
     # and have edit access to the new branch root
-    expect(
-      api_connection.find_file!(
+    # TODO: Refactor. Add an #as method to file_sync to switch api connection
+    remote =
+      Providers::GoogleDrive::FileSync.new(
         contribution.branch.root.remote_file_id,
-        fields: 'capabilities'
-      ).capabilities.can_edit
-    ).to be true
+        api_connection: api_connection
+      )
+    expect(remote).to be_can_edit
   end
 
   # TODO: Extract into shared context because revision_restore_spec uses these
