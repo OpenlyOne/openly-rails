@@ -282,17 +282,11 @@ feature 'File Update', :vcr do
   end
 end
 
-# rubocop:disable Metrics/AbcSize
-# TODO: Reduce complexity
 def and_have_a_backup_of_file_version(file_version)
-  remote_file_id_of_backup = file_version.backup.remote_file_id
-  remote_backup =
-    Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
+  remote_backup = file_version.backup.remote
   expect(remote_backup.name).to eq(file_version.name)
-  expect(remote_backup.parent_id)
-    .to eq(project.archive.remote_file_id)
+  expect(remote_backup.parent_id).to eq(project.archive.remote_file_id)
 end
-# rubocop:enable Metrics/AbcSize
 
 def given_project_is_imported_and_changes_committed
   setup

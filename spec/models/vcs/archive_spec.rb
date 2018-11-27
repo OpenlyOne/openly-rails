@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/vcs/having_remote.rb'
+
 RSpec.describe VCS::Archive, type: :model do
   subject(:archive) { build_stubbed :vcs_archive }
+
+  it_should_behave_like 'vcs: having remote' do
+    let(:object) { build :vcs_archive }
+  end
 
   describe 'associations' do
     it do

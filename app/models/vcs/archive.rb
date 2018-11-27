@@ -3,6 +3,8 @@
 module VCS
   # The archive for storing file backups, just like a .git folder
   class Archive < ApplicationRecord
+    include VCS::HavingRemote
+
     belongs_to :repository
 
     # TODO: Make name & owners updatable
