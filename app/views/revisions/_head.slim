@@ -6,6 +6,7 @@
           = link_to profile_project_revision_root_folder_path(project.owner, project, revision)
             b.black-text = revision.title
         p.no-margin
+          ' captured by
           => link_to profile_path(revision.author)
             = revision.author.name
           ' &middot;

@@ -1,10 +1,7 @@
-= render partial: 'projects/head', object: @project, as: :project,
-         locals: { active_tab: nil, can_collaborate: @can_collaborate }
-
 = render partial: 'revisions/head', object: @revision, as: :revision,
          locals: { project: @project }
 
 
 = yield
 
-= parent_layout 'application'
+= parent_layout 'revisions'
