@@ -105,9 +105,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
         is_deleted: expected_deletion_status,
         thumbnail_id: snapshot_to_restore&.thumbnail_id
       )
-      expect(remote_file_after_restore).to have_attributes(
-        expected_remote_attributes
-      )
+      expect(file.remote).to have_attributes(expected_remote_attributes)
     end
 
     let(:expected_remote_attributes) do
@@ -195,9 +193,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     context 'when file content differs from snapshot content' do
       let(:file_actions) { remote_file.update_content('new content') }
-      let(:expected_content_version) do
-        remote_file_after_restore.content_version
-      end
+      let(:expected_content_version) { file.remote.content_version }
 
       it 'is modifies the file' do
         expect(file_change).to be_modification

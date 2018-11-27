@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'having_remote.rb'
+
 RSpec.shared_examples 'vcs: being syncable' do
+  it_should_behave_like 'vcs: having remote' do
+    let(:object) { syncable }
+  end
+
   describe '#fetch' do
     subject               { syncable }
     let(:remote)          { instance_double syncable.send(:remote_class) }

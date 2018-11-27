@@ -4,9 +4,9 @@ module VCS
   # A syncable file
   module Syncable
     extend ActiveSupport::Concern
+    include VCS::HavingRemote
 
     included do
-      attr_writer :remote
       # Set force sync to execute all jobs synchronously
       attr_accessor :force_sync
     end
@@ -42,16 +42,6 @@ module VCS
       self.staged_children = children_from_remote
     end
 
-    # Reset sync state when calling #reload
-    def reload
-      reset_remote
-      super
-    end
-
-    def remote
-      @remote ||= remote_class.new(remote_file_id)
-    end
-
     # Get version ID of thumbnail
     def thumbnail_version_id
       remote&.thumbnail_version
@@ -84,12 +74,8 @@ module VCS
 
     # Reset the file's synchronization adapter
     def reset_remote
-      @remote = nil
+      super
       @destroy_on_save = nil
-    end
-
-    def remote_class
-      'Providers::GoogleDrive::FileSync'.constantize
     end
 
     # Set thumbnail from sync adapter, either by finding an existing thumbnail

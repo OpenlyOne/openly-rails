@@ -90,8 +90,8 @@ module VCS
       # Calling the delete API endpoint results in insufficient permission
       # error unless the action is performed by the file owner.
       def remove_file
-        file_sync_class
-          .new(staged_file.remote_file_id)
+        staged_file
+          .remote
           .relocate(to: nil, from: staged_file.parent.remote_file_id)
       end
 
@@ -103,8 +103,8 @@ module VCS
 
       # Move remote file
       def relocate_file
-        file_sync_class
-          .new(staged_file.remote_file_id)
+        staged_file
+          .remote
           .relocate(
             to: staged_parent.remote_file_id,
             from: staged_file.parent.remote_file_id
@@ -113,7 +113,7 @@ module VCS
 
       # Rename remote file
       def rename_file
-        file_sync_class.new(staged_file.remote_file_id).rename(snapshot.name)
+        staged_file.remote.rename(snapshot.name)
       end
 
       # Calculate the diff of new snapshot vs currently staged snapshot
