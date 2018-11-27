@@ -1,0 +1,13 @@
+.page-subheading.gray.lighten-3.no-margin-bottom
+ .container
+   .row.no-margin-bottom
+     .col.s12
+       p.flow-text.no-margin
+         b = contribution.title
+       p.no-margin
+         ' proposed by
+         => link_to profile_path(contribution.creator)
+           = contribution.creator.name
+         | &middot;
+         =<> time_ago_in_words(contribution.created_at)
+         | ago
