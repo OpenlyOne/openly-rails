@@ -167,7 +167,7 @@ feature 'File Restore', vcr: true do
                              text: 'original name'
     # and have a new external ID
     expect(project.staged_files.reload.find_by(name: 'original name'))
-      .not_to have_attributes(external_id: remote_file.id)
+      .not_to have_attributes(remote_file_id: remote_file.id)
   end
 
   context 'when remote file is a folder' do

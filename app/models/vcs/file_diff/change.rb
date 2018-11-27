@@ -10,8 +10,8 @@ module VCS
 
       # Delegations
       delegate :ancestor_path, :current_snapshot, :current_snapshot=,
-               :current_or_previous_snapshot, :file_resource_id, :external_id,
-               :icon, :name, :parent_id, :previous_parent_id,
+               :current_or_previous_snapshot, :file_resource_id,
+               :remote_file_id, :icon, :name, :parent_id, :previous_parent_id,
                :previous_snapshot, :symbolic_mime_type, :revision,
                :content_change,
                to: :diff
@@ -46,7 +46,7 @@ module VCS
 
       # The identifier for the change, consisting of external ID and change type
       def id
-        "#{external_id}_#{type}"
+        "#{remote_file_id}_#{type}"
       end
 
       # Return true if the change is a ::Modification

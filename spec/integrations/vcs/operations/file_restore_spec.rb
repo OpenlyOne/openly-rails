@@ -34,17 +34,18 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let!(:root) do
       create :vcs_staged_file, :root,
-             external_id: google_drive_test_folder_id,
+             remote_file_id: google_drive_test_folder_id,
              branch: project.master_branch
     end
 
     let!(:subfolder) do
       create :vcs_staged_file, :folder,
-             parent: root, external_id: remote_subfolder.id
+             parent: root, remote_file_id: remote_subfolder.id
     end
 
     let!(:file) do
-      build(:vcs_staged_file, external_id: remote_file.id, branch: root.branch)
+      build(:vcs_staged_file,
+            remote_file_id: remote_file.id, branch: root.branch)
     end
 
     let(:file_change) do
@@ -62,7 +63,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let(:snapshot_before_performing_restoration)  { file.current_snapshot }
     let(:snapshot_to_restore)                     { file.current_snapshot }
-    let(:remote_file_after_restore) { file_sync_class.new(file.external_id) }
+    let(:remote_file_after_restore) { file_sync_class.new(file.remote_file_id) }
     let(:parent_of_snapshot_to_restore) do
       root.branch
           .staged_files
@@ -111,9 +112,9 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let(:expected_remote_attributes) do
       {
-        id: file.external_id,
+        id: file.remote_file_id,
         name: snapshot_to_restore&.name,
-        parent_id: expected_parent&.external_id,
+        parent_id: expected_parent&.remote_file_id,
         content_version: expected_content_version
       }
     end
@@ -153,7 +154,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       end
       let(:subfolder2) do
         create :vcs_staged_file, :folder,
-               parent: root, external_id: remote_subfolder2.id
+               parent: root, remote_file_id: remote_subfolder2.id
       end
       let(:file_actions) do
         remote_subfolder2
@@ -200,7 +201,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'is modifies the file' do
         expect(file_change).to be_modification
-        expect(file.external_id).not_to eq remote_file.id
+        expect(file.remote_file_id).not_to eq remote_file.id
         expect(file.current_snapshot_id).to eq snapshot_to_restore.id
       end
     end
@@ -223,8 +224,8 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       # doing the manual override here.
       let(:expected_remote_attributes) do
         {
-          id: file.external_id,
-          parent_id: expected_parent&.external_id
+          id: file.remote_file_id,
+          parent_id: expected_parent&.remote_file_id
         }
       end
 

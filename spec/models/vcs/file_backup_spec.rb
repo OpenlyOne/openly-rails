@@ -14,7 +14,7 @@ RSpec.describe VCS::FileBackup, type: :model do
       is_expected
         .to validate_presence_of(:file_snapshot_id).with_message('must exist')
     end
-    it { is_expected.to validate_presence_of(:external_id) }
+    it { is_expected.to validate_presence_of(:remote_file_id) }
 
     context 'when archive is nil' do
       before { allow(backup).to receive(:archive).and_return nil }
@@ -74,7 +74,7 @@ RSpec.describe VCS::FileBackup, type: :model do
       allow(backup).to receive(:archive_folder_id).and_return 'archive-id'
       allow(remote_file)
         .to receive(:duplicate).and_return duplicated_remote_file
-      allow(backup).to receive(:external_id=)
+      allow(backup).to receive(:remote_file_id=)
     end
 
     it 'duplicates the remote file' do
@@ -86,7 +86,7 @@ RSpec.describe VCS::FileBackup, type: :model do
 
     it 'sets external id' do
       capture_backup
-      expect(backup).to have_received(:external_id=).with('dup-remote-id')
+      expect(backup).to have_received(:remote_file_id=).with('dup-remote-id')
     end
 
     context 'when backup for file snapshot already exists' do
@@ -123,9 +123,9 @@ RSpec.describe VCS::FileBackup, type: :model do
       let(:duplicated_remote_file) { nil }
 
       it { is_expected.to be false }
-      it 'does not set external_id' do
+      it 'does not set remote_file_id' do
         capture_backup
-        expect(backup).not_to have_received(:external_id=)
+        expect(backup).not_to have_received(:remote_file_id=)
       end
     end
   end

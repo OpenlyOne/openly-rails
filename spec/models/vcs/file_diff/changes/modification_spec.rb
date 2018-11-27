@@ -32,7 +32,7 @@ RSpec.describe VCS::FileDiff::Changes::Modification, type: :model do
       allow(previous_snapshot)
         .to receive(:mime_type).and_return 'previous-mime-type'
       allow(previous_snapshot)
-        .to receive(:external_id).and_return 'previous-external-id'
+        .to receive(:remote_file_id).and_return 'previous-external-id'
       allow(previous_snapshot)
         .to receive(:thumbnail_id).and_return 'previous-thumbnail-id'
     end
@@ -43,7 +43,7 @@ RSpec.describe VCS::FileDiff::Changes::Modification, type: :model do
       is_expected.to receive(:content_id=).with 'previous-content-id'
       is_expected.to receive(:content_version=).with 'previous-content-version'
       is_expected.to receive(:mime_type=).with 'previous-mime-type'
-      is_expected.to receive(:external_id=).with 'previous-external-id'
+      is_expected.to receive(:remote_file_id=).with 'previous-external-id'
       is_expected.to receive(:thumbnail_id=).with 'previous-thumbnail-id'
     end
   end

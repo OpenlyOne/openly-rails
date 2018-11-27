@@ -52,17 +52,18 @@ class FileUpdateJob < ApplicationJob
 
   # TODO: Rename this to ChangesListJob. Extract into ChangeProcessJob.
   def process_change(change)
-    external_ids =
+    remote_file_ids =
       [change.file_id].concat(change&.file&.parents.to_a).compact.uniq
 
     # Find branches that have either the file or its parents staged
-    branches = VCS::Branch.where_staged_files_include_external_id(external_ids)
+    branches =
+      VCS::Branch.where_staged_files_include_remote_file_id(remote_file_ids)
 
     # Pull the file in each branch
     branches.find_each do |branch|
       # TODO: Extract into FileUpdateJob
       VCS::StagedFile.find_or_initialize_by(
-        external_id: change.file_id,
+        remote_file_id: change.file_id,
         branch: branch
       ).pull
     end

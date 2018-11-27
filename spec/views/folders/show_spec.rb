@@ -61,7 +61,7 @@ RSpec.describe 'folders/show', type: :view do
       expect(rendered).to have_link(
         diff.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, diff.external_id
+          project.owner, project.slug, diff.remote_file_id
         )
       )
     end
@@ -72,7 +72,7 @@ RSpec.describe 'folders/show', type: :view do
     diffs.each do |diff|
       link = profile_project_file_infos_path(project.owner,
                                              project,
-                                             diff.external_id)
+                                             diff.remote_file_id)
       expect(rendered).to have_link(text: '', href: link)
     end
   end

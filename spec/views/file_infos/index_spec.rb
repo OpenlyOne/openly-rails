@@ -74,7 +74,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'has a link to the parent folder' do
       render
       link = profile_project_folder_path(project.owner, project,
-                                         staged_parent.external_id)
+                                         staged_parent.remote_file_id)
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 
@@ -82,7 +82,7 @@ RSpec.describe 'file_infos/index', type: :view do
       render
       sync_path =
         profile_project_force_syncs_path(project.owner, project,
-                                         staged_file_diff.external_id)
+                                         staged_file_diff.remote_file_id)
       expect(rendered).not_to have_css(
         'form'\
         "[action='#{sync_path}']"\
@@ -147,7 +147,7 @@ RSpec.describe 'file_infos/index', type: :view do
         render
         sync_path =
           profile_project_force_syncs_path(project.owner, project,
-                                           staged_file_diff.external_id)
+                                           staged_file_diff.remote_file_id)
         expect(rendered).to have_css(
           'form'\
           "[action='#{sync_path}']"\

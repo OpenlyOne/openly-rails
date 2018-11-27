@@ -10,7 +10,7 @@
 ]
 
   = render partial: 'link_to_file_info',
-           locals: { file_id: file_diff.external_id, project: project }
+           locals: { file_id: file_diff.remote_file_id, project: project }
 
   = link_to_file(file_diff, project, class: 'file-link') do
 

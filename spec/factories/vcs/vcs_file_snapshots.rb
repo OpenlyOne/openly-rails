@@ -7,7 +7,7 @@ FactoryBot.define do
     end
 
     association :file_record, factory: :vcs_file_record
-    external_id         { Faker::Crypto.unique.sha1 }
+    remote_file_id      { Faker::Crypto.unique.sha1 }
     file_record_parent  { parent&.file_record || create(:vcs_file_record) }
     name                { Faker::File.file_name('', nil, nil, '') }
     content_version     { rand(1..1000) }
@@ -32,7 +32,7 @@ FactoryBot.define do
       snapshot.content =
         VCS::Operations::ContentGenerator.generate(
           repository: snapshot.repository,
-          remote_file_id: snapshot.external_id,
+          remote_file_id: snapshot.remote_file_id,
           remote_content_version_id: snapshot.content_version
         )
     end

@@ -49,7 +49,7 @@ module VCS
     end
 
     def remote
-      @remote ||= remote_class.new(external_id)
+      @remote ||= remote_class.new(remote_file_id)
     end
 
     # Get version ID of thumbnail
@@ -67,7 +67,7 @@ module VCS
               .create_with(remote: remote_child)
               .find_or_initialize_by(
                 branch: branch,
-                external_id: remote_child.id
+                remote_file_id: remote_child.id
               )
 
         # Pull (fetch+save) child if it is a new record
@@ -78,7 +78,8 @@ module VCS
     # Find an instance of syncable's class from the external parent ID
     # and set instance to parent of current syncable resource
     def external_parent_id=(external_parent_id)
-      self.parent = branch.staged_files.find_by_external_id(external_parent_id)
+      self.parent =
+        branch.staged_files.find_by_remote_file_id(external_parent_id)
     end
 
     # Reset the file's synchronization adapter

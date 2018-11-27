@@ -29,7 +29,7 @@ RSpec.describe 'data_migration:file_snapshots_content', :archived do
       expect(VCS::RemoteContent).to be_exists(
         repository_id: snapshot.repository.id,
         content_id: snapshot.content_id,
-        remote_file_id: snapshot.external_id,
+        remote_file_id: snapshot.remote_file_id,
         remote_content_version_id: snapshot.content_version
       )
     end
@@ -38,7 +38,7 @@ RSpec.describe 'data_migration:file_snapshots_content', :archived do
   context 'when multiple snapshots have the same content version' do
     let(:snapshots) do
       create_list :vcs_file_snapshot, 2,
-                  file_record: fr, external_id: 'id', content_version: 'v'
+                  file_record: fr, remote_file_id: 'id', content_version: 'v'
     end
     let(:fr) { create :vcs_file_record }
 

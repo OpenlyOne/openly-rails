@@ -48,7 +48,7 @@ feature 'Folder' do
     # then I should be on the project's subfolder page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "folders/#{subfolder.external_id}"
+      "folders/#{subfolder.remote_file_id}"
     )
     # and see the files in the project subfolder
     subfiles.each do |file|
@@ -123,7 +123,7 @@ feature 'Folder' do
     let(:action) do
       # when I visit the code folder
       visit "#{project.owner.to_param}/#{project.to_param}/" \
-            "folders/#{code.external_id}"
+            "folders/#{code.remote_file_id}"
     end
 
     context 'when code folder exists' do

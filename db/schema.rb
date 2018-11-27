@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_24_200148) do
+ActiveRecord::Schema.define(version: 2018_11_26_235110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -223,7 +223,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
 
   create_table "vcs_archives", force: :cascade do |t|
     t.bigint "repository_id", null: false
-    t.text "external_id", null: false
+    t.text "remote_file_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["repository_id"], name: "index_vcs_archives_on_repository_id"
@@ -272,7 +272,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
 
   create_table "vcs_file_backups", force: :cascade do |t|
     t.bigint "file_snapshot_id", null: false
-    t.text "external_id", null: false
+    t.text "remote_file_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["file_snapshot_id"], name: "index_vcs_file_backups_on_file_snapshot_id"
@@ -302,7 +302,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
     t.bigint "file_record_parent_id"
     t.text "name", null: false
     t.text "content_version", null: false
-    t.text "external_id", null: false
+    t.text "remote_file_id", null: false
     t.string "mime_type", null: false
     t.bigint "thumbnail_id"
     t.datetime "created_at", null: false
@@ -316,7 +316,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
   end
 
   create_table "vcs_file_thumbnails", force: :cascade do |t|
-    t.text "external_id", null: false
+    t.text "remote_file_id", null: false
     t.text "version_id", null: false
     t.string "image_file_name"
     t.string "image_content_type"
@@ -347,7 +347,7 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
   create_table "vcs_staged_files", force: :cascade do |t|
     t.bigint "branch_id", null: false
     t.bigint "file_record_id", null: false
-    t.text "external_id", null: false
+    t.text "remote_file_id", null: false
     t.bigint "file_record_parent_id"
     t.text "name"
     t.text "content_version"
@@ -359,8 +359,8 @@ ActiveRecord::Schema.define(version: 2018_11_24_200148) do
     t.boolean "is_root", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["branch_id", "external_id"], name: "index_vcs_staged_files_on_branch_id_and_external_id", unique: true
     t.index ["branch_id", "file_record_id"], name: "index_vcs_staged_files_on_branch_id_and_file_record_id", unique: true
+    t.index ["branch_id", "remote_file_id"], name: "index_vcs_staged_files_on_branch_id_and_remote_file_id", unique: true
     t.index ["branch_id"], name: "index_vcs_staged_files_on_branch_id"
     t.index ["branch_id"], name: "index_vcs_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
     t.index ["committed_snapshot_id"], name: "index_vcs_staged_files_on_committed_snapshot_id"

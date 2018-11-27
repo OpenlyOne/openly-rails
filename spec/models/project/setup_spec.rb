@@ -158,7 +158,7 @@ RSpec.describe Project::Setup, type: :model do
       allow(setup).to receive(:id_from_link).and_return 'FILE-ID'
       allow(master_branch)
         .to receive_message_chain(:staged_files, :build)
-        .with(is_root: true, external_id: 'FILE-ID')
+        .with(is_root: true, remote_file_id: 'FILE-ID')
         .and_return file
       allow(master_branch).to receive(:repository).and_return 'repo'
       allow(file).to receive(:fetch)

@@ -29,7 +29,7 @@ RSpec.describe VCS::Archive, type: :model do
         .with_message('must exist')
     end
     it do
-      is_expected.to validate_presence_of(:external_id)
+      is_expected.to validate_presence_of(:remote_file_id)
     end
 
     it do
@@ -45,7 +45,7 @@ RSpec.describe VCS::Archive, type: :model do
 
     before do
       allow(archive).to receive(:default_api_connection).and_return api
-      allow(archive).to receive(:external_id).and_return 'remote-archive-id'
+      allow(archive).to receive(:remote_file_id).and_return 'remote-archive-id'
       allow(api).to receive(:share_file)
       archive.grant_read_access_to('email@email.com')
     end
@@ -62,7 +62,7 @@ RSpec.describe VCS::Archive, type: :model do
 
     before do
       allow(archive).to receive(:default_api_connection).and_return api
-      allow(archive).to receive(:external_id).and_return 'remote-archive-id'
+      allow(archive).to receive(:remote_file_id).and_return 'remote-archive-id'
       allow(api).to receive(:unshare_file)
       archive.remove_read_access_from('email@email.com')
     end

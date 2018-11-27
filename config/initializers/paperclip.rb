@@ -16,9 +16,9 @@ Paperclip.interpolates :file_record_id do |attachment, _style|
   attachment.instance.file_record_id.to_s
 end
 
-# Paperclip interpolator for the instance's external ID attribute
-Paperclip.interpolates :external_id do |attachment, _style|
-  attachment.instance.external_id
+# Paperclip interpolator for the instance's remote file ID attribute
+Paperclip.interpolates :remote_file_id do |attachment, _style|
+  attachment.instance.remote_file_id
 end
 
 # Paperclip interpolator for the instance's version ID attribute

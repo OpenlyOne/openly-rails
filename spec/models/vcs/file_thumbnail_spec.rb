@@ -43,7 +43,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it do
       is_expected
         .to validate_uniqueness_of(:version_id)
-        .scoped_to(%i[file_record_id external_id])
+        .scoped_to(%i[file_record_id remote_file_id])
         .with_message('with external ID already exists for this file record')
     end
   end
@@ -72,14 +72,14 @@ RSpec.describe VCS::FileThumbnail, type: :model do
 
     before do
       allow(file).to receive(:file_record_id).and_return 'FRID'
-      allow(file).to receive(:external_id).and_return 'external-id'
+      allow(file).to receive(:remote_file_id).and_return 'external-id'
       allow(file).to receive(:thumbnail_version_id).and_return 'version-id'
     end
 
     it do
       is_expected.to eq(
         file_record_id: 'FRID',
-        external_id: 'external-id',
+        remote_file_id: 'external-id',
         version_id: 'version-id'
       )
     end

@@ -38,10 +38,10 @@ RSpec.shared_examples 'vcs: being resourceable' do
       allow(resourceable)
         .to receive(:provider_link_class).and_return link_class
       allow(resourceable).to receive(:mime_type).and_return 'type'
-      allow(resourceable).to receive(:external_id).and_return 'external-id'
+      allow(resourceable).to receive(:remote_file_id).and_return 'external-id'
       allow(link_class)
         .to receive(:for)
-        .with(external_id: 'external-id', mime_type: 'type')
+        .with(remote_file_id: 'external-id', mime_type: 'type')
         .and_return 'external-link-to-file'
     end
 

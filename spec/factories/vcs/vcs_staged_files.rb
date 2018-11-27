@@ -15,7 +15,7 @@ FactoryBot.define do
 
     branch          { parent&.branch || create(:vcs_branch) }
     file_record     { create(:vcs_file_record, repository: repository) }
-    external_id     { Faker::Crypto.unique.sha1 }
+    remote_file_id  { Faker::Crypto.unique.sha1 }
     name            { Faker::File.file_name('', nil, nil, '') }
     content_version { rand(1..1000) }
     mime_type       { 'application/vnd.google-apps.document' }

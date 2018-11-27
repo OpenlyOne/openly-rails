@@ -8,7 +8,7 @@
 ]
 
   = render partial: 'folders/link_to_file_info',
-           locals: { file_id: committed_file_snapshot.external_id, project: project }
+           locals: { file_id: committed_file_snapshot.remote_file_id, project: project }
 
   = link_to_file_backup(committed_file_snapshot, revision, project, class: 'file-link') do
 

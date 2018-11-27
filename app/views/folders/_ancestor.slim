@@ -7,5 +7,5 @@ svg.separator viewBox='0 0 24 24'
 
 / link to the ancestor
 =<> link_to ancestor.name,
-            profile_project_folder_path(project.owner, project, ancestor.external_id),
+            profile_project_folder_path(project.owner, project, ancestor.remote_file_id),
             class: "breadcrumb#{ancestor == current_folder ? ' active' : ''}"

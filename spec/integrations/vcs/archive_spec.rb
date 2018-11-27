@@ -12,7 +12,7 @@ RSpec.describe VCS::Archive, type: :model do
     before  { prepare_google_drive_test }
     after   { tear_down_google_drive_test }
 
-    let(:remote_folder_id) { archive.external_id }
+    let(:remote_folder_id) { archive.remote_file_id }
 
     before { archive.setup }
     after do

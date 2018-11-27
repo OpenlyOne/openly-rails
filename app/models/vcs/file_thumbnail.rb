@@ -13,10 +13,10 @@ module VCS
     has_attached_file :image,
                       styles: { original: '200x200#' },
                       path: ':attachment_path/:class/' \
-                            ':file_record_id/:external_id/:version_id/' \
+                            ':file_record_id/:remote_file_id/:version_id/' \
                             ':hash.:content_type_extension',
                       url:  ':attachment_url/:class/' \
-                            ':file_record_id/:external_id/:version_id/' \
+                            ':file_record_id/:remote_file_id/:version_id/' \
                             ':hash.:content_type_extension',
                       default_url: '/fallback/file_resources/thumbnail.png',
                       hash_secret: ENV['THUMBNAIL_HASH_SECRET']
@@ -32,7 +32,7 @@ module VCS
                    content_type: %w[image/jpeg image/gif image/png],
                    message: 'must be JPEG, PNG, or GIF'
     validates :version_id, uniqueness: {
-      scope: %i[file_record_id external_id],
+      scope: %i[file_record_id remote_file_id],
       message: 'with external ID already exists for this file record'
     }, if: :new_record?
 
@@ -46,7 +46,7 @@ module VCS
     def self.attributes_from_staged_file(staged_file)
       {
         file_record_id: staged_file.file_record_id,
-        external_id: staged_file.external_id,
+        remote_file_id: staged_file.remote_file_id,
         version_id:  staged_file.thumbnail_version_id
       }
     end

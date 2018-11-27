@@ -48,7 +48,7 @@ module Revisions
       @folder =
         @revision
         .committed_snapshots
-        .find_by!(external_id: params[:id])
+        .find_by!(remote_file_id: params[:id])
 
       # TODO: Don't check if file resource is folder NOW, check if committed
       # =>    file resource snapshot was folder BACK at commit

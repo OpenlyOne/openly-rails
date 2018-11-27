@@ -49,7 +49,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   context 'when two snapshots have the same file record id' do
     let(:new_thumbnail) do
       VCS::FileThumbnail.find_by(
-        external_id: old_thumbnail.external_id,
+        remote_file_id: old_thumbnail.remote_file_id,
         version_id: old_thumbnail.version_id,
         file_record_id: snap1.file_record_id
       )

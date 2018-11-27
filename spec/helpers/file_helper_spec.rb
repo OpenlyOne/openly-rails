@@ -8,7 +8,7 @@ RSpec.describe FileHelper, type: :helper do
     let(:is_folder)   { false }
 
     before { allow(file).to receive(:folder?).and_return is_folder }
-    before { allow(file).to receive(:external_id).and_return 'external-id' }
+    before { allow(file).to receive(:remote_file_id).and_return 'external-id' }
     before { allow(file).to receive(:external_link).and_return 'external-link' }
 
     context 'when file is folder' do
@@ -192,7 +192,7 @@ RSpec.describe FileHelper, type: :helper do
         allow(project).to receive(:to_param).and_return 'project'
         allow(revision).to receive(:id).and_return 'r-id'
         allow(revision).to receive(:published?).and_return is_published
-        allow(file).to receive(:external_id).and_return 'ext-id'
+        allow(file).to receive(:remote_file_id).and_return 'ext-id'
       end
 
       it do

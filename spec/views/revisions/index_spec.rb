@@ -113,7 +113,7 @@ RSpec.describe 'revisions/index', type: :view do
       render
       diffs.each do |diff|
         link = profile_project_revision_folder_path(
-          project.owner, project.slug, revisions.first.id, diff.external_id
+          project.owner, project.slug, revisions.first.id, diff.remote_file_id
         )
         expect(rendered).to have_link(text: diff.name, href: link)
       end
@@ -124,7 +124,7 @@ RSpec.describe 'revisions/index', type: :view do
       diffs.each do |diff|
         link = profile_project_file_infos_path(project.owner,
                                                project,
-                                               diff.external_id)
+                                               diff.remote_file_id)
         expect(rendered).to have_link(text: 'More', href: link)
       end
     end

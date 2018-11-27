@@ -9,7 +9,7 @@ module FileHelper
     # internal link to that folder
     if file.folder?
       path =
-        profile_project_folder_path(project.owner, project, file.external_id)
+        profile_project_folder_path(project.owner, project, file.remote_file_id)
 
     # external link to the original file on Google Drive
     else
@@ -43,7 +43,7 @@ module FileHelper
   def file_backup_path(file, revision, project)
     if file.folder? && revision.published?
       profile_project_revision_folder_path(project.owner, project,
-                                           revision.id, file.external_id)
+                                           revision.id, file.remote_file_id)
     else
       file.backup&.external_link
     end
