@@ -1,4 +1,4 @@
-.page-subheading.gray.lighten-3.no-margin-bottom
+.page-subheading.gray.lighten-3.no-padding-bottom.no-margin-bottom
  .container
    .row.no-margin-bottom
      .col.s12
@@ -11,3 +11,8 @@
          | &middot;
          =<> time_ago_in_words(contribution.created_at)
          | ago
+
+       div.tabs.static.no-margin-top
+         div.tab
+           = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :files)

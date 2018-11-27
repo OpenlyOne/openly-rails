@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe FileHelper, type: :helper do
-  describe '#link_to_file(file, project, options = {})' do
-    subject(:method)  { helper.link_to_file(file, project) {} }
-    let(:project)     { build_stubbed :project }
+  describe '#link_to_file(file, folder_path, path_parameters, options = {})' do
+    subject(:method)  { helper.link_to_file(file, folder_path, path_params) {} }
+    let(:folder_path) { 'folder_path' }
+    let(:path_params) { %w[p1 p2] }
     let(:file)        { instance_double VCS::FileInBranch }
     let(:diff)        { instance_double VCS::FileDiff }
     let(:is_folder)   { false }
@@ -13,6 +14,10 @@ RSpec.describe FileHelper, type: :helper do
       allow(diff).to receive(:folder?).and_return is_folder
       allow(diff).to receive(:hashed_file_id).and_return 'hashed-file-id'
       allow(file).to receive(:link_to_remote).and_return 'remote-link'
+      allow(helper)
+        .to receive(:send)
+        .with(folder_path, *path_params, 'hashed-file-id')
+        .and_return 'folder-path-with-params-and-hashed-file-id'
     end
 
     context 'when file is folder' do
@@ -20,7 +25,7 @@ RSpec.describe FileHelper, type: :helper do
 
       it 'returns internal link to directory' do
         expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/hashed-file-id",
+          'folder-path-with-params-and-hashed-file-id',
           any_args
         )
         method
@@ -50,8 +55,10 @@ RSpec.describe FileHelper, type: :helper do
     end
 
     context 'when options are passed' do
-      subject(:method)  { helper.link_to_file(file, project, options) {} }
-      let(:options)     { {} }
+      subject(:method) do
+        helper.link_to_file(file, folder_path, path_params, options) {}
+      end
+      let(:options) { {} }
 
       it 'does not modify the passed options hash' do
         expect { method }.not_to(change { options })

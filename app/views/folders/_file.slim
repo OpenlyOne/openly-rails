@@ -9,16 +9,17 @@
   title=file.diff.name
 ]
 
-  / TODO: Replace file_change with file and replace VCS::File with file.hashed_file_id
-  = render partial: 'link_to_file_info',
+  = render partial: 'folders/link_to_file_info',
            locals: { file_id: file.diff.hashed_file_id,
-                     project: project }
+                     project: project,
+                     path_parameters: path_parameters,
+                     file_infos_path: file_infos_path }
 
-  = link_to_file(file, project, class: 'file-link') do
+  = link_to_file(file, folder_path, path_parameters, class: 'file-link') do
 
 
     .indicators
-      = render partial: 'file_diff_indicator',
+      = render partial: 'folders/file_diff_indicator',
                collection: file.diff.changes,
                as: :file_change
 

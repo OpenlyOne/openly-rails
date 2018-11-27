@@ -99,7 +99,16 @@ Rails.application.routes.draw do
         end
       end
       # Routes for contributions
-      resources :contributions, only: %i[index new create show]
+      resources :contributions, only: %i[index new create show] do
+        scope module: 'contributions' do
+          # File browsing
+          get 'files' => 'folders#root', as: :root_folder
+          resources :folders, only: :show
+
+          # Routes for file infos
+          resources :file_infos, path: 'files/:id/info', only: :index
+        end
+      end
 
       # Routes for changes
       resources :file_changes, path: 'changes', only: :show

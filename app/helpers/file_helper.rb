@@ -4,12 +4,11 @@
 module FileHelper
   # Wrap block into a link_to the file.
   # If the file is a directory, wraps into an internal link to that directory.
-  # If the file is not a directory, wraps into an remote link to Drive.
-  def link_to_file(file, project, options = {}, &block)
+  # If the file is not a directory, wraps into an external link to Drive.
+  def link_to_file(file, folder_path, path_parameters, options = {}, &block)
     # internal link to that folder
     if file.diff.folder?
-      path = profile_project_folder_path(project.owner, project,
-                                         file.diff.hashed_file_id)
+      path = send(folder_path, *path_parameters, file.diff.hashed_file_id)
 
     # remote link to the original file on Google Drive
     else

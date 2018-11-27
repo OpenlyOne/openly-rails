@@ -1,5 +1,5 @@
 / Renders the link icon to the file's info page
-= link_to profile_project_file_infos_path(project.owner, project, file_id),
+= link_to send(file_infos_path, *path_parameters, file_id),
           class: 'file-info right white-text gray darken-2',
           title: 'More Options' do
   svg style="width:24px;height:24px" viewBox="0 0 24 24"

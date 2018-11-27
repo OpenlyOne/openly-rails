@@ -10,12 +10,26 @@ RSpec.describe 'folders/show', type: :view do
   let(:diffs)           { children.map(&:diff) }
   let(:action)          { 'root' }
 
+  let(:locals) do
+    {
+      path_parameters:  [project.owner, project],
+      folder_path:      'profile_project_folder_path',
+      file_infos_path:  'profile_project_file_infos_path',
+      root_folder_path: 'profile_project_root_folder_path'
+    }
+  end
+
   before do
-    assign(:project,      project)
-    assign(:folder,       folder)
-    assign(:children,     children)
-    assign(:ancestors,    ancestors)
+    assign(:project,          project)
+    assign(:folder,           folder)
+    assign(:children,         children)
+    assign(:ancestors,        ancestors)
     controller.action_name = action
+  end
+
+  # Overwrite the render method to include locals
+  def render
+    super(template: self.class.top_level_description, locals: locals)
   end
 
   it 'renders the names of files and folders' do
@@ -60,7 +74,7 @@ RSpec.describe 'folders/show', type: :view do
       expect(rendered).to have_link(
         diff.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, VCS::File.id_to_hashid(diff.file_id)
+          project.owner, project, diff.hashed_file_id
         )
       )
     end
