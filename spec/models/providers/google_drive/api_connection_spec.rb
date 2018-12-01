@@ -98,11 +98,12 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it { expect(drive_service).to receive(:delete_file).with('file-id') }
   end
 
-  describe '#download_file(id, destination:)' do
-    subject(:download_file) { api.download_file('id', destination: 'dest') }
+  describe '#download_file(id)' do
+    subject(:download_file) { api.download_file('id') }
     after                   { download_file }
 
     it do
+      expect(api).to receive(:tempfile).and_yield('dest')
       expect(drive_service)
         .to receive(:get_file).with('id', download_dest: 'dest')
     end
@@ -172,13 +173,12 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
   end
 
-  describe '#export_file(id, format:, destination:)' do
-    subject(:export_file) do
-      api.export_file('id', format: 'format', destination: 'dest')
-    end
+  describe '#export_file(id, format:)' do
+    subject(:export_file) { api.export_file('id', format: 'format') }
     after { export_file }
 
     it do
+      expect(api).to receive(:tempfile).and_yield('dest')
       expect(drive_service)
         .to receive(:export_file).with('id', 'format', download_dest: 'dest')
     end

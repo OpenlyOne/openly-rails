@@ -61,13 +61,12 @@ module Providers
       end
 
       # Download the file to the given destination
-      def download(destination:)
+      def download
         type = MimeType.new(mime_type)
         if type.exportable?
-          api_connection.export_file(id, format: type.export_as,
-                                         destination: destination)
+          api_connection.export_file(id, format: type.export_as)
         else
-          api_connection.download_file(id, destination: destination)
+          api_connection.download_file(id)
         end
       end
 

@@ -12,7 +12,6 @@ RSpec.describe VCS::Operations::ContentDownloader, type: :model do
     before do
       allow(Henkei::Server).to receive(:extract_text).with(file).and_return text
       allow(downloader).to receive(:downloaded_file).and_return file
-      allow(file).to receive(:rewind).and_return file
     end
 
     it { is_expected.to eq 'text from parser' }

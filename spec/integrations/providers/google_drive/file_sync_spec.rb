@@ -61,9 +61,8 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
 
     it 'uploads the document' do
-      downloaded_file = Tempfile.new.tap(&:binmode)
+      downloaded_file = uploaded_file.download
       begin
-        uploaded_file.download(destination: downloaded_file)
         expect(FileUtils).to be_identical(downloaded_file, word_doc)
       ensure
         downloaded_file.close!
@@ -132,9 +131,8 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
   end
 
   describe '.download(destination:)' do
-    subject(:download) { file.download(destination: downloaded_file) }
+    subject(:download) { file.download }
 
-    let(:downloaded_file) { Tempfile.new.tap(&:binmode) }
     let(:file) do
       described_class.create(
         name: 'Test File',
@@ -145,7 +143,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     let(:mime_type_class) { Providers::GoogleDrive::MimeType }
 
     before  { download }
-    after   { downloaded_file.close! }
+    after   { download.close! }
 
     context 'when file to download is word doc' do
       let(:file) do
@@ -162,7 +160,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       let(:word_doc) { File.new(path_to_file_fixtures.join('file.docx')) }
 
       it 'downloads the document exactly as uploaded' do
-        expect(FileUtils).to be_identical(downloaded_file, word_doc)
+        expect(FileUtils).to be_identical(download, word_doc)
       end
     end
 
@@ -170,8 +168,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
       let(:mime_type) { mime_type_class.document }
 
       it 'downloads as .docx' do
-        downloaded_file.rewind
-        expect(Henkei::Server.extract_content_type(downloaded_file))
+        expect(Henkei::Server.extract_content_type(download))
           .to eq mime_type_class.new(mime_type).export_as
       end
     end

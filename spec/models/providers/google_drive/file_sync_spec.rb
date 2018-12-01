@@ -172,8 +172,8 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
-  describe '#download(destination:)' do
-    subject(:download) { file_sync.download(destination: 'destination') }
+  describe '#download' do
+    subject(:download) { file_sync.download }
 
     before do
       type = instance_double Providers::GoogleDrive::MimeType
@@ -181,7 +181,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
       allow(Providers::GoogleDrive::MimeType)
         .to receive(:new).with('mime-type').and_return type
       allow(type).to receive(:exportable?).and_return is_exportable
-      allow(type).to receive(:export_as).and_return 'export-format'
+      allow(type).to receive(:export_as).and_return 'format'
       allow(api).to receive(:export_file)
       allow(api).to receive(:download_file)
     end
@@ -191,9 +191,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
 
       it 'calls #export_file' do
         download
-        expect(api)
-          .to have_received(:export_file)
-          .with('id', format: 'export-format', destination: 'destination')
+        expect(api).to have_received(:export_file).with('id', format: 'format')
       end
     end
 
@@ -202,9 +200,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
 
       it 'calls #download_file' do
         download
-        expect(api)
-          .to have_received(:download_file)
-          .with('id', destination: 'destination')
+        expect(api).to have_received(:download_file).with('id')
       end
     end
   end
