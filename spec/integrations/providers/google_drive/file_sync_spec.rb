@@ -171,7 +171,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
 
       it 'downloads as .docx' do
         downloaded_file.rewind
-        expect(Henkei.new(downloaded_file).mimetype.content_type)
+        expect(Henkei::Server.extract_content_type(downloaded_file))
           .to eq mime_type_class.new(mime_type).export_as
       end
     end
