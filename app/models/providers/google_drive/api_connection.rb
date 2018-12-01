@@ -40,9 +40,11 @@ module Providers
         drive_service.delete_file(id)
       end
 
-      # Download the file to the provided destination
-      def download_file(id, destination:)
-        drive_service.get_file(id, download_dest: destination)
+      # Download the file and return a tempfile with contents
+      def download_file(id)
+        tempfile do |file|
+          drive_service.get_file(id, download_dest: file)
+        end
       end
 
       # Copy a file by ID, optionally providing new name and parent ID
@@ -64,10 +66,12 @@ module Providers
         drive_service.copy_file(id, target, fields: default_file_fields)
       end
 
-      # Export a Google Drive file to the given format and download to
-      # destination
-      def export_file(id, format:, destination:)
-        drive_service.export_file(id, format, download_dest: destination)
+      # Export a Google Drive file to the given format and return a tempfile
+      # with contents
+      def export_file(id, format:)
+        tempfile do |file|
+          drive_service.export_file(id, format, download_dest: file)
+        end
       end
 
       # Get the file's content by file ID
@@ -268,6 +272,11 @@ module Providers
       # Add a prefix to the fields: 'id,name' becomes 'prefix/id,prefix/name'
       def prefix_fields(prefix, fields)
         fields.split(',').map { |field| "#{prefix}/#{field}" }.join(',')
+      end
+
+      # Open a tempfile and run the given block
+      def tempfile
+        yield(Tempfile.new.tap(&:binmode)).tap(&:rewind)
       end
     end
 

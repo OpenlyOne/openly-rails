@@ -26,7 +26,7 @@ RSpec.describe VCS::Operations::ContentDownloader, type: :model do
         name: 'document',
         parent_id: google_drive_test_folder_id,
         file: file,
-        mime_type: Henkei.new(file).mimetype.content_type
+        mime_type: Henkei::Server.extract_content_type(file)
       )
     end
     let(:downloader) { described_class.new(remote_file_id: remote_file.id) }

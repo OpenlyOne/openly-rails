@@ -25,7 +25,7 @@ feature 'Force Sync', :vcr do
 
   before { sign_in_as current_account }
 
-  scenario 'User can force sync file', :delayed_job do
+  scenario 'User can force sync file' do
     # given a folder within the project folder
     folder = create_google_drive_file(
       name: 'Folder',
@@ -42,8 +42,6 @@ feature 'Force Sync', :vcr do
 
     # given project is imported and changes committed
     setup
-    Delayed::Worker.new(exit_on_complete: true).work_off
-    Delayed::Job.find_each(&:invoke_job)
 
     # when I update the file
     file.rename('Doc ABC')
