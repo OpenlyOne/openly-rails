@@ -60,7 +60,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'has a link to the file on Google Drive' do
       render
       expect(rendered).to have_link 'Open in Drive',
-                                    href: staged_file_diff.external_link
+                                    href: staged_file_diff.link_to_remote
     end
 
     it 'renders that the file has been unchanged since the last revision' do
@@ -208,7 +208,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'renders a link to file backup for each revision' do
       render
       committed_file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.external_link
+        link = diff.current_snapshot.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end

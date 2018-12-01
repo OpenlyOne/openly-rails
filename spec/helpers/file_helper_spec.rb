@@ -7,9 +7,11 @@ RSpec.describe FileHelper, type: :helper do
     let(:file)        { instance_double VCS::FileSnapshot }
     let(:is_folder)   { false }
 
-    before { allow(file).to receive(:folder?).and_return is_folder }
-    before { allow(file).to receive(:remote_file_id).and_return 'external-id' }
-    before { allow(file).to receive(:external_link).and_return 'external-link' }
+    before do
+      allow(file).to receive(:folder?).and_return is_folder
+      allow(file).to receive(:remote_file_id).and_return 'external-id'
+      allow(file).to receive(:link_to_remote).and_return 'external-link'
+    end
 
     context 'when file is folder' do
       let(:is_folder) { true }
@@ -31,7 +33,7 @@ RSpec.describe FileHelper, type: :helper do
     context 'when file is not directory' do
       let(:is_folder) { false }
 
-      it 'sets url to external_link_for_file' do
+      it 'sets url to link_to_remote_for_file' do
         expect(helper).to receive(:link_to).with('external-link', kind_of(Hash))
         method
       end
@@ -216,7 +218,7 @@ RSpec.describe FileHelper, type: :helper do
 
       before do
         allow(file).to receive(:backup).and_return backup
-        allow(backup).to receive(:external_link).and_return 'external'
+        allow(backup).to receive(:link_to_remote).and_return 'external'
       end
 
       it { is_expected.to eq 'external' }

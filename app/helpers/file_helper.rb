@@ -13,7 +13,7 @@ module FileHelper
 
     # external link to the original file on Google Drive
     else
-      path = file.external_link
+      path = file.link_to_remote
       options = options.reverse_merge target: '_blank'
     end
 
@@ -45,7 +45,7 @@ module FileHelper
       profile_project_revision_folder_path(project.owner, project,
                                            revision.id, file.remote_file_id)
     else
-      file.backup&.external_link
+      file.backup&.link_to_remote
     end
   end
 end

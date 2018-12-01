@@ -108,7 +108,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
     it 'renders the links of file backups' do
       render
       children.each do |child|
-        link = child.backup.external_link
+        link = child.backup.link_to_remote
         expect(rendered).to have_css "a[href='#{link}'][target='_blank']"
       end
     end

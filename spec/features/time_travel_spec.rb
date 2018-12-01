@@ -34,7 +34,7 @@ feature 'Time Travel' do
     files.each do |file|
       expect(page).to have_link(
         file.name,
-        href: file.current_snapshot.backup.external_link
+        href: file.current_snapshot.backup.link_to_remote
       )
     end
   end

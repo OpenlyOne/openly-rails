@@ -39,7 +39,7 @@ module VCS
     end
 
     # TODO: Refactor onto snapshot
-    def external_link
+    def link_to_remote
       Providers::GoogleDrive::Link
         .for(remote_file_id: remote_file_id, mime_type: file_snapshot.mime_type)
     end

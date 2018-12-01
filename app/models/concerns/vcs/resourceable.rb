@@ -22,7 +22,7 @@ module VCS
       folder? || folder_before_last_save?
     end
 
-    def external_link
+    def link_to_remote
       provider_link_class.for(
         remote_file_id: remote_file_id,
         mime_type: mime_type

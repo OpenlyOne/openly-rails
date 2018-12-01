@@ -99,7 +99,7 @@ RSpec.describe 'revisions/index', type: :view do
     it 'renders a link to each file backup' do
       render
       diffs.each do |diff|
-        link = diff.current_snapshot.backup.external_link
+        link = diff.current_snapshot.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end

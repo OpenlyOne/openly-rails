@@ -10,7 +10,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
   let!(:project)      { create :project, :skip_archive_setup, :with_repository }
   let(:file)          { build :vcs_staged_file, :root, branch: master_branch }
   let(:master_branch) { project.master_branch }
-  let(:link)          { file.external_link }
+  let(:link)          { file.link_to_remote }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,
@@ -64,7 +64,7 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
     let(:add_params) do
       {
         project_setup: {
-          link: file.external_link
+          link: file.link_to_remote
         }
       }
     end

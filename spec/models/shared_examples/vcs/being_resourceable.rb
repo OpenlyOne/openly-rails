@@ -31,8 +31,8 @@ RSpec.shared_examples 'vcs: being resourceable' do
     end
   end
 
-  describe '#external_link' do
-    subject { resourceable.external_link }
+  describe '#link_to_remote' do
+    subject { resourceable.link_to_remote }
 
     before do
       allow(resourceable)
