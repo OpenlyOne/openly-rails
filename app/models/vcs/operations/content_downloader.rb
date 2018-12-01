@@ -13,7 +13,8 @@ module VCS
 
       # Return the plain text version of the downloaded file
       def plain_text
-        @plain_text ||= parser.text.strip
+        @plain_text ||=
+          Henkei::Server.extract_text(downloaded_file.tap(&:rewind)).strip
       end
 
       # Close the tempfile
@@ -25,10 +26,6 @@ module VCS
 
       def remote_file
         @remote_file ||= Providers::GoogleDrive::FileSync.new(remote_file_id)
-      end
-
-      def parser
-        @parser ||= Henkei.new(downloaded_file.tap(&:rewind))
       end
 
       # Return downloaded file. If not yet downloaded, download.
