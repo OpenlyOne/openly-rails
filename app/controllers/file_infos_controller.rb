@@ -36,7 +36,7 @@ class FileInfosController < ApplicationController
       @project
       .repository
       .file_snapshots
-      .find_by!(external_id: params[:id])
+      .find_by!(remote_file_id: params[:id])
       .file_record_id
   end
 

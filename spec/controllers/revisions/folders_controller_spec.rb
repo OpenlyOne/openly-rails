@@ -24,7 +24,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
       revision_id:    revision.id,
-      id:             folder.external_id
+      id:             folder.remote_file_id
     }
   end
   let(:current_account) { project.owner.account }
@@ -54,7 +54,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      before { params[:id] = committed_file.file_snapshot.external_id }
+      before { params[:id] = committed_file.file_snapshot.remote_file_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound

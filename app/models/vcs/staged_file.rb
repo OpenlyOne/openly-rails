@@ -48,9 +48,9 @@ module VCS
     }
 
     # Validations
-    validates :external_id, presence: true
-    validates :external_id, uniqueness: { scope: :branch_id },
-                            if: :will_save_change_to_external_id?
+    validates :remote_file_id, presence: true
+    validates :remote_file_id, uniqueness: { scope: :branch_id },
+                               if: :will_save_change_to_remote_file_id?
 
     # Only perform validation if no errors have been encountered
     with_options unless: :any_errors? do

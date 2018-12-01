@@ -53,9 +53,9 @@ feature 'Folder Import', :vcr do
 
     # and have 3 files in archive
     expect(project.archive.backups.count).to eq 3
-    external_archive =
+    remote_archive =
       Providers::GoogleDrive::FileSync
-      .new(project.archive.external_id)
-    expect(external_archive.children.count).to eq 3
+      .new(project.archive.remote_file_id)
+    expect(remote_archive.children.count).to eq 3
   end
 end

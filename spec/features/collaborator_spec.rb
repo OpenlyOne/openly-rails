@@ -122,7 +122,7 @@ feature 'Collaborators: As a collaborator' do
 
       scenario 'I no longer have read access to the archive' do
         # and fetch a file that has been backed up
-        backup_id = project.repository.file_backups.first.external_id
+        backup_id = project.repository.file_backups.first.remote_file_id
         expect { collaborator_api_connection.find_file!(backup_id) }
           .to raise_error(
             Google::Apis::ClientError,

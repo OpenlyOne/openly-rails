@@ -62,14 +62,14 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:external_id) }
+    it { is_expected.to validate_presence_of(:remote_file_id) }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:mime_type) }
     it { is_expected.to validate_presence_of(:content_version) }
     it { is_expected.to validate_presence_of(:file_record_parent_id) }
     it do
       is_expected
-        .to validate_uniqueness_of(:external_id).scoped_to(:branch_id)
+        .to validate_uniqueness_of(:remote_file_id).scoped_to(:branch_id)
     end
 
     it 'validates that file is not its own parent' do
@@ -77,12 +77,12 @@ RSpec.describe VCS::StagedFile, type: :model do
       staged_file.valid?
     end
 
-    context 'when external id has not changed' do
+    context 'when remote id has not changed' do
       before do
-        allow(staged_file).to receive(:external_id_changed?).and_return false
+        allow(staged_file).to receive(:remote_file_id_changed?).and_return false
       end
 
-      it { expect(staged_file).not_to validate_uniqueness_of(:external_id) }
+      it { expect(staged_file).not_to validate_uniqueness_of(:remote_file_id) }
     end
 
     context 'when file_record_parent_id has changed' do

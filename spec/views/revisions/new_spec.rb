@@ -97,12 +97,12 @@ RSpec.describe 'revisions/new', type: :view do
     it 'renders a link to each file backup' do
       render
       file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.external_link
+        link = diff.current_snapshot.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
 
-    it 'marks all links as external links' do
+    it 'marks all links as remote links' do
       render
       expect(rendered).to have_css("a[target='_blank']")
       expect(rendered).not_to have_css("a:not([target='_blank'])")

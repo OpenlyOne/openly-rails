@@ -13,7 +13,7 @@ module VCS
 
     # Validations
     validates :repository_id, uniqueness: { message: 'already has an archive' }
-    validates :external_id, presence: true
+    validates :remote_file_id, presence: true
 
     def default_api_connection
       api_connection_class.default
@@ -22,13 +22,13 @@ module VCS
     # Add the given email address as a viewer to the archive folder
     def grant_read_access_to(email)
       # TODO: Call method #share on remote_archive
-      default_api_connection.share_file(external_id, email, :reader)
+      default_api_connection.share_file(remote_file_id, email, :reader)
     end
 
     # Remove the given email address as a viewer from the archive folder
     def remove_read_access_from(email)
       # TODO: Call method #unshare on remote_archive
-      default_api_connection.unshare_file(external_id, email)
+      default_api_connection.unshare_file(remote_file_id, email)
     end
 
     # Set up the archive folder with the provider by creating it and granting
@@ -36,7 +36,7 @@ module VCS
     def setup
       raise 'Already set up' if setup_completed?
 
-      create_external_folder
+      create_remote_folder
       # TODO: Move this to project and archive no longer needs to know the
       # =>    owner account
       grant_read_access_to(owner_account_email)
@@ -44,19 +44,19 @@ module VCS
 
     # Return true if setup has been completed (i.e. file resource is present)
     def setup_completed?
-      external_id.present?
+      remote_file_id.present?
     end
 
     private
 
     # Creates the archive folder with the provider
-    def create_external_folder
+    def create_remote_folder
       folder = sync_adapter_class.create(
         name: "#{name} (Archive)",
         parent_id: 'root',
         mime_type: mime_type_class.folder
       )
-      self.external_id = folder.id
+      self.remote_file_id = folder.id
     end
 
     def api_connection_class

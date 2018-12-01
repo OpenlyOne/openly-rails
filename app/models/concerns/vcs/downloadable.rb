@@ -31,7 +31,7 @@ module VCS
 
       ContentDownloadJob.send(
         method,
-        remote_file_id: backup.external_id,
+        remote_file_id: backup.remote_file_id,
         content_id: content.id
       )
     end

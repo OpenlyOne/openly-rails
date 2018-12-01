@@ -81,7 +81,7 @@ module VCS
     validates :name,              presence: true
     validates :content_version,   presence: true
     validates :mime_type,         presence: true
-    validates :external_id,       presence: true
+    validates :remote_file_id,    presence: true
     validates :file_record_id,
               uniqueness: {
                 scope: %i[name content_id mime_type file_record_parent_id],
@@ -109,7 +109,7 @@ module VCS
       attributes.symbolize_keys!
       VCS::Operations::ContentGenerator.generate(
         repository: repository(attributes),
-        remote_file_id: attributes[:external_id],
+        remote_file_id: attributes[:remote_file_id],
         remote_content_version_id: attributes[:content_version]
       )&.id
     end
@@ -144,7 +144,7 @@ module VCS
 
     # The set of supplemental attributes to a snapshot
     def self.supplemental_attribute_keys
-      %i[thumbnail_id external_id content_version]
+      %i[thumbnail_id remote_file_id content_version]
     end
 
     # The plain text content of this snapshot

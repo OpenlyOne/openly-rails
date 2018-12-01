@@ -78,7 +78,7 @@ RSpec.describe 'projects/_head', type: :view do
     it 'renders a link to open that folder in Google Drive' do
       render
       expect(rendered).to have_link(
-        'Open in Drive', href: root.external_link
+        'Open in Drive', href: root.link_to_remote
       )
     end
   end

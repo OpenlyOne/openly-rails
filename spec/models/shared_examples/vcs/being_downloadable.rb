@@ -80,7 +80,7 @@ RSpec.shared_examples 'vcs: being downloadable' do
       allow(ContentDownloadJob).to receive(:perform_now)
       allow(backupable).to receive(:backup).and_return backup
       allow(backupable).to receive(:content).and_return content
-      allow(backup).to receive(:external_id).and_return 'ext-id'
+      allow(backup).to receive(:remote_file_id).and_return 'ext-id'
       allow(content).to receive(:id).and_return 'content-id'
     end
 

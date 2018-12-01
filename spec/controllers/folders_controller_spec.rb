@@ -15,7 +15,7 @@ RSpec.describe FoldersController, type: :controller do
     {
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
-      id:             folder.external_id
+      id:             folder.remote_file_id
     }
   end
   let(:current_account) { project.owner.account }
@@ -49,7 +49,7 @@ RSpec.describe FoldersController, type: :controller do
 
     context 'when file is not a directory' do
       let(:file)  { create :vcs_staged_file, parent: folder }
-      before      { params[:id] = file.external_id }
+      before      { params[:id] = file.remote_file_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound

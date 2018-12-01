@@ -26,7 +26,7 @@ module VCS
 
         # Update in stage
         staged_file.update(
-          snapshot_attributes.merge(external_id: external_id,
+          snapshot_attributes.merge(remote_file_id: remote_file_id,
                                     content_version: content_version,
                                     is_deleted: snapshot.nil?)
         )
@@ -50,12 +50,12 @@ module VCS
       private
 
       attr_accessor :snapshot, :target_branch, :file_record_id
-      attr_writer :external_id, :content_version
+      attr_writer :remote_file_id, :content_version
 
       # Create remote file from backup copy
       def add_file
         replacement = snapshot.folder? ? create_folder : duplicate_file
-        self.external_id = replacement.id
+        self.remote_file_id = replacement.id
         self.content_version = replacement.content_version
 
         # Create a new remote content record that points at the same content
@@ -65,23 +65,23 @@ module VCS
         # TODO: Add helper method for creating a new remote version of content
         snapshot.content.remote_contents.create!(
           repository: snapshot.repository,
-          remote_file_id: external_id,
+          remote_file_id: remote_file_id,
           remote_content_version_id: content_version
         )
       end
 
       # Duplicate or create file depending on whether this is a folder or not
       def duplicate_file
-        file_sync_class.new(snapshot.backup.external_id).duplicate(
+        file_sync_class.new(snapshot.backup.remote_file_id).duplicate(
           name: snapshot.name,
-          parent_id: staged_parent.external_id
+          parent_id: staged_parent.remote_file_id
         )
       end
 
       def create_folder
         file_sync_class.create(
           name: snapshot.name,
-          parent_id: staged_parent.external_id,
+          parent_id: staged_parent.remote_file_id,
           mime_type: snapshot.mime_type
         )
       end
@@ -90,9 +90,9 @@ module VCS
       # Calling the delete API endpoint results in insufficient permission
       # error unless the action is performed by the file owner.
       def remove_file
-        file_sync_class
-          .new(staged_file.external_id)
-          .relocate(to: nil, from: staged_file.parent.external_id)
+        staged_file
+          .remote
+          .relocate(to: nil, from: staged_file.parent.remote_file_id)
       end
 
       # Create remote file from backup copy and delete current file
@@ -103,17 +103,17 @@ module VCS
 
       # Move remote file
       def relocate_file
-        file_sync_class
-          .new(staged_file.external_id)
+        staged_file
+          .remote
           .relocate(
-            to: staged_parent.external_id,
-            from: staged_file.parent.external_id
+            to: staged_parent.remote_file_id,
+            from: staged_file.parent.remote_file_id
           )
       end
 
       # Rename remote file
       def rename_file
-        file_sync_class.new(staged_file.external_id).rename(snapshot.name)
+        staged_file.remote.rename(snapshot.name)
       end
 
       # Calculate the diff of new snapshot vs currently staged snapshot
@@ -125,8 +125,8 @@ module VCS
           )
       end
 
-      def external_id
-        @external_id ||= staged_file.external_id
+      def remote_file_id
+        @remote_file_id ||= staged_file.remote_file_id
       end
 
       def content_version

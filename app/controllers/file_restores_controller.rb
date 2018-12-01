@@ -37,7 +37,7 @@ class FileRestoresController < ApplicationController
     # TODO: Redirect to file infos path by file record ID. That is the only
     # =>    stable identifier.
     profile_project_file_infos_path(@project.owner, @project,
-                                    staged_file.external_id)
+                                    staged_file.remote_file_id)
   end
 
   def set_file_snapshot

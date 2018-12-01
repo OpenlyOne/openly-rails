@@ -121,7 +121,7 @@ class Project
       @file ||=
         master_branch
         .staged_files
-        .build(is_root: true, external_id: id_from_link)
+        .build(is_root: true, remote_file_id: id_from_link)
         .tap(&:fetch)
     end
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe VCS::Branch, type: :model do
-  describe 'scope: where_staged_files_include_external_id' do
-    subject { described_class.where_staged_files_include_external_id(ids) }
-    let(:ids)     { [file1, file2, file3].map(&:external_id) }
+  describe 'scope: where_staged_files_include_remote_file_id' do
+    subject { described_class.where_staged_files_include_remote_file_id(ids) }
+    let(:ids)     { [file1, file2, file3].map(&:remote_file_id) }
 
     let!(:file1)  { create :vcs_staged_file }
     let!(:file2)  { create :vcs_staged_file }
@@ -22,7 +22,7 @@ RSpec.describe VCS::Branch, type: :model do
     context 'when a branch has a multiple matches' do
       let!(:extra_match) { create :vcs_staged_file, branch: file1.branch }
 
-      before { ids << extra_match.external_id }
+      before { ids << extra_match.remote_file_id }
 
       it 'returns the branch only once' do
         is_expected.to match_array [file1, file2, file3].map(&:branch)

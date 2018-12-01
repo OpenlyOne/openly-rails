@@ -11,7 +11,7 @@ module VCS
               presence: { message: 'must exist' },
               uniqueness: { message: 'already has a backup' }
     validates :archive, presence: true, on: :capture
-    validates :external_id, presence: true, on: %i[create update]
+    validates :remote_file_id, presence: true, on: %i[create update]
 
     # TODO: after_destroy --> destroy backup if this is last reference to it
 
@@ -35,13 +35,13 @@ module VCS
 
       return false unless file.present?
 
-      self.external_id = file.id
+      self.remote_file_id = file.id
     end
 
     # TODO: Refactor onto snapshot
-    def external_link
+    def link_to_remote
       Providers::GoogleDrive::Link
-        .for(external_id: external_id, mime_type: file_snapshot.mime_type)
+        .for(remote_file_id: remote_file_id, mime_type: file_snapshot.mime_type)
     end
 
     private
@@ -51,11 +51,11 @@ module VCS
     end
 
     def archive_folder_id
-      archive.external_id
+      archive.remote_file_id
     end
 
     def staged_file_remote
-      sync_adapter_class.new(file_snapshot.external_id)
+      sync_adapter_class.new(file_snapshot.remote_file_id)
     end
 
     def provider

@@ -42,7 +42,7 @@ RSpec.describe FileRestoresController, type: :controller do
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) do
         profile_project_file_infos_path(
-          project.owner, project, snapshot.external_id
+          project.owner, project, snapshot.remote_file_id
         )
       end
       let(:unauthorized_message) do
@@ -55,7 +55,7 @@ RSpec.describe FileRestoresController, type: :controller do
       run_request
       expect(response).to redirect_to(
         profile_project_file_infos_path(
-          project.owner, project, snapshot.external_id
+          project.owner, project, snapshot.remote_file_id
         )
       )
       is_expected.to set_flash[:notice].to 'File successfully restored.'

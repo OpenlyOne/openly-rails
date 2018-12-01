@@ -17,7 +17,7 @@ RSpec.describe ForceSyncsController, type: :controller do
     {
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
-      id:             folder.external_id
+      id:             folder.remote_file_id
     }
   end
 
@@ -74,7 +74,7 @@ RSpec.describe ForceSyncsController, type: :controller do
     end
 
     context 'when id is of root folder' do
-      before      { params[:id] = root.external_id }
+      before      { params[:id] = root.remote_file_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound

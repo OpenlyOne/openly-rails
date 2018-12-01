@@ -7,8 +7,8 @@ RSpec.shared_examples 'vcs: being diffing' do
     let(:snapshot) { :current_or_previous_snapshot }
 
     it { is_expected.to delegate_method(:id).to(snapshot).with_prefix }
-    it { is_expected.to delegate_method(:external_id).to(snapshot) }
-    it { is_expected.to delegate_method(:external_link).to(snapshot) }
+    it { is_expected.to delegate_method(:remote_file_id).to(snapshot) }
+    it { is_expected.to delegate_method(:link_to_remote).to(snapshot) }
     it { is_expected.to delegate_method(:folder?).to(snapshot) }
     it { is_expected.to delegate_method(:icon).to(snapshot) }
     it { is_expected.to delegate_method(:mime_type).to(snapshot) }

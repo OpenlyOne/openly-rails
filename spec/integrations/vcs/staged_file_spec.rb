@@ -7,14 +7,14 @@ require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 RSpec.describe VCS::StagedFile, type: :model do
   subject(:file) do
     described_class.new(
-      external_id: external_id,
+      remote_file_id: remote_file_id,
       branch: branch,
       file_record: file_record
     )
   end
-  let(:branch) { create :vcs_branch }
-  let(:file_record) { create :vcs_file_record }
-  let(:external_id) { 'id' }
+  let(:branch)          { create :vcs_branch }
+  let(:file_record)     { create :vcs_file_record }
+  let(:remote_file_id)  { 'id' }
 
   it_should_behave_like 'vcs: including snapshotable integration' do
     let(:file)                    { build :vcs_staged_file }
@@ -35,7 +35,7 @@ RSpec.describe VCS::StagedFile, type: :model do
 
     let!(:root) do
       create(:vcs_staged_file, :root, :folder,
-             branch: branch, external_id: parent_id)
+             branch: branch, remote_file_id: parent_id)
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe VCS::StagedFile, type: :model do
 
     let!(:root) do
       create(:vcs_staged_file, :root, :folder,
-             branch: branch, external_id: parent_id)
+             branch: branch, remote_file_id: parent_id)
     end
   end
 
@@ -70,7 +70,7 @@ RSpec.describe VCS::StagedFile, type: :model do
     end
     let!(:parent) do
       described_class.new(
-        external_id: google_drive_test_folder_id,
+        remote_file_id: google_drive_test_folder_id,
         branch: branch,
         file_record: file_record_parent,
         is_root: true
@@ -79,9 +79,9 @@ RSpec.describe VCS::StagedFile, type: :model do
     let(:file_record_parent)  { create :vcs_file_record }
     let(:projects)            { create_list :project, 3 }
     let(:api)                 { Providers::GoogleDrive::ApiConnection.default }
-    let(:external_id)         { file_sync.id }
+    let(:remote_file_id)      { file_sync.id }
     let(:file_from_database) do
-      described_class.find_by_external_id!(external_id)
+      described_class.find_by_remote_file_id!(remote_file_id)
     end
     let(:file_attributes)     { file_from_database.attributes }
     let(:snapshot_attributes) { file_from_database.current_snapshot.attributes }
@@ -91,7 +91,7 @@ RSpec.describe VCS::StagedFile, type: :model do
         'file_record_parent_id' => parent.file_record_id,
         'content_version' => '1',
         'mime_type' => Providers::GoogleDrive::MimeType.document,
-        'external_id' => external_id,
+        'remote_file_id' => remote_file_id,
         'thumbnail_id' => nil
       }
     end
@@ -126,7 +126,7 @@ RSpec.describe VCS::StagedFile, type: :model do
 
     it 'can pull a snapshot of a removed file' do
       file.pull
-      api.delete_file(file.external_id)
+      api.delete_file(file.remote_file_id)
       file.reload.pull
       expect(file_from_database).to be_deleted
       expect(file_from_database.current_snapshot).to be nil
