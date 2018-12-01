@@ -44,7 +44,7 @@ module VCS
         type == 'deletion'
       end
 
-      # The identifier for the change, consisting of external ID and change type
+      # The identifier for the change, consisting of remote ID and change type
       def id
         "#{remote_file_id}_#{type}"
       end

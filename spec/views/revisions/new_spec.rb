@@ -102,7 +102,7 @@ RSpec.describe 'revisions/new', type: :view do
       end
     end
 
-    it 'marks all links as external links' do
+    it 'marks all links as remote links' do
       render
       expect(rendered).to have_css("a[target='_blank']")
       expect(rendered).not_to have_css("a:not([target='_blank'])")

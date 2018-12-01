@@ -36,7 +36,7 @@ module VCS
     def setup
       raise 'Already set up' if setup_completed?
 
-      create_external_folder
+      create_remote_folder
       # TODO: Move this to project and archive no longer needs to know the
       # =>    owner account
       grant_read_access_to(owner_account_email)
@@ -50,7 +50,7 @@ module VCS
     private
 
     # Creates the archive folder with the provider
-    def create_external_folder
+    def create_remote_folder
       folder = sync_adapter_class.create(
         name: "#{name} (Archive)",
         parent_id: 'root',

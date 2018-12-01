@@ -77,7 +77,7 @@ RSpec.describe VCS::StagedFile, type: :model do
       staged_file.valid?
     end
 
-    context 'when external id has not changed' do
+    context 'when remote id has not changed' do
       before do
         allow(staged_file).to receive(:remote_file_id_changed?).and_return false
       end

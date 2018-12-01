@@ -6,7 +6,7 @@ RSpec.describe VCS::Archive, type: :model do
   end
   let(:account_email)   { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
   let(:name)            { 'DEMO' }
-  let(:external_folder) { archive.file_resource }
+  let(:remote_folder) { archive.file_resource }
 
   describe '#setup', :vcr do
     before  { prepare_google_drive_test }

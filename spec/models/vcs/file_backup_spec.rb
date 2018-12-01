@@ -84,7 +84,7 @@ RSpec.describe VCS::FileBackup, type: :model do
         .with(name: 'snapshot-name', parent_id: 'archive-id')
     end
 
-    it 'sets external id' do
+    it 'sets remote id' do
       capture_backup
       expect(backup).to have_received(:remote_file_id=).with('dup-remote-id')
     end

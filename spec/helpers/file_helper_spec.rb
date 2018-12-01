@@ -9,8 +9,8 @@ RSpec.describe FileHelper, type: :helper do
 
     before do
       allow(file).to receive(:folder?).and_return is_folder
-      allow(file).to receive(:remote_file_id).and_return 'external-id'
-      allow(file).to receive(:link_to_remote).and_return 'external-link'
+      allow(file).to receive(:remote_file_id).and_return 'remote-id'
+      allow(file).to receive(:link_to_remote).and_return 'remote-link'
     end
 
     context 'when file is folder' do
@@ -18,7 +18,7 @@ RSpec.describe FileHelper, type: :helper do
 
       it 'returns internal link to directory' do
         expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/external-id",
+          "/#{project.owner.handle}/#{project.slug}/folders/remote-id",
           any_args
         )
         method
@@ -34,7 +34,7 @@ RSpec.describe FileHelper, type: :helper do
       let(:is_folder) { false }
 
       it 'sets url to link_to_remote_for_file' do
-        expect(helper).to receive(:link_to).with('external-link', kind_of(Hash))
+        expect(helper).to receive(:link_to).with('remote-link', kind_of(Hash))
         method
       end
 
@@ -218,10 +218,10 @@ RSpec.describe FileHelper, type: :helper do
 
       before do
         allow(file).to receive(:backup).and_return backup
-        allow(backup).to receive(:link_to_remote).and_return 'external'
+        allow(backup).to receive(:link_to_remote).and_return 'remote'
       end
 
-      it { is_expected.to eq 'external' }
+      it { is_expected.to eq 'remote' }
     end
 
     context 'when file does not have backup' do

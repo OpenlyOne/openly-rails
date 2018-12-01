@@ -18,7 +18,7 @@ RSpec.shared_examples 'vcs: being syncable' do
       allow(remote).to receive(:mime_type).and_return 'mime_type'
       allow(remote).to receive(:content_version).and_return 'version'
       allow(remote).to receive(:parent_id).and_return 'parent_id'
-      allow(syncable).to receive(:external_parent_id=)
+      allow(syncable).to receive(:remote_parent_id=)
       allow(syncable).to receive(:thumbnail_from_remote)
       allow(remote).to receive(:deleted?).and_return false
     end
@@ -28,7 +28,7 @@ RSpec.shared_examples 'vcs: being syncable' do
     it { expect(syncable).to receive(:name=).with('name') }
     it { expect(syncable).to receive(:mime_type=).with('mime_type') }
     it { expect(syncable).to receive(:content_version=).with('version') }
-    it { expect(syncable).to receive(:external_parent_id=).with('parent_id') }
+    it { expect(syncable).to receive(:remote_parent_id=).with('parent_id') }
     it { expect(syncable).to receive(:thumbnail_from_remote) }
     it { expect(syncable).to receive(:is_deleted=).with(false) }
   end
@@ -73,8 +73,8 @@ RSpec.shared_examples 'vcs: being syncable' do
     it      { expect(syncable).to receive(:reset_remote) }
   end
 
-  describe '#external_parent_id=(parent_id)' do
-    subject(:set_parent_id) { syncable.send(:external_parent_id=, parent_id) }
+  describe '#remote_parent_id=(parent_id)' do
+    subject(:set_parent_id) { syncable.send(:remote_parent_id=, parent_id) }
     let(:parent_id)         { 'id-of-parent' }
     let(:before_hook)       { nil }
 

@@ -33,7 +33,7 @@ module VCS
                    message: 'must be JPEG, PNG, or GIF'
     validates :version_id, uniqueness: {
       scope: %i[file_record_id remote_file_id],
-      message: 'with external ID already exists for this file record'
+      message: 'with remote ID already exists for this file record'
     }, if: :new_record?
 
     # Callbacks
@@ -51,7 +51,7 @@ module VCS
       }
     end
 
-    # Find or initialize a Thumbnail instance by provider ID, external ID, and
+    # Find or initialize a Thumbnail instance by provider ID, remote ID, and
     # version ID
     def self.find_or_initialize_by_staged_file(staged_file)
       find_or_initialize_by(
@@ -74,7 +74,7 @@ module VCS
       end
     end
 
-    # Set external ID and version ID from the given staged file
+    # Set remote ID and version ID from the given staged file
     def staged_file=(staged_file)
       assign_attributes(
         self.class.attributes_from_staged_file(staged_file)

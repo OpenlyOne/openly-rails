@@ -30,7 +30,7 @@ module VCS
         end
 
         # Undo modification of the file resource
-        # TODO: Remove rolling back of external ID & content version
+        # TODO: Remove rolling back of remote ID & content version
         # rubocop:disable Metrics/AbcSize
         def unapply
           current_snapshot.content_id       = previous_snapshot.content_id

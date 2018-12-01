@@ -5,7 +5,7 @@ RSpec.describe VCS::FileBackup, type: :model do
   let(:owner)           { build(:user, account: account) }
   let(:account)         { build(:account, email: account_email) }
   let(:account_email)   { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-  let(:external_folder) { archive.file_resource }
+  let(:remote_folder) { archive.file_resource }
 
   describe '#capture', :vcr do
     before  { prepare_google_drive_test }
@@ -20,11 +20,11 @@ RSpec.describe VCS::FileBackup, type: :model do
     let(:file_name)     { 'An Awesome File' }
     let(:staged_file) do
       project.master_branch.staged_files.build(
-        remote_file_id: external_file.id,
+        remote_file_id: remote_file.id,
         file_record: VCS::FileRecord.new(repository: project.repository)
       )
     end
-    let(:external_file) do
+    let(:remote_file) do
       Providers::GoogleDrive::FileSync.create(
         name: file_name,
         parent_id: google_drive_test_folder_id,

@@ -145,7 +145,7 @@ RSpec.describe FileUpdateJob, type: :job do
     context 'when file is not present' do
       let(:file) { nil }
 
-      it 'find branches with staged files with external id of change' do
+      it 'find branches with staged files with remote id of change' do
         process_change
         expect(VCS::Branch)
           .to have_received(:where_staged_files_include_remote_file_id)

@@ -25,7 +25,7 @@ module VCS
       self.name = remote.name
       self.mime_type = remote.mime_type
       self.content_version = remote.content_version
-      self.external_parent_id = remote.parent_id
+      self.remote_parent_id = remote.parent_id
       thumbnail_from_remote
     end
 
@@ -65,11 +65,11 @@ module VCS
       end
     end
 
-    # Find an instance of syncable's class from the external parent ID
+    # Find an instance of syncable's class from the remote parent ID
     # and set instance to parent of current syncable resource
-    def external_parent_id=(external_parent_id)
+    def remote_parent_id=(remote_parent_id)
       self.parent =
-        branch.staged_files.find_by_remote_file_id(external_parent_id)
+        branch.staged_files.find_by_remote_file_id(remote_parent_id)
     end
 
     # Reset the file's synchronization adapter

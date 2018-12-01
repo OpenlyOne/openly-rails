@@ -286,10 +286,10 @@ end
 # TODO: Reduce complexity
 def and_have_a_backup_of_file_snapshot(file_snapshot)
   remote_file_id_of_backup = file_snapshot.backup.remote_file_id
-  external_backup =
+  remote_backup =
     Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
-  expect(external_backup.name).to eq(file_snapshot.name)
-  expect(external_backup.parent_id)
+  expect(remote_backup.name).to eq(file_snapshot.name)
+  expect(remote_backup.parent_id)
     .to eq(project.archive.remote_file_id)
 end
 # rubocop:enable Metrics/AbcSize
