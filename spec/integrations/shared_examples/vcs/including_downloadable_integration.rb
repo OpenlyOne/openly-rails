@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'vcs: including downloadable integration', :vcr do
   let(:file) do
-    create :vcs_staged_file, remote_file_id: remote_file.id, parent: root
+    create :vcs_file_in_branch, remote_file_id: remote_file.id, parent: root
   end
   let(:remote_file) do
     file_sync_class.create(

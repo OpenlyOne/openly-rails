@@ -37,7 +37,7 @@ class FileRestoresController < ApplicationController
     # TODO: Redirect to file infos path by file record ID. That is the only
     # =>    stable identifier.
     profile_project_file_infos_path(@project.owner, @project,
-                                    staged_file.remote_file_id)
+                                    file_in_branch.remote_file_id)
   end
 
   def set_file_snapshot
@@ -45,8 +45,8 @@ class FileRestoresController < ApplicationController
   end
 
   # TODO: Remove after redirecting to file infos path based on file record ID
-  def staged_file
+  def file_in_branch
     @master_branch
-      .staged_files.find_by(file_record_id: @snapshot.file_record_id)
+      .files.find_by(file_record_id: @snapshot.file_record_id)
   end
 end

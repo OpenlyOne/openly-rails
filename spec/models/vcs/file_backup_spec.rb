@@ -25,16 +25,16 @@ RSpec.describe VCS::FileBackup, type: :model do
     end
   end
 
-  describe '.backup(staged_file)' do
-    subject(:method) { described_class.backup(staged_file) }
+  describe '.backup(file_in_branch)' do
+    subject(:method) { described_class.backup(file_in_branch) }
 
-    let(:staged_file)   { instance_double VCS::StagedFile }
-    let(:new_backup)    { instance_double described_class }
-    let(:p1)            { instance_double Project }
-    let(:p2)            { instance_double Project }
+    let(:file_in_branch)  { instance_double VCS::FileInBranch }
+    let(:new_backup)      { instance_double described_class }
+    let(:p1)              { instance_double Project }
+    let(:p2)              { instance_double Project }
 
     before do
-      allow(staged_file).to receive(:current_snapshot).and_return 'snapshot'
+      allow(file_in_branch).to receive(:current_snapshot).and_return 'snapshot'
       allow(described_class)
         .to receive(:new)
         .with(file_snapshot: 'snapshot')
@@ -70,7 +70,7 @@ RSpec.describe VCS::FileBackup, type: :model do
 
     before do
       allow(backup).to receive(:archive).and_return archive
-      allow(backup).to receive(:staged_file_remote).and_return remote_file
+      allow(backup).to receive(:file_in_branch_remote).and_return remote_file
       allow(backup).to receive(:archive_folder_id).and_return 'archive-id'
       allow(remote_file)
         .to receive(:duplicate).and_return duplicated_remote_file

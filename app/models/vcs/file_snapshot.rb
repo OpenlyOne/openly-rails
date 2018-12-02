@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VCS
-  # A unique snapshot of a staged file's data (name, content, parent, ...)
+  # A unique snapshot of a file's data (name, content, parent, ...)
   # rubocop:disable Metrics/ClassLength
   class FileSnapshot < ApplicationRecord
     include VCS::Resourceable
@@ -11,12 +11,6 @@ module VCS
     belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
                                     optional: true
     belongs_to :content
-
-    has_many :staging_files, class_name: 'VCS::StagedFile',
-                             foreign_key: :file_record_id
-
-    # has_many :committing_files, class_name: 'CommittedFile',
-    #                             foreign_key: :file_snapshot_id
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
                      inverse_of: :file_snapshot
@@ -70,7 +64,7 @@ module VCS
     # 2) file name in ascending alphabetical order, case insensitive
     scope :order_by_name_with_folders_first, lambda {
       merge(
-        StagedFile.order_by_name_with_folders_first(
+        FileInBranch.order_by_name_with_folders_first(
           table: table_name
         )
       )
@@ -97,14 +91,14 @@ module VCS
       )
     end
 
-    # TODO: Content generation should not be happening here. Move to StagedFile
-    # =>    instead
+    # TODO: Content generation should not be happening here. Move to
+    # =>    FileInBranch instead
     def self.repository(attributes)
       VCS::FileRecord.find(attributes[:file_record_id])&.repository
     end
 
-    # TODO: Content generation should not be happening here. Move to StagedFile
-    # =>    instead
+    # TODO: Content generation should not be happening here. Move to
+    # =>    FileInBranch instead
     def self.content_id(attributes)
       attributes.symbolize_keys!
       VCS::Operations::ContentGenerator.generate(
@@ -114,8 +108,8 @@ module VCS
       )&.id
     end
 
-    # TODO: Content generation should not be happening here. Move to StagedFile
-    # =>    instead
+    # TODO: Content generation should not be happening here. Move to
+    # =>    FileInBranch instead
     # The set of core attributes that uniquely identify a snapshot
     def self.core_attributes(attributes)
       attributes

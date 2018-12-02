@@ -10,7 +10,7 @@ FactoryBot.define do
       link { file.link_to_remote }
 
       transient do
-        file { create :vcs_staged_file, :folder }
+        file { create :vcs_file_in_branch, :folder }
       end
     end
 

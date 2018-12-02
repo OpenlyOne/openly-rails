@@ -52,11 +52,11 @@ if defined? Bullet
                        association: :parent
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::StagedFile',
+                       class_name: 'VCS::FileInBranch',
                        association: :thumbnail
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::StagedFile',
+                       class_name: 'VCS::FileInBranch',
                        association: :current_snapshot
 
   Bullet.add_whitelist type: :unused_eager_loading,

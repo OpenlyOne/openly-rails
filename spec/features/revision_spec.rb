@@ -3,7 +3,7 @@
 feature 'Revision' do
   let(:project)       { create :project, :setup_complete, :skip_archive_setup }
   let(:master_branch) { project.master_branch }
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
+  let!(:root) { create :vcs_file_in_branch, :root, branch: master_branch }
   let(:create_revision) do
     c = master_branch.commits.create_draft_and_commit_files!(project.owner)
     c.update(is_published: true, title: 'origin revision')
@@ -13,7 +13,7 @@ feature 'Revision' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and there is a file
-    file = create :vcs_staged_file, name: 'File1', parent: root
+    file = create :vcs_file_in_branch, name: 'File1', parent: root
     # with three revisions made by three different users
     users = create_list :user, 3
     commit1 = master_branch.commits.create_draft_and_commit_files!(users[0])
@@ -47,7 +47,7 @@ feature 'Revision' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and the project has some files
-    create_list :vcs_staged_file, 5, parent: root
+    create_list :vcs_file_in_branch, 5, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -74,18 +74,20 @@ feature 'Revision' do
 
   context 'Selective capture' do
     let(:unchanged) do
-      create_list :vcs_staged_file, 2, name: 'unchanged', parent: root
+      create_list :vcs_file_in_branch, 2, name: 'unchanged', parent: root
     end
-    let(:folder)          { create :vcs_staged_file, :folder, parent: root }
-    let(:added_file)      { create :vcs_staged_file, parent: folder }
-    let(:modified_file)   { create :vcs_staged_file, parent: folder }
-    let(:moved_out_file)  { create :vcs_staged_file, parent: folder }
-    let(:moved_in_file)   { create :vcs_staged_file, parent: root }
-    let(:moved_in_and_modified_file) { create :vcs_staged_file, parent: root }
-    let(:removed_file)  { create :vcs_staged_file, parent: folder }
-    let(:moved_folder)  { create :vcs_staged_file, :folder, parent: root }
+    let(:folder)          { create :vcs_file_in_branch, :folder, parent: root }
+    let(:added_file)      { create :vcs_file_in_branch, parent: folder }
+    let(:modified_file)   { create :vcs_file_in_branch, parent: folder }
+    let(:moved_out_file)  { create :vcs_file_in_branch, parent: folder }
+    let(:moved_in_file)   { create :vcs_file_in_branch, parent: root }
+    let(:moved_in_and_modified_file) do
+      create :vcs_file_in_branch, parent: root
+    end
+    let(:removed_file)  { create :vcs_file_in_branch, parent: folder }
+    let(:moved_folder)  { create :vcs_file_in_branch, :folder, parent: root }
     let(:in_moved_folder) do
-      create_list :vcs_staged_file, 2, parent: moved_folder
+      create_list :vcs_file_in_branch, 2, parent: moved_folder
     end
 
     scenario 'User can review changes' do

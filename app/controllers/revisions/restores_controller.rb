@@ -14,7 +14,7 @@ module Revisions
     # TODO: Extract logic out of controller
     # rubocop:disable Metrics/MethodLength
     def create
-      current_commit = build_commit_with_files_staged_in_branch
+      current_commit = build_commit_with_files_in_branch
 
       commit_to_restore = @revision
 
@@ -70,12 +70,12 @@ module Revisions
       authorize! :restore_revision, @project
     end
 
-    def build_commit_with_files_staged_in_branch
+    def build_commit_with_files_in_branch
       VCS::Commit
         .create(branch: @master_branch,
                 parent: @master_branch.commits.last,
                 author: current_user)
-        .tap(&:commit_all_files_staged_in_branch)
+        .tap(&:commit_all_files_in_branch)
     end
 
     def can_can_access_denied(exception)

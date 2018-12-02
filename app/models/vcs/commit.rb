@@ -39,7 +39,7 @@ module VCS
 
     # Callbacks
     before_save :apply_selected_file_changes, if: :publishing?
-    after_save :update_staged_files, if: :publishing?
+    after_save :update_files_in_branch, if: :publishing?
     after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
 
     # Scopes
@@ -62,20 +62,20 @@ module VCS
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
     validate :selected_file_changes_must_be_valid, if: :publishing?
 
-    # Create a non-published revision for the branch and commit all files staged
-    # in the branch
+    # Create a non-published revision for the branch and commit all files in the
+    # branch
     def self.create_draft_and_commit_files_for_branch!(branch, author)
       create!(branch: branch, parent: branch.commits.last, author: author)
-        .tap(&:commit_all_files_staged_in_branch)
+        .tap(&:commit_all_files_in_branch)
         .tap(&:generate_diffs)
     end
 
-    # Take ID and current snapshot ID of all (non-root) file resources currently
-    # staged in branch and import them as committed files for this revision.
-    def commit_all_files_staged_in_branch
+    # Take ID and current snapshot ID of all (non-root) files currently in
+    # branch and import them as committed files for this revision.
+    def commit_all_files_in_branch
       VCS::CommittedFile.insert_from_select_query(
         %i[commit_id file_snapshot_id],
-        branch.staged_file_snapshots
+        branch.snapshots_in_branch
               .without_root # only commit non-root snapshots
               .select(id, :id)
       )
@@ -124,30 +124,31 @@ module VCS
     end
 
     # Update each file in stage by joining it onto committed snapshots via
-    # file record id and setting the committed_snapshot_id of staged files to
-    # the id of committed snapshots
+    # file record id and setting the committed_snapshot_id of files to the id of
+    # committed snapshots
     # rubocop:disable Metrics/MethodLength
-    def update_staged_files
-      # Left join staged files on committed snapshots
+    def update_files_in_branch
+      # Left join files on committed snapshots
       # TODO: Extract into scope/query
-      staged_files_left_joining_committed_snapshots =
-        branch.staged_files.joins(
+      files_in_branch_left_joining_committed_snapshots =
+        branch.files.joins(
           <<~SQL
             LEFT JOIN (#{committed_snapshots.to_sql}) committed_snapshots
             ON (committed_snapshots.file_record_id =
-            vcs_staged_files.file_record_id)
+            vcs_file_in_branches.file_record_id)
           SQL
-        ).select('committed_snapshots.id, vcs_staged_files.file_record_id')
+        ).select('committed_snapshots.id, vcs_file_in_branches.file_record_id')
 
       # Perform the update
       branch
-        .staged_files
+        .files
         .where(
-          'committed_snapshots.file_record_id = vcs_staged_files.file_record_id'
+          'committed_snapshots.file_record_id = ' \
+          'vcs_file_in_branches.file_record_id'
         ).update_all(
           <<~SQL
             committed_snapshot_id = committed_snapshots.id
-            FROM (#{staged_files_left_joining_committed_snapshots.to_sql})
+            FROM (#{files_in_branch_left_joining_committed_snapshots.to_sql})
             committed_snapshots
           SQL
         )

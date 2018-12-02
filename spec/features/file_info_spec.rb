@@ -3,12 +3,14 @@
 feature 'File Info' do
   let(:project)       { create :project, :setup_complete, :skip_archive_setup }
   let(:master_branch) { project.master_branch }
-  let!(:root) { create :vcs_staged_file, :root, branch: project.master_branch }
-  before      { sign_in_as project.owner.account }
+  let!(:root) do
+    create :vcs_file_in_branch, :root, branch: project.master_branch
+  end
+  before { sign_in_as project.owner.account }
 
   scenario 'User can see file info' do
     # given there is a file and it is committed
-    file = create :vcs_staged_file, name: 'File1', parent: root
+    file = create :vcs_file_in_branch, name: 'File1', parent: root
     create_revision
 
     # when I visit the project page
@@ -34,7 +36,7 @@ feature 'File Info' do
 
   scenario 'User can see file info for newly added files' do
     # given there is an uncommitted file
-    file = create :vcs_staged_file, name: 'File1', parent: root
+    file = create :vcs_file_in_branch, name: 'File1', parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -54,7 +56,7 @@ feature 'File Info' do
 
   scenario 'User can see file info of deleted files' do
     # given there is a file that has been deleted since the last revision
-    file = create :vcs_staged_file, name: 'File1', parent: root
+    file = create :vcs_file_in_branch, name: 'File1', parent: root
     create_revision
     file.update(is_deleted: true)
     create_revision

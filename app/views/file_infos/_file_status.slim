@@ -1,12 +1,12 @@
 / render the current file status with links or display that the file has been
 / deleted
 
-- if staged_file_diff.present?
+- if uncaptured_file_diff.present?
 
   .row
     .col.s12.m4
       = render partial: 'link_to_open_in_drive',
-               locals: { file: staged_file_diff.current_or_previous_snapshot }
+               locals: { file: uncaptured_file_diff.current_or_previous_snapshot }
 
     .col.s12.m4
       / Add vertical spacing between the two buttons on mobile devices
@@ -14,7 +14,7 @@
 
       = render partial: 'link_to_parent_folder',
                locals: { project: project,
-                         file: staged_file_diff.current_or_previous_snapshot }
+                         file: uncaptured_file_diff.current_or_previous_snapshot }
 
     - if user_can_force_sync_files
       .col.s12.m4
@@ -23,14 +23,14 @@
 
         = render partial: 'link_to_force_sync',
                  locals: { project: project,
-                           file: staged_file_diff.current_or_previous_snapshot }
+                           file: uncaptured_file_diff.current_or_previous_snapshot }
 
 
   .spacing.v16px
 
   = render partial: 'new_file_changes',
            locals: { project: project,
-                     staged_file_diff: staged_file_diff }
+                     uncaptured_file_diff: uncaptured_file_diff }
 
   .spacing.v16px
 

@@ -48,7 +48,7 @@ RSpec.describe 'projects/_head', type: :view do
   end
 
   context 'when setup is complete' do
-    let(:root) { build_stubbed :vcs_staged_file, :root }
+    let(:root) { build_stubbed :vcs_file_in_branch, :root }
 
     before do
       branch = instance_double VCS::Branch

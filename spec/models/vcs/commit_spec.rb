@@ -75,7 +75,7 @@ RSpec.describe VCS::Commit, type: :model do
 
     before do
       allow(described_class).to receive(:create!).and_return(draft)
-      allow(draft).to receive(:commit_all_files_staged_in_branch)
+      allow(draft).to receive(:commit_all_files_in_branch)
       allow(draft).to receive(:generate_diffs)
       allow(branch).to receive(:commits).and_return commits
     end
@@ -90,19 +90,19 @@ RSpec.describe VCS::Commit, type: :model do
       )
     end
 
-    it { expect(draft).to receive(:commit_all_files_staged_in_branch) }
+    it { expect(draft).to receive(:commit_all_files_in_branch) }
   end
 
-  describe '#commit_all_files_staged_in_branch' do
-    subject(:commit_files)  { commit.commit_all_files_staged_in_branch }
+  describe '#commit_all_files_in_branch' do
+    subject(:commit_files)  { commit.commit_all_files_in_branch }
     let(:query)             { class_double ActiveRecord::Relation }
 
     before do
       allow(VCS::CommittedFile).to receive(:insert_from_select_query)
-      collection_proxy = class_double VCS::StagedFile
+      collection_proxy = class_double VCS::FileInBranch
       allow(commit.branch)
         .to receive_message_chain(
-          :staged_file_snapshots,
+          :snapshots_in_branch,
           :without_root
         ).and_return collection_proxy
       allow(collection_proxy)

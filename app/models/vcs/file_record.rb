@@ -8,12 +8,6 @@ module VCS
     has_many :file_thumbnails, dependent: :destroy
 
     has_many :repository_branches, through: :repository, source: :branches
-    has_many :staged_instances,
-             lambda { |file_record|
-               where(file_record_id: file_record.id)
-             },
-             through: :repository_branches,
-             source: :staged_files
 
     has_many :file_snapshots, dependent: :destroy
     has_many :file_snapshots_of_children,

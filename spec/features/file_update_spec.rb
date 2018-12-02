@@ -49,8 +49,8 @@ feature 'File Update', :vcr do
     # then I should see the file among my project's files
     then_i_should_see_file_in_project(name: 'My New File', status: 'addition')
     # and have a backup of the file snapshot
-    staged = project.staged_files.find_by_remote_file_id(file.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    file_in_branch = project.files.find_by_remote_file_id(file.id)
+    and_have_a_backup_of_file_snapshot(file_in_branch.current_snapshot)
   end
 
   scenario 'In Google Drive, user updates file content' do
@@ -74,11 +74,13 @@ feature 'File Update', :vcr do
     then_i_should_see_file_in_project(name: 'File', status: 'modification')
 
     # and have a backup of the file snapshot as it is now
-    staged = project.staged_files.find_by_remote_file_id(file_to_modify.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    file_in_branch = project.files.find_by_remote_file_id(file_to_modify.id)
+    and_have_a_backup_of_file_snapshot(file_in_branch.current_snapshot)
 
     # and have a backup of the file snapshot as it was before
-    and_have_a_backup_of_file_snapshot(staged.file_record.file_snapshots.first)
+    and_have_a_backup_of_file_snapshot(
+      file_in_branch.file_record.file_snapshots.first
+    )
   end
 
   scenario 'In Google Drive, user renames file' do
@@ -102,11 +104,13 @@ feature 'File Update', :vcr do
     then_i_should_see_file_in_project(name: 'New File Name', status: 'rename')
 
     # and have a backup of the file snapshot as it is now
-    staged = project.staged_files.find_by_remote_file_id(file_to_rename.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    file_in_branch = project.files.find_by_remote_file_id(file_to_rename.id)
+    and_have_a_backup_of_file_snapshot(file_in_branch.current_snapshot)
 
     # and have a backup of the file snapshot as it was before
-    and_have_a_backup_of_file_snapshot(staged.file_record.file_snapshots.first)
+    and_have_a_backup_of_file_snapshot(
+      file_in_branch.file_record.file_snapshots.first
+    )
   end
 
   scenario 'In Google Drive, user moves file within project folder' do

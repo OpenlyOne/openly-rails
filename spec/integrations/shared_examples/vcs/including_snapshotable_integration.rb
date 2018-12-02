@@ -21,7 +21,7 @@ RSpec.shared_examples 'vcs: including snapshotable integration' do
       subject(:method)    { from_database.update(is_deleted: true) }
       before              { creation }
       it { expect { method }.not_to(change { VCS::FileSnapshot.count }) }
-      it { expect { method }.not_to(change { VCS::StagedFile.count }) }
+      it { expect { method }.not_to(change { VCS::FileInBranch.count }) }
     end
 
     describe 'when snapshot already exists' do

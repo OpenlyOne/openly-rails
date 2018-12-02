@@ -4,8 +4,8 @@ RSpec.describe 'file_infos/index', type: :view do
   let(:project)               { build_stubbed :project }
   let(:master_branch)         { build_stubbed :vcs_branch }
   let(:file)                  { build_stubbed :vcs_file_snapshot }
-  let(:staged_parent)         { nil }
-  let(:staged_file_diff)      { nil }
+  let(:parent_in_branch)      { nil }
+  let(:uncaptured_file_diff)  { nil }
   let(:committed_file_diffs)  { [] }
 
   before do
@@ -13,8 +13,8 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:project, project)
     assign(:master_branch, project.master_branch)
     assign(:file, file)
-    assign(:staged_parent, staged_parent)
-    assign(:staged_file_diff, staged_file_diff)
+    assign(:parent_in_branch, parent_in_branch)
+    assign(:uncaptured_file_diff, uncaptured_file_diff)
     assign(:committed_file_diffs, committed_file_diffs)
   end
 
@@ -49,18 +49,18 @@ RSpec.describe 'file_infos/index', type: :view do
     expect(rendered).to have_text 'No previous versions of this file exist.'
   end
 
-  context 'when staged file diff is present' do
-    let(:staged_file_diff) do
+  context 'when uncaptured file diff is present' do
+    let(:uncaptured_file_diff) do
       build_stubbed :vcs_file_diff,
                     new_snapshot: snapshot, old_snapshot: snapshot
     end
     let(:snapshot) { build_stubbed :vcs_file_snapshot, name: 'My Document' }
-    let(:staged_parent) { build_stubbed :vcs_staged_file, :folder }
+    let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :folder }
 
     it 'has a link to the file on Google Drive' do
       render
       expect(rendered).to have_link 'Open in Drive',
-                                    href: staged_file_diff.link_to_remote
+                                    href: uncaptured_file_diff.link_to_remote
     end
 
     it 'renders that the file has been unchanged since the last revision' do
@@ -74,7 +74,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'has a link to the parent folder' do
       render
       link = profile_project_folder_path(project.owner, project,
-                                         staged_parent.remote_file_id)
+                                         parent_in_branch.remote_file_id)
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 
@@ -82,7 +82,7 @@ RSpec.describe 'file_infos/index', type: :view do
       render
       sync_path =
         profile_project_force_syncs_path(project.owner, project,
-                                         staged_file_diff.remote_file_id)
+                                         uncaptured_file_diff.remote_file_id)
       expect(rendered).not_to have_css(
         'form'\
         "[action='#{sync_path}']"\
@@ -91,7 +91,7 @@ RSpec.describe 'file_infos/index', type: :view do
     end
 
     context 'when parent is root folder' do
-      let(:staged_parent) { build_stubbed :vcs_staged_file, :root }
+      let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :root }
 
       it 'has a link to the root folder' do
         render
@@ -100,18 +100,19 @@ RSpec.describe 'file_infos/index', type: :view do
       end
     end
 
-    context 'when staged file diff has uncaptured changes' do
+    context 'when uncaptured file diff has changes' do
       before do
-        allow(staged_file_diff).to receive(:change_types)
+        allow(uncaptured_file_diff).to receive(:change_types)
           .and_return %i[addition modification movement rename deletion]
-        allow(staged_file_diff).to receive(:ancestor_path).and_return 'Home'
+        allow(uncaptured_file_diff).to receive(:ancestor_path).and_return 'Home'
       end
 
       it 'renders uncaptured changes' do
         render
         expect(rendered).to have_text 'My Document added to Home'
         expect(rendered).to have_text(
-          "My Document renamed from '#{staged_file_diff.previous_name}' in Home"
+          'My Document renamed from ' \
+          "'#{uncaptured_file_diff.previous_name}' in Home"
         )
         expect(rendered).to have_text 'My Document modified in Home'
         expect(rendered).to have_text 'My Document moved to Home'
@@ -127,8 +128,8 @@ RSpec.describe 'file_infos/index', type: :view do
         end
 
         before do
-          allow(staged_file_diff).to receive(:modification?).and_return true
-          allow(staged_file_diff)
+          allow(uncaptured_file_diff).to receive(:modification?).and_return true
+          allow(uncaptured_file_diff)
             .to receive(:content_change).and_return content_change
         end
 
@@ -147,7 +148,7 @@ RSpec.describe 'file_infos/index', type: :view do
         render
         sync_path =
           profile_project_force_syncs_path(project.owner, project,
-                                           staged_file_diff.remote_file_id)
+                                           uncaptured_file_diff.remote_file_id)
         expect(rendered).to have_css(
           'form'\
           "[action='#{sync_path}']"\

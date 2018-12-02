@@ -150,14 +150,14 @@ RSpec.describe Project::Setup, type: :model do
 
   describe '#file' do
     subject(:get_file)  { setup.send :file }
-    let(:file)          { instance_double VCS::StagedFile }
+    let(:file)          { instance_double VCS::FileInBranch }
 
     before do
       master_branch = instance_double VCS::Branch
       allow(setup).to receive(:master_branch).and_return master_branch
       allow(setup).to receive(:id_from_link).and_return 'FILE-ID'
       allow(master_branch)
-        .to receive_message_chain(:staged_files, :build)
+        .to receive_message_chain(:files, :build)
         .with(is_root: true, remote_file_id: 'FILE-ID')
         .and_return file
       allow(master_branch).to receive(:repository).and_return 'repo'

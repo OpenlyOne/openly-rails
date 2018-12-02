@@ -64,7 +64,7 @@ RSpec.shared_examples 'vcs: being syncable' do
         .to receive(:children_from_remote).and_return 'children'
     end
     after { syncable.pull_children }
-    it    { expect(syncable).to receive(:staged_children=).with('children') }
+    it    { expect(syncable).to receive(:children_in_branch=).with('children') }
   end
 
   describe '#reload' do
@@ -107,7 +107,7 @@ RSpec.shared_examples 'vcs: being syncable' do
       expect(VCS::FileThumbnail)
         .to receive(:create_with).with(raw_image: anything).and_return stub
       expect(stub)
-        .to receive(:find_or_initialize_by_staged_file)
+        .to receive(:find_or_initialize_by_file_in_branch)
         .with(syncable)
         .and_return thumbnail
       expect(syncable).to receive(:thumbnail=).with(thumbnail)

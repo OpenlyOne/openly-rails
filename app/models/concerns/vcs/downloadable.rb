@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VCS
-  # A backupable staged file
+  # A downloadable file
   module Downloadable
     extend ActiveSupport::Concern
 

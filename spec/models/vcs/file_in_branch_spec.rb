@@ -5,27 +5,29 @@ require 'models/shared_examples/vcs/being_resourceable.rb'
 require 'models/shared_examples/vcs/being_snapshotable.rb'
 require 'models/shared_examples/vcs/being_syncable.rb'
 
-RSpec.describe VCS::StagedFile, type: :model do
-  subject(:staged_file) { build :vcs_staged_file }
+RSpec.describe VCS::FileInBranch, type: :model do
+  subject(:file_in_branch) { build :vcs_file_in_branch }
 
   it_should_behave_like 'vcs: being backupable' do
-    let(:backupable) { staged_file }
+    let(:backupable) { file_in_branch }
   end
 
   it_should_behave_like 'vcs: being resourceable' do
-    let(:resourceable)    { staged_file }
+    let(:resourceable)    { file_in_branch }
     let(:icon_class)      { Providers::GoogleDrive::Icon }
     let(:link_class)      { Providers::GoogleDrive::Link }
     let(:mime_type_class) { Providers::GoogleDrive::MimeType }
   end
 
   it_should_behave_like 'vcs: being snapshotable' do
-    let(:snapshotable) { staged_file }
-    before { allow(staged_file).to receive(:backup_on_save?).and_return false }
+    let(:snapshotable) { file_in_branch }
+    before do
+      allow(file_in_branch).to receive(:backup_on_save?).and_return false
+    end
   end
 
   it_should_behave_like 'vcs: being syncable' do
-    let(:syncable) { staged_file }
+    let(:syncable) { file_in_branch }
   end
 
   describe 'associations' do
@@ -73,33 +75,37 @@ RSpec.describe VCS::StagedFile, type: :model do
     end
 
     it 'validates that file is not its own parent' do
-      expect(staged_file).to receive(:cannot_be_its_own_parent)
-      staged_file.valid?
+      expect(file_in_branch).to receive(:cannot_be_its_own_parent)
+      file_in_branch.valid?
     end
 
     context 'when remote id has not changed' do
       before do
-        allow(staged_file).to receive(:remote_file_id_changed?).and_return false
+        allow(file_in_branch)
+          .to receive(:remote_file_id_changed?)
+          .and_return false
       end
 
-      it { expect(staged_file).not_to validate_uniqueness_of(:remote_file_id) }
+      it do
+        expect(file_in_branch).not_to validate_uniqueness_of(:remote_file_id)
+      end
     end
 
     context 'when file_record_parent_id has changed' do
-      before  { staged_file.file_record_parent_id = 5 }
-      after   { staged_file.valid? }
+      before  { file_in_branch.file_record_parent_id = 5 }
+      after   { file_in_branch.valid? }
 
-      it { expect(staged_file).to receive(:cannot_be_its_own_ancestor) }
+      it { expect(file_in_branch).to receive(:cannot_be_its_own_ancestor) }
     end
 
     context 'when file is root' do
-      before { allow(staged_file).to receive(:root?).and_return true }
+      before { allow(file_in_branch).to receive(:root?).and_return true }
 
       it { is_expected.not_to validate_presence_of(:file_record_parent_id) }
     end
 
     context 'when file is deleted' do
-      before { allow(staged_file).to receive(:deleted?).and_return true }
+      before { allow(file_in_branch).to receive(:deleted?).and_return true }
 
       it { is_expected.not_to validate_presence_of(:name) }
       it { is_expected.not_to validate_presence_of(:mime_type) }
@@ -109,11 +115,11 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe '#diff(with_ancestry: false)' do
-    subject(:diff) { staged_file.diff }
+    subject(:diff) { file_in_branch.diff }
 
     before do
-      allow(staged_file).to receive(:current_snapshot_id).and_return 55
-      allow(staged_file).to receive(:committed_snapshot_id).and_return 99
+      allow(file_in_branch).to receive(:current_snapshot_id).and_return 55
+      allow(file_in_branch).to receive(:committed_snapshot_id).and_return 99
     end
 
     it 'returns a file diff with correct snapshots' do
@@ -126,20 +132,20 @@ RSpec.describe VCS::StagedFile, type: :model do
     end
 
     context 'when @diff is cached' do
-      before { staged_file.instance_variable_set(:@diff, 'cached') }
+      before { file_in_branch.instance_variable_set(:@diff, 'cached') }
 
       it { is_expected.to eq 'cached' }
     end
 
     context 'when with_ancestry: true' do
-      subject(:diff) { staged_file.diff(with_ancestry: true) }
+      subject(:diff) { file_in_branch.diff(with_ancestry: true) }
 
       before do
         anc1 = instance_double VCS::FileSnapshot
         anc2 = instance_double VCS::FileSnapshot
         anc3 = instance_double VCS::FileSnapshot
         ancestors = [anc1, anc2, anc3]
-        allow(staged_file).to receive(:ancestors).and_return ancestors
+        allow(file_in_branch).to receive(:ancestors).and_return ancestors
         allow(anc1).to receive(:name).and_return 'anc1'
         allow(anc2).to receive(:name).and_return 'anc2'
         allow(anc3).to receive(:name).and_return 'anc3'
@@ -157,48 +163,48 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe '#deleted?' do
-    subject(:deleted) { staged_file.deleted? }
+    subject(:deleted) { file_in_branch.deleted? }
 
     it { is_expected.to be false }
 
     context 'when is_deleted = true' do
-      before { allow(staged_file).to receive(:is_deleted).and_return true }
+      before { allow(file_in_branch).to receive(:is_deleted).and_return true }
 
       it { is_expected.to be true }
     end
   end
 
   describe '#ancestors' do
-    subject(:ancestors) { staged_file.ancestors }
+    subject(:ancestors) { file_in_branch.ancestors }
 
     it { is_expected.to eq [] }
 
     context 'when file has many ancestors' do
-      let(:root)        { create :vcs_staged_file, :root }
-      let(:grandparent) { create :vcs_staged_file, parent: root }
-      let(:parent)      { create :vcs_staged_file, parent: grandparent }
-      let(:staged_file) { create :vcs_staged_file, parent: parent }
+      let(:root)        { create :vcs_file_in_branch, :root }
+      let(:grandparent) { create :vcs_file_in_branch, parent: root }
+      let(:parent)      { create :vcs_file_in_branch, parent: grandparent }
+      let(:file_in_branch) { create :vcs_file_in_branch, parent: parent }
 
-      it 'returns staged snapshots of ancestors' do
+      it 'returns snapshots of ancestors' do
         expect(ancestors.map(&:id)).to eq(
-          [parent, grandparent].map(&:staged_snapshot).map(&:id)
+          [parent, grandparent].map(&:snapshot).map(&:id)
         )
       end
 
-      it 'does not include staged snapshot of root' do
+      it 'does not include snapshot of root' do
         expect(root).to be_root
-        expect(root.staged_snapshot).to be_present
-        expect(ancestors.map(&:id)).not_to include(root.staged_snapshot.id)
+        expect(root.snapshot).to be_present
+        expect(ancestors.map(&:id)).not_to include(root.snapshot.id)
       end
     end
   end
 
   describe '#ancestors_ids' do
-    subject(:ancestors_ids) { staged_file.ancestors_ids }
+    subject(:ancestors_ids) { file_in_branch.ancestors_ids }
     let(:ancestors)         { [] }
 
     before do
-      allow(staged_file).to receive(:ancestors).and_return ancestors
+      allow(file_in_branch).to receive(:ancestors).and_return ancestors
     end
 
     it { is_expected.to eq [] }
@@ -218,9 +224,9 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe '#folder?' do
-    subject(:folder_check) { staged_file.folder? }
+    subject(:folder_check) { file_in_branch.folder? }
     before do
-      allow(staged_file).to receive(:mime_type).and_return 'mime-type'
+      allow(file_in_branch).to receive(:mime_type).and_return 'mime-type'
       allow(Providers::GoogleDrive::MimeType)
         .to receive(:folder?).with('mime-type').and_return is_folder
     end
@@ -237,15 +243,15 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe '#subfolders' do
-    subject(:subfolders)  { staged_file.subfolders }
+    subject(:subfolders)  { file_in_branch.subfolders }
     let(:folder1)         { instance_double described_class }
     let(:folder2)         { instance_double described_class }
     let(:file1)           { instance_double described_class }
     let(:file2)           { instance_double described_class }
 
     before do
-      allow(staged_file)
-        .to receive(:staged_children)
+      allow(file_in_branch)
+        .to receive(:children_in_branch)
         .and_return [file1, folder1, file2, folder2]
 
       allow(folder1).to receive(:folder?).and_return true
@@ -258,46 +264,46 @@ RSpec.describe VCS::StagedFile, type: :model do
   end
 
   describe '#cannot_be_its_own_ancestor' do
-    subject(:validation)  { staged_file.send :cannot_be_its_own_ancestor }
+    subject(:validation)  { file_in_branch.send :cannot_be_its_own_ancestor }
     let(:ancestors_ids)   { [] }
 
     before do
-      staged_file.save
-      allow(staged_file).to receive(:ancestors_ids).and_return ancestors_ids
+      file_in_branch.save
+      allow(file_in_branch).to receive(:ancestors_ids).and_return ancestors_ids
       validation
     end
 
-    it { expect(staged_file.errors).to be_none }
+    it { expect(file_in_branch.errors).to be_none }
 
     context 'when file is its own ancestor' do
-      let(:ancestors_ids) { [staged_file.file_record_id] }
-      it { expect(staged_file.errors).to be_one }
+      let(:ancestors_ids) { [file_in_branch.file_record_id] }
+      it { expect(file_in_branch.errors).to be_one }
     end
   end
 
   describe '#cannot_be_its_own_parent' do
-    subject(:validation)  { staged_file.send :cannot_be_its_own_parent }
+    subject(:validation)  { file_in_branch.send :cannot_be_its_own_parent }
     let(:parent)          { nil }
     let(:parent_id)       { nil }
 
-    before { staged_file.file_record_parent_id = parent_id if parent_id }
-    before { staged_file.file_record_parent    = parent if parent }
+    before { file_in_branch.file_record_parent_id = parent_id if parent_id }
+    before { file_in_branch.file_record_parent    = parent if parent }
     before { validation }
 
-    it { expect(staged_file.errors).to be_none }
+    it { expect(file_in_branch.errors).to be_none }
 
     context 'when file is its own parent by ID' do
-      let(:parent_id) { staged_file.file_record_id }
-      it { expect(staged_file.errors).to be_one }
+      let(:parent_id) { file_in_branch.file_record_id }
+      it { expect(file_in_branch.errors).to be_one }
     end
 
     context 'when file is its own parent by instance' do
-      let(:staged_file) do
+      let(:file_in_branch) do
         described_class.new(file_record: VCS::FileRecord.new)
       end
-      let(:parent) { staged_file.file_record }
+      let(:parent) { file_in_branch.file_record }
 
-      it { expect(staged_file.errors).to be_one }
+      it { expect(file_in_branch.errors).to be_one }
     end
   end
 end

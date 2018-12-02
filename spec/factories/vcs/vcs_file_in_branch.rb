@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vcs_staged_file, class: 'VCS::StagedFile' do
+  factory :vcs_file_in_branch, class: 'VCS::FileInBranch' do
     transient do
       parent { nil }
       repository do
@@ -57,9 +57,9 @@ FactoryBot.define do
     end
 
     trait :with_backup do
-      after(:create) do |staged_file|
-        create(:vcs_file_backup, file_snapshot: staged_file.current_snapshot)
-        staged_file.current_snapshot.reload_backup
+      after(:create) do |file_in_branch|
+        create(:vcs_file_backup, file_snapshot: file_in_branch.current_snapshot)
+        file_in_branch.current_snapshot.reload_backup
       end
     end
   end

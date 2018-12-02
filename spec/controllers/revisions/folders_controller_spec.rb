@@ -5,8 +5,8 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe Revisions::FoldersController, type: :controller do
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
-  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let!(:root)     { create :vcs_file_in_branch, :root, branch: master_branch }
+  let!(:folder)   { create :vcs_file_in_branch, :folder, parent: root }
   let(:master_branch) { project.master_branch }
   let(:project) do
     create :project, :setup_complete, :skip_archive_setup, :with_repository

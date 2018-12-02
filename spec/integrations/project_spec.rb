@@ -18,12 +18,12 @@ RSpec.describe Project, type: :model do
       project.collaborators = create_list :user, 2
 
       # add setup
-      root = create :vcs_staged_file, :root, branch: master_branch
+      root = create :vcs_file_in_branch, :root, branch: master_branch
       allow_any_instance_of(Project::Setup).to receive(:file).and_return(root)
       create :project_setup, :with_link, project: project
 
-      # add staged files
-      create_list :vcs_staged_file, 2, :with_thumbnail, :with_backup,
+      # add files to branch
+      create_list :vcs_file_in_branch, 2, :with_thumbnail, :with_backup,
                   branch: master_branch
 
       # Reuse the thumbnail for another snapshot

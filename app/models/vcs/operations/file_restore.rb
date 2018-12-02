@@ -25,7 +25,7 @@ module VCS
         perform_restoration
 
         # Update in stage
-        staged_file.update(
+        file_in_branch.update(
           snapshot_attributes.merge(remote_file_id: remote_file_id,
                                     content_version: content_version,
                                     is_deleted: snapshot.nil?)
@@ -74,14 +74,14 @@ module VCS
       def duplicate_file
         file_sync_class.new(snapshot.backup.remote_file_id).duplicate(
           name: snapshot.name,
-          parent_id: staged_parent.remote_file_id
+          parent_id: parent_in_branch.remote_file_id
         )
       end
 
       def create_folder
         file_sync_class.create(
           name: snapshot.name,
-          parent_id: staged_parent.remote_file_id,
+          parent_id: parent_in_branch.remote_file_id,
           mime_type: snapshot.mime_type
         )
       end
@@ -90,9 +90,9 @@ module VCS
       # Calling the delete API endpoint results in insufficient permission
       # error unless the action is performed by the file owner.
       def remove_file
-        staged_file
+        file_in_branch
           .remote
-          .relocate(to: nil, from: staged_file.parent.remote_file_id)
+          .relocate(to: nil, from: file_in_branch.parent.remote_file_id)
       end
 
       # Create remote file from backup copy and delete current file
@@ -103,30 +103,30 @@ module VCS
 
       # Move remote file
       def relocate_file
-        staged_file
+        file_in_branch
           .remote
           .relocate(
-            to: staged_parent.remote_file_id,
-            from: staged_file.parent.remote_file_id
+            to: parent_in_branch.remote_file_id,
+            from: file_in_branch.parent.remote_file_id
           )
       end
 
       # Rename remote file
       def rename_file
-        staged_file.remote.rename(snapshot.name)
+        file_in_branch.remote.rename(snapshot.name)
       end
 
-      # Calculate the diff of new snapshot vs currently staged snapshot
+      # Calculate the diff of new snapshot vs current snapshot
       def diff
         @diff ||=
           VCS::FileDiff.new(
             new_snapshot: snapshot,
-            old_snapshot: staged_file&.current_snapshot
+            old_snapshot: file_in_branch&.current_snapshot
           )
       end
 
       def remote_file_id
-        @remote_file_id ||= staged_file.remote_file_id
+        @remote_file_id ||= file_in_branch.remote_file_id
       end
 
       def content_version
@@ -152,33 +152,33 @@ module VCS
         rename_file if perform_rename?
       end
 
-      def staged_parent_of_snapshot_to_restore
+      def parent_in_branch_of_snapshot_to_restore
         target_branch
-          .staged_files
+          .files
           .joins(:current_snapshot)
           .find_by(file_record_id: snapshot.file_record_parent_id)
       end
 
-      def staged_parent
+      def parent_in_branch
         return nil unless snapshot.present?
 
-        staged_parent_of_snapshot_to_restore || target_branch.root
+        parent_in_branch_of_snapshot_to_restore || target_branch.root
       end
 
       def snapshot_attributes
         {
           name: snapshot&.name,
           mime_type: snapshot&.mime_type,
-          parent: staged_parent,
+          parent: parent_in_branch,
           thumbnail_id: snapshot&.thumbnail_id
         }
       end
 
-      # Identify the StagedFile to modify with the provided snapshot
-      def staged_file
-        @staged_file ||=
+      # Identify the FileInBranch to modify with the provided snapshot
+      def file_in_branch
+        @file_in_branch ||=
           target_branch
-          .staged_files
+          .files
           .find_by(file_record_id: file_record_id)
       end
     end

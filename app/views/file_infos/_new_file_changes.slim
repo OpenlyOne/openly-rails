@@ -6,10 +6,10 @@ h3.with-separator
     small
       | (since last revision)
 
-- if staged_file_diff.changes.any?
+- if uncaptured_file_diff.changes.any?
 
   = render partial: 'revisions/file_changes',
-           object: staged_file_diff.changes,
+           object: uncaptured_file_diff.changes,
            locals: { project: project,
                      revision: VCS::Commit.new,
                      show_link_to_file_info: false,

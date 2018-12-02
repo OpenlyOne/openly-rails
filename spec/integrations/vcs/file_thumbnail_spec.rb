@@ -43,9 +43,9 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   end
 
   describe '.preload_for(objects)' do
-    let(:file1) { create :vcs_staged_file, :with_thumbnail }
-    let(:file2) { create :vcs_staged_file, :with_thumbnail }
-    let(:file3) { create :vcs_staged_file, :with_thumbnail }
+    let(:file1) { create :vcs_file_in_branch, :with_thumbnail }
+    let(:file2) { create :vcs_file_in_branch, :with_thumbnail }
+    let(:file3) { create :vcs_file_in_branch, :with_thumbnail }
 
     before { [file1, file2, file3].each(&:reload) }
 

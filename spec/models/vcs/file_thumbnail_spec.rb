@@ -13,7 +13,8 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
     it do
       is_expected
-        .to have_many(:staged_files)
+        .to have_many(:files_in_branches)
+        .class_name('FileInBranch')
         .with_foreign_key(:thumbnail_id)
         .dependent(:nullify)
     end
@@ -66,9 +67,9 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
   end
 
-  describe '.attributes_from_staged_file(file_resource)' do
-    subject     { described_class.attributes_from_staged_file(file) }
-    let(:file)  { instance_double VCS::StagedFile }
+  describe '.attributes_from_file_in_branch(file_resource)' do
+    subject     { described_class.attributes_from_file_in_branch(file) }
+    let(:file)  { instance_double VCS::FileInBranch }
 
     before do
       allow(file).to receive(:file_record_id).and_return 'FRID'
@@ -85,12 +86,12 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
   end
 
-  describe '.find_or_initialize_by_staged_file(staged_file)' do
-    subject { described_class.find_or_initialize_by_staged_file('file') }
+  describe '.find_or_initialize_by_file_in_branch(file_in_branch)' do
+    subject { described_class.find_or_initialize_by_file_in_branch('file') }
 
     before do
       allow(VCS::FileThumbnail)
-        .to receive(:attributes_from_staged_file)
+        .to receive(:attributes_from_file_in_branch)
         .with('file').and_return 'attributes'
     end
 
@@ -102,10 +103,10 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   end
 
   describe '.preload_for(objects)' do
-    let(:file1)     { build_stubbed :vcs_staged_file, thumbnail_id: 1 }
-    let(:file2)     { build_stubbed :vcs_staged_file, thumbnail_id: 2 }
-    let(:file3)     { build_stubbed :vcs_staged_file, thumbnail_id: 1 }
-    let(:file4)     { build_stubbed :vcs_staged_file, thumbnail_id: nil }
+    let(:file1)     { build_stubbed :vcs_file_in_branch, thumbnail_id: 1 }
+    let(:file2)     { build_stubbed :vcs_file_in_branch, thumbnail_id: 2 }
+    let(:file3)     { build_stubbed :vcs_file_in_branch, thumbnail_id: 1 }
+    let(:file4)     { build_stubbed :vcs_file_in_branch, thumbnail_id: nil }
     let(:thumbnail1) { instance_double VCS::FileThumbnail }
     let(:thumbnail2) { instance_double VCS::FileThumbnail }
 
@@ -129,18 +130,18 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
   end
 
-  describe '#staged_file=(staged_file)' do
-    subject(:set_staged_file) { thumbnail.staged_file = 'file' }
+  describe '#file_in_branch=(file_in_branch)' do
+    subject(:set_file_in_branch) { thumbnail.file_in_branch = 'file' }
 
     before do
       allow(VCS::FileThumbnail)
-        .to receive(:attributes_from_staged_file)
+        .to receive(:attributes_from_file_in_branch)
         .with('file').and_return 'attributes'
     end
 
     it 'calls #assign_attributes with attributes' do
       expect(thumbnail).to receive(:assign_attributes).with('attributes')
-      set_staged_file
+      set_file_in_branch
     end
   end
 

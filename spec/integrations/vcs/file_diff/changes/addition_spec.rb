@@ -4,10 +4,10 @@ RSpec.describe VCS::FileDiff::Changes::Addition, type: :model do
   subject             { commit }
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:parent_change) { file_diffs.find(parent_diff.id).changes.first }
-  let(:parent)      { create :vcs_staged_file, name: 'p-name' }
-  let(:file)        { create :vcs_staged_file, name: 'c-name', parent: parent }
-  let(:commit)      { create :vcs_commit }
-  let(:file_diffs)  { commit.file_diffs.reload }
+  let(:parent)  { create :vcs_file_in_branch, name: 'p-name' }
+  let(:file)    { create :vcs_file_in_branch, name: 'c-name', parent: parent }
+  let(:commit)  { create :vcs_commit }
+  let(:file_diffs) { commit.file_diffs.reload }
   let!(:diff) do
     create :vcs_file_diff,
            current_snapshot: file.current_snapshot,

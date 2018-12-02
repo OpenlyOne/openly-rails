@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VCS
-  # A snapshotable staged file
+  # A snapshotable file
   module Snapshotable
     extend ActiveSupport::Concern
 

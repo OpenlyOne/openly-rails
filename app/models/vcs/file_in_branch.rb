@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module VCS
-  # A file that is currently staged in a branch
+  # An instance of a VCS::File in a branch
   # rubocop:disable Metrics/ClassLength
-  class StagedFile < ApplicationRecord
+  class FileInBranch < ApplicationRecord
     belongs_to :branch
     belongs_to :file_record
     belongs_to :file_record_parent, class_name: 'FileRecord', optional: true
@@ -22,20 +22,20 @@ module VCS
     include VCS::Backupable
     include VCS::Downloadable
 
-    scope :joins_staged_snapshot, lambda {
+    scope :joins_snapshot, lambda {
       joins(
-        'INNER JOIN vcs_file_snapshots staged_snapshots ' \
+        'INNER JOIN vcs_file_snapshots snapshots ' \
         "ON (COALESCE(#{table_name}.current_snapshot_id, "\
                      "#{table_name}.committed_snapshot_id) "\
-        '= staged_snapshots.id)'
+        '= snapshots.id)'
       )
     }
 
     # TODO: Move to a different class
-    # for this model, add joins_staged_snapshot
+    # for this model, add joins_snapshot
     scope :order_by_name_with_folders_first, lambda { |table: nil|
       folder_mime_type = Providers::GoogleDrive::MimeType.folder
-      table ||= 'staged_snapshots'
+      table ||= 'snapshots'
 
       order(
         Arel.sql(
@@ -74,7 +74,7 @@ module VCS
     def ancestors
       return [] if parent.nil? || parent.root?
 
-      [parent.staged_snapshot] + parent.ancestors
+      [parent.snapshot] + parent.ancestors
     end
 
     # Recursively collect ids of parents
@@ -85,24 +85,24 @@ module VCS
     def children
       @children ||=
         branch
-        .staged_files
-        .joins_staged_snapshot
-        .where('staged_snapshots.file_record_parent_id = ?', file_record_id)
+        .files
+        .joins_snapshot
+        .where('snapshots.file_record_parent_id = ?', file_record_id)
     end
 
-    def staged_children=(new_children)
+    def children_in_branch=(new_children)
       new_children.each { |child| child.update(parent: self) }
 
-      staged_children.where.not(id: new_children.map(&:id)).find_each(&:pull)
+      children_in_branch.where.not(id: new_children.map(&:id)).find_each(&:pull)
 
-      # Clear children because they are no longer accurate, as STAGED children
-      # have changed and status of committed children is unclear
+      # Clear children because they are no longer accurate, as children in
+      # branch have changed and status of committed children is unclear
       @children = nil
     end
 
-    def staged_children
+    def children_in_branch
       branch
-        .staged_files
+        .files
         .joins(:current_snapshot)
         .where(
           "#{VCS::FileSnapshot.table_name}": {
@@ -114,10 +114,10 @@ module VCS
     def parent
       @parent ||=
         branch
-        .staged_files
-        .joins_staged_snapshot
-        .find_by('staged_snapshots.file_record_id = ?',
-                 staged_snapshot&.file_record_parent_id)
+        .files
+        .joins_snapshot
+        .find_by('snapshots.file_record_id = ?',
+                 snapshot&.file_record_parent_id)
     end
 
     def parent=(new_parent)
@@ -137,7 +137,7 @@ module VCS
       )
     end
 
-    def staged_snapshot
+    def snapshot
       current_snapshot || committed_snapshot
     end
 
@@ -155,7 +155,7 @@ module VCS
       is_deleted
     end
 
-    # TODO: Don't use mime type on staged_file, but on staged_snapshot instead
+    # TODO: Don't use mime type on file in branch, but on snapshot instead
     def folder?
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
     end
@@ -170,7 +170,7 @@ module VCS
 
     # Return all children that are folders
     def subfolders
-      staged_children.select(&:folder?)
+      children_in_branch.select(&:folder?)
     end
 
     private

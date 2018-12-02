@@ -18,7 +18,7 @@ RSpec.describe 'revisions/index', type: :view do
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
 
-    root = instance_double VCS::StagedFile
+    root = instance_double VCS::FileInBranch
     allow(master_branch).to receive(:root).and_return root
     allow(revisions.first).to receive(:file_diffs).and_return diffs
   end

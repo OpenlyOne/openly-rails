@@ -13,12 +13,6 @@ RSpec.describe VCS::FileRecord, type: :model do
         .source(:branches)
         .dependent(false)
     end
-    it do
-      is_expected
-        .to have_many(:staged_instances)
-        .through(:repository_branches)
-        .source(:staged_files)
-    end
     it { is_expected.to have_many(:file_snapshots).dependent(:destroy) }
     it do
       is_expected

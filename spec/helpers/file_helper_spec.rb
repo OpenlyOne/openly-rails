@@ -178,7 +178,7 @@ RSpec.describe FileHelper, type: :helper do
     let(:project)       { instance_double Project }
     let(:is_folder)     { false }
     let(:backup) { nil }
-    let(:file_resource) { instance_double VCS::StagedFile }
+    let(:file_resource) { instance_double VCS::FileInBranch }
 
     before do
       allow(file).to receive(:folder?).and_return(is_folder)

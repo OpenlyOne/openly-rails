@@ -7,10 +7,12 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe FileRestoresController, type: :controller do
-  let!(:root) { create :vcs_staged_file, :root, branch: project.master_branch }
-  let!(:file)     { create :vcs_staged_file, parent: root }
+  let!(:root) do
+    create :vcs_file_in_branch, :root, branch: project.master_branch
+  end
+  let!(:file)     { create :vcs_file_in_branch, parent: root }
   let(:snapshot)  { file.current_snapshot }
-  let(:project) { create :project, :setup_complete, :skip_archive_setup }
+  let(:project)   { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do
     {
       profile_handle: project.owner.to_param,

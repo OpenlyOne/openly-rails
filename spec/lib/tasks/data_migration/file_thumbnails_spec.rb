@@ -31,10 +31,10 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   end
 
   it 'migrates file thumbnails' do
-    file1 = create :vcs_staged_file, thumbnail: old_thumbnails.first
-    file2 = create :vcs_staged_file, thumbnail: old_thumbnails.first
-    file3 = create :vcs_staged_file, thumbnail: old_thumbnails.second
-    file4 = create :vcs_staged_file, thumbnail: old_thumbnails.second
+    file1 = create :vcs_file_in_branch, thumbnail: old_thumbnails.first
+    file2 = create :vcs_file_in_branch, thumbnail: old_thumbnails.first
+    file3 = create :vcs_file_in_branch, thumbnail: old_thumbnails.second
+    file4 = create :vcs_file_in_branch, thumbnail: old_thumbnails.second
 
     run_the_task
 

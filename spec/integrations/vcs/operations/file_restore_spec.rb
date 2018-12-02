@@ -33,18 +33,18 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:user_acct) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
 
     let!(:root) do
-      create :vcs_staged_file, :root,
+      create :vcs_file_in_branch, :root,
              remote_file_id: google_drive_test_folder_id,
              branch: project.master_branch
     end
 
     let!(:subfolder) do
-      create :vcs_staged_file, :folder,
+      create :vcs_file_in_branch, :folder,
              parent: root, remote_file_id: remote_subfolder.id
     end
 
     let!(:file) do
-      build(:vcs_staged_file,
+      build(:vcs_file_in_branch,
             remote_file_id: remote_file.id, branch: root.branch)
     end
 
@@ -66,7 +66,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:remote_file_after_restore) { file_sync_class.new(file.remote_file_id) }
     let(:parent_of_snapshot_to_restore) do
       root.branch
-          .staged_files
+          .files
           .find_by(file_record_id: snapshot_to_restore.file_record_parent_id)
     end
     let(:expected_parent)           { parent_of_snapshot_to_restore }
@@ -76,7 +76,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     before do
       # Disable downloading of content
-      allow_any_instance_of(VCS::StagedFile)
+      allow_any_instance_of(VCS::FileInBranch)
         .to receive(:download_on_save?).and_return false
 
       # capture the initial snapshot which we will later restore
@@ -151,7 +151,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
         )
       end
       let(:subfolder2) do
-        create :vcs_staged_file, :folder,
+        create :vcs_file_in_branch, :folder,
                parent: root, remote_file_id: remote_subfolder2.id
       end
       let(:file_actions) do

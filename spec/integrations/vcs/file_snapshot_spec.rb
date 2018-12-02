@@ -96,7 +96,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
 
   describe '.for(attributes)' do
     subject           { described_class.for(attributes) }
-    let!(:file)       { create :vcs_staged_file }
+    let!(:file)       { create :vcs_file_in_branch }
     let(:file_record) { file.file_record }
     let(:attributes) do
       attributes_for(:vcs_file_snapshot,

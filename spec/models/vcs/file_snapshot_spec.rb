@@ -32,13 +32,6 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .inverse_of(:file_snapshot)
         .dependent(:destroy)
     end
-    it do
-      is_expected
-        .to have_many(:staging_files)
-        .class_name('VCS::StagedFile')
-        .with_foreign_key(:file_record_id)
-        .dependent(false)
-    end
     it { is_expected.to have_one(:repository).through(:file_record) }
   end
 

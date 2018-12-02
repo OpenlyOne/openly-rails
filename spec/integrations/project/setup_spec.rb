@@ -43,8 +43,8 @@ RSpec.describe Project::Setup, type: :model, vcr: true do
     before { setup.begin(link: link) }
 
     it 'sets root folder' do
-      expect(project.staged_files.root).to be_present
-      expect(project.staged_files.root.remote_file_id).to eq remote_root.id
+      expect(project.files.root).to be_present
+      expect(project.files.root.remote_file_id).to eq remote_root.id
     end
 
     it 'creates a FolderImportJob' do

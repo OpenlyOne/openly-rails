@@ -6,10 +6,10 @@ class FileInfosController < ApplicationController
 
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
-  before_action :set_staged_file_diff
+  before_action :set_uncaptured_file_diff
   before_action :set_committed_file_diffs
   before_action :set_file
-  before_action :set_staged_parent, if: :staged_file_diff_present?
+  before_action :set_parent_in_branch, if: :uncaptured_file_diff_present?
   before_action :set_user_can_force_sync_files
   before_action :preload_backups_for_committed_file_diffs
 
@@ -19,25 +19,22 @@ class FileInfosController < ApplicationController
 
   # Attempt to find the file diff of stage (base) and last revision
   # (differentiator)
-  def set_staged_file_diff
-    staged_file =
-      @master_branch.staged_files
-                    .without_root
-                    .joins_staged_snapshot
-                    .find_by(file_record_id: file_record_id)
+  def set_uncaptured_file_diff
+    file_in_branch = @master_branch.files
+                                   .without_root
+                                   .joins_snapshot
+                                   .find_by(file_record_id: file_record_id)
 
-    @staged_file_diff = staged_file&.diff(with_ancestry: true)
+    @uncaptured_file_diff = file_in_branch&.diff(with_ancestry: true)
   rescue ActiveRecord::RecordNotFound
-    @staged_file_diff = nil
+    @uncaptured_file_diff = nil
   end
 
   def file_record_id
-    @file_record_id ||=
-      @project
-      .repository
-      .file_snapshots
-      .find_by!(remote_file_id: params[:id])
-      .file_record_id
+    @file_record_id ||= @project.repository
+                                .file_snapshots
+                                .find_by!(remote_file_id: params[:id])
+                                .file_record_id
   end
 
   def preload_backups_for_committed_file_diffs
@@ -49,8 +46,8 @@ class FileInfosController < ApplicationController
 
   # Find file in stage or version history
   def set_file
-    # Set the file from staged_file_diff OR
-    @file = @staged_file_diff&.current_or_previous_snapshot
+    # Set the file from uncaptured_file_diff OR
+    @file = @uncaptured_file_diff&.current_or_previous_snapshot
 
     # Set file to most recent version (unless it's already been set because it
     # exists in stage)
@@ -74,17 +71,17 @@ class FileInfosController < ApplicationController
   end
 
   # Set the parent of file in stage
-  def set_staged_parent
-    @staged_parent =
+  def set_parent_in_branch
+    @parent_in_branch =
       @master_branch
-      .staged_files.find_by(file_record_id: @file.file_record_parent_id)
+      .files.find_by(file_record_id: @file.file_record_parent_id)
   end
 
   def set_user_can_force_sync_files
     @user_can_force_sync_files = can?(:force_sync, @project)
   end
 
-  def staged_file_diff_present?
-    @staged_file_diff.present?
+  def uncaptured_file_diff_present?
+    @uncaptured_file_diff.present?
   end
 end

@@ -5,8 +5,8 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe FoldersController, type: :controller do
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
-  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
+  let!(:folder) { create :vcs_file_in_branch, :folder, parent: root }
   let(:master_branch) { project.master_branch }
   let(:project) do
     create :project, :setup_complete, :skip_archive_setup, :with_repository
@@ -27,7 +27,7 @@ RSpec.describe FoldersController, type: :controller do
 
     it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
-      before { VCS::StagedFile.delete_all }
+      before { VCS::FileInBranch.delete_all }
     end
     it_should_behave_like 'authorizing project access'
 
@@ -43,12 +43,12 @@ RSpec.describe FoldersController, type: :controller do
 
     it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
-      before { VCS::StagedFile.delete_all }
+      before { VCS::FileInBranch.delete_all }
     end
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      let(:file)  { create :vcs_staged_file, parent: folder }
+      let(:file)  { create :vcs_file_in_branch, parent: folder }
       before      { params[:id] = file.remote_file_id }
 
       it 'raises a 404 error' do

@@ -4,7 +4,7 @@ require 'integrations/shared_examples/vcs/including_downloadable_integration.rb'
 require 'integrations/shared_examples/vcs/including_snapshotable_integration.rb'
 require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 
-RSpec.describe VCS::StagedFile, type: :model do
+RSpec.describe VCS::FileInBranch, type: :model do
   subject(:file) do
     described_class.new(
       remote_file_id: remote_file_id,
@@ -17,9 +17,9 @@ RSpec.describe VCS::StagedFile, type: :model do
   let(:remote_file_id)  { 'id' }
 
   it_should_behave_like 'vcs: including snapshotable integration' do
-    let(:file)                    { build :vcs_staged_file }
+    let(:file)                    { build :vcs_file_in_branch }
     let(:snapshotable)            { file }
-    let(:snapshotable_model_name) { 'VCS::StagedFile' }
+    let(:snapshotable_model_name) { 'VCS::FileInBranch' }
   end
 
   it_should_behave_like 'vcs: including syncable integration' do
@@ -34,7 +34,7 @@ RSpec.describe VCS::StagedFile, type: :model do
     after  { tear_down_google_drive_test }
 
     let!(:root) do
-      create(:vcs_staged_file, :root, :folder,
+      create(:vcs_file_in_branch, :root, :folder,
              branch: branch, remote_file_id: parent_id)
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe VCS::StagedFile, type: :model do
     after  { tear_down_google_drive_test }
 
     let!(:root) do
-      create(:vcs_staged_file, :root, :folder,
+      create(:vcs_file_in_branch, :root, :folder,
              branch: branch, remote_file_id: parent_id)
     end
   end
@@ -96,10 +96,8 @@ RSpec.describe VCS::StagedFile, type: :model do
       }
     end
 
-    # Pull parent resource & set staged projects
-    before do
-      parent.pull
-    end
+    # Pull parent resource
+    before { parent.pull }
 
     it 'can pull a snapshot of a new file' do
       file.pull

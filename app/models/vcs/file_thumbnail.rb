@@ -7,7 +7,9 @@ module VCS
     belongs_to :file_record
 
     has_many :file_snapshots, foreign_key: :thumbnail_id, dependent: :nullify
-    has_many :staged_files, foreign_key: :thumbnail_id, dependent: :nullify
+    has_many :files_in_branches, class_name: 'FileInBranch',
+                                 foreign_key: :thumbnail_id,
+                                 dependent: :nullify
 
     # Attachments
     has_attached_file :image,
@@ -43,19 +45,19 @@ module VCS
     end
 
     # Parse the file resource to a hash of attributes
-    def self.attributes_from_staged_file(staged_file)
+    def self.attributes_from_file_in_branch(file_in_branch)
       {
-        file_record_id: staged_file.file_record_id,
-        remote_file_id: staged_file.remote_file_id,
-        version_id:  staged_file.thumbnail_version_id
+        file_record_id: file_in_branch.file_record_id,
+        remote_file_id: file_in_branch.remote_file_id,
+        version_id:  file_in_branch.thumbnail_version_id
       }
     end
 
     # Find or initialize a Thumbnail instance by provider ID, remote ID, and
     # version ID
-    def self.find_or_initialize_by_staged_file(staged_file)
+    def self.find_or_initialize_by_file_in_branch(file_in_branch)
       find_or_initialize_by(
-        attributes_from_staged_file(staged_file)
+        attributes_from_file_in_branch(file_in_branch)
       )
     end
 
@@ -74,10 +76,10 @@ module VCS
       end
     end
 
-    # Set remote ID and version ID from the given staged file
-    def staged_file=(staged_file)
+    # Set remote ID and version ID from the given file in branch
+    def file_in_branch=(file_in_branch)
       assign_attributes(
-        self.class.attributes_from_staged_file(staged_file)
+        self.class.attributes_from_file_in_branch(file_in_branch)
       )
     end
 

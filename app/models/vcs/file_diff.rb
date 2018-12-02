@@ -43,7 +43,7 @@ module VCS
     # 2) file name in ascending alphabetical order, case insensitive
     scope :order_by_name_with_folders_first, lambda {
       joins_current_or_previous_snapshot.merge(
-        StagedFile.order_by_name_with_folders_first(
+        FileInBranch.order_by_name_with_folders_first(
           table: 'current_or_previous_snapshot'
         )
       )

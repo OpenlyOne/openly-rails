@@ -90,7 +90,7 @@ RSpec.describe 'revisions/index', type: :view do
     let(:ancestors) { [] }
 
     before do
-      root = instance_double VCS::StagedFile
+      root = instance_double VCS::FileInBranch
       allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       allow(revisions.first).to receive(:file_diffs).and_return diffs

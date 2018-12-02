@@ -72,7 +72,7 @@ RSpec.describe 'revisions/new', type: :view do
     end
 
     before do
-      root = instance_double VCS::StagedFile
+      root = instance_double VCS::FileInBranch
       allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       file_diffs.first.changes.each(&:unselect!)

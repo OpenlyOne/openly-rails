@@ -15,9 +15,9 @@ module VCS
 
     # TODO: after_destroy --> destroy backup if this is last reference to it
 
-    # Create a backup for the provided file resource
-    def self.backup(staged_file_to_backup)
-      new(file_snapshot: staged_file_to_backup.current_snapshot)
+    # Create a backup for the provided file in branch
+    def self.backup(file_in_branch_to_backup)
+      new(file_snapshot: file_in_branch_to_backup.current_snapshot)
         .tap(&:capture)
         .tap(&:save)
     end
@@ -28,7 +28,7 @@ module VCS
 
       # Create backup
       # TODO: Refactor to file_resource.duplicate_remote
-      file = staged_file_remote.duplicate(
+      file = file_in_branch_remote.duplicate(
         name: file_snapshot.name,
         parent_id: archive_folder_id
       )
@@ -54,7 +54,7 @@ module VCS
       archive.remote_file_id
     end
 
-    def staged_file_remote
+    def file_in_branch_remote
       sync_adapter_class.new(file_snapshot.remote_file_id)
     end
 

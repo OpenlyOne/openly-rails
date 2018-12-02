@@ -166,7 +166,7 @@ feature 'File Restore', vcr: true do
     expect(page).to have_css '.file.movement.modification.rename',
                              text: 'original name'
     # and have a new remote ID
-    expect(project.staged_files.reload.find_by(name: 'original name'))
+    expect(project.files.reload.find_by(name: 'original name'))
       .not_to have_attributes(remote_file_id: remote_file.id)
   end
 

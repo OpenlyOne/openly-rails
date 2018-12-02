@@ -5,9 +5,9 @@ feature 'Folder' do
     create :project, :setup_complete, :skip_archive_setup, :with_repository
   end
   let(:branch)  { project.master_branch }
-  let(:root)    { create :vcs_staged_file, :root, branch: branch }
+  let(:root)    { create :vcs_file_in_branch, :root, branch: branch }
   let!(:files) do
-    create_list :vcs_staged_file, 5, parent: root
+    create_list :vcs_file_in_branch, 5, parent: root
   end
   let(:create_revision) do
     c = branch.commits.create_draft_and_commit_files!(project.owner)
@@ -34,9 +34,9 @@ feature 'Folder' do
 
   scenario 'User can view sub-folder' do
     # given there is a subfolder
-    subfolder =
-      create :vcs_staged_file, :folder, name: 'A Unique Subfolder', parent: root
-    subfiles = create_list :vcs_staged_file, 5, parent: subfolder
+    subfolder = create :vcs_file_in_branch, :folder,
+                       name: 'A Unique Subfolder', parent: root
+    subfiles = create_list :vcs_file_in_branch, 5, parent: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -57,7 +57,7 @@ feature 'Folder' do
   end
 
   scenario 'User can see files in correct order' do
-    folders = create_list :vcs_staged_file, 5, :folder, parent: root
+    folders = create_list :vcs_file_in_branch, 5, :folder, parent: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -65,24 +65,25 @@ feature 'Folder' do
     click_on 'Files'
 
     # then I should see files in the correct order
-    file_order = VCS::StagedFile.where(id: folders).order(:name).pluck(:name) +
-                 VCS::StagedFile.where(id: files).order(:name).pluck(:name)
+    file_order =
+      VCS::FileInBranch.where(id: folders).order(:name).pluck(:name) +
+      VCS::FileInBranch.where(id: files).order(:name).pluck(:name)
     expect(page.all('.file').map(&:text)).to eq file_order
   end
 
   scenario 'User can see diffs in folder' do
-    folder                      = create :vcs_staged_file, :folder, parent: root
-    modified_file               = create :vcs_staged_file, parent: folder
-    moved_out_file              = create :vcs_staged_file, parent: folder
-    moved_in_file               = create :vcs_staged_file, parent: root
-    moved_in_and_modified_file  = create :vcs_staged_file, parent: root
-    removed_file                = create :vcs_staged_file, parent: folder
-    unchanged_file              = create :vcs_staged_file, parent: folder
+    folder            = create :vcs_file_in_branch, :folder, parent: root
+    modified_file     = create :vcs_file_in_branch, parent: folder
+    moved_out_file    = create :vcs_file_in_branch, parent: folder
+    moved_in_file     = create :vcs_file_in_branch, parent: root
+    moved_in_and_modified_file  = create :vcs_file_in_branch, parent: root
+    removed_file                = create :vcs_file_in_branch, parent: folder
+    unchanged_file              = create :vcs_file_in_branch, parent: folder
     # and files are committed
     create_revision
 
     # when changes are made to files
-    added_file = create :vcs_staged_file, parent: folder
+    added_file = create :vcs_file_in_branch, parent: folder
     modified_file.update(content_version: 'new-version')
     moved_out_file.update(file_record_parent_id: root.file_record_id)
     moved_in_file.update(file_record_parent_id: folder.file_record_id)
@@ -112,9 +113,15 @@ feature 'Folder' do
   end
 
   context 'User can see correct ancestry path for folders' do
-    let(:fold) { create :vcs_staged_file, :folder, name: 'Fol', parent: root }
-    let(:docs) { create :vcs_staged_file, :folder, name: 'Docs', parent: fold }
-    let(:code) { create :vcs_staged_file, :folder, name: 'Code', parent: docs }
+    let(:fold) do
+      create :vcs_file_in_branch, :folder, name: 'Fol', parent: root
+    end
+    let(:docs) do
+      create :vcs_file_in_branch, :folder, name: 'Docs', parent: fold
+    end
+    let(:code) do
+      create :vcs_file_in_branch, :folder, name: 'Code', parent: docs
+    end
     let(:init_folders) { [fold, docs, code] }
     before do
       init_folders

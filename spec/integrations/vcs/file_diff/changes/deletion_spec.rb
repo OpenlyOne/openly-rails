@@ -5,9 +5,9 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:child1_change) { file_diffs.find(child1_diff.id).changes.first }
   let(:child2_change) { file_diffs.find(child2_diff.id).changes.first }
-  let(:file)          { create :vcs_staged_file, name: 'c-name' }
-  let(:child1)        { create :vcs_staged_file, name: 'child1', parent: file }
-  let(:child2)        { create :vcs_staged_file, name: 'child2', parent: file }
+  let(:file)      { create :vcs_file_in_branch, name: 'c-name' }
+  let(:child1)    { create :vcs_file_in_branch, name: 'child1', parent: file }
+  let(:child2)    { create :vcs_file_in_branch, name: 'child2', parent: file }
   let(:child_changes) { [child1_change, child2_change] }
   let(:commit)        { create :vcs_commit }
   let(:file_diffs)    { commit.file_diffs.reload }
@@ -63,7 +63,7 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   end
 
   describe 'validation: must_not_unselect_movement_of_children' do
-    let(:new_parent) { create :vcs_staged_file }
+    let(:new_parent) { create :vcs_file_in_branch }
 
     before do
       child1.update!(parent: new_parent)

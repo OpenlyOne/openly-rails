@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_26_235110) do
+ActiveRecord::Schema.define(version: 2018_12_01_195727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -290,6 +290,32 @@ ActiveRecord::Schema.define(version: 2018_11_26_235110) do
     t.index ["old_snapshot_id"], name: "index_vcs_file_diffs_on_old_snapshot_id"
   end
 
+  create_table "vcs_file_in_branches", force: :cascade do |t|
+    t.bigint "branch_id", null: false
+    t.bigint "file_record_id", null: false
+    t.text "remote_file_id", null: false
+    t.bigint "file_record_parent_id"
+    t.text "name"
+    t.text "content_version"
+    t.string "mime_type"
+    t.boolean "is_deleted", default: false, null: false
+    t.bigint "current_snapshot_id"
+    t.bigint "committed_snapshot_id"
+    t.bigint "thumbnail_id"
+    t.boolean "is_root", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_id", "file_record_id"], name: "index_vcs_file_in_branches_on_branch_id_and_file_record_id", unique: true
+    t.index ["branch_id", "remote_file_id"], name: "index_vcs_file_in_branches_on_branch_id_and_remote_file_id", unique: true
+    t.index ["branch_id"], name: "index_vcs_file_in_branches_on_branch_id"
+    t.index ["branch_id"], name: "index_vcs_file_in_branches_on_root", unique: true, where: "(is_root IS TRUE)"
+    t.index ["committed_snapshot_id"], name: "index_vcs_file_in_branches_on_committed_snapshot_id"
+    t.index ["current_snapshot_id"], name: "index_vcs_file_in_branches_on_current_snapshot_id"
+    t.index ["file_record_id"], name: "index_vcs_file_in_branches_on_file_record_id"
+    t.index ["file_record_parent_id"], name: "index_vcs_file_in_branches_on_file_record_parent_id"
+    t.index ["thumbnail_id"], name: "index_vcs_file_in_branches_on_thumbnail_id"
+  end
+
   create_table "vcs_file_records", force: :cascade do |t|
     t.bigint "repository_id", null: false
     t.datetime "created_at", null: false
@@ -344,32 +370,6 @@ ActiveRecord::Schema.define(version: 2018_11_26_235110) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "vcs_staged_files", force: :cascade do |t|
-    t.bigint "branch_id", null: false
-    t.bigint "file_record_id", null: false
-    t.text "remote_file_id", null: false
-    t.bigint "file_record_parent_id"
-    t.text "name"
-    t.text "content_version"
-    t.string "mime_type"
-    t.boolean "is_deleted", default: false, null: false
-    t.bigint "current_snapshot_id"
-    t.bigint "committed_snapshot_id"
-    t.bigint "thumbnail_id"
-    t.boolean "is_root", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["branch_id", "file_record_id"], name: "index_vcs_staged_files_on_branch_id_and_file_record_id", unique: true
-    t.index ["branch_id", "remote_file_id"], name: "index_vcs_staged_files_on_branch_id_and_remote_file_id", unique: true
-    t.index ["branch_id"], name: "index_vcs_staged_files_on_branch_id"
-    t.index ["branch_id"], name: "index_vcs_staged_files_on_root", unique: true, where: "(is_root IS TRUE)"
-    t.index ["committed_snapshot_id"], name: "index_vcs_staged_files_on_committed_snapshot_id"
-    t.index ["current_snapshot_id"], name: "index_vcs_staged_files_on_current_snapshot_id"
-    t.index ["file_record_id"], name: "index_vcs_staged_files_on_file_record_id"
-    t.index ["file_record_parent_id"], name: "index_vcs_staged_files_on_file_record_parent_id"
-    t.index ["thumbnail_id"], name: "index_vcs_staged_files_on_thumbnail_id"
-  end
-
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"
@@ -386,6 +386,11 @@ ActiveRecord::Schema.define(version: 2018_11_26_235110) do
   add_foreign_key "vcs_file_diffs", "vcs_commits", column: "commit_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "new_snapshot_id"
   add_foreign_key "vcs_file_diffs", "vcs_file_snapshots", column: "old_snapshot_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_branches", column: "branch_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_file_records", column: "file_record_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_file_records", column: "file_record_parent_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_file_snapshots", column: "committed_snapshot_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_file_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_file_records", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_file_snapshots", "vcs_contents", column: "content_id"
   add_foreign_key "vcs_file_snapshots", "vcs_file_records", column: "file_record_id"
@@ -394,9 +399,4 @@ ActiveRecord::Schema.define(version: 2018_11_26_235110) do
   add_foreign_key "vcs_file_thumbnails", "vcs_file_records", column: "file_record_id"
   add_foreign_key "vcs_remote_contents", "vcs_contents", column: "content_id"
   add_foreign_key "vcs_remote_contents", "vcs_repositories", column: "repository_id"
-  add_foreign_key "vcs_staged_files", "vcs_branches", column: "branch_id"
-  add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_id"
-  add_foreign_key "vcs_staged_files", "vcs_file_records", column: "file_record_parent_id"
-  add_foreign_key "vcs_staged_files", "vcs_file_snapshots", column: "committed_snapshot_id"
-  add_foreign_key "vcs_staged_files", "vcs_file_thumbnails", column: "thumbnail_id"
 end

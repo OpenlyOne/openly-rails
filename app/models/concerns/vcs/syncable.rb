@@ -39,7 +39,7 @@ module VCS
 
     # Fetch and save the children of this syncable resource from its provider
     def pull_children
-      self.staged_children = children_from_remote
+      self.children_in_branch = children_from_remote
     end
 
     # Get version ID of thumbnail
@@ -52,7 +52,7 @@ module VCS
     # Fetch children from sync adapter and convert to file resources
     def children_from_remote
       remote.children.map do |remote_child|
-        staged_child =
+        child_in_branch =
           self.class
               .create_with(remote: remote_child)
               .find_or_initialize_by(
@@ -61,7 +61,7 @@ module VCS
               )
 
         # Pull (fetch+save) child if it is a new record
-        staged_child.tap { |child| child.pull if child.new_record? }
+        child_in_branch.tap { |child| child.pull if child.new_record? }
       end
     end
 
@@ -69,7 +69,7 @@ module VCS
     # and set instance to parent of current syncable resource
     def remote_parent_id=(remote_parent_id)
       self.parent =
-        branch.staged_files.find_by_remote_file_id(remote_parent_id)
+        branch.files.find_by_remote_file_id(remote_parent_id)
     end
 
     # Reset the file's synchronization adapter
@@ -87,7 +87,7 @@ module VCS
       self.thumbnail =
         VCS::FileThumbnail
         .create_with(raw_image: proc { remote.thumbnail })
-        .find_or_initialize_by_staged_file(self)
+        .find_or_initialize_by_file_in_branch(self)
     end
   end
 end

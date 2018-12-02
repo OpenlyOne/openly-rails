@@ -3,10 +3,10 @@
 RSpec.describe 'folders/show', type: :view do
   let(:folder)            { nil }
   let(:project)           { build_stubbed :project }
-  let(:staged_files)    { build_list :vcs_staged_file, 5, :unchanged }
-  let(:staged_folders)  { build_list :vcs_staged_file, 5, :folder, :unchanged }
+  let(:files)    { build_list :vcs_file_in_branch, 5, :unchanged }
+  let(:folders)  { build_list :vcs_file_in_branch, 5, :folder, :unchanged }
   let(:ancestors)       { [] }
-  let(:children)        { staged_folders + staged_files }
+  let(:children)        { folders + files }
   let(:diffs)           { children.map(&:diff) }
   let(:action)          { 'root' }
 
@@ -48,7 +48,7 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of files' do
     render
-    staged_files.map(&:diff).each do |diff|
+    files.map(&:diff).each do |diff|
       link = diff.link_to_remote
       expect(rendered)
         .to have_css "a[href='#{link}'][target='_blank']"
@@ -57,7 +57,7 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of folders' do
     render
-    staged_folders.map(&:diff).each do |diff|
+    folders.map(&:diff).each do |diff|
       expect(rendered).to have_link(
         diff.name,
         href: profile_project_folder_path(
@@ -103,7 +103,9 @@ RSpec.describe 'folders/show', type: :view do
     let(:grandparent)     { build_stubbed :vcs_file_snapshot, name: 'Docs' }
     let(:parent)          { build_stubbed :vcs_file_snapshot, name: 'Other' }
     let(:folder_snapshot) { build_stubbed :vcs_file_snapshot, name: 'Folder' }
-    let(:folder) { build :vcs_staged_file, current_snapshot: folder_snapshot }
+    let(:folder) do
+      build :vcs_file_in_branch, current_snapshot: folder_snapshot
+    end
 
     it 'renders breadcrumbs' do
       render
