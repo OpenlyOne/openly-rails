@@ -7,7 +7,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model do
   let(:snapshot)  { instance_double VCS::FileSnapshot }
   let(:branch)    { instance_double VCS::Branch }
 
-  before { allow(snapshot).to receive(:file_record_id).and_return 'FRid' }
+  before { allow(snapshot).to receive(:file_id).and_return 'FRid' }
 
   describe '#restorable?' do
     let(:is_deletion)     { false }

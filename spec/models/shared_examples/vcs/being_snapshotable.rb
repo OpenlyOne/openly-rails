@@ -56,12 +56,12 @@ RSpec.shared_examples 'vcs: being snapshotable' do
     before do
       allow(VCS::FileSnapshot)
         .to receive(:for)
-        .with(attribute: 'attr', file_record_id: 'id')
+        .with(attribute: 'attr', file_id: 'id')
         .and_return snapshot
       allow(snapshotable).to receive(:current_snapshot=).with(snapshot)
       allow(snapshotable).to receive(:current_snapshot).and_return(snapshot)
       allow(snapshotable).to receive(:attributes).and_return(attribute: 'attr')
-      allow(snapshotable).to receive(:file_record_id).and_return 'id'
+      allow(snapshotable).to receive(:file_id).and_return 'id'
       allow(snapshot).to receive(:id).and_return 123
       allow(snapshotable).to receive(:update_column)
     end
@@ -71,7 +71,7 @@ RSpec.shared_examples 'vcs: being snapshotable' do
     it 'calls for .for on VCS::FileSnapshot and sets current_snapshot' do
       expect(VCS::FileSnapshot)
         .to receive(:for)
-        .with(attribute: 'attr', file_record_id: 'id')
+        .with(attribute: 'attr', file_id: 'id')
         .and_return(snapshot)
       expect(snapshotable).to receive(:current_snapshot=).with(snapshot)
     end

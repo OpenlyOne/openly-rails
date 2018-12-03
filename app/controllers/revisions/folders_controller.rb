@@ -26,13 +26,13 @@ module Revisions
       @ancestors = []
       ancestor =
         @revision.committed_snapshots
-                 .find_by(file_record_id: @folder.file_record_parent_id)
+                 .find_by(file_id: @folder.parent_id)
 
       while ancestor.present?
         @ancestors << ancestor
         ancestor =
           @revision.committed_snapshots
-                   .find_by(file_record_id: ancestor.file_record_parent_id)
+                   .find_by(file_id: ancestor.parent_id)
       end
     end
 
@@ -40,7 +40,7 @@ module Revisions
       @children =
         @revision.committed_snapshots
                  .includes(:backup, :thumbnail)
-                 .where(file_record_parent_id: @folder.file_record_id)
+                 .where(parent_id: @folder.file_id)
                  .order_by_name_with_folders_first
     end
 
@@ -57,7 +57,7 @@ module Revisions
 
     def set_folder_from_root
       @folder =
-        VCS::FileSnapshot.new(file_record: @master_branch.root.file_record)
+        VCS::FileSnapshot.new(file: @master_branch.root.file)
     end
 
     def set_revision

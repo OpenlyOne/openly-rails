@@ -39,12 +39,12 @@ RSpec.shared_examples 'vcs: being diffing' do
     end
     it do
       is_expected
-        .to delegate_method(:file_record_id)
+        .to delegate_method(:file_id)
         .to(:current_snapshot).with_prefix(:current)
     end
     it do
       is_expected
-        .to delegate_method(:file_record_parent_id)
+        .to delegate_method(:parent_id)
         .to(:current_snapshot).with_prefix(:current)
     end
     it do
@@ -75,12 +75,12 @@ RSpec.shared_examples 'vcs: being diffing' do
     end
     it do
       is_expected
-        .to delegate_method(:file_record_id)
+        .to delegate_method(:file_id)
         .to(:previous_snapshot).with_prefix(:previous)
     end
     it do
       is_expected
-        .to delegate_method(:file_record_parent_id)
+        .to delegate_method(:parent_id)
         .to(:previous_snapshot).with_prefix(:previous)
     end
     it do

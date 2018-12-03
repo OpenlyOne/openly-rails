@@ -10,7 +10,7 @@ RSpec.describe FileRestoresController, type: :controller do
   let!(:root) do
     create :vcs_file_in_branch, :root, branch: project.master_branch
   end
-  let!(:file)     { create :vcs_file_in_branch, parent: root }
+  let!(:file)     { create :vcs_file_in_branch, parent_in_branch: root }
   let(:snapshot)  { file.current_snapshot }
   let(:project)   { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do

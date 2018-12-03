@@ -37,7 +37,7 @@ module VCS
 
       # Return an array of ancestors names for a given diff, up to default depth
       def ancestors_names_for(diff)
-        ancestry_tree.ancestors_names_for(diff['file_record_id'],
+        ancestry_tree.ancestors_names_for(diff['file_id'],
                                           depth: ancestor_depth)
       end
 
@@ -47,7 +47,7 @@ module VCS
           FileAncestryTree.generate(
             commit: commit,
             parent_commit: parent_commit,
-            file_record_ids: raw_diffs.map { |diff| diff['file_record_id'] },
+            file_ids: raw_diffs.map { |diff| diff['file_id'] },
             depth: ancestor_depth
           )
       end
@@ -58,7 +58,7 @@ module VCS
         raw_diffs.map do |raw_diff|
           raw_diff_to_diff(raw_diff)
             .merge('first_three_ancestors' => ancestors_names_for(raw_diff))
-            .except('file_record_id')
+            .except('file_id')
         end
       end
 
@@ -72,7 +72,7 @@ module VCS
       # Parse a single raw diff to an attribute diff
       def raw_diff_to_diff(raw_diff)
         raw_diff
-          .slice('file_record_id')
+          .slice('file_id')
           .merge(
             'commit_id' => commit.id,
             'new_snapshot_id' =>
@@ -87,10 +87,10 @@ module VCS
       def raw_diffs
         @raw_diffs ||=
           VCS::FileDiff
-          .select('file_record_id', 'json_agg(subquery) AS snapshots')
+          .select('file_id', 'json_agg(subquery) AS snapshots')
           .from(committed_files_where_snapshot_changed)
-          .group('file_record_id')
-          .reorder('subquery.file_record_id')
+          .group('file_id')
+          .reorder('subquery.file_id')
           .map(&:attributes)
       end
 

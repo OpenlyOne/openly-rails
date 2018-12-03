@@ -47,7 +47,7 @@ module VCS
     private
 
     def archive
-      @archive ||= file_snapshot.file_record.repository.archive
+      @archive ||= file_snapshot.file.repository.archive
     end
 
     def archive_folder_id

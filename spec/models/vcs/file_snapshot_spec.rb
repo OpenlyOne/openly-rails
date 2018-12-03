@@ -14,12 +14,12 @@ RSpec.describe VCS::FileSnapshot, type: :model do
 
   describe 'associations' do
     it do
-      is_expected.to belong_to(:file_record).validate(false).dependent(false)
+      is_expected.to belong_to(:file).validate(false).dependent(false)
     end
     it do
       is_expected
-        .to belong_to(:file_record_parent)
-        .class_name('VCS::FileRecord')
+        .to belong_to(:parent)
+        .class_name('VCS::File')
         .validate(false)
         .dependent(false)
         .optional
@@ -32,7 +32,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
         .inverse_of(:file_snapshot)
         .dependent(:destroy)
     end
-    it { is_expected.to have_one(:repository).through(:file_record) }
+    it { is_expected.to have_one(:repository).through(:file) }
   end
 
   describe 'attributes' do
@@ -40,7 +40,7 @@ RSpec.describe VCS::FileSnapshot, type: :model do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:file_record_id) }
+    it { is_expected.to validate_presence_of(:file_id) }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:content_version) }
     it { is_expected.to validate_presence_of(:mime_type) }
@@ -53,8 +53,8 @@ RSpec.describe VCS::FileSnapshot, type: :model do
       subject(:snapshot) { build :vcs_file_snapshot }
       it do
         is_expected
-          .to validate_uniqueness_of(:file_record_id)
-          .scoped_to(:name, :content_id, :mime_type, :file_record_parent_id)
+          .to validate_uniqueness_of(:file_id)
+          .scoped_to(:name, :content_id, :mime_type, :parent_id)
           .with_message('already has a snapshot with these attributes')
       end
     end

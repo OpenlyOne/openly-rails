@@ -6,7 +6,7 @@ feature 'Time Travel' do
     create :vcs_file_in_branch, :root, branch: project.master_branch
   end
   let!(:files) do
-    create_list :vcs_file_in_branch, 5, :with_backup, parent: root
+    create_list :vcs_file_in_branch, 5, :with_backup, parent_in_branch: root
   end
   let(:commit) do
     project.master_branch.commits.create_draft_and_commit_files!(project.owner)
@@ -45,7 +45,8 @@ feature 'Time Travel' do
 
   scenario 'User can see files in correct order' do
     # given I also have folders in my revision
-    folders = create_list :vcs_file_in_branch, 5, :folder, parent: root
+    folders =
+      create_list :vcs_file_in_branch, 5, :folder, parent_in_branch: root
     # and my commit is published
     publish_commit
 
@@ -64,10 +65,14 @@ feature 'Time Travel' do
 
   scenario 'User can view committed sub-folder' do
     # given a variety of sub-folders and files
-    folder  = create :vcs_file_in_branch, :folder, name: 'Fol', parent: root
-    docs    = create :vcs_file_in_branch, :folder, name: 'Docs', parent: folder
-    code    = create :vcs_file_in_branch, :folder, name: 'Code', parent: docs
-    subfiles = create_list :vcs_file_in_branch, 5, parent: code
+    folder =
+      create :vcs_file_in_branch, :folder, name: 'Fol', parent_in_branch: root
+    docs =
+      create :vcs_file_in_branch, :folder,
+             name: 'Docs', parent_in_branch: folder
+    code =
+      create :vcs_file_in_branch, :folder, name: 'Code', parent_in_branch: docs
+    subfiles = create_list :vcs_file_in_branch, 5, parent_in_branch: code
 
     # and a published commit
     publish_commit

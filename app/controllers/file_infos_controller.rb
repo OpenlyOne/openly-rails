@@ -23,18 +23,16 @@ class FileInfosController < ApplicationController
     file_in_branch = @master_branch.files
                                    .without_root
                                    .joins_snapshot
-                                   .find_by(file_record_id: file_record_id)
+                                   .find_by(file_id: file_id)
 
     @uncaptured_file_diff = file_in_branch&.diff(with_ancestry: true)
   rescue ActiveRecord::RecordNotFound
     @uncaptured_file_diff = nil
   end
 
-  def file_record_id
-    @file_record_id ||= @project.repository
-                                .file_snapshots
-                                .find_by!(remote_file_id: params[:id])
-                                .file_record_id
+  def file_id
+    @file_id ||= @project.repository.file_snapshots
+                         .find_by!(remote_file_id: params[:id]).file_id
   end
 
   def preload_backups_for_committed_file_diffs
@@ -66,15 +64,13 @@ class FileInfosController < ApplicationController
       .preload(:new_snapshot, :old_snapshot)
       .where(
         vcs_commits: { branch_id: @master_branch.id, is_published: true },
-        current_or_previous_snapshot: { file_record_id: file_record_id }
+        current_or_previous_snapshot: { file_id: file_id }
       ).merge(VCS::Commit.order(id: :desc))
   end
 
   # Set the parent of file in stage
   def set_parent_in_branch
-    @parent_in_branch =
-      @master_branch
-      .files.find_by(file_record_id: @file.file_record_parent_id)
+    @parent_in_branch = @master_branch.files.find_by(file_id: @file.parent_id)
   end
 
   def set_user_can_force_sync_files

@@ -30,7 +30,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
 
   describe '#ancestors_names_for(diff)' do
     subject(:ancestors) { calculator.send :ancestors_names_for, diff }
-    let(:diff)          { { 'file_record_id' => 1, 'x' => 'y' } }
+    let(:diff)          { { 'file_id' => 1, 'x' => 'y' } }
     let(:ancestry_tree) { instance_double VCS::Operations::FileAncestryTree }
 
     before do
@@ -47,9 +47,9 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
 
   describe '#ancestry_tree' do
     let(:raw_diffs) do
-      [{ 'file_record_id' => 1, 'x' => 'y' },
-       { 'file_record_id' => 2, 'x' => 'y' },
-       { 'file_record_id' => 3, 'x' => 'y' }]
+      [{ 'file_id' => 1, 'x' => 'y' },
+       { 'file_id' => 2, 'x' => 'y' },
+       { 'file_id' => 3, 'x' => 'y' }]
     end
     let(:parent_commit) { instance_double VCS::Commit }
 
@@ -63,7 +63,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
       expect(VCS::Operations::FileAncestryTree)
         .to receive(:generate)
         .with(commit: commit, parent_commit: parent_commit,
-              file_record_ids: [1, 2, 3], depth: 'depth')
+              file_ids: [1, 2, 3], depth: 'depth')
       calculator.send :ancestry_tree
     end
   end
@@ -107,7 +107,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
     subject(:method) { calculator.send :raw_diff_to_diff, raw_diff }
 
     let(:raw_diff) do
-      { 'file_record_id' => 100,
+      { 'file_id' => 100,
         'snapshots' => [
           { 'commit_id' => 1, 'file_snapshot_id' => 9 },
           { 'commit_id' => 2, 'file_snapshot_id' => 21 }
@@ -130,7 +130,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
     end
 
     it 'keeps file_resource_id' do
-      is_expected.to include('file_record_id' => 100)
+      is_expected.to include('file_id' => 100)
     end
 
     it 'sets commit id' do
@@ -152,7 +152,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
     end
 
     let(:raw_diff) do
-      { 'file_record_id' => 100,
+      { 'file_id' => 100,
         'snapshots' => [
           { 'commit_id' => 1, 'file_snapshot_id' => 9 },
           { 'commit_id' => 2, 'file_snapshot_id' => 21 }

@@ -32,18 +32,18 @@ RSpec.describe VCS::FileInBranch, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:branch).dependent(false) }
-    it { is_expected.to belong_to(:file_record).dependent(false) }
+    it { is_expected.to belong_to(:file).dependent(false) }
     it do
       is_expected
-        .to belong_to(:file_record_parent)
-        .class_name('VCS::FileRecord')
+        .to belong_to(:parent)
+        .class_name('VCS::File')
         .dependent(false)
         .optional
     end
     it do
       is_expected
-        .to belong_to(:file_record_parent)
-        .class_name('VCS::FileRecord')
+        .to belong_to(:parent)
+        .class_name('VCS::File')
         .dependent(false)
         .optional
     end
@@ -68,7 +68,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:mime_type) }
     it { is_expected.to validate_presence_of(:content_version) }
-    it { is_expected.to validate_presence_of(:file_record_parent_id) }
+    it { is_expected.to validate_presence_of(:parent_id) }
     it do
       is_expected
         .to validate_uniqueness_of(:remote_file_id).scoped_to(:branch_id)
@@ -91,8 +91,8 @@ RSpec.describe VCS::FileInBranch, type: :model do
       end
     end
 
-    context 'when file_record_parent_id has changed' do
-      before  { file_in_branch.file_record_parent_id = 5 }
+    context 'when parent_id has changed' do
+      before  { file_in_branch.parent_id = 5 }
       after   { file_in_branch.valid? }
 
       it { expect(file_in_branch).to receive(:cannot_be_its_own_ancestor) }
@@ -101,7 +101,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     context 'when file is root' do
       before { allow(file_in_branch).to receive(:root?).and_return true }
 
-      it { is_expected.not_to validate_presence_of(:file_record_parent_id) }
+      it { is_expected.not_to validate_presence_of(:parent_id) }
     end
 
     context 'when file is deleted' do
@@ -110,7 +110,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
       it { is_expected.not_to validate_presence_of(:name) }
       it { is_expected.not_to validate_presence_of(:mime_type) }
       it { is_expected.not_to validate_presence_of(:content_version) }
-      it { is_expected.not_to validate_presence_of(:file_record_parent_id) }
+      it { is_expected.not_to validate_presence_of(:parent_id) }
     end
   end
 
@@ -181,9 +181,15 @@ RSpec.describe VCS::FileInBranch, type: :model do
 
     context 'when file has many ancestors' do
       let(:root)        { create :vcs_file_in_branch, :root }
-      let(:grandparent) { create :vcs_file_in_branch, parent: root }
-      let(:parent)      { create :vcs_file_in_branch, parent: grandparent }
-      let(:file_in_branch) { create :vcs_file_in_branch, parent: parent }
+      let(:grandparent) do
+        create :vcs_file_in_branch, parent_in_branch: root
+      end
+      let(:parent) do
+        create :vcs_file_in_branch, parent_in_branch: grandparent
+      end
+      let(:file_in_branch) do
+        create :vcs_file_in_branch, parent_in_branch: parent
+      end
 
       it 'returns snapshots of ancestors' do
         expect(ancestors.map(&:id)).to eq(
@@ -215,8 +221,8 @@ RSpec.describe VCS::FileInBranch, type: :model do
       let(:parent)      { instance_double VCS::FileSnapshot }
 
       before do
-        allow(grandparent).to receive(:file_record_id).and_return 'gparent'
-        allow(parent).to receive(:file_record_id).and_return 'parent'
+        allow(grandparent).to receive(:file_id).and_return 'gparent'
+        allow(parent).to receive(:file_id).and_return 'parent'
       end
 
       it { is_expected.to eq %w[parent gparent] }
@@ -276,7 +282,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     it { expect(file_in_branch.errors).to be_none }
 
     context 'when file is its own ancestor' do
-      let(:ancestors_ids) { [file_in_branch.file_record_id] }
+      let(:ancestors_ids) { [file_in_branch.file_id] }
       it { expect(file_in_branch.errors).to be_one }
     end
   end
@@ -286,22 +292,22 @@ RSpec.describe VCS::FileInBranch, type: :model do
     let(:parent)          { nil }
     let(:parent_id)       { nil }
 
-    before { file_in_branch.file_record_parent_id = parent_id if parent_id }
-    before { file_in_branch.file_record_parent    = parent if parent }
+    before { file_in_branch.parent_id = parent_id if parent_id }
+    before { file_in_branch.parent    = parent if parent }
     before { validation }
 
     it { expect(file_in_branch.errors).to be_none }
 
     context 'when file is its own parent by ID' do
-      let(:parent_id) { file_in_branch.file_record_id }
+      let(:parent_id) { file_in_branch.file_id }
       it { expect(file_in_branch.errors).to be_one }
     end
 
     context 'when file is its own parent by instance' do
       let(:file_in_branch) do
-        described_class.new(file_record: VCS::FileRecord.new)
+        described_class.new(file: VCS::File.new)
       end
-      let(:parent) { file_in_branch.file_record }
+      let(:parent) { file_in_branch.file }
 
       it { expect(file_in_branch.errors).to be_one }
     end

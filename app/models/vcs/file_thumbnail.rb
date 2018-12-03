@@ -4,7 +4,7 @@ module VCS
   # Thumbnails for files
   class FileThumbnail < ApplicationRecord
     # Associations
-    belongs_to :file_record
+    belongs_to :file
 
     has_many :file_snapshots, foreign_key: :thumbnail_id, dependent: :nullify
     has_many :files_in_branches, class_name: 'FileInBranch',
@@ -15,10 +15,10 @@ module VCS
     has_attached_file :image,
                       styles: { original: '200x200#' },
                       path: ':attachment_path/:class/' \
-                            ':file_record_id/:remote_file_id/:version_id/' \
+                            ':file_id/:remote_file_id/:version_id/' \
                             ':hash.:content_type_extension',
                       url:  ':attachment_url/:class/' \
-                            ':file_record_id/:remote_file_id/:version_id/' \
+                            ':file_id/:remote_file_id/:version_id/' \
                             ':hash.:content_type_extension',
                       default_url: '/fallback/file_resources/thumbnail.png',
                       hash_secret: ENV['THUMBNAIL_HASH_SECRET']
@@ -34,7 +34,7 @@ module VCS
                    content_type: %w[image/jpeg image/gif image/png],
                    message: 'must be JPEG, PNG, or GIF'
     validates :version_id, uniqueness: {
-      scope: %i[file_record_id remote_file_id],
+      scope: %i[file_id remote_file_id],
       message: 'with remote ID already exists for this file record'
     }, if: :new_record?
 
@@ -47,7 +47,7 @@ module VCS
     # Parse the file resource to a hash of attributes
     def self.attributes_from_file_in_branch(file_in_branch)
       {
-        file_record_id: file_in_branch.file_record_id,
+        file_id: file_in_branch.file_id,
         remote_file_id: file_in_branch.remote_file_id,
         version_id:  file_in_branch.thumbnail_version_id
       }

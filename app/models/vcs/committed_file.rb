@@ -17,20 +17,20 @@ module VCS
     scope :where_snapshot_changed_between_commits, lambda { |commit1, commit2|
       joins(:file_snapshot)
         .select(
-          "#{VCS::FileSnapshot.table_name}.file_record_id AS file_record_id",
+          "#{VCS::FileSnapshot.table_name}.file_id AS file_id",
           :file_snapshot_id,
           'min(commit_id) AS commit_id'
         )
         .where(commit_id: [commit1, commit2].compact)
-        .group("#{FileSnapshot.table_name}.file_record_id", :file_snapshot_id)
+        .group("#{FileSnapshot.table_name}.file_id", :file_snapshot_id)
         .having('count(*) = 1')
     }
     scope :distinct_file_resources_between_commits, lambda { |commit1, commit2|
       joins(:file_snapshot)
-        .select("DISTINCT ON (#{FileSnapshot.table_name}.file_record_id) " \
-                "#{FileSnapshot.table_name}.file_record_id")
+        .select("DISTINCT ON (#{FileSnapshot.table_name}.file_id) " \
+                "#{FileSnapshot.table_name}.file_id")
         .where(commit_id: [commit1, commit2].compact)
-        .order("#{FileSnapshot.table_name}.file_record_id", commit_id: :desc)
+        .order("#{FileSnapshot.table_name}.file_id", commit_id: :desc)
     }
 
     # Execute INSERT query based on the SELECT query

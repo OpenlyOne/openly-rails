@@ -10,9 +10,9 @@ module VCS
 
       # Initialize a new instance of FileRestore and prepare for restoring the
       # provided snapshot to the provided target_branch
-      def initialize(snapshot:, file_record_id: nil, target_branch:)
+      def initialize(snapshot:, file_id: nil, target_branch:)
         self.snapshot = snapshot
-        self.file_record_id = file_record_id || snapshot.file_record_id
+        self.file_id = file_id || snapshot.file_id
         self.target_branch = target_branch
       end
 
@@ -49,7 +49,7 @@ module VCS
 
       private
 
-      attr_accessor :snapshot, :target_branch, :file_record_id
+      attr_accessor :snapshot, :target_branch, :file_id
       attr_writer :remote_file_id, :content_version
 
       # Create remote file from backup copy
@@ -90,9 +90,10 @@ module VCS
       # Calling the delete API endpoint results in insufficient permission
       # error unless the action is performed by the file owner.
       def remove_file
-        file_in_branch
-          .remote
-          .relocate(to: nil, from: file_in_branch.parent.remote_file_id)
+        file_in_branch.remote.relocate(
+          to: nil,
+          from: file_in_branch.parent_in_branch.remote_file_id
+        )
       end
 
       # Create remote file from backup copy and delete current file
@@ -103,12 +104,10 @@ module VCS
 
       # Move remote file
       def relocate_file
-        file_in_branch
-          .remote
-          .relocate(
-            to: parent_in_branch.remote_file_id,
-            from: file_in_branch.parent.remote_file_id
-          )
+        file_in_branch.remote.relocate(
+          to: parent_in_branch.remote_file_id,
+          from: file_in_branch.parent_in_branch.remote_file_id
+        )
       end
 
       # Rename remote file
@@ -156,7 +155,7 @@ module VCS
         target_branch
           .files
           .joins(:current_snapshot)
-          .find_by(file_record_id: snapshot.file_record_parent_id)
+          .find_by(file_id: snapshot.parent_id)
       end
 
       def parent_in_branch
@@ -169,7 +168,7 @@ module VCS
         {
           name: snapshot&.name,
           mime_type: snapshot&.mime_type,
-          parent: parent_in_branch,
+          parent_in_branch: parent_in_branch,
           thumbnail_id: snapshot&.thumbnail_id
         }
       end
@@ -179,7 +178,7 @@ module VCS
         @file_in_branch ||=
           target_branch
           .files
-          .find_by(file_record_id: file_record_id)
+          .find_by(file_id: file_id)
       end
     end
     # rubocop:enable Metrics/ClassLength

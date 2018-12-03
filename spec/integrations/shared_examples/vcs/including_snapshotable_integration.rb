@@ -27,7 +27,7 @@ RSpec.shared_examples 'vcs: including snapshotable integration' do
     describe 'when snapshot already exists' do
       let!(:original_name) { snapshotable.name }
       let(:original_snapshot_id) do
-        snapshotable.file_record.file_snapshots.first.id
+        snapshotable.file.file_snapshots.first.id
       end
 
       before do

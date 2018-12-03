@@ -3,12 +3,12 @@
 FactoryBot.define do
   factory :vcs_file_snapshot, class: 'VCS::FileSnapshot' do
     transient do
-      parent { nil }
+      parent_in_branch { nil }
     end
 
-    association :file_record, factory: :vcs_file_record
+    association :file, factory: :vcs_file
     remote_file_id      { Faker::Crypto.unique.sha1 }
-    file_record_parent  { parent&.file_record || create(:vcs_file_record) }
+    parent              { parent_in_branch&.file || create(:vcs_file) }
     name                { Faker::File.file_name('', nil, nil, '') }
     content_version     { rand(1..1000) }
     mime_type           { 'application/vnd.google-apps.document' }

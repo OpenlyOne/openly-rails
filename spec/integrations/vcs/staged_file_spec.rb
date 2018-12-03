@@ -5,26 +5,26 @@ require 'integrations/shared_examples/vcs/including_snapshotable_integration.rb'
 require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 
 RSpec.describe VCS::FileInBranch, type: :model do
-  subject(:file) do
+  subject(:file_in_branch) do
     described_class.new(
       remote_file_id: remote_file_id,
       branch: branch,
-      file_record: file_record
+      file: file
     )
   end
   let(:branch)          { create :vcs_branch }
-  let(:file_record)     { create :vcs_file_record }
+  let(:file)            { create :vcs_file }
   let(:remote_file_id)  { 'id' }
 
   it_should_behave_like 'vcs: including snapshotable integration' do
-    let(:file)                    { build :vcs_file_in_branch }
-    let(:snapshotable)            { file }
+    let(:file_in_branch)          { build :vcs_file_in_branch }
+    let(:snapshotable)            { file_in_branch }
     let(:snapshotable_model_name) { 'VCS::FileInBranch' }
   end
 
   it_should_behave_like 'vcs: including syncable integration' do
-    let(:api)      { Providers::GoogleDrive::ApiConnection.default }
-    let(:syncable) { file }
+    let(:api)       { Providers::GoogleDrive::ApiConnection.default }
+    let(:syncable)  { file_in_branch }
     let(:parent_id) { google_drive_test_folder_id }
     let(:mime_type) { Providers::GoogleDrive::MimeType.document }
     let(:folder_mime_type)  { Providers::GoogleDrive::MimeType.folder }
@@ -40,7 +40,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
   end
 
   it_should_behave_like 'vcs: including downloadable integration' do
-    let(:downloadable)    { file }
+    let(:downloadable)    { file_in_branch }
     let(:parent_id)       { google_drive_test_folder_id }
     let(:mime_type)       { Providers::GoogleDrive::MimeType.document }
     let(:file_sync_class) { Providers::GoogleDrive::FileSync }
@@ -68,18 +68,18 @@ RSpec.describe VCS::FileInBranch, type: :model do
         mime_type: Providers::GoogleDrive::MimeType.document
       )
     end
-    let!(:parent) do
+    let!(:parent_in_branch) do
       described_class.new(
         remote_file_id: google_drive_test_folder_id,
         branch: branch,
-        file_record: file_record_parent,
+        file: parent,
         is_root: true
       )
     end
-    let(:file_record_parent)  { create :vcs_file_record }
-    let(:projects)            { create_list :project, 3 }
-    let(:api)                 { Providers::GoogleDrive::ApiConnection.default }
-    let(:remote_file_id)      { file_sync.id }
+    let(:parent)          { create :vcs_file }
+    let(:projects)        { create_list :project, 3 }
+    let(:api)             { Providers::GoogleDrive::ApiConnection.default }
+    let(:remote_file_id)  { file_sync.id }
     let(:file_from_database) do
       described_class.find_by_remote_file_id!(remote_file_id)
     end
@@ -88,7 +88,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     let(:expected_attributes) do
       {
         'name' => 'Test File',
-        'file_record_parent_id' => parent.file_record_id,
+        'parent_id' => parent_in_branch.file_id,
         'content_version' => '1',
         'mime_type' => Providers::GoogleDrive::MimeType.document,
         'remote_file_id' => remote_file_id,
@@ -97,16 +97,16 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
 
     # Pull parent resource
-    before { parent.pull }
+    before { parent_in_branch.pull }
 
     it 'can pull a snapshot of a new file' do
-      file.pull
+      file_in_branch.pull
       expect(file_attributes).to include(expected_attributes)
       expect(snapshot_attributes).to include(expected_attributes)
     end
 
     it 'can pull a snapshot of an existing file' do
-      file.pull
+      file_in_branch.pull
       file_sync.rename('my new file name')
 
       # Update file content for thumbnail
@@ -114,7 +114,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
         .default.update_file_content(file_sync.id, 'new file content')
       sleep 5 if VCR.current_cassette.recording?
 
-      file.reload.pull
+      file_in_branch.reload.pull
       expected_attributes['name'] = 'my new file name'
       expected_attributes.delete('content_version')
       expected_attributes['thumbnail_id'] = VCS::FileThumbnail.first.id
@@ -123,9 +123,9 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
 
     it 'can pull a snapshot of a removed file' do
-      file.pull
-      api.delete_file(file.remote_file_id)
-      file.reload.pull
+      file_in_branch.pull
+      api.delete_file(file_in_branch.remote_file_id)
+      file_in_branch.reload.pull
       expect(file_from_database).to be_deleted
       expect(file_from_database.current_snapshot).to be nil
     end

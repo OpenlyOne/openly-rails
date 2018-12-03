@@ -9,7 +9,7 @@ RSpec.describe VCS::FileDiff::Changes::Movement, type: :model do
   let(:commit)        { create :vcs_commit }
   let(:file_diffs)    { commit.file_diffs.reload }
 
-  before { file.update(parent: parent) }
+  before { file.update(parent_in_branch: parent) }
 
   let!(:diff) do
     create :vcs_file_diff,

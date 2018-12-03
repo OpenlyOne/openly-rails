@@ -134,7 +134,7 @@ RSpec.describe VCS::Commit, type: :model do
       update.update(
         name: 'new-name',
         content_version: 5,
-        file_record_parent: parent.file_record
+        parent: parent.file
       )
       deletion.update(is_deleted: true)
       addition
@@ -193,9 +193,9 @@ RSpec.describe VCS::Commit, type: :model do
     let(:branch)    { create(:vcs_branch) }
     let(:folder)    { create :vcs_file_snapshot, :folder }
     let(:parent)    { folder }
-    let!(:f1)       { create :vcs_file_snapshot, parent: parent }
-    let!(:f2)       { create :vcs_file_snapshot, parent: parent }
-    let!(:f3)       { create :vcs_file_snapshot, parent: parent }
+    let!(:f1)       { create :vcs_file_snapshot, parent_in_branch: parent }
+    let!(:f2)       { create :vcs_file_snapshot, parent_in_branch: parent }
+    let!(:f3)       { create :vcs_file_snapshot, parent_in_branch: parent }
 
     before do
       [f1, f2, f3].each do |snapshot|

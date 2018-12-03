@@ -164,7 +164,7 @@ feature 'Collaborators: As a collaborator' do
     project.collaborators << me
     # and the project has some files
     root = create :vcs_file_in_branch, :root, branch: project.master_branch
-    create_list :vcs_file_in_branch, 5, parent: root
+    create_list :vcs_file_in_branch, 5, parent_in_branch: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"

@@ -13,7 +13,7 @@ feature 'Revision' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and there is a file
-    file = create :vcs_file_in_branch, name: 'File1', parent: root
+    file = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
     # with three revisions made by three different users
     users = create_list :user, 3
     commit1 = master_branch.commits.create_draft_and_commit_files!(users[0])
@@ -47,7 +47,7 @@ feature 'Revision' do
     # given I am signed in as the project owner
     sign_in_as project.owner.account
     # and the project has some files
-    create_list :vcs_file_in_branch, 5, parent: root
+    create_list :vcs_file_in_branch, 5, parent_in_branch: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -74,20 +74,25 @@ feature 'Revision' do
 
   context 'Selective capture' do
     let(:unchanged) do
-      create_list :vcs_file_in_branch, 2, name: 'unchanged', parent: root
+      create_list :vcs_file_in_branch, 2,
+                  name: 'unchanged', parent_in_branch: root
     end
-    let(:folder)          { create :vcs_file_in_branch, :folder, parent: root }
-    let(:added_file)      { create :vcs_file_in_branch, parent: folder }
-    let(:modified_file)   { create :vcs_file_in_branch, parent: folder }
-    let(:moved_out_file)  { create :vcs_file_in_branch, parent: folder }
-    let(:moved_in_file)   { create :vcs_file_in_branch, parent: root }
+    let(:folder) { create :vcs_file_in_branch, :folder, parent_in_branch: root }
+    let(:added_file)    { create :vcs_file_in_branch, parent_in_branch: folder }
+    let(:modified_file) { create :vcs_file_in_branch, parent_in_branch: folder }
+    let(:moved_out_file) do
+      create :vcs_file_in_branch, parent_in_branch: folder
+    end
+    let(:moved_in_file) { create :vcs_file_in_branch, parent_in_branch: root }
     let(:moved_in_and_modified_file) do
-      create :vcs_file_in_branch, parent: root
+      create :vcs_file_in_branch, parent_in_branch: root
     end
-    let(:removed_file)  { create :vcs_file_in_branch, parent: folder }
-    let(:moved_folder)  { create :vcs_file_in_branch, :folder, parent: root }
+    let(:removed_file) { create :vcs_file_in_branch, parent_in_branch: folder }
+    let(:moved_folder) do
+      create :vcs_file_in_branch, :folder, parent_in_branch: root
+    end
     let(:in_moved_folder) do
-      create_list :vcs_file_in_branch, 2, parent: moved_folder
+      create_list :vcs_file_in_branch, 2, parent_in_branch: moved_folder
     end
 
     scenario 'User can review changes' do
@@ -103,12 +108,12 @@ feature 'Revision' do
       # when changes are made to files
       added_file
       modified_file.update(content_version: 'new-version')
-      moved_out_file.update(parent: root)
-      moved_in_file.update(parent: folder)
-      moved_in_and_modified_file.update(parent: folder,
+      moved_out_file.update(parent_in_branch: root)
+      moved_in_file.update(parent_in_branch: folder)
+      moved_in_and_modified_file.update(parent_in_branch: folder,
                                         content_version: 'new-v')
       removed_file.update(is_deleted: true)
-      moved_folder.update(parent: folder)
+      moved_folder.update(parent_in_branch: folder)
 
       # when I visit the project page
       visit "#{project.owner.to_param}/#{project.to_param}"
@@ -141,7 +146,7 @@ feature 'Revision' do
 
       # when changes are made to files
       added_file
-      moved_in_and_modified_file.update(parent: folder,
+      moved_in_and_modified_file.update(parent_in_branch: folder,
                                         content_version: 'new-v')
       removed_file.update(is_deleted: true)
 
@@ -174,7 +179,7 @@ feature 'Revision' do
 
       # when changes are made to files
       added_file
-      moved_in_and_modified_file.update(parent: folder,
+      moved_in_and_modified_file.update(parent_in_branch: folder,
                                         content_version: 'new-v')
       removed_file.update(is_deleted: true)
 

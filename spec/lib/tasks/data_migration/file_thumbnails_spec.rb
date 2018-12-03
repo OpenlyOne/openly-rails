@@ -9,7 +9,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   let(:run_the_task) { subject.invoke }
 
   let!(:old_thumbnails) do
-    build_list(:vcs_file_thumbnail, 3, file_record_id: nil).each do |record|
+    build_list(:vcs_file_thumbnail, 3, file_id: nil).each do |record|
       record.save!(validate: false)
     end
   end
@@ -51,13 +51,13 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
       VCS::FileThumbnail.find_by(
         remote_file_id: old_thumbnail.remote_file_id,
         version_id: old_thumbnail.version_id,
-        file_record_id: snap1.file_record_id
+        file_id: snap1.file_id
       )
     end
     let!(:snap1) { create :vcs_file_snapshot, thumbnail: old_thumbnail }
     let!(:snap2) do
       create :vcs_file_snapshot,
-             file_record_id: snap1.file_record_id, thumbnail: old_thumbnail
+             file_id: snap1.file_id, thumbnail: old_thumbnail
     end
     let(:old_thumbnail) { old_thumbnails.first }
 

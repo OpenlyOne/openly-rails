@@ -4,14 +4,14 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   describe 'attachment path for image' do
     subject               { thumbnail.image.path }
     let(:thumbnail)       { create :vcs_file_thumbnail }
-    let(:file_record_id)  { thumbnail.file_record_id }
+    let(:file_id)         { thumbnail.file_id }
     let(:remote_file_id)  { thumbnail.remote_file_id }
     let(:version_id)      { thumbnail.version_id }
 
     it 'interpolates correctly' do
       is_expected.to start_with("#{Rails.root}/public/spec/system")
       is_expected.to match(
-        %r{vcs/file_thumbnails/#{file_record_id}/
+        %r{vcs/file_thumbnails/#{file_id}/
            #{remote_file_id}/#{version_id}/\w+.png$}x
       )
     end
@@ -20,14 +20,14 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   describe 'attachment url for image' do
     subject               { thumbnail.image.url }
     let(:thumbnail)       { create :vcs_file_thumbnail }
-    let(:file_record_id)  { thumbnail.file_record_id }
+    let(:file_id)         { thumbnail.file_id }
     let(:remote_file_id)  { thumbnail.remote_file_id }
     let(:version_id)      { thumbnail.version_id }
 
     it 'interpolates correctly' do
       is_expected.to start_with('/spec/system')
       is_expected.to match(
-        %r{vcs/file_thumbnails/#{file_record_id}/
+        %r{vcs/file_thumbnails/#{file_id}/
            #{remote_file_id}/#{version_id}/\w+.png}x
       )
     end

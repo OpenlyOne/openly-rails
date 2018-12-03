@@ -40,7 +40,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let!(:subfolder) do
       create :vcs_file_in_branch, :folder,
-             parent: root, remote_file_id: remote_subfolder.id
+             parent_in_branch: root, remote_file_id: remote_subfolder.id
     end
 
     let!(:file) do
@@ -58,7 +58,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       snapshot_to_restore
         .attributes
         .symbolize_keys
-        .slice(:name, :content_version, :file_record, :file_record_parent_id)
+        .slice(:name, :content_version, :file, :parent_id)
     end
 
     let(:snapshot_before_performing_restoration)  { file.current_snapshot }
@@ -67,7 +67,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:parent_of_snapshot_to_restore) do
       root.branch
           .files
-          .find_by(file_record_id: snapshot_to_restore.file_record_parent_id)
+          .find_by(file_id: snapshot_to_restore.parent_id)
     end
     let(:expected_parent)           { parent_of_snapshot_to_restore }
     let(:expected_content_version)  { snapshot_to_restore.content_version }
@@ -98,9 +98,9 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     after do
       expect(file.current_snapshot_id).to eq expected_snapshot_id
       expect(file).to have_attributes(
-        file_record_id: file.file_record_id,
+        file_id: file.file_id,
         name: snapshot_to_restore&.name,
-        file_record_parent_id: expected_parent&.file_record_id,
+        parent_id: expected_parent&.file_id,
         content_version: expected_content_version,
         is_deleted: expected_deletion_status,
         thumbnail_id: snapshot_to_restore&.thumbnail_id
@@ -152,7 +152,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       end
       let(:subfolder2) do
         create :vcs_file_in_branch, :folder,
-               parent: root, remote_file_id: remote_subfolder2.id
+               parent_in_branch: root, remote_file_id: remote_subfolder2.id
       end
       let(:file_actions) do
         remote_subfolder2
@@ -206,7 +206,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
       subject(:file_restore) do
         described_class
           .new(snapshot: snapshot_to_restore,
-               file_record_id: file.file_record_id,
+               file_id: file.file_id,
                target_branch: root.branch)
       end
       let(:file_actions)              { nil }

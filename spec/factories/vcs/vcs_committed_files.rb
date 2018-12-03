@@ -7,6 +7,6 @@ FactoryBot.define do
     end
 
     association :commit, factory: :vcs_commit
-    file_snapshot { create(:vcs_file_snapshot, parent: parent) }
+    file_snapshot { create(:vcs_file_snapshot, parent_in_branch: parent) }
   end
 end

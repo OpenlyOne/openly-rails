@@ -47,6 +47,6 @@ class FileRestoresController < ApplicationController
   # TODO: Remove after redirecting to file infos path based on file record ID
   def file_in_branch
     @master_branch
-      .files.find_by(file_record_id: @snapshot.file_record_id)
+      .files.find_by(file_id: @snapshot.file_id)
   end
 end

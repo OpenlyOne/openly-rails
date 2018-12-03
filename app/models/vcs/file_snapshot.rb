@@ -2,19 +2,17 @@
 
 module VCS
   # A unique snapshot of a file's data (name, content, parent, ...)
-  # rubocop:disable Metrics/ClassLength
   class FileSnapshot < ApplicationRecord
     include VCS::Resourceable
 
     # Associations
-    belongs_to :file_record, autosave: false
-    belongs_to :file_record_parent, class_name: 'VCS::FileRecord',
-                                    optional: true
+    belongs_to :file, autosave: false
+    belongs_to :parent, class_name: 'VCS::File', optional: true
     belongs_to :content
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
                      inverse_of: :file_snapshot
-    has_one :repository, through: :file_record
+    has_one :repository, through: :file
 
     # Callbacks
     # Prevent updates to file snapshot; snapshots are immutable.
@@ -23,32 +21,11 @@ module VCS
     end
 
     # Attributes
-    alias_attribute :snapshotable_id, :file_record_id
-    # TODO: Legacy support, REMOVE soon
-    alias_attribute :parent_id, :file_record_parent_id
+    alias_attribute :snapshotable_id, :file_id
 
     # Scopes
     scope :joins_current_snapshot, lambda {
-      left_joins(file_record: :current_snapshot)
-    }
-
-    # Snapshots where the file has been deleted (current snapshot is nil)
-    scope :where_current_snapshot_is_nil, lambda {
-      joins_current_snapshot
-        .where('current_snapshots_file_resources IS ?', nil)
-    }
-
-    # Snapshots where the file currently has the given parent
-    scope :where_current_snapshot_parent, lambda { |parent|
-      joins_current_snapshot
-        .where(
-          'current_snapshots_file_resources.file_record_parent_id = ?', parent
-        )
-    }
-
-    # Snapshots that are committed in the given revision
-    scope :of_revision, lambda { |revision|
-      joins(:committing_files).where(committed_files: { revision_id: revision })
+      left_joins(file: :current_snapshot)
     }
 
     # TODO: Add in support for different providers set on repository level
@@ -71,14 +48,14 @@ module VCS
     }
 
     # Validations
-    validates :file_record_id,    presence: true
-    validates :name,              presence: true
-    validates :content_version,   presence: true
-    validates :mime_type,         presence: true
-    validates :remote_file_id,    presence: true
-    validates :file_record_id,
+    validates :file_id,         presence: true
+    validates :name,            presence: true
+    validates :content_version, presence: true
+    validates :mime_type,       presence: true
+    validates :remote_file_id,  presence: true
+    validates :file_id,
               uniqueness: {
-                scope: %i[name content_id mime_type file_record_parent_id],
+                scope: %i[name content_id mime_type parent_id],
                 message: 'already has a snapshot with these attributes'
               },
               if: :new_record?
@@ -94,7 +71,7 @@ module VCS
     # TODO: Content generation should not be happening here. Move to
     # =>    FileInBranch instead
     def self.repository(attributes)
-      VCS::FileRecord.find(attributes[:file_record_id])&.repository
+      VCS::File.find(attributes[:file_id])&.repository
     end
 
     # TODO: Content generation should not be happening here. Move to
@@ -120,7 +97,7 @@ module VCS
 
     # The set of core attributes that uniquely identify a snapshot
     def self.core_attribute_keys
-      %i[file_record_id name content_id mime_type file_record_parent_id]
+      %i[file_id name content_id mime_type parent_id]
     end
 
     # Find or create a snapshot from the set of core attributes, optionally
@@ -183,5 +160,4 @@ module VCS
       self.class.supplemental_attributes(attributes)
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end

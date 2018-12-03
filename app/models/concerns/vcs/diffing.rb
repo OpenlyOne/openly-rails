@@ -12,8 +12,8 @@ module VCS
              :thumbnail_image, :thumbnail_image_or_fallback,
              to: :current_or_previous_snapshot
 
-    delegate_methods = %i[content_version name parent_id file_record_parent_id
-                          file_record_id content_id plain_text_content]
+    delegate_methods = %i[content_version name parent_id parent_id
+                          file_id content_id plain_text_content]
     delegate(*delegate_methods,
              to: :current_snapshot, prefix: :current, allow_nil: true)
     delegate(*delegate_methods,

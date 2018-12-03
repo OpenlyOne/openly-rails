@@ -38,9 +38,9 @@ RSpec.describe 'data_migration:file_snapshots_content', :archived do
   context 'when multiple snapshots have the same content version' do
     let(:snapshots) do
       create_list :vcs_file_snapshot, 2,
-                  file_record: fr, remote_file_id: 'id', content_version: 'v'
+                  file: fr, remote_file_id: 'id', content_version: 'v'
     end
-    let(:fr) { create :vcs_file_record }
+    let(:fr) { create :vcs_file }
 
     it 'assigns both snapshots the same content' do
       run_the_task

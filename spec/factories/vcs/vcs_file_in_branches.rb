@@ -3,9 +3,9 @@
 FactoryBot.define do
   factory :vcs_file_in_branch, class: 'VCS::FileInBranch' do
     transient do
-      parent { nil }
+      parent_in_branch { nil }
       repository do
-        parent&.branch&.repository ||
+        parent_in_branch&.branch&.repository ||
           branch&.repository ||
           create(:vcs_repository)
       end
@@ -13,8 +13,8 @@ FactoryBot.define do
 
     with_parent
 
-    branch          { parent&.branch || create(:vcs_branch) }
-    file_record     { create(:vcs_file_record, repository: repository) }
+    branch          { parent_in_branch&.branch || create(:vcs_branch) }
+    file            { create(:vcs_file, repository: repository) }
     remote_file_id  { Faker::Crypto.unique.sha1 }
     name            { Faker::File.file_name('', nil, nil, '') }
     content_version { rand(1..1000) }
@@ -26,17 +26,17 @@ FactoryBot.define do
     end
 
     trait :with_parent do
-      file_record_parent { parent&.file_record || create(:vcs_file_record) }
+      parent { parent_in_branch&.file || create(:vcs_file) }
     end
 
     trait :root do
       is_root { true }
       folder
-      file_record_parent_id { nil }
+      parent_id { nil }
     end
 
     trait :with_thumbnail do
-      thumbnail { create :vcs_file_thumbnail, file_record_id: file_record_id }
+      thumbnail { create :vcs_file_thumbnail, file_id: file_id }
     end
 
     trait :deleted do

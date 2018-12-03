@@ -29,7 +29,7 @@ module VCS
 
     # Validate that current snapshot is associated with this snapshotable
     def current_snapshot_must_belong_to_snapshotable
-      return if current_snapshot.snapshotable_id == file_record_id
+      return if current_snapshot.snapshotable_id == file_id
 
       errors.add(:current_snapshot, "must belong to this #{model_name}")
     end
@@ -37,7 +37,7 @@ module VCS
     # Capture a snapshot of this snapshotable instance
     def snapshot!
       self.current_snapshot =
-        VCS::FileSnapshot.for(attributes.merge(file_record_id: file_record_id))
+        VCS::FileSnapshot.for(attributes.merge(file_id: file_id))
       # find_or_create_current_snapshot_by!(core_snapshot_attributes,
       #                                     supplemental_snapshot_attributes)
       update_column('current_snapshot_id', current_snapshot.id)

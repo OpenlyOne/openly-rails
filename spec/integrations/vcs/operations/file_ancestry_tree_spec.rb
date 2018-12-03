@@ -5,23 +5,23 @@ RSpec.describe VCS::Operations::FileAncestryTree, type: :model do
     subject(:tree) do
       described_class.generate(
         commit: commit,
-        file_record_ids: [f5.file_record_id],
+        file_ids: [f5.file_id],
         depth: 3
       )
     end
     let(:commit) { create :vcs_commit }
     let(:f1) { create :vcs_file_snapshot, name: 'f1' }
     let(:f2) do
-      create :vcs_file_snapshot, name: 'f2', parent: f1
+      create :vcs_file_snapshot, name: 'f2', parent_in_branch: f1
     end
     let(:f3) do
-      create :vcs_file_snapshot, name: 'f3', parent: f2
+      create :vcs_file_snapshot, name: 'f3', parent_in_branch: f2
     end
     let(:f4) do
-      create :vcs_file_snapshot, name: 'f4', parent: f3
+      create :vcs_file_snapshot, name: 'f4', parent_in_branch: f3
     end
     let(:f5) do
-      create :vcs_file_snapshot, name: 'f5', parent: f4
+      create :vcs_file_snapshot, name: 'f5', parent_in_branch: f4
     end
 
     before do
@@ -32,7 +32,7 @@ RSpec.describe VCS::Operations::FileAncestryTree, type: :model do
     end
 
     it 'has ancestors names f4, f3, f2' do
-      expect(tree.ancestors_names_for(f5.file_record_id, depth: 3))
+      expect(tree.ancestors_names_for(f5.file_id, depth: 3))
         .to eq %w[f4 f3 f2]
     end
   end

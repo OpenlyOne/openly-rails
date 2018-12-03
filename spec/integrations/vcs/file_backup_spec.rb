@@ -21,7 +21,7 @@ RSpec.describe VCS::FileBackup, type: :model do
     let(:file_in_branch) do
       project.master_branch.files.build(
         remote_file_id: remote_file.id,
-        file_record: VCS::FileRecord.new(repository: project.repository)
+        file: VCS::File.new(repository: project.repository)
       )
     end
     let(:remote_file) do

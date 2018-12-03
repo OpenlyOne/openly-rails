@@ -21,7 +21,7 @@ module VCS
         includes(:file_snapshot)
           .where(
             "#{VCS::FileSnapshot.table_name}": {
-              file_record_parent_id: folder.file_record_id
+              parent_id: folder.file_id
             }
           )
       end
@@ -134,17 +134,17 @@ module VCS
         branch.files.joins(
           <<~SQL
             LEFT JOIN (#{committed_snapshots.to_sql}) committed_snapshots
-            ON (committed_snapshots.file_record_id =
-            vcs_file_in_branches.file_record_id)
+            ON (committed_snapshots.file_id =
+            vcs_file_in_branches.file_id)
           SQL
-        ).select('committed_snapshots.id, vcs_file_in_branches.file_record_id')
+        ).select('committed_snapshots.id, vcs_file_in_branches.file_id')
 
       # Perform the update
       branch
         .files
         .where(
-          'committed_snapshots.file_record_id = ' \
-          'vcs_file_in_branches.file_record_id'
+          'committed_snapshots.file_id = ' \
+          'vcs_file_in_branches.file_id'
         ).update_all(
           <<~SQL
             committed_snapshot_id = committed_snapshots.id

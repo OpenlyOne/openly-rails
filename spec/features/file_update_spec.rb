@@ -79,7 +79,7 @@ feature 'File Update', :vcr do
 
     # and have a backup of the file snapshot as it was before
     and_have_a_backup_of_file_snapshot(
-      file_in_branch.file_record.file_snapshots.first
+      file_in_branch.file.file_snapshots.first
     )
   end
 
@@ -109,7 +109,7 @@ feature 'File Update', :vcr do
 
     # and have a backup of the file snapshot as it was before
     and_have_a_backup_of_file_snapshot(
-      file_in_branch.file_record.file_snapshots.first
+      file_in_branch.file.file_snapshots.first
     )
   end
 

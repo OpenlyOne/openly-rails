@@ -19,10 +19,10 @@ module VCS
     alias_attribute :current_snapshot_id, :new_snapshot_id
     alias_attribute :previous_snapshot_id, :old_snapshot_id
     alias_attribute :revision, :commit
-    delegate :file_record_id, to: :current_or_previous_snapshot, prefix: true
+    delegate :file_id, to: :current_or_previous_snapshot, prefix: true
     # rubocop:disable Style/Alias
     # FIXME: alias does not seem to work for this delegated attribute
-    alias_method :file_resource_id, :current_or_previous_snapshot_file_record_id
+    alias_method :file_resource_id, :current_or_previous_snapshot_file_id
     # rubocop:enable Style/Alias
 
     # Delegations
@@ -50,17 +50,17 @@ module VCS
     }
 
     # Include file record id
-    scope :with_file_record_id, lambda {
+    scope :with_file_id, lambda {
       joins_current_or_previous_snapshot
         .select(
           "#{table_name}.*",
-          'current_or_previous_snapshot.file_record_id AS file_record_id'
+          'current_or_previous_snapshot.file_id AS file_id'
         )
     }
 
     # Query diffs by file record ID
-    scope :where_file_record_id, lambda { |file_record_id|
-      with_file_record_id.where('file_record_id = ?', file_record_id)
+    scope :where_file_id, lambda { |file_id|
+      with_file_id.where('file_id = ?', file_id)
     }
 
     # Validations

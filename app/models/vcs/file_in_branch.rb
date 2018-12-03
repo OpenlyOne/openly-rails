@@ -5,8 +5,8 @@ module VCS
   # rubocop:disable Metrics/ClassLength
   class FileInBranch < ApplicationRecord
     belongs_to :branch
-    belongs_to :file_record
-    belongs_to :file_record_parent, class_name: 'FileRecord', optional: true
+    belongs_to :file
+    belongs_to :parent, class_name: 'File', optional: true
 
     belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot',
                                     optional: true
@@ -56,7 +56,7 @@ module VCS
     with_options unless: :any_errors? do
       validate :cannot_be_its_own_parent
       validate :cannot_be_its_own_ancestor,
-               if: :will_save_change_to_file_record_parent_id?
+               if: :will_save_change_to_parent_id?
     end
 
     # Require presence of metadata unless file resource is deleted
@@ -64,7 +64,7 @@ module VCS
       # TODO: Refactor. Must use if: :not_root? because unless: :root? would
       # => overwrite top level condition.
       # See: https://stackoverflow.com/a/15388137/6451879
-      validates :file_record_parent_id, presence: true, if: :not_root?
+      validates :parent_id, presence: true, if: :not_root?
       validates :name, presence: true
       validates :mime_type, presence: true
       validates :content_version, presence: true
@@ -72,14 +72,14 @@ module VCS
 
     # Recursively collect parents
     def ancestors
-      return [] if parent.nil? || parent.root?
+      return [] if parent_in_branch.nil? || parent_in_branch.root?
 
-      [parent.snapshot] + parent.ancestors
+      [parent_in_branch.snapshot] + parent_in_branch.ancestors
     end
 
     # Recursively collect ids of parents
     def ancestors_ids
-      ancestors.map(&:file_record_id)
+      ancestors.map(&:file_id)
     end
 
     def children
@@ -87,11 +87,11 @@ module VCS
         branch
         .files
         .joins_snapshot
-        .where('snapshots.file_record_parent_id = ?', file_record_id)
+        .where('snapshots.parent_id = ?', file_id)
     end
 
     def children_in_branch=(new_children)
-      new_children.each { |child| child.update(parent: self) }
+      new_children.each { |child| child.update(parent_in_branch: self) }
 
       children_in_branch.where.not(id: new_children.map(&:id)).find_each(&:pull)
 
@@ -106,24 +106,24 @@ module VCS
         .joins(:current_snapshot)
         .where(
           "#{VCS::FileSnapshot.table_name}": {
-            file_record_parent_id: file_record_id
+            parent_id: file_id
           }
         )
     end
 
-    def parent
-      @parent ||=
+    def parent_in_branch
+      @parent_in_branch ||=
         branch
         .files
         .joins_snapshot
-        .find_by('snapshots.file_record_id = ?',
-                 snapshot&.file_record_parent_id)
+        .find_by('snapshots.file_id = ?',
+                 snapshot&.parent_id)
     end
 
-    def parent=(new_parent)
-      if new_parent.present?
-        self.file_record_parent_id = new_parent.file_record_id
-        @parent = new_parent
+    def parent_in_branch=(new_parent_in_branch)
+      if new_parent_in_branch.present?
+        self.parent_id = new_parent_in_branch.file_id
+        @parent_in_branch = new_parent_in_branch
       else
         mark_as_removed unless root?
       end
@@ -132,7 +132,7 @@ module VCS
     # TODO: Rename is_deleted to is_removed
     def mark_as_removed
       assign_attributes(
-        file_record_parent_id: nil, name: nil, mime_type: nil,
+        parent_id: nil, name: nil, mime_type: nil,
         content_version: nil, is_deleted: true
       )
     end
@@ -180,18 +180,18 @@ module VCS
     end
 
     def cannot_be_its_own_ancestor
-      return unless ancestors_ids.include? file_record_id
+      return unless ancestors_ids.include? file_id
 
       errors.add(:base, 'Staged file cannot be its own ancestor')
     end
 
     def cannot_be_its_own_parent
       # check if IDs match
-      return unless file_record_id == file_record_parent_id
+      return unless file_id == parent_id
       # both IDs are the same or they are both nil. This could mean that file is
       # its own parent, or it could mean that both records are new, so lets
       # check the actual instances
-      return unless file_record == file_record_parent
+      return unless file == parent
 
       errors.add(:base, 'Staged file cannot be its own parent')
     end

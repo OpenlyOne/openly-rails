@@ -14,8 +14,8 @@ module VCS
     # TODO: Extract to parent class
     # Build the associations for this syncable resource, such as file record
     def build_associations
-      self.file_record ||=
-        VCS::FileRecord.new(repository_id: branch.repository_id)
+      self.file ||=
+        VCS::File.new(repository_id: branch.repository_id)
     end
 
     # Fetch the most recent information about this syncable resource from its
@@ -68,7 +68,7 @@ module VCS
     # Find an instance of syncable's class from the remote parent ID
     # and set instance to parent of current syncable resource
     def remote_parent_id=(remote_parent_id)
-      self.parent =
+      self.parent_in_branch =
         branch.files.find_by_remote_file_id(remote_parent_id)
     end
 

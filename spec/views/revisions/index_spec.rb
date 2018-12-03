@@ -83,7 +83,7 @@ RSpec.describe 'revisions/index', type: :view do
     end
     let(:snapshots) do
       build_stubbed_list(
-        :vcs_file_snapshot, 3, :with_backup, file_record_id: 12
+        :vcs_file_snapshot, 3, :with_backup, file_id: 12
       )
     end
 

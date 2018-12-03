@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe VCS::FileRecord, type: :model do
-  subject(:file_record) { build_stubbed :vcs_file_record }
+RSpec.describe VCS::File, type: :model do
+  subject(:file) { build_stubbed :vcs_file }
 
   describe 'associations' do
     it { is_expected.to belong_to(:repository).dependent(false) }
@@ -18,7 +18,7 @@ RSpec.describe VCS::FileRecord, type: :model do
       is_expected
         .to have_many(:file_snapshots_of_children)
         .class_name('VCS::FileSnapshot')
-        .with_foreign_key(:file_record_parent_id)
+        .with_foreign_key(:parent_id)
         .dependent(:destroy)
     end
   end

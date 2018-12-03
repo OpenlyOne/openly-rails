@@ -4,7 +4,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   subject(:thumbnail) { build :vcs_file_thumbnail }
 
   describe 'associations' do
-    it { is_expected.to belong_to(:file_record) }
+    it { is_expected.to belong_to(:file) }
     it do
       is_expected
         .to have_many(:file_snapshots)
@@ -27,7 +27,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
   describe 'validations' do
     it do
       is_expected
-        .to validate_presence_of(:file_record).with_message('must exist')
+        .to validate_presence_of(:file).with_message('must exist')
     end
     it { is_expected.to validate_attachment_presence(:image) }
     it do
@@ -44,7 +44,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it do
       is_expected
         .to validate_uniqueness_of(:version_id)
-        .scoped_to(%i[file_record_id remote_file_id])
+        .scoped_to(%i[file_id remote_file_id])
         .with_message('with remote ID already exists for this file record')
     end
   end
@@ -72,14 +72,14 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     let(:file)  { instance_double VCS::FileInBranch }
 
     before do
-      allow(file).to receive(:file_record_id).and_return 'FRID'
+      allow(file).to receive(:file_id).and_return 'FRID'
       allow(file).to receive(:remote_file_id).and_return 'remote-id'
       allow(file).to receive(:thumbnail_version_id).and_return 'version-id'
     end
 
     it do
       is_expected.to eq(
-        file_record_id: 'FRID',
+        file_id: 'FRID',
         remote_file_id: 'remote-id',
         version_id: 'version-id'
       )

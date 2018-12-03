@@ -81,13 +81,13 @@ RSpec.shared_examples 'vcs: being syncable' do
     before { before_hook }
     before { set_parent_id }
 
-    it { expect(syncable.parent).to eq nil }
+    it { expect(syncable.parent_in_branch).to eq nil }
 
     context 'when record with parent id exists' do
       let(:existing_record) { syncable.dup }
       let(:before_hook) { existing_record.update(remote_file_id: parent_id) }
 
-      it { expect(syncable.parent).to eq existing_record }
+      it { expect(syncable.parent_in_branch).to eq existing_record }
     end
   end
 
