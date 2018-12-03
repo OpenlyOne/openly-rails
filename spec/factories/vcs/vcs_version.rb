@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vcs_file_snapshot, class: 'VCS::FileSnapshot' do
+  factory :vcs_version, class: 'VCS::Version' do
     transient do
       parent_in_branch { nil }
     end
@@ -24,16 +24,16 @@ FactoryBot.define do
     trait :with_backup do
       backup do
         build(:vcs_file_backup,
-              file_snapshot: VCS::FileSnapshot.new)
+              file_version: VCS::Version.new)
       end
     end
 
-    after(:build) do |snapshot|
-      snapshot.content =
+    after(:build) do |version|
+      version.content =
         VCS::Operations::ContentGenerator.generate(
-          repository: snapshot.repository,
-          remote_file_id: snapshot.remote_file_id,
-          remote_content_version_id: snapshot.content_version
+          repository: version.repository,
+          remote_file_id: version.remote_file_id,
+          remote_content_version_id: version.content_version
         )
     end
   end

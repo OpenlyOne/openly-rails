@@ -2,7 +2,7 @@
 
 require 'models/shared_examples/vcs/being_backupable.rb'
 require 'models/shared_examples/vcs/being_resourceable.rb'
-require 'models/shared_examples/vcs/being_snapshotable.rb'
+require 'models/shared_examples/vcs/being_versionable.rb'
 require 'models/shared_examples/vcs/being_syncable.rb'
 
 RSpec.describe VCS::FileInBranch, type: :model do
@@ -19,8 +19,8 @@ RSpec.describe VCS::FileInBranch, type: :model do
     let(:mime_type_class) { Providers::GoogleDrive::MimeType }
   end
 
-  it_should_behave_like 'vcs: being snapshotable' do
-    let(:snapshotable) { file_in_branch }
+  it_should_behave_like 'vcs: being versionable' do
+    let(:versionable) { file_in_branch }
     before do
       allow(file_in_branch).to receive(:backup_on_save?).and_return false
     end
@@ -49,15 +49,15 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
     it do
       is_expected
-        .to belong_to(:current_snapshot)
-        .class_name('VCS::FileSnapshot')
+        .to belong_to(:current_version)
+        .class_name('VCS::Version')
         .dependent(false)
         .optional
     end
     it do
       is_expected
-        .to belong_to(:committed_snapshot)
-        .class_name('VCS::FileSnapshot')
+        .to belong_to(:committed_version)
+        .class_name('VCS::Version')
         .dependent(false)
         .optional
     end
@@ -118,15 +118,15 @@ RSpec.describe VCS::FileInBranch, type: :model do
     subject(:diff) { file_in_branch.diff }
 
     before do
-      allow(file_in_branch).to receive(:current_snapshot_id).and_return 55
-      allow(file_in_branch).to receive(:committed_snapshot_id).and_return 99
+      allow(file_in_branch).to receive(:current_version_id).and_return 55
+      allow(file_in_branch).to receive(:committed_version_id).and_return 99
     end
 
-    it 'returns a file diff with correct snapshots' do
+    it 'returns a file diff with correct versions' do
       is_expected.to be_a VCS::FileDiff
       is_expected.to have_attributes(
-        new_snapshot_id: 55,
-        old_snapshot_id: 99,
+        new_version_id: 55,
+        old_version_id: 99,
         first_three_ancestors: nil
       )
     end
@@ -141,9 +141,9 @@ RSpec.describe VCS::FileInBranch, type: :model do
       subject(:diff) { file_in_branch.diff(with_ancestry: true) }
 
       before do
-        anc1 = instance_double VCS::FileSnapshot
-        anc2 = instance_double VCS::FileSnapshot
-        anc3 = instance_double VCS::FileSnapshot
+        anc1 = instance_double VCS::Version
+        anc2 = instance_double VCS::Version
+        anc3 = instance_double VCS::Version
         ancestors = [anc1, anc2, anc3]
         allow(file_in_branch).to receive(:ancestors).and_return ancestors
         allow(anc1).to receive(:name).and_return 'anc1'
@@ -154,8 +154,8 @@ RSpec.describe VCS::FileInBranch, type: :model do
       it 'returns a file diff with first three ancestors' do
         is_expected.to be_a VCS::FileDiff
         is_expected.to have_attributes(
-          new_snapshot_id: 55,
-          old_snapshot_id: 99,
+          new_version_id: 55,
+          old_version_id: 99,
           first_three_ancestors: %w[anc1 anc2 anc3]
         )
       end
@@ -191,16 +191,16 @@ RSpec.describe VCS::FileInBranch, type: :model do
         create :vcs_file_in_branch, parent_in_branch: parent
       end
 
-      it 'returns snapshots of ancestors' do
+      it 'returns versions of ancestors' do
         expect(ancestors.map(&:id)).to eq(
-          [parent, grandparent].map(&:snapshot).map(&:id)
+          [parent, grandparent].map(&:version).map(&:id)
         )
       end
 
-      it 'does not include snapshot of root' do
+      it 'does not include version of root' do
         expect(root).to be_root
-        expect(root.snapshot).to be_present
-        expect(ancestors.map(&:id)).not_to include(root.snapshot.id)
+        expect(root.version).to be_present
+        expect(ancestors.map(&:id)).not_to include(root.version.id)
       end
     end
   end
@@ -217,8 +217,8 @@ RSpec.describe VCS::FileInBranch, type: :model do
 
     context 'when file has many ancestors' do
       let(:ancestors)   { [parent, grandparent] }
-      let(:grandparent) { instance_double VCS::FileSnapshot }
-      let(:parent)      { instance_double VCS::FileSnapshot }
+      let(:grandparent) { instance_double VCS::Version }
+      let(:parent)      { instance_double VCS::Version }
 
       before do
         allow(grandparent).to receive(:file_id).and_return 'gparent'

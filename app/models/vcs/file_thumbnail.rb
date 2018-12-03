@@ -6,7 +6,9 @@ module VCS
     # Associations
     belongs_to :file
 
-    has_many :file_snapshots, foreign_key: :thumbnail_id, dependent: :nullify
+    has_many :file_versions, class_name: 'VCS::Version',
+                             foreign_key: :thumbnail_id,
+                             dependent: :nullify
     has_many :files_in_branches, class_name: 'FileInBranch',
                                  foreign_key: :thumbnail_id,
                                  dependent: :nullify

@@ -12,12 +12,12 @@ RSpec.describe VCS::FileBackup, type: :model do
     after   { tear_down_google_drive_test }
 
     subject(:backup) do
-      described_class.new(file_snapshot: snapshot)
+      described_class.new(file_version: version)
     end
 
-    let(:user_acct)     { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-    let(:snapshot)      { file_in_branch.current_snapshot }
-    let(:file_name)     { 'An Awesome File' }
+    let(:user_acct) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:version)   { file_in_branch.current_version }
+    let(:file_name) { 'An Awesome File' }
     let(:file_in_branch) do
       project.master_branch.files.build(
         remote_file_id: remote_file.id,
@@ -52,7 +52,7 @@ RSpec.describe VCS::FileBackup, type: :model do
         .default.delete_file(archive_folder_id)
     end
 
-    it 'stores a copy of the file snapshot in archive' do
+    it 'stores a copy of the file version in archive' do
       copy = Providers::GoogleDrive::FileSync.new(backup.remote_file_id)
       expect(copy).to have_attributes(
         name: file_name,

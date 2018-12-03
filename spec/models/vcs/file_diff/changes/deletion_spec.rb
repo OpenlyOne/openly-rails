@@ -17,9 +17,9 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
 
   describe '#unapply' do
     before do
-      allow(change).to receive(:previous_snapshot).and_return 'previous-snap'
+      allow(change).to receive(:previous_version).and_return 'previous-snap'
     end
     after { change.send :unapply }
-    it    { is_expected.to receive(:current_snapshot=).with('previous-snap') }
+    it    { is_expected.to receive(:current_version=).with('previous-snap') }
   end
 end

@@ -8,9 +8,9 @@ RSpec.describe VCS::Branch, type: :model do
     it { is_expected.to have_many(:files).dependent(:delete_all) }
     it do
       is_expected
-        .to have_many(:snapshots_in_branch)
+        .to have_many(:versions_in_branch)
         .through(:files)
-        .source(:current_snapshot)
+        .source(:current_version)
         .dependent(false)
     end
     it do

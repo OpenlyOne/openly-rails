@@ -13,14 +13,14 @@ RSpec.describe VCS::FileDiff::Changes::Addition, type: :model do
   let(:file_diffs)  { commit.file_diffs.reload }
   let!(:diff) do
     create :vcs_file_diff,
-           current_snapshot: file_in_branch.current_snapshot,
-           previous_snapshot: nil,
+           current_version: file_in_branch.current_version,
+           previous_version: nil,
            commit: commit
   end
   let!(:parent_diff) do
     create :vcs_file_diff,
-           current_snapshot: parent_in_branch.current_snapshot,
-           previous_snapshot: nil,
+           current_version: parent_in_branch.current_version,
+           previous_version: nil,
            commit: commit
   end
 
@@ -47,7 +47,7 @@ RSpec.describe VCS::FileDiff::Changes::Addition, type: :model do
       let(:hook) do
         parent_in_branch.update(name: 'new-name')
         parent_diff.update!(
-          previous_snapshot: parent_in_branch.current_snapshot
+          previous_version: parent_in_branch.current_version
         )
       end
       it { is_expected.to be_valid }

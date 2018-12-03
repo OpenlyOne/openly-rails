@@ -13,11 +13,11 @@ RSpec.describe VCS::File, type: :model do
         .source(:branches)
         .dependent(false)
     end
-    it { is_expected.to have_many(:file_snapshots).dependent(:destroy) }
+    it { is_expected.to have_many(:versions).dependent(:destroy) }
     it do
       is_expected
-        .to have_many(:file_snapshots_of_children)
-        .class_name('VCS::FileSnapshot')
+        .to have_many(:versions_of_children)
+        .class_name('VCS::Version')
         .with_foreign_key(:parent_id)
         .dependent(:destroy)
     end

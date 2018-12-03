@@ -26,9 +26,9 @@ RSpec.describe Project, type: :model do
       create_list :vcs_file_in_branch, 2, :with_thumbnail, :with_backup,
                   branch: master_branch
 
-      # Reuse the thumbnail for another snapshot
-      create :vcs_file_snapshot, thumbnail: VCS::FileThumbnail.first,
-                                 file: VCS::File.first
+      # Reuse the thumbnail for another version
+      create :vcs_version, thumbnail: VCS::FileThumbnail.first,
+                           file: VCS::File.first
 
       # add drafted revisions with committed files and file diffs
       revisions = create_list :vcs_commit, 2, branch: master_branch

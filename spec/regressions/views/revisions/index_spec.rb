@@ -5,10 +5,10 @@ RSpec.describe 'revisions/index', type: :view do
   let(:repository)    { project.repository }
   let(:master_branch) { build_stubbed :vcs_branch, repository: repository }
   let(:revisions)     { build_stubbed_list :vcs_commit, 3 }
-  let(:snapshots)     { build_stubbed_list(:vcs_file_snapshot, 3) }
+  let(:versions)      { build_stubbed_list(:vcs_version, 3) }
   let(:diffs) do
-    snapshots.map do |snapshot|
-      VCS::FileDiff.new(current_snapshot: snapshot, first_three_ancestors: [])
+    versions.map do |version|
+      VCS::FileDiff.new(current_version: version, first_three_ancestors: [])
     end
   end
 
@@ -24,12 +24,12 @@ RSpec.describe 'revisions/index', type: :view do
   end
 
   context 'rendering PDF documents' do
-    let(:snapshots) { build_stubbed_list(:vcs_file_snapshot, 3, :pdf) }
+    let(:versions) { build_stubbed_list(:vcs_version, 3, :pdf) }
 
     it 'does not raise an error' do
       render
-      snapshots.each do |snapshot|
-        expect(rendered).to have_text snapshot.name
+      versions.each do |version|
+        expect(rendered).to have_text version.name
       end
     end
   end

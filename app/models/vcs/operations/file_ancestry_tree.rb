@@ -103,28 +103,28 @@ module VCS
         tree.merge!(updated_entries)
       end
 
-      # Fetch file snapshot records for the given IDs
+      # Fetch file version records for the given IDs
       def fetch_records_for(ids)
         VCS::CommittedFile
           .connection
-          .select_all(distinct_file_resources_between_revisions_with_ids(ids))
+          .select_all(distinct_versions_between_revisions_with_ids(ids))
           .rows
           .map { |id, name, parent| { id: id, name: name, parent: parent } }
       end
 
       # ActiveRecord query for distinct file resources between revision and its
       # parent revision for a given array of IDs
-      def distinct_file_resources_between_revisions_with_ids(ids)
+      def distinct_versions_between_revisions_with_ids(ids)
         VCS::CommittedFile
-          .distinct_file_resources_between_commits(commit, parent_commit&.id)
-          .joins(:file_snapshot)
-          .select("#{snapshot_table_name}.name",
-                  "#{snapshot_table_name}.parent_id")
-          .where("#{snapshot_table_name}": { file_id: ids })
+          .distinct_versions_between_commits(commit, parent_commit&.id)
+          .joins(:version)
+          .select("#{version_table_name}.name",
+                  "#{version_table_name}.parent_id")
+          .where("#{version_table_name}": { file_id: ids })
       end
 
-      def snapshot_table_name
-        VCS::FileSnapshot.table_name
+      def version_table_name
+        VCS::Version.table_name
       end
     end
   end

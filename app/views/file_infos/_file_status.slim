@@ -6,7 +6,7 @@
   .row
     .col.s12.m4
       = render partial: 'link_to_open_in_drive',
-               locals: { file: uncaptured_file_diff.current_or_previous_snapshot }
+               locals: { file: uncaptured_file_diff.current_or_previous_version }
 
     .col.s12.m4
       / Add vertical spacing between the two buttons on mobile devices
@@ -14,7 +14,7 @@
 
       = render partial: 'link_to_parent_folder',
                locals: { project: project,
-                         file: uncaptured_file_diff.current_or_previous_snapshot }
+                         file: uncaptured_file_diff.current_or_previous_version }
 
     - if user_can_force_sync_files
       .col.s12.m4
@@ -23,7 +23,7 @@
 
         = render partial: 'link_to_force_sync',
                  locals: { project: project,
-                           file: uncaptured_file_diff.current_or_previous_snapshot }
+                           file: uncaptured_file_diff.current_or_previous_version }
 
 
   .spacing.v16px

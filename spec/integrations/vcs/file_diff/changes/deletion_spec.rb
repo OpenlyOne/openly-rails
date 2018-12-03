@@ -18,8 +18,8 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
 
   let!(:diff) do
     create :vcs_file_diff,
-           current_snapshot: nil,
-           previous_snapshot: file.current_snapshot,
+           current_version: nil,
+           previous_version: file.current_version,
            commit: commit
   end
 
@@ -28,14 +28,14 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   describe 'validation: must_not_unselect_deletion_of_children' do
     let!(:child1_diff) do
       create :vcs_file_diff,
-             current_snapshot: nil,
-             previous_snapshot: child1.current_snapshot,
+             current_version: nil,
+             previous_version: child1.current_version,
              commit: commit
     end
     let!(:child2_diff) do
       create :vcs_file_diff,
-             current_snapshot: nil,
-             previous_snapshot: child2.current_snapshot,
+             current_version: nil,
+             previous_version: child2.current_version,
              commit: commit
     end
     let(:hook)  { nil }
@@ -59,8 +59,8 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
       let(:hook) do
         child1.update(name: 'new-name')
         child2.update(name: 'new-name')
-        child1_diff.update!(current_snapshot: child1.current_snapshot)
-        child2_diff.update!(current_snapshot: child2.current_snapshot)
+        child1_diff.update!(current_version: child1.current_version)
+        child2_diff.update!(current_version: child2.current_version)
       end
       it { is_expected.to be_valid }
     end
@@ -76,14 +76,14 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
 
     let!(:child1_diff) do
       create :vcs_file_diff,
-             current_snapshot: child1.current_snapshot,
-             previous_snapshot_id: child1.current_snapshot_id_before_last_save,
+             current_version: child1.current_version,
+             previous_version_id: child1.current_version_id_before_last_save,
              commit: commit
     end
     let!(:child2_diff) do
       create :vcs_file_diff,
-             current_snapshot: child2.current_snapshot,
-             previous_snapshot_id: child2.current_snapshot_id_before_last_save,
+             current_version: child2.current_version,
+             previous_version_id: child2.current_version_id_before_last_save,
              commit: commit
     end
     let(:hook)  { nil }
@@ -107,8 +107,8 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
       let(:hook) do
         child1.update(name: 'new-name', parent_in_branch: file)
         child2.update(name: 'new-name', parent_in_branch: file)
-        child1_diff.update!(current_snapshot: child1.current_snapshot)
-        child2_diff.update!(current_snapshot: child2.current_snapshot)
+        child1_diff.update!(current_version: child1.current_version)
+        child2_diff.update!(current_version: child2.current_version)
       end
       it { is_expected.to be_valid }
     end

@@ -7,7 +7,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
   describe '#restore' do
     subject(:file_restore) do
       described_class
-        .new(snapshot: snapshot_to_restore, target_branch: root.branch)
+        .new(version: version_to_restore, target_branch: root.branch)
     end
 
     let!(:remote_subfolder) do
@@ -50,60 +50,61 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     let(:file_change) do
       VCS::FileDiff.new(
-        new_snapshot: file.current_snapshot,
-        old_snapshot: snapshot_before_performing_restoration
+        new_version: file.current_version,
+        old_version: version_before_performing_restoration
       )
     end
-    let(:attributes_of_snapshot_to_restore) do
-      snapshot_to_restore
+    let(:attributes_of_version_to_restore) do
+      version_to_restore
         .attributes
         .symbolize_keys
         .slice(:name, :content_version, :file, :parent_id)
     end
 
-    let(:snapshot_before_performing_restoration)  { file.current_snapshot }
-    let(:snapshot_to_restore)                     { file.current_snapshot }
+    let(:version_before_performing_restoration)  { file.current_version }
+    let(:version_to_restore)                     { file.current_version }
     let(:remote_file_after_restore) { file_sync_class.new(file.remote_file_id) }
-    let(:parent_of_snapshot_to_restore) do
+    let(:parent_of_version_to_restore) do
       root.branch
           .files
-          .find_by(file_id: snapshot_to_restore.parent_id)
+          .find_by(file_id: version_to_restore.parent_id)
     end
-    let(:expected_parent)           { parent_of_snapshot_to_restore }
-    let(:expected_content_version)  { snapshot_to_restore.content_version }
+    let(:expected_parent)           { parent_of_version_to_restore }
+    let(:expected_content_version)  { version_to_restore.content_version }
     let(:expected_deletion_status)  { false }
-    let(:expected_snapshot_id)      { snapshot_to_restore&.id }
+    let(:expected_version_id)       { version_to_restore&.id }
 
     before do
       # Disable downloading of content
       allow_any_instance_of(VCS::FileInBranch)
         .to receive(:download_on_save?).and_return false
 
-      # capture the initial snapshot which we will later restore
+      # capture the initial version which we will later restore
       file.pull
-      snapshot_to_restore
+      version_to_restore
 
-      # perform file actions, such as rename etc. & capture snapshot before
+      # perform file actions, such as rename etc. & capture version before
       # restoration
       file_actions
       file.reload
       file.pull
-      snapshot_before_performing_restoration
+      version_before_performing_restoration
 
       # perform the restoration
       file_restore.restore
       file.reload
+      version_to_restore&.reload
     end
 
     after do
-      expect(file.current_snapshot_id).to eq expected_snapshot_id
+      expect(file.current_version_id).to eq expected_version_id
       expect(file).to have_attributes(
         file_id: file.file_id,
-        name: snapshot_to_restore&.name,
+        name: version_to_restore&.name,
         parent_id: expected_parent&.file_id,
         content_version: expected_content_version,
         is_deleted: expected_deletion_status,
-        thumbnail_id: snapshot_to_restore&.thumbnail_id
+        thumbnail_id: version_to_restore&.thumbnail_id
       )
       expect(file.remote).to have_attributes(expected_remote_attributes)
     end
@@ -111,13 +112,13 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
     let(:expected_remote_attributes) do
       {
         id: file.remote_file_id,
-        name: snapshot_to_restore&.name,
+        name: version_to_restore&.name,
         parent_id: expected_parent&.remote_file_id,
         content_version: expected_content_version
       }
     end
 
-    context "when restoring the file's current snapshot" do
+    context "when restoring the file's current version" do
       let(:file_actions) { nil }
 
       it 'does not make any changes' do
@@ -137,12 +138,12 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
         it 'is added' do
           expect(file_change).to be_addition
-          expect(file.current_snapshot_id).to eq snapshot_to_restore.id
+          expect(file.current_version_id).to eq version_to_restore.id
         end
       end
     end
 
-    context 'when file is in a different location than the snapshot was' do
+    context 'when file is in a different location than the version was' do
       let(:remote_subfolder2) do
         file_sync_class.create(
           name: 'Subfolder 2',
@@ -164,53 +165,53 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
       it 'moves the file' do
         expect(file_change).to be_movement
-        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
+        expect(file.current_version_id).to eq version_to_restore.id
       end
 
-      context 'when parent of snapshot to restore does not exist' do
+      context 'when parent of version to restore does not exist' do
         let(:post_relocation_hook) do
           remote_subfolder.delete
           file.reload.tap(&:pull)
           subfolder.reload.pull
         end
         let(:expected_parent) { root }
-        let(:expected_snapshot_id) { file.current_snapshot_id }
+        let(:expected_version_id) { file.current_version_id }
 
-        it 'moves snapshot to home folder' do
+        it 'moves version to home folder' do
           expect(file_change).to be_movement
         end
       end
     end
 
-    context 'when file title differs from snapshot title' do
+    context 'when file title differs from version title' do
       let(:file_actions) { remote_file.rename('new name') }
 
       it 'renames the file' do
         expect(file_change).to be_rename
-        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
+        expect(file.current_version_id).to eq version_to_restore.id
       end
     end
 
-    context 'when file content differs from snapshot content' do
+    context 'when file content differs from version content' do
       let(:file_actions) { remote_file.update_content('new content') }
       let(:expected_content_version) { file.remote.content_version }
 
       it 'is modifies the file' do
         expect(file_change).to be_modification
         expect(file.remote_file_id).not_to eq remote_file.id
-        expect(file.current_snapshot_id).to eq snapshot_to_restore.id
+        expect(file.current_version_id).to eq version_to_restore.id
       end
     end
 
-    context 'when restoring a snapshot of nil' do
+    context 'when restoring a version of nil' do
       subject(:file_restore) do
         described_class
-          .new(snapshot: snapshot_to_restore,
+          .new(version: version_to_restore,
                file_id: file.file_id,
                target_branch: root.branch)
       end
       let(:file_actions)              { nil }
-      let(:snapshot_to_restore)       { nil }
+      let(:version_to_restore)        { nil }
       let(:expected_parent)           { nil }
       let(:expected_content_version)  { nil }
       let(:expected_deletion_status)  { true }

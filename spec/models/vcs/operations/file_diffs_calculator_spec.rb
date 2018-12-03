@@ -108,9 +108,9 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
 
     let(:raw_diff) do
       { 'file_id' => 100,
-        'snapshots' => [
-          { 'commit_id' => 1, 'file_snapshot_id' => 9 },
-          { 'commit_id' => 2, 'file_snapshot_id' => 21 }
+        'versions' => [
+          { 'commit_id' => 1, 'version_id' => 9 },
+          { 'commit_id' => 2, 'version_id' => 21 }
         ] }
     end
 
@@ -120,13 +120,13 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
       allow(commit).to receive(:parent).and_return parent_commit
       allow(parent_commit).to receive(:id).and_return 'parent-commit-id'
       allow(calculator)
-        .to receive(:snapshot_id_from_raw_diff)
+        .to receive(:version_id_from_raw_diff)
         .with(raw_diff, 'commit-id')
-        .and_return('current-snapshot-id')
+        .and_return('current-version-id')
       allow(calculator)
-        .to receive(:snapshot_id_from_raw_diff)
+        .to receive(:version_id_from_raw_diff)
         .with(raw_diff, 'parent-commit-id')
-        .and_return('previous-snapshot-id')
+        .and_return('previous-version-id')
     end
 
     it 'keeps file_resource_id' do
@@ -137,25 +137,25 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
       is_expected.to include('commit_id' => 'commit-id')
     end
 
-    it 'sets new snapshot id' do
-      is_expected.to include('new_snapshot_id' => 'current-snapshot-id')
+    it 'sets new version id' do
+      is_expected.to include('new_version_id' => 'current-version-id')
     end
 
-    it 'sets old snapshot id' do
-      is_expected.to include('old_snapshot_id' => 'previous-snapshot-id')
+    it 'sets old version id' do
+      is_expected.to include('old_version_id' => 'previous-version-id')
     end
   end
 
-  describe '#snapshot_id_from_raw_diff(raw_diff, commit_id)' do
+  describe '#version_id_from_raw_diff(raw_diff, commit_id)' do
     subject(:method) do
-      calculator.send :snapshot_id_from_raw_diff, raw_diff, commit_id
+      calculator.send :version_id_from_raw_diff, raw_diff, commit_id
     end
 
     let(:raw_diff) do
       { 'file_id' => 100,
-        'snapshots' => [
-          { 'commit_id' => 1, 'file_snapshot_id' => 9 },
-          { 'commit_id' => 2, 'file_snapshot_id' => 21 }
+        'versions' => [
+          { 'commit_id' => 1, 'version_id' => 9 },
+          { 'commit_id' => 2, 'version_id' => 21 }
         ] }
     end
 

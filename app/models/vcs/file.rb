@@ -9,9 +9,9 @@ module VCS
 
     has_many :repository_branches, through: :repository, source: :branches
 
-    has_many :file_snapshots, dependent: :destroy
-    has_many :file_snapshots_of_children,
-             class_name: 'VCS::FileSnapshot',
+    has_many :versions, dependent: :destroy
+    has_many :versions_of_children,
+             class_name: 'VCS::Version',
              foreign_key: :parent_id,
              dependent: :destroy
   end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module VCS
-  # A unique snapshot of a file's data (name, content, parent, ...)
-  class FileSnapshot < ApplicationRecord
+  # A unique version of a file's data (name, content, parent, ...)
+  class Version < ApplicationRecord
     include VCS::Resourceable
 
     # Associations
@@ -11,28 +11,28 @@ module VCS
     belongs_to :content
 
     has_one :backup, class_name: 'VCS::FileBackup', dependent: :destroy,
-                     inverse_of: :file_snapshot
+                     inverse_of: :file_version, foreign_key: :file_version_id
     has_one :repository, through: :file
 
     # Callbacks
-    # Prevent updates to file snapshot; snapshots are immutable.
+    # Prevent updates to file version; versions are immutable.
     before_update do
       raise ActiveRecord::ReadOnlyRecord
     end
 
     # Attributes
-    alias_attribute :snapshotable_id, :file_id
+    alias_attribute :versionable_id, :file_id
 
     # Scopes
-    scope :joins_current_snapshot, lambda {
-      left_joins(file: :current_snapshot)
+    scope :joins_current_version, lambda {
+      left_joins(file: :current_version)
     }
 
     # TODO: Add in support for different providers set on repository level
-    # # Return snapshots with provider ID from file resource
+    # # Return versions with provider ID from file resource
     # scope :with_provider_id, lambda {
     #   joins(:file_resource)
-    #     .select('file_resource_snapshots.*')
+    #     .select('file_resource_versions.*')
     #     .select('file_resources.provider_id')
     # }
 
@@ -56,11 +56,11 @@ module VCS
     validates :file_id,
               uniqueness: {
                 scope: %i[name content_id mime_type parent_id],
-                message: 'already has a snapshot with these attributes'
+                message: 'already has a version with these attributes'
               },
               if: :new_record?
 
-    # Finds an existing snapshot with the given attributes or creates a new one
+    # Finds an existing version with the given attributes or creates a new one
     def self.for(attributes)
       find_or_create_by_attributes(
         core_attributes(attributes),
@@ -87,7 +87,7 @@ module VCS
 
     # TODO: Content generation should not be happening here. Move to
     # =>    FileInBranch instead
-    # The set of core attributes that uniquely identify a snapshot
+    # The set of core attributes that uniquely identify a version
     def self.core_attributes(attributes)
       attributes
         .symbolize_keys
@@ -95,30 +95,30 @@ module VCS
         .slice(*core_attribute_keys)
     end
 
-    # The set of core attributes that uniquely identify a snapshot
+    # The set of core attributes that uniquely identify a version
     def self.core_attribute_keys
       %i[file_id name content_id mime_type parent_id]
     end
 
-    # Find or create a snapshot from the set of core attributes, optionally
+    # Find or create a version from the set of core attributes, optionally
     # updating its supplemental attributes
     def self.find_or_create_by_attributes(core, supplements)
-      create_with(supplements).find_or_create_by!(core).tap do |snapshot|
-        snapshot.update_supplemental_attributes(supplements)
+      create_with(supplements).find_or_create_by!(core).tap do |version|
+        version.update_supplemental_attributes(supplements)
       end
     end
 
-    # The set of supplemental attributes to a snapshot
+    # The set of supplemental attributes to a version
     def self.supplemental_attributes(attributes)
       attributes.symbolize_keys.slice(*supplemental_attribute_keys)
     end
 
-    # The set of supplemental attributes to a snapshot
+    # The set of supplemental attributes to a version
     def self.supplemental_attribute_keys
       %i[thumbnail_id remote_file_id content_version]
     end
 
-    # The plain text content of this snapshot
+    # The plain text content of this version
     def plain_text_content
       content&.plain_text
     end
@@ -129,9 +129,9 @@ module VCS
       0
     end
 
-    # Create a new snapshot from the current snapshot's attributes and set the
-    # current snapshot to the new one
-    def snapshot!
+    # Create a new version from the current version's attributes and set the
+    # current version to the new one
+    def version!
       self.id = self.class.for(attributes).id
       reload
     end
@@ -139,7 +139,7 @@ module VCS
     # Update any new supplemental attributes, such as thumbnail
     def update_supplemental_attributes(new_attributes)
       # Return all supplemental attribute key-value pairs that are not
-      # supplemental attributes of current snapshot
+      # supplemental attributes of current version
       # h1: {thumbnail: '1', attribute_a: 'abc'}
       # h2: {thumbnail: '2'}
       # --> {thumbnail: '1', attribute_a: 'abc'}
@@ -150,7 +150,7 @@ module VCS
       # If there are no attributes to update, exit
       return if attributes_to_update.none?
 
-      # Update current snapshot, bypassing callbacks
+      # Update current version, bypassing callbacks
       update_columns(attributes_to_update)
     end
 

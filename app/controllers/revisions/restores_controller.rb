@@ -33,8 +33,8 @@ module Revisions
           # schedule restoration
           FileRestoreJob.perform_later(
             reference: @master_branch,
-            snapshot_id: diff.new_snapshot&.id,
-            file_id: diff.current_or_previous_snapshot.file_id
+            version_id: diff.new_version&.id,
+            file_id: diff.current_or_previous_version.file_id
           )
 
           diffs_to_restore.delete(diff)
@@ -89,7 +89,7 @@ module Revisions
     end
 
     def diff_without_parent?(diff, all_diffs)
-      return true if diff.current_snapshot.nil?
+      return true if diff.current_version.nil?
 
       all_diffs.none? do |other_diff|
         diff.current_parent_id == other_diff.current_file_id

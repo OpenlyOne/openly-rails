@@ -46,7 +46,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
     expect(file3.thumbnail_id).not_to eq file4.thumbnail_id
   end
 
-  context 'when two snapshots have the same file record id' do
+  context 'when two versions have the same file record id' do
     let(:new_thumbnail) do
       VCS::FileThumbnail.find_by(
         remote_file_id: old_thumbnail.remote_file_id,
@@ -54,9 +54,9 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
         file_id: snap1.file_id
       )
     end
-    let!(:snap1) { create :vcs_file_snapshot, thumbnail: old_thumbnail }
+    let!(:snap1) { create :vcs_version, thumbnail: old_thumbnail }
     let!(:snap2) do
-      create :vcs_file_snapshot,
+      create :vcs_version,
              file_id: snap1.file_id, thumbnail: old_thumbnail
     end
     let(:old_thumbnail) { old_thumbnails.first }

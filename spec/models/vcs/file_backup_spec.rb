@@ -4,7 +4,7 @@ RSpec.describe VCS::FileBackup, type: :model do
   subject(:backup) { build_stubbed :vcs_file_backup }
 
   describe 'associations' do
-    it { is_expected.to belong_to(:file_snapshot).dependent(false) }
+    it { is_expected.to belong_to(:file_version).dependent(false) }
   end
 
   describe 'validations' do
@@ -12,7 +12,7 @@ RSpec.describe VCS::FileBackup, type: :model do
 
     it do
       is_expected
-        .to validate_presence_of(:file_snapshot_id).with_message('must exist')
+        .to validate_presence_of(:file_version_id).with_message('must exist')
     end
     it { is_expected.to validate_presence_of(:remote_file_id) }
 
@@ -34,10 +34,10 @@ RSpec.describe VCS::FileBackup, type: :model do
     let(:p2)              { instance_double Project }
 
     before do
-      allow(file_in_branch).to receive(:current_snapshot).and_return 'snapshot'
+      allow(file_in_branch).to receive(:current_version).and_return 'version'
       allow(described_class)
         .to receive(:new)
-        .with(file_snapshot: 'snapshot')
+        .with(file_version: 'version')
         .and_return new_backup
       allow(new_backup).to receive(:capture)
       allow(new_backup).to receive(:save)
@@ -61,9 +61,9 @@ RSpec.describe VCS::FileBackup, type: :model do
   describe '#capture' do
     subject(:capture_backup) { backup.capture }
 
-    let(:backup) { build(:vcs_file_backup, file_snapshot: snapshot) }
+    let(:backup) { build(:vcs_file_backup, file_version: version) }
     let(:archive)         { instance_double VCS::Archive }
-    let(:snapshot)        { create(:vcs_file_snapshot, name: 'snapshot-name') }
+    let(:version)         { create(:vcs_version, name: 'version-name') }
     let(:file_sync_class) { Providers::GoogleDrive::FileSync }
     let(:remote_file)     { instance_double file_sync_class }
     let(:duplicated_remote_file) { file_sync_class.new('dup-remote-id') }
@@ -81,7 +81,7 @@ RSpec.describe VCS::FileBackup, type: :model do
       capture_backup
       expect(remote_file)
         .to have_received(:duplicate)
-        .with(name: 'snapshot-name', parent_id: 'archive-id')
+        .with(name: 'version-name', parent_id: 'archive-id')
     end
 
     it 'sets remote id' do
@@ -89,8 +89,8 @@ RSpec.describe VCS::FileBackup, type: :model do
       expect(backup).to have_received(:remote_file_id=).with('dup-remote-id')
     end
 
-    context 'when backup for file snapshot already exists' do
-      before { create(:vcs_file_backup, file_snapshot: snapshot) }
+    context 'when backup for file version already exists' do
+      before { create(:vcs_file_backup, file_version: version) }
 
       it { is_expected.to be false }
       it 'does not duplicate remote file' do
@@ -99,8 +99,8 @@ RSpec.describe VCS::FileBackup, type: :model do
       end
     end
 
-    context 'when file resource snapshot is nil' do
-      let(:snapshot) { nil }
+    context 'when file resource version is nil' do
+      let(:version) { nil }
 
       it { is_expected.to be false }
       it 'does not duplicate remote file' do

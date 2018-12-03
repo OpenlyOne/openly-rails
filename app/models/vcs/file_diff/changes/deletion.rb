@@ -53,7 +53,7 @@ module VCS
 
         # Undo deletion of the file resource
         def unapply
-          self.current_snapshot = previous_snapshot
+          self.current_version = previous_version
         end
       end
     end

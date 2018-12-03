@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'integrations/shared_examples/vcs/including_downloadable_integration.rb'
-require 'integrations/shared_examples/vcs/including_snapshotable_integration.rb'
+require 'integrations/shared_examples/vcs/including_versionable_integration.rb'
 require 'integrations/shared_examples/vcs/including_syncable_integration.rb'
 
 RSpec.describe VCS::FileInBranch, type: :model do
@@ -16,10 +16,10 @@ RSpec.describe VCS::FileInBranch, type: :model do
   let(:file)            { create :vcs_file }
   let(:remote_file_id)  { 'id' }
 
-  it_should_behave_like 'vcs: including snapshotable integration' do
+  it_should_behave_like 'vcs: including versionable integration' do
     let(:file_in_branch)          { build :vcs_file_in_branch }
-    let(:snapshotable)            { file_in_branch }
-    let(:snapshotable_model_name) { 'VCS::FileInBranch' }
+    let(:versionable)             { file_in_branch }
+    let(:versionable_model_name)  { 'VCS::FileInBranch' }
   end
 
   it_should_behave_like 'vcs: including syncable integration' do
@@ -58,7 +58,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
-  describe 'snapshotable + syncable', :vcr do
+  describe 'versionable + syncable', :vcr do
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }
     let!(:file_sync) do
@@ -84,7 +84,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
       described_class.find_by_remote_file_id!(remote_file_id)
     end
     let(:file_attributes)     { file_from_database.attributes }
-    let(:snapshot_attributes) { file_from_database.current_snapshot.attributes }
+    let(:version_attributes)  { file_from_database.current_version.attributes }
     let(:expected_attributes) do
       {
         'name' => 'Test File',
@@ -99,13 +99,13 @@ RSpec.describe VCS::FileInBranch, type: :model do
     # Pull parent resource
     before { parent_in_branch.pull }
 
-    it 'can pull a snapshot of a new file' do
+    it 'can pull a version of a new file' do
       file_in_branch.pull
       expect(file_attributes).to include(expected_attributes)
-      expect(snapshot_attributes).to include(expected_attributes)
+      expect(version_attributes).to include(expected_attributes)
     end
 
-    it 'can pull a snapshot of an existing file' do
+    it 'can pull a version of an existing file' do
       file_in_branch.pull
       file_sync.rename('my new file name')
 
@@ -119,15 +119,15 @@ RSpec.describe VCS::FileInBranch, type: :model do
       expected_attributes.delete('content_version')
       expected_attributes['thumbnail_id'] = VCS::FileThumbnail.first.id
       expect(file_attributes).to include(expected_attributes)
-      expect(snapshot_attributes).to include(expected_attributes)
+      expect(version_attributes).to include(expected_attributes)
     end
 
-    it 'can pull a snapshot of a removed file' do
+    it 'can pull a version of a removed file' do
       file_in_branch.pull
       api.delete_file(file_in_branch.remote_file_id)
       file_in_branch.reload.pull
       expect(file_from_database).to be_deleted
-      expect(file_from_database.current_snapshot).to be nil
+      expect(file_from_database.current_version).to be nil
     end
   end
 end

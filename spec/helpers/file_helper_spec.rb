@@ -4,7 +4,7 @@ RSpec.describe FileHelper, type: :helper do
   describe '#link_to_file(file, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { build_stubbed :project }
-    let(:file)        { instance_double VCS::FileSnapshot }
+    let(:file)        { instance_double VCS::Version }
     let(:is_folder)   { false }
 
     before do
@@ -70,19 +70,19 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#link_to_file_backup(file, revision, project, opts = {}, &block)' do
     subject(:method) do
-      helper.link_to_file_backup(snapshot, revision, project) {}
+      helper.link_to_file_backup(version, revision, project) {}
     end
-    let(:snapshot)    { instance_double VCS::FileSnapshot }
+    let(:version)     { instance_double VCS::Version }
     let(:backup_path) { 'some-path' }
     let(:revision)    { instance_double VCS::Commit }
     let(:project)     { instance_double Project }
     let(:is_folder)   { false }
 
     before do
-      allow(snapshot).to receive(:folder?).and_return(is_folder)
+      allow(version).to receive(:folder?).and_return(is_folder)
       allow(helper)
         .to receive(:file_backup_path)
-        .with(snapshot, revision, project)
+        .with(version, revision, project)
         .and_return backup_path
     end
 
@@ -122,7 +122,7 @@ RSpec.describe FileHelper, type: :helper do
 
     context 'when options are passed' do
       subject(:method) do
-        helper.link_to_file_backup(snapshot, revision, project, options) {}
+        helper.link_to_file_backup(version, revision, project, options) {}
       end
       let(:options) { {} }
 
@@ -145,16 +145,16 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#link_to_file_backup?(file, revision)' do
     subject(:method) do
-      helper.link_to_file_backup?(snapshot, revision, project)
+      helper.link_to_file_backup?(version, revision, project)
     end
-    let(:snapshot)    { instance_double VCS::FileSnapshot }
-    let(:revision)    { instance_double VCS::Commit }
-    let(:project)     { instance_double Project }
+    let(:version)   { instance_double VCS::Version }
+    let(:revision)  { instance_double VCS::Commit }
+    let(:project)   { instance_double Project }
 
     before do
       allow(helper)
         .to receive(:file_backup_path)
-        .with(snapshot, revision, project)
+        .with(version, revision, project)
         .and_return path
     end
 
@@ -173,7 +173,7 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#file_backup_path(file, revision, project)' do
     subject(:method) { helper.send(:file_backup_path, file, revision, project) }
-    let(:file)          { instance_double VCS::FileSnapshot }
+    let(:file)          { instance_double VCS::Version }
     let(:revision)      { instance_double VCS::Commit }
     let(:project)       { instance_double Project }
     let(:is_folder)     { false }

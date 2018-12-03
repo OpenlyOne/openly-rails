@@ -2,69 +2,69 @@
 
 module VCS
   module Operations
-    # Restore a file snapshot to the provided target branch
+    # Restore a file version to the provided target branch
     # rubocop:disable Metrics/ClassLength
     class FileRestore
       delegate :addition?, :deletion?, :modification?, :rename?, :movement?,
                to: :diff, prefix: :perform
 
       # Initialize a new instance of FileRestore and prepare for restoring the
-      # provided snapshot to the provided target_branch
-      def initialize(snapshot:, file_id: nil, target_branch:)
-        self.snapshot = snapshot
-        self.file_id = file_id || snapshot.file_id
+      # provided version to the provided target_branch
+      def initialize(version:, file_id: nil, target_branch:)
+        self.version = version
+        self.file_id = file_id || version.file_id
         self.target_branch = target_branch
       end
 
-      # Perform the restoration of the snapshot
+      # Perform the restoration of the version
       def restore
         # Do nothing if there is no diff!
         return unless diff.change?
-        raise 'This snapshot cannot be restored' unless restorable?
+        raise 'This version cannot be restored' unless restorable?
 
         perform_restoration
 
         # Update in stage
         file_in_branch.update(
-          snapshot_attributes.merge(remote_file_id: remote_file_id,
-                                    content_version: content_version,
-                                    is_deleted: snapshot.nil?)
+          version_attributes.merge(remote_file_id: remote_file_id,
+                                   content_version: content_version,
+                                   is_deleted: version.nil?)
         )
       end
 
-      # The snapshot can only be restored if a backup is present OR
+      # The version can only be restored if a backup is present OR
       # if the restoration is only affecting location and name
       def restorable?
         # Deletion is always possible
         return true if perform_deletion?
 
-        # Otherwise, snapshot must be present AND...
-        snapshot.present? &&
-          # snapshot must be folder OR have backup OR diff is not
+        # Otherwise, version must be present AND...
+        version.present? &&
+          # version must be folder OR have backup OR diff is not
           # addition/modification (but movement/rename)
-          (snapshot.folder? ||
-          snapshot.backup.present? ||
+          (version.folder? ||
+          version.backup.present? ||
           (!perform_addition? && !perform_modification?))
       end
 
       private
 
-      attr_accessor :snapshot, :target_branch, :file_id
+      attr_accessor :version, :target_branch, :file_id
       attr_writer :remote_file_id, :content_version
 
       # Create remote file from backup copy
       def add_file
-        replacement = snapshot.folder? ? create_folder : duplicate_file
+        replacement = version.folder? ? create_folder : duplicate_file
         self.remote_file_id = replacement.id
         self.content_version = replacement.content_version
 
         # Create a new remote content record that points at the same content
-        # version as the snapshot that we're restoring. Essentially, we're
+        # version as the version that we're restoring. Essentially, we're
         # mapping the new remote file's content to the existing local content,
         # saying that they're one and the same.
         # TODO: Add helper method for creating a new remote version of content
-        snapshot.content.remote_contents.create!(
-          repository: snapshot.repository,
+        version.content.remote_contents.create!(
+          repository: version.repository,
           remote_file_id: remote_file_id,
           remote_content_version_id: content_version
         )
@@ -72,17 +72,17 @@ module VCS
 
       # Duplicate or create file depending on whether this is a folder or not
       def duplicate_file
-        file_sync_class.new(snapshot.backup.remote_file_id).duplicate(
-          name: snapshot.name,
+        file_sync_class.new(version.backup.remote_file_id).duplicate(
+          name: version.name,
           parent_id: parent_in_branch.remote_file_id
         )
       end
 
       def create_folder
         file_sync_class.create(
-          name: snapshot.name,
+          name: version.name,
           parent_id: parent_in_branch.remote_file_id,
-          mime_type: snapshot.mime_type
+          mime_type: version.mime_type
         )
       end
 
@@ -112,15 +112,15 @@ module VCS
 
       # Rename remote file
       def rename_file
-        file_in_branch.remote.rename(snapshot.name)
+        file_in_branch.remote.rename(version.name)
       end
 
-      # Calculate the diff of new snapshot vs current snapshot
+      # Calculate the diff of new version vs current version
       def diff
         @diff ||=
           VCS::FileDiff.new(
-            new_snapshot: snapshot,
-            old_snapshot: file_in_branch&.current_snapshot
+            new_version: version,
+            old_version: file_in_branch&.current_version
           )
       end
 
@@ -129,7 +129,7 @@ module VCS
       end
 
       def content_version
-        @content_version ||= snapshot&.content_version
+        @content_version ||= version&.content_version
       end
 
       def file_sync_class
@@ -151,29 +151,29 @@ module VCS
         rename_file if perform_rename?
       end
 
-      def parent_in_branch_of_snapshot_to_restore
+      def parent_in_branch_of_version_to_restore
         target_branch
           .files
-          .joins(:current_snapshot)
-          .find_by(file_id: snapshot.parent_id)
+          .joins(:current_version)
+          .find_by(file_id: version.parent_id)
       end
 
       def parent_in_branch
-        return nil unless snapshot.present?
+        return nil unless version.present?
 
-        parent_in_branch_of_snapshot_to_restore || target_branch.root
+        parent_in_branch_of_version_to_restore || target_branch.root
       end
 
-      def snapshot_attributes
+      def version_attributes
         {
-          name: snapshot&.name,
-          mime_type: snapshot&.mime_type,
+          name: version&.name,
+          mime_type: version&.mime_type,
           parent_in_branch: parent_in_branch,
-          thumbnail_id: snapshot&.thumbnail_id
+          thumbnail_id: version&.thumbnail_id
         }
       end
 
-      # Identify the FileInBranch to modify with the provided snapshot
+      # Identify the FileInBranch to modify with the provided version
       def file_in_branch
         @file_in_branch ||=
           target_branch

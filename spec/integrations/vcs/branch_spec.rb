@@ -32,8 +32,8 @@ RSpec.describe VCS::Branch, type: :model do
     context 'when branch includes removed files that match' do
       before do
         VCS::FileInBranch.update_all(
-          current_snapshot_id: nil,
-          committed_snapshot_id: nil
+          current_version_id: nil,
+          committed_version_id: nil
         )
       end
 

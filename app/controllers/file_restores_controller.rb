@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Controller for restoring an individual file to a prior snapshot
+# Controller for restoring an individual file to a prior version
 class FileRestoresController < ApplicationController
   include CanSetProjectContext
 
-  before_action :set_file_snapshot
+  before_action :set_file_version
   before_action :authenticate_account!
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
@@ -12,7 +12,7 @@ class FileRestoresController < ApplicationController
 
   def create
     VCS::Operations::FileRestore.new(
-      snapshot: @snapshot,
+      version: @version,
       target_branch: @master_branch
     ).restore
 
@@ -40,13 +40,13 @@ class FileRestoresController < ApplicationController
                                     file_in_branch.remote_file_id)
   end
 
-  def set_file_snapshot
-    @snapshot = VCS::FileSnapshot.find(params[:id])
+  def set_file_version
+    @version = VCS::Version.find(params[:id])
   end
 
   # TODO: Remove after redirecting to file infos path based on file record ID
   def file_in_branch
     @master_branch
-      .files.find_by(file_id: @snapshot.file_id)
+      .files.find_by(file_id: @version.file_id)
   end
 end

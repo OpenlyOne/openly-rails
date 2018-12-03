@@ -9,14 +9,14 @@ RSpec.describe VCS::Repository, type: :model do
     it { is_expected.to have_many(:files).dependent(:destroy) }
     it do
       is_expected
-        .to have_many(:file_snapshots)
+        .to have_many(:file_versions)
         .through(:files)
         .dependent(false)
     end
     it do
       is_expected
         .to have_many(:file_backups)
-        .through(:file_snapshots)
+        .through(:file_versions)
         .source(:backup)
         .dependent(false)
     end

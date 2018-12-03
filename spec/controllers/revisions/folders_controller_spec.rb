@@ -14,7 +14,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
   let(:revision) { create :vcs_commit, branch: master_branch }
   let!(:committed_folder) do
     create :vcs_committed_file,
-           file_snapshot: folder.current_snapshot, commit: revision
+           version: folder.current_version, commit: revision
   end
   let!(:committed_file) do
     create :vcs_committed_file, commit: revision
@@ -54,7 +54,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      before { params[:id] = committed_file.file_snapshot.remote_file_id }
+      before { params[:id] = committed_file.version.remote_file_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound

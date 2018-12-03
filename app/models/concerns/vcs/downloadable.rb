@@ -10,7 +10,7 @@ module VCS
       after_save :download_content, if: :download_on_save?
 
       # Delegations
-      delegate :content, to: :current_snapshot, allow_nil: true
+      delegate :content, to: :current_version, allow_nil: true
       delegate :text_type?, to: :mime_type_instance
       delegate :downloaded?, to: :content, prefix: true
     end
@@ -22,7 +22,7 @@ module VCS
     end
 
     # Perform the downloading of content and save to plain_text column of
-    # snapshot's content
+    # version's content
     def download_content
       # Execute job synchronously if forcing synchronous execution
       # TODO: force_sync attribute is provided by Syncable concern. This is a

@@ -2,12 +2,12 @@
 
 RSpec.describe VCS::Operations::FileRestore, type: :model do
   subject(:file_restore) do
-    described_class.new(snapshot: snapshot, target_branch: branch)
+    described_class.new(version: version, target_branch: branch)
   end
-  let(:snapshot)  { instance_double VCS::FileSnapshot }
-  let(:branch)    { instance_double VCS::Branch }
+  let(:version) { instance_double VCS::Version }
+  let(:branch)  { instance_double VCS::Branch }
 
-  before { allow(snapshot).to receive(:file_id).and_return 'FRid' }
+  before { allow(version).to receive(:file_id).and_return 'FRid' }
 
   describe '#restorable?' do
     let(:is_deletion)     { false }
@@ -22,8 +22,8 @@ RSpec.describe VCS::Operations::FileRestore, type: :model do
       allow(diff).to receive(:deletion?).and_return is_deletion
       allow(diff).to receive(:addition?).and_return is_addition
       allow(diff).to receive(:modification?).and_return is_modification
-      allow(snapshot).to receive(:folder?).and_return is_folder
-      allow(snapshot).to receive(:backup).and_return backup
+      allow(version).to receive(:folder?).and_return is_folder
+      allow(version).to receive(:backup).and_return backup
     end
 
     it { is_expected.not_to be_restorable }
@@ -34,7 +34,7 @@ RSpec.describe VCS::Operations::FileRestore, type: :model do
       it { is_expected.to be_restorable }
     end
 
-    context 'when snapshot is a folder' do
+    context 'when version is a folder' do
       let(:is_folder) { true }
 
       it { is_expected.to be_restorable }

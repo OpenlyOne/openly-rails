@@ -28,7 +28,7 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders the thumbnails of files and folders' do
     thumbnail = create :vcs_file_thumbnail
     diffs.each do |diff|
-      allow(diff.current_or_previous_snapshot)
+      allow(diff.current_or_previous_version)
         .to receive(:thumbnail).and_return thumbnail
     end
 
@@ -100,11 +100,11 @@ RSpec.describe 'folders/show', type: :view do
   context 'when action name is show' do
     let(:action)          { 'show' }
     let(:ancestors)       { [parent, grandparent] }
-    let(:grandparent)     { build_stubbed :vcs_file_snapshot, name: 'Docs' }
-    let(:parent)          { build_stubbed :vcs_file_snapshot, name: 'Other' }
-    let(:folder_snapshot) { build_stubbed :vcs_file_snapshot, name: 'Folder' }
+    let(:grandparent)     { build_stubbed :vcs_version, name: 'Docs' }
+    let(:parent)          { build_stubbed :vcs_version, name: 'Other' }
+    let(:folder_version) { build_stubbed :vcs_version, name: 'Folder' }
     let(:folder) do
-      build :vcs_file_in_branch, current_snapshot: folder_snapshot
+      build :vcs_file_in_branch, current_version: folder_version
     end
 
     it 'renders breadcrumbs' do

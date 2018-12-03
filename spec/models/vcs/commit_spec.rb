@@ -37,10 +37,10 @@ RSpec.describe VCS::Commit, type: :model do
     it { is_expected.to have_many(:committed_files).dependent(:delete_all) }
     it do
       is_expected
-        .to have_many(:committed_snapshots)
-        .class_name('VCS::FileSnapshot')
+        .to have_many(:committed_versions)
+        .class_name('VCS::Version')
         .through(:committed_files)
-        .source(:file_snapshot)
+        .source(:version)
     end
     it do
       is_expected
@@ -102,7 +102,7 @@ RSpec.describe VCS::Commit, type: :model do
       collection_proxy = class_double VCS::FileInBranch
       allow(commit.branch)
         .to receive_message_chain(
-          :snapshots_in_branch,
+          :versions_in_branch,
           :without_root
         ).and_return collection_proxy
       allow(collection_proxy)
@@ -115,7 +115,7 @@ RSpec.describe VCS::Commit, type: :model do
     it 'calls CommittedFile.insert_from_select_query' do
       expect(VCS::CommittedFile)
         .to receive(:insert_from_select_query)
-        .with(%i[commit_id file_snapshot_id], query)
+        .with(%i[commit_id version_id], query)
       commit_files
     end
   end

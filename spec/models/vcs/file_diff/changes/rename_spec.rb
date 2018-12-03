@@ -17,14 +17,14 @@ RSpec.describe VCS::FileDiff::Changes::Rename, type: :model do
   end
 
   describe '#unapply' do
-    subject { change.current_snapshot }
-    let(:current_snapshot) { instance_double VCS::FileSnapshot }
-    let(:previous_snapshot) { instance_double VCS::FileSnapshot }
+    subject { change.current_version }
+    let(:current_version) { instance_double VCS::Version }
+    let(:previous_version) { instance_double VCS::Version }
 
     before do
-      allow(change).to receive(:current_snapshot).and_return current_snapshot
-      allow(change).to receive(:previous_snapshot).and_return previous_snapshot
-      allow(previous_snapshot).to receive(:name).and_return 'previous-name'
+      allow(change).to receive(:current_version).and_return current_version
+      allow(change).to receive(:previous_version).and_return previous_version
+      allow(previous_version).to receive(:name).and_return 'previous-name'
     end
 
     after { change.send :unapply }

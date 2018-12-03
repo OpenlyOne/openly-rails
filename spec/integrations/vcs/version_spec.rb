@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-RSpec.describe VCS::FileSnapshot, type: :model do
+RSpec.describe VCS::Version, type: :model do
   # describe 'scope: with_provider_id' do
-  #   subject(:snapshots) { described_class.with_provider_id }
-  #   let!(:snapshot1)    { create :file_resource_snapshot }
-  #   let!(:snapshot2)    { create :file_resource_snapshot }
+  #   subject(:versions) { described_class.with_provider_id }
+  #   let!(:version1)    { create :file_resource_version }
+  #   let!(:version2)    { create :file_resource_version }
   #
   #   it 'fetches provider id' do
-  #     expect(snapshots.first['provider_id']).to eq snapshot1.provider_id
-  #     expect(snapshots.second['provider_id']).to eq snapshot2.provider_id
+  #     expect(versions.first['provider_id']).to eq version1.provider_id
+  #     expect(versions.second['provider_id']).to eq version2.provider_id
   #   end
   # end
 
@@ -18,11 +18,11 @@ RSpec.describe VCS::FileSnapshot, type: :model do
     let(:files)   { scoped_query.reject(&:folder?) }
 
     before do
-      create :vcs_file_snapshot, :folder, name: 'abc'
-      create :vcs_file_snapshot, :folder, name: 'XYZ'
-      create :vcs_file_snapshot
-      create :vcs_file_snapshot
-      create :vcs_file_snapshot
+      create :vcs_version, :folder, name: 'abc'
+      create :vcs_version, :folder, name: 'XYZ'
+      create :vcs_version
+      create :vcs_version
+      create :vcs_version
     end
 
     it 'returns folders first' do
@@ -41,48 +41,48 @@ RSpec.describe VCS::FileSnapshot, type: :model do
     let!(:file_in_branch) { create :vcs_file_in_branch }
     let(:file)            { file_in_branch.file }
     let(:attributes) do
-      attributes_for(:vcs_file_snapshot, file: file, file_id: file.id)
+      attributes_for(:vcs_version, file: file, file_id: file.id)
     end
 
-    it 'creates a new snapshot' do
+    it 'creates a new version' do
       expect { subject }.to change(described_class, :count).by(1)
     end
 
-    describe 'when snapshot already exists' do
-      let!(:existing_snapshot) { described_class.for(attributes) }
+    describe 'when version already exists' do
+      let!(:existing_version) { described_class.for(attributes) }
 
-      it 'does not create a new snapshot' do
+      it 'does not create a new version' do
         expect { subject }
           .not_to change(described_class, :count)
       end
 
       context 'when supplemental attributes change' do
         let(:thumbnail) { create :vcs_file_thumbnail }
-        let(:snapshot)  { described_class.order(:created_at).first }
+        let(:version)   { described_class.order(:created_at).first }
         before          { attributes[:thumbnail_id] = thumbnail.id }
 
-        it 'updates thumbnail on the snapshot' do
+        it 'updates thumbnail on the version' do
           expect { subject }
-            .to change { existing_snapshot.reload.thumbnail_id }.from(nil)
+            .to change { existing_version.reload.thumbnail_id }.from(nil)
         end
       end
     end
   end
 
-  describe '#snapshot!' do
-    subject         { snapshot.snapshot! }
-    let(:snapshot)  { create :vcs_file_snapshot }
+  describe '#version!' do
+    subject       { version.version! }
+    let(:version) { create :vcs_version }
 
-    before { snapshot.name = 'new-name' }
+    before { version.name = 'new-name' }
 
-    it 'creates a new snapshot' do
+    it 'creates a new version' do
       expect { subject }.to change(described_class, :count).by(1)
     end
 
-    it 'acquires ID of new snapshot and reloads' do
+    it 'acquires ID of new version and reloads' do
       subject
-      expect(snapshot).to eq described_class.order(:created_at).last
-      expect(snapshot).not_to be_changed
+      expect(version).to eq described_class.order(:created_at).last
+      expect(version).not_to be_changed
     end
   end
 end

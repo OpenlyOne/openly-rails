@@ -10,7 +10,7 @@ module VCS
       after_save :perform_backup, if: :backup_on_save?
 
       # Delegations
-      delegate :backup, to: :current_snapshot, allow_nil: true
+      delegate :backup, to: :current_version, allow_nil: true
     end
 
     # Has this file resource already been backed up?

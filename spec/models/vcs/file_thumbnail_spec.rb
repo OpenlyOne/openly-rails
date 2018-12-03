@@ -7,7 +7,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it { is_expected.to belong_to(:file) }
     it do
       is_expected
-        .to have_many(:file_snapshots)
+        .to have_many(:file_versions)
         .with_foreign_key(:thumbnail_id)
         .dependent(:nullify)
     end

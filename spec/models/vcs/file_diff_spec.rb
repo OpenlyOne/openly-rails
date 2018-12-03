@@ -8,11 +8,11 @@ RSpec.describe VCS::FileDiff, type: :model do
   it_should_behave_like 'vcs: being diffing' do
     let(:diffing) do
       build_stubbed :vcs_file_diff,
-                    new_snapshot: new_snapshot,
-                    old_snapshot: old_snapshot
+                    new_version: new_version,
+                    old_version: old_version
     end
-    let(:new_snapshot)  { build_stubbed :vcs_file_snapshot }
-    let(:old_snapshot)  { build_stubbed :vcs_file_snapshot }
+    let(:new_version)  { build_stubbed :vcs_version }
+    let(:old_version)  { build_stubbed :vcs_version }
   end
 
   describe 'associations' do
@@ -21,15 +21,15 @@ RSpec.describe VCS::FileDiff, type: :model do
     end
     it do
       is_expected
-        .to belong_to(:new_snapshot)
-        .class_name('VCS::FileSnapshot')
+        .to belong_to(:new_version)
+        .class_name('VCS::Version')
         .dependent(false)
         .optional
     end
     it do
       is_expected
-        .to belong_to(:old_snapshot)
-        .class_name('VCS::FileSnapshot')
+        .to belong_to(:old_version)
+        .class_name('VCS::Version')
         .dependent(false)
         .optional
     end
@@ -40,14 +40,14 @@ RSpec.describe VCS::FileDiff, type: :model do
   end
 
   describe 'validations' do
-    context 'when old_snapshot_id is nil' do
-      before  { diff.old_snapshot_id = nil }
-      it      { is_expected.to validate_presence_of(:new_snapshot_id) }
+    context 'when old_version_id is nil' do
+      before  { diff.old_version_id = nil }
+      it      { is_expected.to validate_presence_of(:new_version_id) }
     end
 
-    context 'when new_snapshot_id is nil' do
-      before  { diff.new_snapshot_id = nil }
-      it      { is_expected.to validate_presence_of(:old_snapshot_id) }
+    context 'when new_version_id is nil' do
+      before  { diff.new_version_id = nil }
+      it      { is_expected.to validate_presence_of(:old_version_id) }
     end
   end
 

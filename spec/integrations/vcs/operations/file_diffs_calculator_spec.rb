@@ -17,31 +17,31 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
     let(:diff8) { diffs.where_file_id(f8.file_id).first }
     let(:diff9) { diffs.where_file_id(f9.file_id).first }
 
-    let(:f1) { create :vcs_file_snapshot, name: 'f1' }
-    let(:f2) { create :vcs_file_snapshot, name: 'f2', parent_in_branch: f1 }
-    let(:f3) { create :vcs_file_snapshot, name: 'f3', parent_in_branch: f2 }
-    let(:f4) { create :vcs_file_snapshot, name: 'f4', parent_in_branch: f3 }
-    let(:f5) { create :vcs_file_snapshot, name: 'f5', parent_in_branch: f4 }
-    let(:f6) { create :vcs_file_snapshot, name: 'f6' }
-    let(:f7) { create :vcs_file_snapshot, name: 'f7', parent_in_branch: f6 }
-    let(:f8) { create :vcs_file_snapshot, name: 'f8', parent_in_branch: f2 }
-    let(:f9) { create :vcs_file_snapshot, name: 'f9', parent_in_branch: f8 }
+    let(:f1) { create :vcs_version, name: 'f1' }
+    let(:f2) { create :vcs_version, name: 'f2', parent_in_branch: f1 }
+    let(:f3) { create :vcs_version, name: 'f3', parent_in_branch: f2 }
+    let(:f4) { create :vcs_version, name: 'f4', parent_in_branch: f3 }
+    let(:f5) { create :vcs_version, name: 'f5', parent_in_branch: f4 }
+    let(:f6) { create :vcs_version, name: 'f6' }
+    let(:f7) { create :vcs_version, name: 'f7', parent_in_branch: f6 }
+    let(:f8) { create :vcs_version, name: 'f8', parent_in_branch: f2 }
+    let(:f9) { create :vcs_version, name: 'f9', parent_in_branch: f8 }
 
     before do
       # committed files in parent commit
       [f1, f2, f3, f4, f5, f6, f7].each do |file|
-        create :vcs_committed_file, commit: parent_commit, file_snapshot: file
+        create :vcs_committed_file, commit: parent_commit, version: file
       end
 
       # update parents of f3 and f6
       f3.assign_attributes(parent: f6.file)
-      f3.snapshot!
+      f3.version!
       f6.assign_attributes(parent: f2.file)
-      f6.snapshot!
+      f6.version!
 
       # committed files in current commit
       [f1, f2, f3, f6, f7, f8, f9].each do |file|
-        create :vcs_committed_file, commit: commit, file_snapshot: file
+        create :vcs_committed_file, commit: commit, version: file
       end
 
       # calculate and cache diffs!

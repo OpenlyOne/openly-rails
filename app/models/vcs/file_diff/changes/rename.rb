@@ -27,7 +27,7 @@ module VCS
 
         # Undo rename of the file resource
         def unapply
-          current_snapshot.name = previous_snapshot.name
+          current_version.name = previous_version.name
         end
       end
     end

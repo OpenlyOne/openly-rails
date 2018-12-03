@@ -8,34 +8,32 @@ module VCS
     belongs_to :file
     belongs_to :parent, class_name: 'File', optional: true
 
-    belongs_to :committed_snapshot, class_name: 'VCS::FileSnapshot',
-                                    optional: true
-    belongs_to :current_snapshot, class_name: 'VCS::FileSnapshot',
-                                  optional: true
+    belongs_to :committed_version, class_name: 'VCS::Version', optional: true
+    belongs_to :current_version, class_name: 'VCS::Version', optional: true
 
     include VCS::Resourceable
-    include VCS::Snapshotable
+    include VCS::Versionable
     # include Stageable
     include VCS::Syncable
-    # must not be before VCS::Snapshotable, so that backup is made after
-    # snapshot is persisted
+    # must not be before VCS::Versionable, so that backup is made after
+    # version is persisted
     include VCS::Backupable
     include VCS::Downloadable
 
-    scope :joins_snapshot, lambda {
+    scope :joins_version, lambda {
       joins(
-        'INNER JOIN vcs_file_snapshots snapshots ' \
-        "ON (COALESCE(#{table_name}.current_snapshot_id, "\
-                     "#{table_name}.committed_snapshot_id) "\
-        '= snapshots.id)'
+        'INNER JOIN vcs_versions versions ' \
+        "ON (COALESCE(#{table_name}.current_version_id, "\
+                     "#{table_name}.committed_version_id) "\
+        '= versions.id)'
       )
     }
 
     # TODO: Move to a different class
-    # for this model, add joins_snapshot
+    # for this model, add joins_version
     scope :order_by_name_with_folders_first, lambda { |table: nil|
       folder_mime_type = Providers::GoogleDrive::MimeType.folder
-      table ||= 'snapshots'
+      table ||= 'versions'
 
       order(
         Arel.sql(
@@ -74,7 +72,7 @@ module VCS
     def ancestors
       return [] if parent_in_branch.nil? || parent_in_branch.root?
 
-      [parent_in_branch.snapshot] + parent_in_branch.ancestors
+      [parent_in_branch.version] + parent_in_branch.ancestors
     end
 
     # Recursively collect ids of parents
@@ -86,8 +84,8 @@ module VCS
       @children ||=
         branch
         .files
-        .joins_snapshot
-        .where('snapshots.parent_id = ?', file_id)
+        .joins_version
+        .where('versions.parent_id = ?', file_id)
     end
 
     def children_in_branch=(new_children)
@@ -103,9 +101,9 @@ module VCS
     def children_in_branch
       branch
         .files
-        .joins(:current_snapshot)
+        .joins(:current_version)
         .where(
-          "#{VCS::FileSnapshot.table_name}": {
+          "#{VCS::Version.table_name}": {
             parent_id: file_id
           }
         )
@@ -115,9 +113,9 @@ module VCS
       @parent_in_branch ||=
         branch
         .files
-        .joins_snapshot
-        .find_by('snapshots.file_id = ?',
-                 snapshot&.parent_id)
+        .joins_version
+        .find_by('versions.file_id = ?',
+                 version&.parent_id)
     end
 
     def parent_in_branch=(new_parent_in_branch)
@@ -137,15 +135,15 @@ module VCS
       )
     end
 
-    def snapshot
-      current_snapshot || committed_snapshot
+    def version
+      current_version || committed_version
     end
 
     def diff(with_ancestry: false)
       @diff ||=
         VCS::FileDiff.new.tap do |diff|
-          diff.new_snapshot_id = current_snapshot_id
-          diff.old_snapshot_id = committed_snapshot_id
+          diff.new_version_id = current_version_id
+          diff.old_version_id = committed_version_id
           # TODO: Add depth option for ancestry. Should be max 3
           diff.first_three_ancestors = ancestors.map(&:name) if with_ancestry
         end
@@ -155,7 +153,7 @@ module VCS
       is_deleted
     end
 
-    # TODO: Don't use mime type on file in branch, but on snapshot instead
+    # TODO: Don't use mime type on file in branch, but on version instead
     def folder?
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
     end

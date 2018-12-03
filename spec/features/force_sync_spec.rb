@@ -65,7 +65,7 @@ feature 'Force Sync', :vcr do
     # TODO: Refactor
     file_in_branch = project.files.find_by_remote_file_id(file.id)
     remote_file_id_of_backup =
-      file_in_branch.current_snapshot.backup.remote_file_id
+      file_in_branch.current_version.backup.remote_file_id
     remote_backup =
       Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
     expect(remote_backup.name).to eq(file_in_branch.name)

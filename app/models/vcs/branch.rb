@@ -16,17 +16,17 @@ module VCS
       end
 
       def folders
-        joins_snapshot
+        joins_version
           .where(
-            'snapshots.mime_type = ?',
+            'versions.mime_type = ?',
             Providers::GoogleDrive::MimeType.folder
           )
       end
     end
 
-    has_many :snapshots_in_branch,
+    has_many :versions_in_branch,
              through: :files,
-             source: :current_snapshot do
+             source: :current_version do
                def without_root
                  where("#{VCS::FileInBranch.table_name}.is_root = ?", false)
                end
@@ -50,7 +50,7 @@ module VCS
     # Return branches that have one or more files with the given remote IDs
     scope :where_files_include_remote_file_id, lambda { |remote_file_ids|
       joins(:files)
-        .merge(VCS::FileInBranch.joins_snapshot)
+        .merge(VCS::FileInBranch.joins_version)
         .where(
           "#{VCS::FileInBranch.table_name}": {
             remote_file_id: remote_file_ids.to_a

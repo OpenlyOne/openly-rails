@@ -3,7 +3,7 @@
 RSpec.describe 'file_infos/index', type: :view do
   let(:project)               { build_stubbed :project }
   let(:master_branch)         { build_stubbed :vcs_branch }
-  let(:file)                  { build_stubbed :vcs_file_snapshot }
+  let(:file)                  { build_stubbed :vcs_version }
   let(:parent_in_branch)      { nil }
   let(:uncaptured_file_diff)  { nil }
   let(:committed_file_diffs)  { [] }
@@ -52,9 +52,9 @@ RSpec.describe 'file_infos/index', type: :view do
   context 'when uncaptured file diff is present' do
     let(:uncaptured_file_diff) do
       build_stubbed :vcs_file_diff,
-                    new_snapshot: snapshot, old_snapshot: snapshot
+                    new_version: version, old_version: version
     end
-    let(:snapshot) { build_stubbed :vcs_file_snapshot, name: 'My Document' }
+    let(:version) { build_stubbed :vcs_version, name: 'My Document' }
     let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :folder }
 
     it 'has a link to the file on Google Drive' do
@@ -162,21 +162,21 @@ RSpec.describe 'file_infos/index', type: :view do
   context 'when file has past versions' do
     let(:revisions) { committed_file_diffs.map(&:commit) }
     let(:committed_file_diffs) do
-      [(build_stubbed :vcs_file_diff, new_snapshot: s1, commit: r1),
-       (build_stubbed :vcs_file_diff, new_snapshot: s2, commit: r2),
-       (build_stubbed :vcs_file_diff, new_snapshot: s3, commit: r3)]
+      [(build_stubbed :vcs_file_diff, new_version: s1, commit: r1),
+       (build_stubbed :vcs_file_diff, new_version: s2, commit: r2),
+       (build_stubbed :vcs_file_diff, new_version: s3, commit: r3)]
     end
     let(:r1)  { build_stubbed :vcs_commit }
     let(:r2)  { build_stubbed :vcs_commit }
     let(:r3)  { build_stubbed :vcs_commit }
     let(:s1) do
-      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f1'
+      build_stubbed :vcs_version, :with_backup, name: 'f1'
     end
     let(:s2) do
-      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f2'
+      build_stubbed :vcs_version, :with_backup, name: 'f2'
     end
     let(:s3) do
-      build_stubbed :vcs_file_snapshot, :with_backup, name: 'f3'
+      build_stubbed :vcs_version, :with_backup, name: 'f3'
     end
 
     before { allow(view).to receive(:restorable?).and_return false }
@@ -209,7 +209,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'renders a link to file backup for each revision' do
       render
       committed_file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.link_to_remote
+        link = diff.current_version.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
@@ -241,7 +241,7 @@ RSpec.describe 'file_infos/index', type: :view do
       it 'has restore action for diff 1' do
         render
         restore_action = profile_project_file_restores_path(
-          project.owner, project, committed_file_diffs.first.new_snapshot
+          project.owner, project, committed_file_diffs.first.new_version
         )
 
         expect(rendered).to have_css(
