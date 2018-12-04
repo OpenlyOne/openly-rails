@@ -83,6 +83,71 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '.find_by_hashed_file_id_or_remote_file_id!(id)' do
+    subject(:finding) do
+      described_class.find_by_hashed_file_id_or_remote_file_id!(id_to_find)
+    end
+    let!(:file_matching_hashed_file_id) { create :vcs_file_in_branch }
+    let!(:file_matching_remote_file_id) do
+      create :vcs_file_in_branch, remote_file_id: id_to_find
+    end
+    let(:id_to_find) { file_matching_hashed_file_id.hashed_file_id }
+
+    context 'when only file with hashed file ID exists' do
+      before { file_matching_remote_file_id.destroy }
+
+      it { is_expected.to eq file_matching_hashed_file_id }
+    end
+
+    context 'when only file with remote file ID exists' do
+      before { file_matching_hashed_file_id.destroy }
+
+      it { is_expected.to eq file_matching_remote_file_id }
+    end
+
+    context 'when both files exists' do
+      context 'when ID of hashed file ID match > remote file ID match' do
+        before do
+          file_matching_hashed_file_id.update_column(
+            :id,
+            file_matching_remote_file_id.id + 1
+          )
+        end
+
+        it { is_expected.to eq file_matching_hashed_file_id }
+      end
+
+      context 'when ID of hashed file ID match < remote file ID match' do
+        before do
+          file_matching_hashed_file_id.update_column(
+            :id,
+            file_matching_remote_file_id.id - 1
+          )
+        end
+
+        it { is_expected.to eq file_matching_hashed_file_id }
+      end
+    end
+
+    context 'when no match exists' do
+      before { described_class.destroy_all }
+
+      it { expect { finding }.to raise_error ActiveRecord::RecordNotFound }
+    end
+
+    context 'when it is being chained' do
+      subject(:finding) do
+        described_class
+          .none
+          .find_by_hashed_file_id_or_remote_file_id!(id_to_find)
+      end
+
+      it 'is applied within the scope of the chain' do
+        expect { finding }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
+
   describe 'versionable + syncable', :vcr do
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }

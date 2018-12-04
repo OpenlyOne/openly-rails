@@ -74,6 +74,15 @@ module VCS
       find_by!(file_id: VCS::File.hashid_to_id(id))
     end
 
+    # Find file in branch by hashed file ID,
+    # or - as a fallback - by remote file ID
+    # Raises ActiveRecord::RecordNotFound error if no match is found.
+    def self.find_by_hashed_file_id_or_remote_file_id!(id)
+      find_by_hashed_file_id!(id)
+    rescue ActiveRecord::RecordNotFound
+      find_by!(remote_file_id: id)
+    end
+
     # Recursively collect parents
     def ancestors
       return [] if parent_in_branch.nil? || parent_in_branch.root?
