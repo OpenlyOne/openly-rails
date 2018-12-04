@@ -9,10 +9,10 @@ module VCS
       attr_accessor :diff
 
       # Delegations
-      delegate :ancestor_path, :current_snapshot, :current_snapshot=,
-               :current_or_previous_snapshot, :file_resource_id,
+      delegate :ancestor_path, :current_version, :current_version=,
+               :current_or_previous_version, :file_resource_id,
                :remote_file_id, :icon, :name, :parent_id, :previous_parent_id,
-               :previous_snapshot, :symbolic_mime_type, :revision,
+               :previous_version, :symbolic_mime_type, :revision,
                :content_change,
                to: :diff
 

@@ -11,7 +11,7 @@ RSpec.describe 'project_setups/show', type: :view do
   before { assign(:setup, setup) }
 
   before do
-    allow(master_branch).to receive(:staged_files).and_return %w[1 2 3]
+    allow(master_branch).to receive(:files).and_return %w[1 2 3]
   end
 
   it 'displays the number of files already imported' do

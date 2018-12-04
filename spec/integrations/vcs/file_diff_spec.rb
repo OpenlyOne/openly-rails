@@ -1,29 +1,29 @@
 # frozen_string_literal: true
 
 RSpec.describe VCS::FileDiff, type: :model do
-  describe 'scope: joins_current_or_previous_snapshot' do
+  describe 'scope: joins_current_or_previous_version' do
     subject { scoped_query.first.id_from_query }
     let(:scoped_query) do
-      described_class.joins_current_or_previous_snapshot
-                     .select('current_or_previous_snapshot.id AS id_from_query')
+      described_class.joins_current_or_previous_version
+                     .select('current_or_previous_version.id AS id_from_query')
     end
     let!(:diff) do
-      create :vcs_file_diff, new_snapshot: new_snapshot,
-                             old_snapshot: old_snapshot
+      create :vcs_file_diff, new_version: new_version,
+                             old_version: old_version
     end
-    let(:new_snapshot)  { create :vcs_file_snapshot }
-    let(:old_snapshot)  { create :vcs_file_snapshot }
+    let(:new_version)  { create :vcs_version }
+    let(:old_version)  { create :vcs_version }
 
-    it { is_expected.to eq new_snapshot.id }
+    it { is_expected.to eq new_version.id }
 
-    context 'when current snapshot is nil' do
-      let(:new_snapshot) { nil }
-      it { is_expected.to eq old_snapshot.id }
+    context 'when current version is nil' do
+      let(:new_version) { nil }
+      it { is_expected.to eq old_version.id }
     end
 
-    context 'when previous snapshot is nil' do
-      let(:old_snapshot) { nil }
-      it { is_expected.to eq new_snapshot.id }
+    context 'when previous version is nil' do
+      let(:old_version) { nil }
+      it { is_expected.to eq new_version.id }
     end
   end
 
@@ -34,15 +34,15 @@ RSpec.describe VCS::FileDiff, type: :model do
 
     before do
       create :vcs_file_diff,
-             new_snapshot: create(:vcs_file_snapshot, :folder, name: 'XYZ')
+             new_version: create(:vcs_version, :folder, name: 'XYZ')
       create :vcs_file_diff,
-             new_snapshot: create(:vcs_file_snapshot, :folder, name: 'abc')
+             new_version: create(:vcs_version, :folder, name: 'abc')
       create :vcs_file_diff,
-             new_snapshot: create(:vcs_file_snapshot, name: 'HELLO')
+             new_version: create(:vcs_version, name: 'HELLO')
       create :vcs_file_diff,
-             new_snapshot: create(:vcs_file_snapshot, name: 'beta')
+             new_version: create(:vcs_version, name: 'beta')
       create :vcs_file_diff,
-             new_snapshot: create(:vcs_file_snapshot, name: 'zebra')
+             new_version: create(:vcs_version, name: 'zebra')
     end
 
     it 'returns folders first' do

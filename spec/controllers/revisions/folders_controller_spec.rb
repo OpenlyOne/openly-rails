@@ -5,8 +5,8 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe Revisions::FoldersController, type: :controller do
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
-  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
+  let!(:folder) { create :vcs_file_in_branch, :folder, parent_in_branch: root }
   let(:master_branch) { project.master_branch }
   let(:project) do
     create :project, :setup_complete, :skip_archive_setup, :with_repository
@@ -14,7 +14,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
   let(:revision) { create :vcs_commit, branch: master_branch }
   let!(:committed_folder) do
     create :vcs_committed_file,
-           file_snapshot: folder.current_snapshot, commit: revision
+           version: folder.current_version, commit: revision
   end
   let!(:committed_file) do
     create :vcs_committed_file, commit: revision
@@ -54,7 +54,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
     it_should_behave_like 'authorizing project access'
 
     context 'when file is not a directory' do
-      before { params[:id] = committed_file.file_snapshot.remote_file_id }
+      before { params[:id] = committed_file.version.remote_file_id }
 
       it 'raises a 404 error' do
         expect { run_request }.to raise_error ActiveRecord::RecordNotFound

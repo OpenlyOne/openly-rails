@@ -14,8 +14,8 @@ module VCS
     # TODO: Extract to parent class
     # Build the associations for this syncable resource, such as file record
     def build_associations
-      self.file_record ||=
-        VCS::FileRecord.new(repository_id: branch.repository_id)
+      self.file ||=
+        VCS::File.new(repository_id: branch.repository_id)
     end
 
     # Fetch the most recent information about this syncable resource from its
@@ -39,7 +39,7 @@ module VCS
 
     # Fetch and save the children of this syncable resource from its provider
     def pull_children
-      self.staged_children = children_from_remote
+      self.children_in_branch = children_from_remote
     end
 
     # Get version ID of thumbnail
@@ -52,7 +52,7 @@ module VCS
     # Fetch children from sync adapter and convert to file resources
     def children_from_remote
       remote.children.map do |remote_child|
-        staged_child =
+        child_in_branch =
           self.class
               .create_with(remote: remote_child)
               .find_or_initialize_by(
@@ -61,15 +61,15 @@ module VCS
               )
 
         # Pull (fetch+save) child if it is a new record
-        staged_child.tap { |child| child.pull if child.new_record? }
+        child_in_branch.tap { |child| child.pull if child.new_record? }
       end
     end
 
     # Find an instance of syncable's class from the remote parent ID
     # and set instance to parent of current syncable resource
     def remote_parent_id=(remote_parent_id)
-      self.parent =
-        branch.staged_files.find_by_remote_file_id(remote_parent_id)
+      self.parent_in_branch =
+        branch.files.find_by_remote_file_id(remote_parent_id)
     end
 
     # Reset the file's synchronization adapter
@@ -85,9 +85,9 @@ module VCS
       return unless remote.thumbnail?
 
       self.thumbnail =
-        VCS::FileThumbnail
+        VCS::Thumbnail
         .create_with(raw_image: proc { remote.thumbnail })
-        .find_or_initialize_by_staged_file(self)
+        .find_or_initialize_by_file_in_branch(self)
     end
   end
 end

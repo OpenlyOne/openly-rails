@@ -97,7 +97,7 @@ RSpec.describe RevisionsController, type: :controller do
 
     context 'when creation fails' do
       before do
-        create(:vcs_staged_file, :root, branch: master_branch)
+        create(:vcs_file_in_branch, :root, branch: master_branch)
         allow_any_instance_of(VCS::Commit).to receive(:update).and_return false
       end
 

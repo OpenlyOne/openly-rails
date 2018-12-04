@@ -29,19 +29,19 @@ RSpec.shared_examples 'vcs: including syncable integration', :vcr do
       expect(syncable.name).to eq 'Test File'
       expect(syncable.mime_type).to eq mime_type
       expect(syncable.content_version.to_i).to be > 1
-      expect(syncable.parent).to eq root
+      expect(syncable.parent_in_branch).to eq root
       expect(syncable.thumbnail).to be_present
       expect(syncable).not_to be_deleted
     end
 
     context 'when file is trashed' do
       let(:before_fetch_hook) { api.trash_file(file_sync.id) }
-      it                      { expect(file).to be_deleted }
+      it                      { expect(syncable).to be_deleted }
     end
 
     context 'when file is removed' do
       let(:before_fetch_hook) { api.delete_file(file_sync.id) }
-      it                      { expect(file).to be_deleted }
+      it                      { expect(syncable).to be_deleted }
     end
   end
 
@@ -68,7 +68,7 @@ RSpec.shared_examples 'vcs: including syncable integration', :vcr do
       expect(syncable_from_db.name).to eq 'Test File'
       expect(syncable_from_db.mime_type).to eq mime_type
       expect(syncable_from_db.content_version.to_i).to be > 1
-      expect(syncable_from_db.parent).to eq root
+      expect(syncable_from_db.parent_in_branch).to eq root
       expect(syncable_from_db.thumbnail).to be_present
       expect(syncable_from_db).not_to be_deleted
     end
@@ -79,7 +79,7 @@ RSpec.shared_examples 'vcs: including syncable integration', :vcr do
         expect(syncable_from_db.name).to eq nil
         expect(syncable_from_db.mime_type).to eq nil
         expect(syncable_from_db.content_version).to eq nil
-        expect(syncable_from_db.parent).to eq nil
+        expect(syncable_from_db.parent_in_branch).to eq nil
         expect(syncable_from_db.thumbnail).to eq nil
         expect(syncable).to be_deleted
       end
@@ -91,7 +91,7 @@ RSpec.shared_examples 'vcs: including syncable integration', :vcr do
         expect(syncable_from_db.name).to eq nil
         expect(syncable_from_db.mime_type).to eq nil
         expect(syncable_from_db.content_version).to eq nil
-        expect(syncable_from_db.parent).to eq nil
+        expect(syncable_from_db.parent_in_branch).to eq nil
         expect(syncable_from_db.thumbnail).to eq nil
         expect(syncable).to be_deleted
       end

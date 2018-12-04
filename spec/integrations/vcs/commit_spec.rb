@@ -122,10 +122,10 @@ RSpec.describe VCS::Commit, type: :model do
     let(:branch)    { create(:vcs_branch) }
     let(:origin)    { branch.commits.create_draft_and_commit_files!(author) }
     let(:commit)    { branch.commits.create_draft_and_commit_files!(author) }
-    let(:parent)    { create :vcs_staged_file, :folder, branch: branch }
-    let(:update)    { create :vcs_staged_file, branch: branch }
-    let(:deletion)  { create :vcs_staged_file, branch: branch }
-    let(:addition)  { create :vcs_staged_file, branch: branch }
+    let(:parent)    { create :vcs_file_in_branch, :folder, branch: branch }
+    let(:update)    { create :vcs_file_in_branch, branch: branch }
+    let(:deletion)  { create :vcs_file_in_branch, branch: branch }
+    let(:addition)  { create :vcs_file_in_branch, branch: branch }
 
     before do
       parent && update && deletion
@@ -134,7 +134,7 @@ RSpec.describe VCS::Commit, type: :model do
       update.update(
         name: 'new-name',
         content_version: 5,
-        file_record_parent: parent.file_record
+        parent: parent.file
       )
       deletion.update(is_deleted: true)
       addition
@@ -148,8 +148,8 @@ RSpec.describe VCS::Commit, type: :model do
       let(:action) { commit.file_changes.each(&:unselect!) }
 
       it 'has the same committed files as previous commit' do
-        files_in_commit   = commit.committed_snapshot_ids
-        files_in_origin   = origin.committed_snapshot_ids
+        files_in_commit   = commit.committed_version_ids
+        files_in_origin   = origin.committed_version_ids
         expect(files_in_commit).to match_array files_in_origin
       end
 
@@ -186,20 +186,20 @@ RSpec.describe VCS::Commit, type: :model do
 
   describe 'association extension: committed_files#in_folder(folder)' do
     subject(:method) do
-      commit.committed_files.in_folder(folder).map(&:file_snapshot)
+      commit.committed_files.in_folder(folder).map(&:version)
     end
 
     let(:commit)    { create :vcs_commit, branch: branch }
     let(:branch)    { create(:vcs_branch) }
-    let(:folder)    { create :vcs_file_snapshot, :folder }
+    let(:folder)    { create :vcs_version, :folder }
     let(:parent)    { folder }
-    let!(:f1)       { create :vcs_file_snapshot, parent: parent }
-    let!(:f2)       { create :vcs_file_snapshot, parent: parent }
-    let!(:f3)       { create :vcs_file_snapshot, parent: parent }
+    let!(:f1)       { create :vcs_version, parent_in_branch: parent }
+    let!(:f2)       { create :vcs_version, parent_in_branch: parent }
+    let!(:f3)       { create :vcs_version, parent_in_branch: parent }
 
     before do
-      [f1, f2, f3].each do |snapshot|
-        create :vcs_committed_file, commit: commit, file_snapshot: snapshot
+      [f1, f2, f3].each do |version|
+        create :vcs_committed_file, commit: commit, version: version
       end
       commit.update(is_published: true, title: 'origin')
     end
@@ -209,57 +209,59 @@ RSpec.describe VCS::Commit, type: :model do
     end
 
     context 'when folder has no children' do
-      let(:parent) { create(:vcs_file_snapshot, :folder) }
+      let(:parent) { create(:vcs_version, :folder) }
 
       it { is_expected.to be_empty }
     end
 
     context 'when folder does not exist' do
-      let(:folder) { build(:vcs_file_snapshot, :folder) }
-      let(:parent) { create(:vcs_file_snapshot, :folder) }
+      let(:folder) { build(:vcs_version, :folder) }
+      let(:parent) { create(:vcs_version, :folder) }
 
       it { is_expected.to be_empty }
     end
   end
 
-  describe '#commit_all_files_staged_in_branch' do
+  describe '#commit_all_files_in_branch' do
     subject(:committed_files) { commit.committed_files }
     let(:commit)              { create :vcs_commit }
     let(:branch)              { commit.branch }
-    let!(:staged_files) { create_list :vcs_staged_file, 10, branch: branch }
-    let!(:root_folder)  { create :vcs_staged_file, :root, branch: branch }
-    let(:commit_files) { commit.commit_all_files_staged_in_branch }
+    let!(:files)        { create_list :vcs_file_in_branch, 10, branch: branch }
+    let!(:root_folder)  { create :vcs_file_in_branch, :root, branch: branch }
+    let(:commit_files)  { commit.commit_all_files_in_branch }
 
-    # Create staged files in another branch
-    # This is to ensure that committing affects only the files staged for the
-    # specific branch we are staging for
+    # Create files in another branch
+    # This is to ensure that committing affects only the files in the specific
+    # branch we want
     before do
       other_branch = create(:vcs_branch)
-      create_list(:vcs_staged_file, 10, branch: other_branch)
+      create_list(:vcs_file_in_branch, 10, branch: other_branch)
     end
 
     before { commit_files }
 
     it { expect(subject.count).to eq 10 }
 
-    it 'has the correct file snapshot IDs' do
-      expect(committed_files.map(&:file_snapshot_id))
-        .to match_array(staged_files.map(&:current_snapshot_id))
+    it 'has the correct file version IDs' do
+      expect(committed_files.map(&:version_id))
+        .to match_array(files.map(&:current_version_id))
     end
 
     it 'does not commit the root file' do
-      is_expected.not_to be_exists(file_snapshot: root_folder.current_snapshot)
+      is_expected.not_to be_exists(version: root_folder.current_version)
     end
 
-    context 'when no files are staged' do
-      let(:staged_files) { [] }
+    context 'when no files are in branch' do
+      let(:files) { [] }
 
       it { is_expected.to be_none }
     end
 
-    context 'when a staged file has current_snapshot=nil' do
-      let(:staged_files)                  { [file_without_current_snapshot] }
-      let(:file_without_current_snapshot) { create :vcs_staged_file, :deleted }
+    context 'when a file in branch has current_version=nil' do
+      let(:files) { [file_without_current_version] }
+      let(:file_without_current_version) do
+        create :vcs_file_in_branch, :deleted
+      end
 
       it 'does not commit that file' do
         is_expected.to be_none

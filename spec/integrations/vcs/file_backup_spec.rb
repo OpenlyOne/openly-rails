@@ -12,16 +12,16 @@ RSpec.describe VCS::FileBackup, type: :model do
     after   { tear_down_google_drive_test }
 
     subject(:backup) do
-      described_class.new(file_snapshot: snapshot)
+      described_class.new(file_version: version)
     end
 
-    let(:user_acct)     { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-    let(:snapshot)      { staged_file.current_snapshot }
-    let(:file_name)     { 'An Awesome File' }
-    let(:staged_file) do
-      project.master_branch.staged_files.build(
+    let(:user_acct) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:version)   { file_in_branch.current_version }
+    let(:file_name) { 'An Awesome File' }
+    let(:file_in_branch) do
+      project.master_branch.files.build(
         remote_file_id: remote_file.id,
-        file_record: VCS::FileRecord.new(repository: project.repository)
+        file: VCS::File.new(repository: project.repository)
       )
     end
     let(:remote_file) do
@@ -36,13 +36,13 @@ RSpec.describe VCS::FileBackup, type: :model do
     let(:project)           { create(:project, owner_account_email: user_acct) }
 
     before do
-      create :vcs_staged_file, :root,
+      create :vcs_file_in_branch, :root,
              branch: project.master_branch,
              remote_file_id: google_drive_test_folder_id
 
       # Prevent automatic backup
-      allow(staged_file).to receive(:backup_on_save?).and_return(false)
-      staged_file.pull
+      allow(file_in_branch).to receive(:backup_on_save?).and_return(false)
+      file_in_branch.pull
       backup.capture
     end
 
@@ -52,7 +52,7 @@ RSpec.describe VCS::FileBackup, type: :model do
         .default.delete_file(archive_folder_id)
     end
 
-    it 'stores a copy of the file snapshot in archive' do
+    it 'stores a copy of the file version in archive' do
       copy = Providers::GoogleDrive::FileSync.new(backup.remote_file_id)
       expect(copy).to have_attributes(
         name: file_name,

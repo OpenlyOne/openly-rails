@@ -19,9 +19,9 @@ if defined? Bullet
   end
 
   Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
-                       association: :new_snapshot
+                       association: :new_version
   Bullet.add_whitelist type: :unused_eager_loading, class_name: 'VCS::FileDiff',
-                       association: :old_snapshot
+                       association: :old_version
 
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Profiles::User',
@@ -39,7 +39,7 @@ if defined? Bullet
 
   # Bullet complains when we browse committed files that all have no backups
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::FileSnapshot',
+                       class_name: 'VCS::Version',
                        association: :backup
 
   # Bullet complains about Ahoy including user
@@ -52,18 +52,18 @@ if defined? Bullet
                        association: :parent
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::StagedFile',
+                       class_name: 'VCS::FileInBranch',
                        association: :thumbnail
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::StagedFile',
-                       association: :current_snapshot
+                       class_name: 'VCS::FileInBranch',
+                       association: :current_version
 
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'VCS::CommittedFile',
-                       association: :file_snapshot
+                       association: :version
 
   Bullet.add_whitelist type: :unused_eager_loading,
-                       class_name: 'VCS::FileSnapshot',
+                       class_name: 'VCS::Version',
                        association: :content
 end

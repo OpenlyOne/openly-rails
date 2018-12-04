@@ -4,23 +4,23 @@ RSpec.describe VCS::FileDiff::Changes::Movement, type: :model do
   subject             { commit }
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:parent_change) { file_diffs.find(parent_diff.id).changes.first }
-  let(:parent)        { create :vcs_staged_file, name: 'p-name' }
-  let(:file)          { create :vcs_staged_file, name: 'c-name' }
+  let(:parent)        { create :vcs_file_in_branch, name: 'p-name' }
+  let(:file)          { create :vcs_file_in_branch, name: 'c-name' }
   let(:commit)        { create :vcs_commit }
   let(:file_diffs)    { commit.file_diffs.reload }
 
-  before { file.update(parent: parent) }
+  before { file.update(parent_in_branch: parent) }
 
   let!(:diff) do
     create :vcs_file_diff,
-           current_snapshot_id: file.current_snapshot_id,
-           previous_snapshot_id: file.current_snapshot_id_before_last_save,
+           current_version_id: file.current_version_id,
+           previous_version_id: file.current_version_id_before_last_save,
            commit: commit
   end
   let!(:parent_diff) do
     create :vcs_file_diff,
-           current_snapshot: parent.current_snapshot,
-           previous_snapshot: nil,
+           current_version: parent.current_version,
+           previous_version: nil,
            commit: commit
   end
 
@@ -46,7 +46,7 @@ RSpec.describe VCS::FileDiff::Changes::Movement, type: :model do
     context 'when parent is not being added' do
       let(:hook) do
         parent.update(name: 'new-name')
-        parent_diff.update!(previous_snapshot: parent.current_snapshot)
+        parent_diff.update!(previous_version: parent.current_version)
       end
       it { is_expected.to be_valid }
     end

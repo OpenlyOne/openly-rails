@@ -5,12 +5,12 @@ RSpec.describe VCS::Branch, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:repository).dependent(false) }
-    it { is_expected.to have_many(:staged_files).dependent(:delete_all) }
+    it { is_expected.to have_many(:files).dependent(:delete_all) }
     it do
       is_expected
-        .to have_many(:staged_file_snapshots)
-        .through(:staged_files)
-        .source(:current_snapshot)
+        .to have_many(:versions_in_branch)
+        .through(:files)
+        .source(:current_version)
         .dependent(false)
     end
     it do
@@ -28,11 +28,8 @@ RSpec.describe VCS::Branch, type: :model do
   end
 
   describe 'delegations' do
-    it { is_expected.to delegate_method(:root).to(:staged_files) }
-    it do
-      is_expected
-        .to delegate_method(:folders).to(:staged_files).with_prefix('staged')
-    end
+    it { is_expected.to delegate_method(:root).to(:files) }
+    it { is_expected.to delegate_method(:folders).to(:files) }
   end
 
   describe 'commits#create_draft_and_commit_files!' do

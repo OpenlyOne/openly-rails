@@ -64,7 +64,7 @@ RSpec.shared_examples 'vcs: being syncable' do
         .to receive(:children_from_remote).and_return 'children'
     end
     after { syncable.pull_children }
-    it    { expect(syncable).to receive(:staged_children=).with('children') }
+    it    { expect(syncable).to receive(:children_in_branch=).with('children') }
   end
 
   describe '#reload' do
@@ -81,13 +81,13 @@ RSpec.shared_examples 'vcs: being syncable' do
     before { before_hook }
     before { set_parent_id }
 
-    it { expect(syncable.parent).to eq nil }
+    it { expect(syncable.parent_in_branch).to eq nil }
 
     context 'when record with parent id exists' do
       let(:existing_record) { syncable.dup }
       let(:before_hook) { existing_record.update(remote_file_id: parent_id) }
 
-      it { expect(syncable.parent).to eq existing_record }
+      it { expect(syncable.parent_in_branch).to eq existing_record }
     end
   end
 
@@ -102,12 +102,12 @@ RSpec.shared_examples 'vcs: being syncable' do
     end
 
     it 'finds or initializes thumbnail by file resource' do
-      stub      = class_double VCS::FileThumbnail
-      thumbnail = instance_double VCS::FileThumbnail
-      expect(VCS::FileThumbnail)
+      stub      = class_double VCS::Thumbnail
+      thumbnail = instance_double VCS::Thumbnail
+      expect(VCS::Thumbnail)
         .to receive(:create_with).with(raw_image: anything).and_return stub
       expect(stub)
-        .to receive(:find_or_initialize_by_staged_file)
+        .to receive(:find_or_initialize_by_file_in_branch)
         .with(syncable)
         .and_return thumbnail
       expect(syncable).to receive(:thumbnail=).with(thumbnail)

@@ -5,7 +5,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
   let(:project)   { build_stubbed :project, :with_repository }
   let(:master)    { project.master_branch }
   let(:revision)  { build_stubbed :vcs_commit, :published, branch: master }
-  let(:children)  { build_stubbed_list :vcs_file_snapshot, 5 }
+  let(:children)  { build_stubbed_list :vcs_version, 5 }
   let(:ancestors) { [] }
   let(:action)    { 'root' }
 
@@ -101,7 +101,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
       children.each do |child|
         association = child.association(:backup)
         association.target =
-          build_stubbed(:vcs_file_backup, file_snapshot: child)
+          build_stubbed(:vcs_file_backup, file_version: child)
       end
     end
 
@@ -127,9 +127,9 @@ RSpec.describe 'revisions/folders/show', type: :view do
   context 'when action name is show' do
     let(:action)      { 'show' }
     let(:ancestors)   { [parent, grandparent] }
-    let(:grandparent) { build_stubbed :vcs_file_snapshot, name: 'Docs' }
-    let(:parent)      { build_stubbed :vcs_file_snapshot, name: 'Other' }
-    let(:folder)      { build_stubbed :vcs_file_snapshot, name: 'Folder' }
+    let(:grandparent) { build_stubbed :vcs_version, name: 'Docs' }
+    let(:parent)      { build_stubbed :vcs_version, name: 'Other' }
+    let(:folder)      { build_stubbed :vcs_version, name: 'Folder' }
 
     it 'renders breadcrumbs' do
       render

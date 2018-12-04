@@ -8,13 +8,13 @@ RSpec.describe FolderImportJob, type: :job do
 
   describe '#perform' do
     subject(:perform_job) { job.perform(x: 'y') }
-    let(:file)            { instance_double VCS::StagedFile }
+    let(:file)            { instance_double VCS::FileInBranch }
     let(:subfolders)      { %w[sub1 sub2 sub3] }
 
     before do
       allow(job).to receive(:variables_from_arguments).with(x: 'y')
-      allow(job).to receive(:staged_file_id).and_return 'file-id'
-      allow(VCS::StagedFile).to receive(:find).with('file-id').and_return file
+      allow(job).to receive(:file_in_branch_id).and_return 'file-id'
+      allow(VCS::FileInBranch).to receive(:find).with('file-id').and_return file
       allow(file).to receive(:pull_children)
       allow(file).to receive(:subfolders).and_return subfolders
       allow(job).to receive(:schedule_folder_import_job_for)
@@ -34,12 +34,14 @@ RSpec.describe FolderImportJob, type: :job do
   end
 
   describe '#schedule_folder_import_job_for(file_resource)' do
-    subject(:schedule) { job.send :schedule_folder_import_job_for, staged_file }
-    let(:staged_file) { instance_double VCS::StagedFile }
+    subject(:schedule) do
+      job.send :schedule_folder_import_job_for, file_in_branch
+    end
+    let(:file_in_branch) { instance_double VCS::FileInBranch }
 
     before do
       allow(job).to receive(:setup).and_return 'setup'
-      allow(staged_file).to receive(:id).and_return 'file-id'
+      allow(file_in_branch).to receive(:id).and_return 'file-id'
       allow(FolderImportJob).to receive(:perform_later)
     end
 
@@ -48,7 +50,7 @@ RSpec.describe FolderImportJob, type: :job do
       expect(FolderImportJob)
         .to have_received(:perform_later)
         .with(reference: 'setup',
-              staged_file_id: 'file-id')
+              file_in_branch_id: 'file-id')
     end
   end
 end

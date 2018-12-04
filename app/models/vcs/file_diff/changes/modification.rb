@@ -33,11 +33,11 @@ module VCS
         # TODO: Remove rolling back of remote ID & content version
         # rubocop:disable Metrics/AbcSize
         def unapply
-          current_snapshot.content_id       = previous_snapshot.content_id
-          current_snapshot.content_version  = previous_snapshot.content_version
-          current_snapshot.mime_type        = previous_snapshot.mime_type
-          current_snapshot.remote_file_id   = previous_snapshot.remote_file_id
-          current_snapshot.thumbnail_id     = previous_snapshot.thumbnail_id
+          current_version.content_id       = previous_version.content_id
+          current_version.content_version  = previous_version.content_version
+          current_version.mime_type        = previous_version.mime_type
+          current_version.remote_file_id   = previous_version.remote_file_id
+          current_version.thumbnail_id     = previous_version.thumbnail_id
         end
         # rubocop:enable Metrics/AbcSize
       end

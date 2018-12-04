@@ -7,7 +7,9 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe Revisions::RestoresController, type: :controller do
-  let!(:root) { create :vcs_staged_file, :root, branch: project.master_branch }
+  let!(:root) do
+    create :vcs_file_in_branch, :root, branch: project.master_branch
+  end
   let!(:revision) { create :vcs_commit, branch: project.master_branch }
   let(:project)   { create :project, :setup_complete, :skip_archive_setup }
   let(:default_params) do

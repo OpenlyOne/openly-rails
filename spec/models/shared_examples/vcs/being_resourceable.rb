@@ -5,7 +5,7 @@ RSpec.shared_examples 'vcs: being resourceable' do
     it do
       is_expected
         .to belong_to(:thumbnail)
-        .class_name('VCS::FileThumbnail')
+        .class_name('VCS::Thumbnail')
         .dependent(false)
         .optional
     end
@@ -85,7 +85,7 @@ RSpec.shared_examples 'vcs: being resourceable' do
     it { is_expected.to be nil }
 
     context 'when thumbnail is present' do
-      let(:thumbnail) { instance_double VCS::FileThumbnail }
+      let(:thumbnail) { instance_double VCS::Thumbnail }
       before { allow(thumbnail).to receive(:image).and_return 'image' }
       it { is_expected.to eq 'image' }
     end
@@ -94,11 +94,11 @@ RSpec.shared_examples 'vcs: being resourceable' do
   describe '#thumbnail_image_or_fallback' do
     subject(:thumbnail_image) { resourceable.thumbnail_image_or_fallback }
     let(:image)               { 'image' }
-    let(:thumbnail)           { instance_double VCS::FileThumbnail }
+    let(:thumbnail)           { instance_double VCS::Thumbnail }
 
     before do
       allow(resourceable).to receive(:thumbnail_image).and_return image
-      allow(VCS::FileThumbnail).to receive(:new).and_return thumbnail
+      allow(VCS::Thumbnail).to receive(:new).and_return thumbnail
       allow(thumbnail).to receive(:image).and_return 'fallback-image'
     end
 

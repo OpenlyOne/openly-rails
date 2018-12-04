@@ -28,7 +28,7 @@ RSpec.shared_examples 'vcs: being downloadable' do
 
   describe 'delegations' do
     it do
-      is_expected.to delegate_method(:content).to(:current_snapshot).allow_nil
+      is_expected.to delegate_method(:content).to(:current_version).allow_nil
     end
     it { is_expected.to delegate_method(:text_type?).to(:mime_type_instance) }
     it { is_expected.to delegate_method(:downloaded?).to(:content).with_prefix }

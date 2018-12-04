@@ -4,94 +4,94 @@ RSpec.shared_examples 'vcs: being diffing' do
   subject { diffing }
 
   describe 'delegations' do
-    let(:snapshot) { :current_or_previous_snapshot }
+    let(:version) { :current_or_previous_version }
 
-    it { is_expected.to delegate_method(:id).to(snapshot).with_prefix }
-    it { is_expected.to delegate_method(:remote_file_id).to(snapshot) }
-    it { is_expected.to delegate_method(:link_to_remote).to(snapshot) }
-    it { is_expected.to delegate_method(:folder?).to(snapshot) }
-    it { is_expected.to delegate_method(:icon).to(snapshot) }
-    it { is_expected.to delegate_method(:mime_type).to(snapshot) }
-    it { is_expected.to delegate_method(:name).to(snapshot) }
-    it { is_expected.to delegate_method(:parent_id).to(snapshot) }
-    it { is_expected.to delegate_method(:provider).to(snapshot) }
-    it { is_expected.to delegate_method(:symbolic_mime_type).to(snapshot) }
-    it { is_expected.to delegate_method(:thumbnail_id).to(snapshot) }
-    it { is_expected.to delegate_method(:thumbnail_image).to(snapshot) }
+    it { is_expected.to delegate_method(:id).to(version).with_prefix }
+    it { is_expected.to delegate_method(:remote_file_id).to(version) }
+    it { is_expected.to delegate_method(:link_to_remote).to(version) }
+    it { is_expected.to delegate_method(:folder?).to(version) }
+    it { is_expected.to delegate_method(:icon).to(version) }
+    it { is_expected.to delegate_method(:mime_type).to(version) }
+    it { is_expected.to delegate_method(:name).to(version) }
+    it { is_expected.to delegate_method(:parent_id).to(version) }
+    it { is_expected.to delegate_method(:provider).to(version) }
+    it { is_expected.to delegate_method(:symbolic_mime_type).to(version) }
+    it { is_expected.to delegate_method(:thumbnail_id).to(version) }
+    it { is_expected.to delegate_method(:thumbnail_image).to(version) }
     it do
-      is_expected.to delegate_method(:thumbnail_image_or_fallback).to(snapshot)
-    end
-
-    it do
-      is_expected
-        .to delegate_method(:content_version)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:name)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:parent_id)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:file_record_id)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:file_record_parent_id)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:content_id)
-        .to(:current_snapshot).with_prefix(:current)
-    end
-    it do
-      is_expected
-        .to delegate_method(:plain_text_content)
-        .to(:current_snapshot).with_prefix(:current)
+      is_expected.to delegate_method(:thumbnail_image_or_fallback).to(version)
     end
 
     it do
       is_expected
         .to delegate_method(:content_version)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
         .to delegate_method(:name)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
         .to delegate_method(:parent_id)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
-        .to delegate_method(:file_record_id)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to delegate_method(:file_id)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
-        .to delegate_method(:file_record_parent_id)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to delegate_method(:parent_id)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
         .to delegate_method(:content_id)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to(:current_version).with_prefix(:current)
     end
     it do
       is_expected
         .to delegate_method(:plain_text_content)
-        .to(:previous_snapshot).with_prefix(:previous)
+        .to(:current_version).with_prefix(:current)
+    end
+
+    it do
+      is_expected
+        .to delegate_method(:content_version)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:name)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:parent_id)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:file_id)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:parent_id)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:content_id)
+        .to(:previous_version).with_prefix(:previous)
+    end
+    it do
+      is_expected
+        .to delegate_method(:plain_text_content)
+        .to(:previous_version).with_prefix(:previous)
     end
 
     it { is_expected.to delegate_method(:color).to(:primary_change).allow_nil }
@@ -102,18 +102,18 @@ RSpec.shared_examples 'vcs: being diffing' do
 
   describe '#added?' do
     before do
-      allow(diffing).to receive(:current_snapshot_id).and_return 123
+      allow(diffing).to receive(:current_version_id).and_return 123
       allow(diffing)
-        .to receive(:previous_snapshot_id).and_return previous_snapshot_id
+        .to receive(:previous_version_id).and_return previous_version_id
     end
 
-    context 'when previous_snapshot_id is nil' do
-      let(:previous_snapshot_id) { nil }
+    context 'when previous_version_id is nil' do
+      let(:previous_version_id) { nil }
       it { is_expected.to be_addition }
     end
 
-    context 'when previous_snapshot_id is not nil' do
-      let(:previous_snapshot_id) { 456 }
+    context 'when previous_version_id is not nil' do
+      let(:previous_version_id) { 456 }
       it { is_expected.not_to be_addition }
     end
   end
@@ -146,11 +146,11 @@ RSpec.shared_examples 'vcs: being diffing' do
   end
 
   describe '#association(association_name)' do
-    let(:snapshot) { instance_double VCS::FileSnapshot }
+    let(:version) { instance_double VCS::Version }
 
     before do
       allow(diffing)
-        .to receive(:current_or_previous_snapshot).and_return snapshot
+        .to receive(:current_or_previous_version).and_return version
     end
 
     after { diffing.association(association_name) }
@@ -158,7 +158,7 @@ RSpec.shared_examples 'vcs: being diffing' do
     context 'when association name is thumbnail' do
       let(:association_name) { :thumbnail }
 
-      it { expect(snapshot).to receive(:association).with(:thumbnail) }
+      it { expect(version).to receive(:association).with(:thumbnail) }
     end
   end
 
@@ -285,18 +285,18 @@ RSpec.shared_examples 'vcs: being diffing' do
 
   describe '#deletion?' do
     before do
-      allow(diffing).to receive(:previous_snapshot_id).and_return 123
+      allow(diffing).to receive(:previous_version_id).and_return 123
       allow(diffing)
-        .to receive(:current_snapshot_id).and_return current_snapshot_id
+        .to receive(:current_version_id).and_return current_version_id
     end
 
-    context 'when current_snapshot_id is nil' do
-      let(:current_snapshot_id) { nil }
+    context 'when current_version_id is nil' do
+      let(:current_version_id) { nil }
       it { is_expected.to be_deletion }
     end
 
-    context 'when current_snapshot_id is not nil' do
-      let(:current_snapshot_id) { 456 }
+    context 'when current_version_id is not nil' do
+      let(:current_version_id) { 456 }
       it { is_expected.not_to be_deletion }
     end
   end
@@ -391,23 +391,23 @@ RSpec.shared_examples 'vcs: being diffing' do
   describe '#update?' do
     let(:is_added)              { false }
     let(:is_deleted)            { false }
-    let(:current_snapshot_id)   { 1 }
-    let(:previous_snapshot_id)  { 2 }
+    let(:current_version_id)   { 1 }
+    let(:previous_version_id)  { 2 }
 
     before do
       allow(diffing).to receive(:addition?).and_return is_added
       allow(diffing).to receive(:deletion?).and_return is_deleted
       allow(diffing)
-        .to receive(:current_snapshot_id).and_return current_snapshot_id
+        .to receive(:current_version_id).and_return current_version_id
       allow(diffing)
-        .to receive(:previous_snapshot_id).and_return previous_snapshot_id
+        .to receive(:previous_version_id).and_return previous_version_id
     end
 
     it { is_expected.to be_update }
 
-    context 'when snapshot IDs are the same' do
-      let(:current_snapshot_id)   { 13 }
-      let(:previous_snapshot_id)  { 13 }
+    context 'when version IDs are the same' do
+      let(:current_version_id)   { 13 }
+      let(:previous_version_id)  { 13 }
       it { is_expected.not_to be_update }
     end
 

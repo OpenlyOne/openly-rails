@@ -3,14 +3,14 @@
 feature 'File Content Change' do
   let(:project)       { create :project, :setup_complete, :skip_archive_setup }
   let(:master_branch) { project.master_branch }
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
+  let!(:root) { create :vcs_file_in_branch, :root, branch: master_branch }
 
   before { sign_in_as project.owner.account }
 
   scenario 'User can see content changes on revisions page' do
     # given there are two committed files
-    file1 = create :vcs_staged_file, name: 'File1', parent: root
-    file2 = create :vcs_staged_file, name: 'File2', parent: root
+    file1 = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
+    file2 = create :vcs_file_in_branch, name: 'File2', parent_in_branch: root
 
     # and both have content
     file1.content.update!(plain_text: 'file1 content')
@@ -22,7 +22,7 @@ feature 'File Content Change' do
     file1.update!(content_version: 'new-version')
     file1.content.update!(plain_text: 'file1 new content')
     file2.tap(&:mark_as_removed).tap(&:save)
-    file3 = create :vcs_staged_file, name: 'File3', parent: root
+    file3 = create :vcs_file_in_branch, name: 'File3', parent_in_branch: root
     file3.content.update!(plain_text: 'file3 content')
 
     create_revision('second')
@@ -45,8 +45,8 @@ feature 'File Content Change' do
 
   scenario 'User can see content changes on capture changes page' do
     # given there are two committed files
-    file1 = create :vcs_staged_file, name: 'File1', parent: root
-    file2 = create :vcs_staged_file, name: 'File2', parent: root
+    file1 = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
+    file2 = create :vcs_file_in_branch, name: 'File2', parent_in_branch: root
 
     # and both have content
     file1.content.update!(plain_text: 'file1 content')
@@ -58,7 +58,7 @@ feature 'File Content Change' do
     file1.update!(content_version: 'new-version')
     file1.content.update!(plain_text: 'file1 new content')
     file2.tap(&:mark_as_removed).tap(&:save)
-    file3 = create :vcs_staged_file, name: 'File3', parent: root
+    file3 = create :vcs_file_in_branch, name: 'File3', parent_in_branch: root
     file3.content.update!(plain_text: 'file3 content')
 
     # when I visit the project page
@@ -79,7 +79,7 @@ feature 'File Content Change' do
 
   scenario 'User can see content changes on file infos page' do
     # given there are two committed files
-    file1 = create :vcs_staged_file, name: 'File1', parent: root
+    file1 = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
 
     # and both have content
     file1.content.update!(plain_text: 'file1 content')

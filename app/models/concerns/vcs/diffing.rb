@@ -1,28 +1,28 @@
 # frozen_string_literal: true
 
 module VCS
-  # Add support for diffing file snapshots
+  # Add support for diffing file versions
   module Diffing
     extend ActiveSupport::Concern
 
     # Delegations
-    delegate :id, to: :current_or_previous_snapshot, prefix: true
+    delegate :id, to: :current_or_previous_version, prefix: true
     delegate :remote_file_id, :link_to_remote, :folder?, :icon, :mime_type,
              :name, :parent_id, :provider, :symbolic_mime_type, :thumbnail_id,
              :thumbnail_image, :thumbnail_image_or_fallback,
-             to: :current_or_previous_snapshot
+             to: :current_or_previous_version
 
-    delegate_methods = %i[content_version name parent_id file_record_parent_id
-                          file_record_id content_id plain_text_content]
+    delegate_methods = %i[content_version name parent_id parent_id
+                          file_id content_id plain_text_content]
     delegate(*delegate_methods,
-             to: :current_snapshot, prefix: :current, allow_nil: true)
+             to: :current_version, prefix: :current, allow_nil: true)
     delegate(*delegate_methods,
-             to: :previous_snapshot, prefix: :previous, allow_nil: true)
+             to: :previous_version, prefix: :previous, allow_nil: true)
 
     delegate :color, :text_color, to: :primary_change, allow_nil: true
 
     def addition?
-      previous_snapshot_id.nil?
+      previous_version_id.nil?
     end
 
     # Format first_three_ancestors into a path, joined by >
@@ -43,7 +43,7 @@ module VCS
     def association(association_name)
       return super unless association_name == :thumbnail
 
-      current_or_previous_snapshot.association(association_name)
+      current_or_previous_version.association(association_name)
     end
 
     def change?
@@ -59,8 +59,8 @@ module VCS
       end
     end
 
-    # Return the changes that have been made from previous_snapshot to
-    # current_snapshot as an array of FileDiff::Change instances.
+    # Return the changes that have been made from previous_version to
+    # current_version as an array of FileDiff::Change instances.
     def changes
       @changes ||=
         change_types.map do |type|
@@ -83,7 +83,7 @@ module VCS
     end
 
     def deletion?
-      current_snapshot_id.nil?
+      current_version_id.nil?
     end
 
     def modification?
@@ -112,11 +112,11 @@ module VCS
     def update?
       return false if addition? || deletion?
 
-      current_snapshot_id != previous_snapshot_id
+      current_version_id != previous_version_id
     end
 
-    def current_or_previous_snapshot
-      current_snapshot || previous_snapshot
+    def current_or_previous_version
+      current_version || previous_version
     end
   end
 end

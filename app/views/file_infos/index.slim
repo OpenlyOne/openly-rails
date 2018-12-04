@@ -12,7 +12,7 @@
 .container
 
   = render partial: 'file_status',
-           locals: { staged_file_diff: @staged_file_diff,
+           locals: { uncaptured_file_diff: @uncaptured_file_diff,
                      user_can_force_sync_files: @user_can_force_sync_files,
                      project: @project }
 

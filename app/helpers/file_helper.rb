@@ -20,8 +20,8 @@ module FileHelper
     link_to(path, options) { capture(&block) }
   end
 
-  # Wrap block into a link to the file's snapshot backup
-  # If the file snapshot has not been backed up, does not wrap block into a
+  # Wrap block into a link to the file's version backup
+  # If the file version has not been backed up, does not wrap block into a
   # link.
   def link_to_file_backup(file, revision, project, options = {}, &block)
     path = file_backup_path(file, revision, project)

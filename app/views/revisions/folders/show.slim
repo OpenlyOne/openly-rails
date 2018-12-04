@@ -30,7 +30,7 @@
 .container
   - @children.each do |child|
 
-    = render partial: 'committed_file_snapshot',
+    = render partial: 'committed_version',
              object: child,
              locals: {project: @project,
                       revision: @revision}

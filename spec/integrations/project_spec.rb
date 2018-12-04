@@ -18,17 +18,17 @@ RSpec.describe Project, type: :model do
       project.collaborators = create_list :user, 2
 
       # add setup
-      root = create :vcs_staged_file, :root, branch: master_branch
+      root = create :vcs_file_in_branch, :root, branch: master_branch
       allow_any_instance_of(Project::Setup).to receive(:file).and_return(root)
       create :project_setup, :with_link, project: project
 
-      # add staged files
-      create_list :vcs_staged_file, 2, :with_thumbnail, :with_backup,
+      # add files to branch
+      create_list :vcs_file_in_branch, 2, :with_thumbnail, :with_backup,
                   branch: master_branch
 
-      # Reuse the thumbnail for another snapshot
-      create :vcs_file_snapshot, thumbnail: VCS::FileThumbnail.first,
-                                 file_record: VCS::FileRecord.first
+      # Reuse the thumbnail for another version
+      create :vcs_version, thumbnail: VCS::Thumbnail.first,
+                           file: VCS::File.first
 
       # add drafted revisions with committed files and file diffs
       revisions = create_list :vcs_commit, 2, branch: master_branch
@@ -53,7 +53,7 @@ RSpec.describe Project, type: :model do
     it { expect { project.destroy }.not_to raise_error }
     it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
     it 'destroys associated file thumbnails' do
-      expect { project.destroy }.to change(VCS::FileThumbnail, :count).to(0)
+      expect { project.destroy }.to change(VCS::Thumbnail, :count).to(0)
     end
   end
 

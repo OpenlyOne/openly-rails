@@ -7,8 +7,8 @@ require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 
 RSpec.describe ForceSyncsController, type: :controller do
-  let!(:root)         { create :vcs_staged_file, :root, branch: master_branch }
-  let!(:folder)       { create :vcs_staged_file, :folder, parent: root }
+  let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
+  let!(:folder) { create :vcs_file_in_branch, :folder, parent_in_branch: root }
   let(:master_branch) { project.master_branch }
   let(:project) do
     create :project, :setup_complete, :skip_archive_setup, :with_repository
@@ -29,10 +29,10 @@ RSpec.describe ForceSyncsController, type: :controller do
     let(:run_request) { post :create, params: params }
 
     before do
-      allow_any_instance_of(VCS::StagedFile)
+      allow_any_instance_of(VCS::FileInBranch)
         .to receive(:backup_on_save?).and_return false
-      allow_any_instance_of(VCS::StagedFile).to receive(:pull)
-      allow_any_instance_of(VCS::StagedFile).to receive(:pull_children)
+      allow_any_instance_of(VCS::FileInBranch).to receive(:pull)
+      allow_any_instance_of(VCS::FileInBranch).to receive(:pull_children)
     end
 
     it_should_behave_like 'an authenticated action'
@@ -60,15 +60,15 @@ RSpec.describe ForceSyncsController, type: :controller do
     end
 
     it 'calls #pull on file' do
-      expect_any_instance_of(VCS::StagedFile).to receive(:pull)
+      expect_any_instance_of(VCS::FileInBranch).to receive(:pull)
       run_request
     end
 
     context 'when file is a folder' do
       it 'calls #pull_children' do
-        expect_any_instance_of(VCS::StagedFile)
+        expect_any_instance_of(VCS::FileInBranch)
           .to receive(:folder?).and_return true
-        expect_any_instance_of(VCS::StagedFile).to receive(:pull_children)
+        expect_any_instance_of(VCS::FileInBranch).to receive(:pull_children)
         run_request
       end
     end

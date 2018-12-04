@@ -9,7 +9,7 @@ class FolderImportJob < ApplicationJob
   def perform(*args)
     variables_from_arguments(*args)
 
-    file = VCS::StagedFile.find(staged_file_id)
+    file = VCS::FileInBranch.find(file_in_branch_id)
 
     file.pull_children
 
@@ -21,20 +21,20 @@ class FolderImportJob < ApplicationJob
 
   private
 
-  attr_accessor :staged_file_id, :project, :setup
+  attr_accessor :file_in_branch_id, :project, :setup
 
   # Create a new FolderImportJob for the given file resource
-  def schedule_folder_import_job_for(staged_file)
+  def schedule_folder_import_job_for(file_in_branch)
     FolderImportJob.perform_later(
-      reference:      setup,
-      staged_file_id: staged_file.id
+      reference:         setup,
+      file_in_branch_id: file_in_branch.id
     )
   end
 
   # Set instance variables from the job's arguments
   def variables_from_arguments(*args)
-    reference_id          = args[0][:reference_id]
-    self.setup            = Project::Setup.find(reference_id)
-    self.staged_file_id   = args[0][:staged_file_id]
+    reference_id            = args[0][:reference_id]
+    self.setup              = Project::Setup.find(reference_id)
+    self.file_in_branch_id  = args[0][:file_in_branch_id]
   end
 end
