@@ -24,5 +24,10 @@ module VCS
     rescue Hashids::InputError
       nil
     end
+
+    # Convert a single ID to hashed ID
+    def self.id_to_hashid(id)
+      hashids.encode(id)
+    end
   end
 end

@@ -53,4 +53,21 @@ RSpec.shared_examples 'acting as hash ID' do
       it { is_expected.to be nil }
     end
   end
+
+  describe '.id_to_hashid(id)' do
+    subject(:encoded_id) { described_class.id_to_hashid(id) }
+
+    let(:hashids) { instance_double Hashids }
+    let(:id)      { instance_double Integer }
+
+    before do
+      allow(described_class).to receive(:hashids).and_return hashids
+      allow(hashids).to receive(:encode).and_return 'en(*d3d'
+    end
+
+    it 'calls #decode on stringified hashid and returns the first result' do
+      expect(encoded_id).to eq 'en(*d3d'
+      expect(hashids).to have_received(:encode).with(id)
+    end
+  end
 end
