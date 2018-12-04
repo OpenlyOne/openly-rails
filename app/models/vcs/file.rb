@@ -4,6 +4,8 @@ module VCS
   # A repository-wide unique record for identifying files across branches and
   # versions
   class File < ApplicationRecord
+    acts_as_hashids length: 20, secret: ENV['VCS_FILE_HASH_ID_SECRET']
+
     belongs_to :repository
     has_many :thumbnails, dependent: :destroy
 

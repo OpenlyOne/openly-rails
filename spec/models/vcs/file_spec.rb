@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/acting_as_hash_id'
+
 RSpec.describe VCS::File, type: :model do
   subject(:file) { build_stubbed :vcs_file }
+
+  it_should_behave_like 'acting as hash ID' do
+    subject(:model)       { file }
+    let(:minimum_length)  { 20 }
+  end
 
   describe 'associations' do
     it { is_expected.to belong_to(:repository).dependent(false) }
