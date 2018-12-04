@@ -58,6 +58,31 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '.find_by_hashed_file_id!(id)' do
+    subject(:finding) { described_class.find_by_hashed_file_id!(id_to_find) }
+
+    let(:id_to_find)      { file_in_branch.hashed_file_id }
+    let!(:file_in_branch) { create :vcs_file_in_branch }
+
+    it { is_expected.to eq file_in_branch }
+
+    context 'when no match exists' do
+      before { file_in_branch.destroy }
+
+      it { expect { finding }.to raise_error ActiveRecord::RecordNotFound }
+    end
+
+    context 'when it is being chained' do
+      subject(:finding) do
+        described_class.none.find_by_hashed_file_id!(id_to_find)
+      end
+
+      it 'is applied within the scope of the chain' do
+        expect { finding }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
+
   describe 'versionable + syncable', :vcr do
     before { prepare_google_drive_test }
     after  { tear_down_google_drive_test }

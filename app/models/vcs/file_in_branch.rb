@@ -68,6 +68,12 @@ module VCS
       validates :content_version, presence: true
     end
 
+    # Find file in branch by hashed file ID
+    # Raises ActiveRecord::RecordNotFound error if no match is found.
+    def self.find_by_hashed_file_id!(id)
+      find_by!(file_id: VCS::File.hashid_to_id(id))
+    end
+
     # Recursively collect parents
     def ancestors
       return [] if parent_in_branch.nil? || parent_in_branch.root?
@@ -156,6 +162,11 @@ module VCS
     # TODO: Don't use mime type on file in branch, but on version instead
     def folder?
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
+    end
+
+    # Return the hashed ID of the file ID
+    def hashed_file_id
+      VCS::File.id_to_hashid(file_id)
     end
 
     def root?
