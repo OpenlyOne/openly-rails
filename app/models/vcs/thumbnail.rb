@@ -2,7 +2,7 @@
 
 module VCS
   # Thumbnails for files
-  class FileThumbnail < ApplicationRecord
+  class Thumbnail < ApplicationRecord
     # Associations
     belongs_to :file
 

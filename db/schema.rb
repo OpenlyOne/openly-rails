@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_03_153524) do
+ActiveRecord::Schema.define(version: 2018_12_04_165449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -316,18 +316,6 @@ ActiveRecord::Schema.define(version: 2018_12_03_153524) do
     t.index ["thumbnail_id"], name: "index_vcs_file_in_branches_on_thumbnail_id"
   end
 
-  create_table "vcs_file_thumbnails", force: :cascade do |t|
-    t.text "remote_file_id", null: false
-    t.text "version_id", null: false
-    t.string "image_file_name"
-    t.string "image_content_type"
-    t.bigint "image_file_size"
-    t.datetime "image_updated_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "file_id", null: false
-  end
-
   create_table "vcs_files", force: :cascade do |t|
     t.bigint "repository_id", null: false
     t.datetime "created_at", null: false
@@ -350,6 +338,18 @@ ActiveRecord::Schema.define(version: 2018_12_03_153524) do
   create_table "vcs_repositories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "vcs_thumbnails", force: :cascade do |t|
+    t.text "remote_file_id", null: false
+    t.text "version_id", null: false
+    t.string "image_file_name"
+    t.string "image_content_type"
+    t.bigint "image_file_size"
+    t.datetime "image_updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "file_id", null: false
   end
 
   create_table "vcs_versions", force: :cascade do |t|
@@ -387,16 +387,16 @@ ActiveRecord::Schema.define(version: 2018_12_03_153524) do
   add_foreign_key "vcs_file_diffs", "vcs_versions", column: "new_version_id"
   add_foreign_key "vcs_file_diffs", "vcs_versions", column: "old_version_id"
   add_foreign_key "vcs_file_in_branches", "vcs_branches", column: "branch_id"
-  add_foreign_key "vcs_file_in_branches", "vcs_file_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_file_in_branches", "vcs_files", column: "file_id"
   add_foreign_key "vcs_file_in_branches", "vcs_files", column: "parent_id"
+  add_foreign_key "vcs_file_in_branches", "vcs_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_file_in_branches", "vcs_versions", column: "committed_version_id"
-  add_foreign_key "vcs_file_thumbnails", "vcs_files", column: "file_id"
   add_foreign_key "vcs_files", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_remote_contents", "vcs_contents", column: "content_id"
   add_foreign_key "vcs_remote_contents", "vcs_repositories", column: "repository_id"
+  add_foreign_key "vcs_thumbnails", "vcs_files", column: "file_id"
   add_foreign_key "vcs_versions", "vcs_contents", column: "content_id"
-  add_foreign_key "vcs_versions", "vcs_file_thumbnails", column: "thumbnail_id"
   add_foreign_key "vcs_versions", "vcs_files", column: "file_id"
   add_foreign_key "vcs_versions", "vcs_files", column: "parent_id"
+  add_foreign_key "vcs_versions", "vcs_thumbnails", column: "thumbnail_id"
 end

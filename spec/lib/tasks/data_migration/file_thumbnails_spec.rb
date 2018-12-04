@@ -26,7 +26,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   after do
     # verify that old thumbnails no longer exist
     old_thumbnails.each do |thumbnail|
-      expect(VCS::FileThumbnail).not_to be_exists(thumbnail.id)
+      expect(VCS::Thumbnail).not_to be_exists(thumbnail.id)
     end
   end
 
@@ -48,7 +48,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
 
   context 'when two versions have the same file record id' do
     let(:new_thumbnail) do
-      VCS::FileThumbnail.find_by(
+      VCS::Thumbnail.find_by(
         remote_file_id: old_thumbnail.remote_file_id,
         version_id: old_thumbnail.version_id,
         file_id: snap1.file_id

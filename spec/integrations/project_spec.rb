@@ -27,7 +27,7 @@ RSpec.describe Project, type: :model do
                   branch: master_branch
 
       # Reuse the thumbnail for another version
-      create :vcs_version, thumbnail: VCS::FileThumbnail.first,
+      create :vcs_version, thumbnail: VCS::Thumbnail.first,
                            file: VCS::File.first
 
       # add drafted revisions with committed files and file diffs
@@ -53,7 +53,7 @@ RSpec.describe Project, type: :model do
     it { expect { project.destroy }.not_to raise_error }
     it { expect { project.destroy }.to change(Delayed::Job, :count).to(0) }
     it 'destroys associated file thumbnails' do
-      expect { project.destroy }.to change(VCS::FileThumbnail, :count).to(0)
+      expect { project.destroy }.to change(VCS::Thumbnail, :count).to(0)
     end
   end
 

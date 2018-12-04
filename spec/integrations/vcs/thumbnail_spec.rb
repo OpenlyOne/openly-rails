@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe VCS::FileThumbnail, type: :model do
+RSpec.describe VCS::Thumbnail, type: :model do
   describe 'attachment path for image' do
     subject               { thumbnail.image.path }
     let(:thumbnail)       { create :vcs_file_thumbnail }
@@ -11,7 +11,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it 'interpolates correctly' do
       is_expected.to start_with("#{Rails.root}/public/spec/system")
       is_expected.to match(
-        %r{vcs/file_thumbnails/#{file_id}/
+        %r{vcs/thumbnails/#{file_id}/
            #{remote_file_id}/#{version_id}/\w+.png$}x
       )
     end
@@ -27,7 +27,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     it 'interpolates correctly' do
       is_expected.to start_with('/spec/system')
       is_expected.to match(
-        %r{vcs/file_thumbnails/#{file_id}/
+        %r{vcs/thumbnails/#{file_id}/
            #{remote_file_id}/#{version_id}/\w+.png}x
       )
     end

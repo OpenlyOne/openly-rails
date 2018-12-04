@@ -117,7 +117,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
       file_in_branch.reload.pull
       expected_attributes['name'] = 'my new file name'
       expected_attributes.delete('content_version')
-      expected_attributes['thumbnail_id'] = VCS::FileThumbnail.first.id
+      expected_attributes['thumbnail_id'] = VCS::Thumbnail.first.id
       expect(file_attributes).to include(expected_attributes)
       expect(version_attributes).to include(expected_attributes)
     end

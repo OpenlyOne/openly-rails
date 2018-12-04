@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe VCS::FileThumbnail, type: :model do
+RSpec.describe VCS::Thumbnail, type: :model do
   subject(:thumbnail) { build :vcs_file_thumbnail }
 
   describe 'associations' do
@@ -90,13 +90,13 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     subject { described_class.find_or_initialize_by_file_in_branch('file') }
 
     before do
-      allow(VCS::FileThumbnail)
+      allow(VCS::Thumbnail)
         .to receive(:attributes_from_file_in_branch)
         .with('file').and_return 'attributes'
     end
 
     it 'calls #find_or_initialize_by with attributes' do
-      expect(VCS::FileThumbnail)
+      expect(VCS::Thumbnail)
         .to receive(:find_or_initialize_by).with('attributes')
       subject
     end
@@ -107,11 +107,11 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     let(:file2)     { build_stubbed :vcs_file_in_branch, thumbnail_id: 2 }
     let(:file3)     { build_stubbed :vcs_file_in_branch, thumbnail_id: 1 }
     let(:file4)     { build_stubbed :vcs_file_in_branch, thumbnail_id: nil }
-    let(:thumbnail1) { instance_double VCS::FileThumbnail }
-    let(:thumbnail2) { instance_double VCS::FileThumbnail }
+    let(:thumbnail1) { instance_double VCS::Thumbnail }
+    let(:thumbnail2) { instance_double VCS::Thumbnail }
 
     before do
-      allow(VCS::FileThumbnail)
+      allow(VCS::Thumbnail)
         .to receive(:where)
         .with(id: [1, 2])
         .and_return [thumbnail1, thumbnail2]
@@ -121,7 +121,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     end
 
     it 'sets thumbnail on files' do
-      VCS::FileThumbnail.preload_for([file1, file2, file3, file4])
+      VCS::Thumbnail.preload_for([file1, file2, file3, file4])
 
       expect(file1.thumbnail).to eq thumbnail1
       expect(file2.thumbnail).to eq thumbnail2
@@ -134,7 +134,7 @@ RSpec.describe VCS::FileThumbnail, type: :model do
     subject(:set_file_in_branch) { thumbnail.file_in_branch = 'file' }
 
     before do
-      allow(VCS::FileThumbnail)
+      allow(VCS::Thumbnail)
         .to receive(:attributes_from_file_in_branch)
         .with('file').and_return 'attributes'
     end

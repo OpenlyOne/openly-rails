@@ -85,7 +85,7 @@ module VCS
       return unless remote.thumbnail?
 
       self.thumbnail =
-        VCS::FileThumbnail
+        VCS::Thumbnail
         .create_with(raw_image: proc { remote.thumbnail })
         .find_or_initialize_by_file_in_branch(self)
     end

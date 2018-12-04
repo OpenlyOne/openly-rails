@@ -5,7 +5,7 @@ RSpec.describe VCS::File, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:repository).dependent(false) }
-    it { is_expected.to have_many(:file_thumbnails).dependent(:destroy) }
+    it { is_expected.to have_many(:thumbnails).dependent(:destroy) }
     it do
       is_expected
         .to have_many(:repository_branches)

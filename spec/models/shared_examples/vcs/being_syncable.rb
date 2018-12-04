@@ -102,9 +102,9 @@ RSpec.shared_examples 'vcs: being syncable' do
     end
 
     it 'finds or initializes thumbnail by file resource' do
-      stub      = class_double VCS::FileThumbnail
-      thumbnail = instance_double VCS::FileThumbnail
-      expect(VCS::FileThumbnail)
+      stub      = class_double VCS::Thumbnail
+      thumbnail = instance_double VCS::Thumbnail
+      expect(VCS::Thumbnail)
         .to receive(:create_with).with(raw_image: anything).and_return stub
       expect(stub)
         .to receive(:find_or_initialize_by_file_in_branch)
