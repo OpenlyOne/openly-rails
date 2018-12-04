@@ -47,10 +47,6 @@ module VCS
       preload(file_diffs: { new_version: :content, old_version: :content })
     }
 
-    scope :last_per_branch, lambda {
-      select('MAX(id) id, branch_id').published.group(:branch_id)
-    }
-
     scope :published, -> { where(is_published: true) }
 
     # Validations
