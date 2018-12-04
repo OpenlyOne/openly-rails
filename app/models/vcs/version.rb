@@ -23,11 +23,6 @@ module VCS
     # Attributes
     alias_attribute :versionable_id, :file_id
 
-    # Scopes
-    scope :joins_current_version, lambda {
-      left_joins(file: :current_version)
-    }
-
     # TODO: Add in support for different providers set on repository level
     # # Return versions with provider ID from file resource
     # scope :with_provider_id, lambda {
@@ -123,11 +118,11 @@ module VCS
       content&.plain_text
     end
 
-    # Return provider ID of file resource, either preloaded or from file
-    # resource
-    def provider_id
-      0
-    end
+    # TODO: Support different providers at repository level
+    # Return provider ID of repository, either preloaded or from file
+    # def provider_id
+    #   0
+    # end
 
     # Create a new version from the current version's attributes and set the
     # current version to the new one

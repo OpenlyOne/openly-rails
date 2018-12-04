@@ -54,16 +54,6 @@ module VCS
       def fragments
         @fragments ||= VCS::Operations::ContentChangeFragment.fragment(full)
       end
-
-      private
-
-      def file_for_new_content
-        @file_for_new_content ||= tempfile(new_content)
-      end
-
-      def file_for_old_content
-        @file_for_old_content ||= tempfile(old_content)
-      end
     end
   end
 end
