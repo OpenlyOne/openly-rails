@@ -16,5 +16,13 @@ module VCS
              class_name: 'VCS::Version',
              foreign_key: :parent_id,
              dependent: :destroy
+
+    # Convert a single hashed ID to ID
+    # If InputError is encountered, returns nil
+    def self.hashid_to_id(hashid)
+      hashids.decode(hashid.to_s)&.first
+    rescue Hashids::InputError
+      nil
+    end
   end
 end
