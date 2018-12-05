@@ -127,6 +127,14 @@ RSpec.describe 'revisions/new', type: :view do
         expect(rendered).to have_css('.fragment.addition', text: 'hi')
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
       end
+
+      it 'has a link to side-by-side diff' do
+        render
+        link = profile_project_file_change_path(
+          project.owner, project, change.hashed_file_id
+        )
+        expect(rendered).to have_link('View side-by-side', href: link)
+      end
     end
   end
 end

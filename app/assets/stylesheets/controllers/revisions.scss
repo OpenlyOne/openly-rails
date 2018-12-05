@@ -87,5 +87,14 @@
       color: color('red', 'base');
       text-decoration: line-through;
     }
+
+    // Do not underline links within content change
+    a:hover {
+      text-decoration: none;
+    }
+
+    .links {
+      margin-top: 5px;
+    }
   }
 }

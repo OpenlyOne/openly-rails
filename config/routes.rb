@@ -91,6 +91,8 @@ Rails.application.routes.draw do
                                 on: :collection
         end
       end
+      # Routes for changes
+      resources :file_changes, path: 'changes', only: :show
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create
