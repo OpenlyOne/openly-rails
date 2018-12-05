@@ -11,6 +11,6 @@ svg.separator viewBox='0 0 24 24'
               project.owner,
               project,
               revision,
-              VCS::File.id_to_hashid(ancestor.file_id) \
+              ancestor.hashed_file_id \
             ),
             class: "breadcrumb#{ancestor == current_folder ? ' active' : ''}"

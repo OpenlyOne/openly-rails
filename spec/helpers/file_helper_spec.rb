@@ -9,10 +9,8 @@ RSpec.describe FileHelper, type: :helper do
 
     before do
       allow(file).to receive(:folder?).and_return is_folder
-      allow(file).to receive(:file_id).and_return 'file-id'
+      allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
       allow(file).to receive(:link_to_remote).and_return 'remote-link'
-      allow(VCS::File)
-        .to receive(:id_to_hashid).with('file-id').and_return 'hashed-file-id'
     end
 
     context 'when file is folder' do
@@ -196,9 +194,7 @@ RSpec.describe FileHelper, type: :helper do
         allow(project).to receive(:to_param).and_return 'project'
         allow(revision).to receive(:id).and_return 'revision-id'
         allow(revision).to receive(:published?).and_return is_published
-        allow(file).to receive(:file_id).and_return 'file-id'
-        allow(VCS::File)
-          .to receive(:id_to_hashid).with('file-id').and_return 'hashed-file-id'
+        allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
       end
 
       it do

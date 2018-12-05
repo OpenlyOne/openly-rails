@@ -14,7 +14,7 @@ div.file[class=file_change.symbolic_mime_type
   - if show_link_to_file_info
    / TODO: Replace file_change with file and replace VCS::File with file.hashed_file_id
    = render partial: 'revisions/link_to_file_info',
-            locals: { file_id: VCS::File.id_to_hashid(file_change.file_id),
+            locals: { file_id: file_change.hashed_file_id,
                       project: project,
                       device: :mobile_and_tablet,
                       link_options: link_options }
@@ -32,7 +32,7 @@ div.file[class=file_change.symbolic_mime_type
 
     - if show_link_to_file_info
       = render partial: 'revisions/link_to_file_info',
-               locals: { file_id: VCS::File.id_to_hashid(file_change.file_id),
+               locals: { file_id: file_change.hashed_file_id,
                          project: project,
                          device: :desktop,
                          link_options: link_options }

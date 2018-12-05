@@ -8,9 +8,8 @@ module FileHelper
   def link_to_file(diff, project, options = {}, &block)
     # internal link to that folder
     if diff.folder?
-      path = profile_project_folder_path(
-        project.owner, project, VCS::File.id_to_hashid(diff.file_id)
-      )
+      path = profile_project_folder_path(project.owner, project,
+                                         diff.hashed_file_id)
 
     # remote link to the original file on Google Drive
     else
@@ -44,8 +43,7 @@ module FileHelper
   def file_backup_path(diff, revision, project)
     if diff.folder? && revision.published?
       profile_project_revision_folder_path(
-        project.owner, project, revision.id,
-        VCS::File.id_to_hashid(diff.file_id)
+        project.owner, project, revision.id, diff.hashed_file_id
       )
     else
       diff.backup&.link_to_remote
