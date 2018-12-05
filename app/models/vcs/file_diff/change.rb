@@ -10,10 +10,10 @@ module VCS
 
       # Delegations
       delegate :ancestor_path, :current_version, :current_version=,
-               :current_or_previous_version, :file_resource_id,
-               :remote_file_id, :icon, :name, :parent_id, :previous_parent_id,
-               :previous_version, :symbolic_mime_type, :revision,
-               :content_change,
+               :current_or_previous_version, :file_id, :file_resource_id,
+               :remote_file_id, :hashed_file_id, :icon, :name, :parent_id,
+               :previous_parent_id, :previous_version, :symbolic_mime_type,
+               :revision, :content_change,
                to: :diff
 
       delegate :unselected_file_changes, to: :revision

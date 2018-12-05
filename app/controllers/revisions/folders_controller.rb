@@ -45,13 +45,12 @@ module Revisions
     end
 
     def set_folder_from_param
+      # TODO: Support hashed_file_id OR remote_file_id
       @folder =
         @revision
         .committed_versions
-        .find_by!(remote_file_id: params[:id])
+        .find_by!(file_id: VCS::File.hashid_to_id(params[:id]))
 
-      # TODO: Don't check if file resource is folder NOW, check if committed
-      # =>    file resource version was folder BACK at commit
       raise ActiveRecord::RecordNotFound unless @folder.folder?
     end
 

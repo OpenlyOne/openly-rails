@@ -136,6 +136,20 @@ RSpec.describe VCS::Version, type: :model do
     end
   end
 
+  describe '#hashed_file_id' do
+    subject(:hashed_file_id) { version.hashed_file_id }
+
+    before do
+      allow(version).to receive(:file_id).and_return 'file-id'
+      allow(VCS::File).to receive(:id_to_hashid).and_return 'hashed-id'
+    end
+
+    it 'calls .id_to_hashid on VCS::File' do
+      is_expected.to eq 'hashed-id'
+      expect(VCS::File).to have_received(:id_to_hashid).with('file-id')
+    end
+  end
+
   describe '#version!' do
     subject           { version.version! }
     let(:new_version) { instance_double described_class }

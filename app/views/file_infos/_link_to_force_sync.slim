@@ -1,6 +1,7 @@
 / render a button to force sync the file
 
-= button_to profile_project_force_syncs_path(project.owner, project, file.remote_file_id),
+/ TODO: Fix this. It's not good to call the class VCS::File here.
+= button_to profile_project_force_syncs_path(project.owner, project, file.hashed_file_id),
           method: :post,
           class: 'btn btn-large primary-color primary-color-text' do
   i.left.material_icons

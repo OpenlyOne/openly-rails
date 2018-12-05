@@ -15,8 +15,10 @@ RSpec.shared_examples 'being a file diff change' do
     it do
       is_expected.to delegate_method(:current_or_previous_version).to(:diff)
     end
+    it { is_expected.to delegate_method(:file_id).to(:diff) }
     it { is_expected.to delegate_method(:file_resource_id).to(:diff) }
     it { is_expected.to delegate_method(:remote_file_id).to(:diff) }
+    it { is_expected.to delegate_method(:hashed_file_id).to(:diff) }
     it { is_expected.to delegate_method(:icon).to(:diff) }
     it { is_expected.to delegate_method(:name).to(:diff) }
     it { is_expected.to delegate_method(:parent_id).to(:diff) }

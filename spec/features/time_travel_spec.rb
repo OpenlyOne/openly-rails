@@ -93,7 +93,7 @@ feature 'Time Travel' do
     # then I should be on the project's subfolder page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "revisions/#{commit.id}/folders/#{code.remote_file_id}"
+      "revisions/#{commit.id}/folders/#{code.to_param}"
     )
     # and see the files in the project subfolder
     subfiles.each do |file|

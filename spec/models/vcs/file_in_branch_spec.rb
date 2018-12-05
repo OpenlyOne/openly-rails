@@ -248,6 +248,20 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '#hashed_file_id' do
+    subject(:hashed_file_id) { file_in_branch.hashed_file_id }
+
+    before do
+      allow(file_in_branch).to receive(:file_id).and_return 'file-id'
+      allow(VCS::File).to receive(:id_to_hashid).and_return 'hashed-id'
+    end
+
+    it 'calls .id_to_hashid on VCS::File' do
+      is_expected.to eq 'hashed-id'
+      expect(VCS::File).to have_received(:id_to_hashid).with('file-id')
+    end
+  end
+
   describe '#subfolders' do
     subject(:subfolders)  { file_in_branch.subfolders }
     let(:folder1)         { instance_double described_class }

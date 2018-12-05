@@ -68,6 +68,21 @@ module VCS
       validates :content_version, presence: true
     end
 
+    # Find file in branch by hashed file ID
+    # Raises ActiveRecord::RecordNotFound error if no match is found.
+    def self.find_by_hashed_file_id!(id)
+      find_by!(file_id: VCS::File.hashid_to_id(id))
+    end
+
+    # Find file in branch by hashed file ID,
+    # or - as a fallback - by remote file ID
+    # Raises ActiveRecord::RecordNotFound error if no match is found.
+    def self.find_by_hashed_file_id_or_remote_file_id!(id)
+      find_by_hashed_file_id!(id)
+    rescue ActiveRecord::RecordNotFound
+      find_by!(remote_file_id: id)
+    end
+
     # Recursively collect parents
     def ancestors
       return [] if parent_in_branch.nil? || parent_in_branch.root?
@@ -158,6 +173,11 @@ module VCS
       Object.const_get("#{provider}::MimeType").folder?(mime_type)
     end
 
+    # Return the hashed ID of the file ID
+    def hashed_file_id
+      VCS::File.id_to_hashid(file_id)
+    end
+
     def root?
       is_root
     end
@@ -169,6 +189,11 @@ module VCS
     # Return all children that are folders
     def subfolders
       children_in_branch.select(&:folder?)
+    end
+
+    # When parameterizing this resource, return the hashed file ID
+    def to_param
+      hashed_file_id
     end
 
     private

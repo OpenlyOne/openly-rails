@@ -9,7 +9,10 @@ RSpec.shared_examples 'vcs: being diffing' do
     it { is_expected.to delegate_method(:id).to(version).with_prefix }
     it { is_expected.to delegate_method(:remote_file_id).to(version) }
     it { is_expected.to delegate_method(:link_to_remote).to(version) }
+    it { is_expected.to delegate_method(:file).to(version) }
+    it { is_expected.to delegate_method(:file_id).to(version) }
     it { is_expected.to delegate_method(:folder?).to(version) }
+    it { is_expected.to delegate_method(:hashed_file_id).to(version) }
     it { is_expected.to delegate_method(:icon).to(version) }
     it { is_expected.to delegate_method(:mime_type).to(version) }
     it { is_expected.to delegate_method(:name).to(version) }

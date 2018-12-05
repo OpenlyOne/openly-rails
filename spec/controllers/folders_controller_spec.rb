@@ -15,7 +15,7 @@ RSpec.describe FoldersController, type: :controller do
     {
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
-      id:             folder.remote_file_id
+      id:             folder.hashed_file_id
     }
   end
   let(:current_account) { project.owner.account }
@@ -59,6 +59,15 @@ RSpec.describe FoldersController, type: :controller do
     it 'returns http success' do
       run_request
       expect(response).to have_http_status :success
+    end
+
+    context 'when using remote file ID (instead of hashed file ID)' do
+      before { default_params.merge(id: folder.remote_file_id) }
+
+      it 'successfully completes the request' do
+        run_request
+        expect(response).to have_http_status :success
+      end
     end
   end
 end

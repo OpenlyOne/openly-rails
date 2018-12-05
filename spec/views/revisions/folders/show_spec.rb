@@ -89,7 +89,8 @@ RSpec.describe 'revisions/folders/show', type: :view do
         expect(rendered).to have_link(
           child.name,
           href: profile_project_revision_folder_path(
-            project.owner, project.slug, revision.id, child.remote_file_id
+            project.owner, project.slug, revision.id,
+            VCS::File.id_to_hashid(child.file_id)
           )
         )
       end
@@ -117,9 +118,11 @@ RSpec.describe 'revisions/folders/show', type: :view do
   it 'renders a link to infos for each file' do
     render
     children.each do |child|
-      link = profile_project_file_infos_path(project.owner,
-                                             project,
-                                             child.remote_file_id)
+      link = profile_project_file_infos_path(
+        project.owner,
+        project,
+        VCS::File.id_to_hashid(child.file_id)
+      )
       expect(rendered).to have_link(text: '', href: link)
     end
   end

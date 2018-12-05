@@ -17,7 +17,7 @@ RSpec.describe ForceSyncsController, type: :controller do
     {
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
-      id:             folder.remote_file_id
+      id:             folder.hashed_file_id
     }
   end
 

@@ -124,6 +124,11 @@ module VCS
     #   0
     # end
 
+    # Return the hashed ID of the file ID
+    def hashed_file_id
+      VCS::File.id_to_hashid(file_id)
+    end
+
     # Create a new version from the current version's attributes and set the
     # current version to the new one
     def version!

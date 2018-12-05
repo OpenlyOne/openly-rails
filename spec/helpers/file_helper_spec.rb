@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe FileHelper, type: :helper do
-  describe '#link_to_file(file, project, options = {})' do
+  describe '#link_to_file(diff, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { build_stubbed :project }
     let(:file)        { instance_double VCS::Version }
@@ -9,7 +9,7 @@ RSpec.describe FileHelper, type: :helper do
 
     before do
       allow(file).to receive(:folder?).and_return is_folder
-      allow(file).to receive(:remote_file_id).and_return 'remote-id'
+      allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
       allow(file).to receive(:link_to_remote).and_return 'remote-link'
     end
 
@@ -18,7 +18,7 @@ RSpec.describe FileHelper, type: :helper do
 
       it 'returns internal link to directory' do
         expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/remote-id",
+          "/#{project.owner.handle}/#{project.slug}/folders/hashed-file-id",
           any_args
         )
         method
@@ -171,7 +171,7 @@ RSpec.describe FileHelper, type: :helper do
     end
   end
 
-  describe '#file_backup_path(file, revision, project)' do
+  describe '#file_backup_path(diff, revision, project)' do
     subject(:method) { helper.send(:file_backup_path, file, revision, project) }
     let(:file)          { instance_double VCS::Version }
     let(:revision)      { instance_double VCS::Commit }
@@ -192,17 +192,17 @@ RSpec.describe FileHelper, type: :helper do
       before do
         allow(project).to receive(:owner).and_return 'owner'
         allow(project).to receive(:to_param).and_return 'project'
-        allow(revision).to receive(:id).and_return 'r-id'
+        allow(revision).to receive(:id).and_return 'revision-id'
         allow(revision).to receive(:published?).and_return is_published
-        allow(file).to receive(:remote_file_id).and_return 'ext-id'
+        allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
       end
 
       it do
         is_expected.to eq profile_project_revision_folder_path(
           'owner',
           'project',
-          'r-id',
-          'ext-id'
+          'revision-id',
+          'hashed-file-id'
         )
       end
 
