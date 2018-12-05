@@ -70,9 +70,11 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders a link to infos for each file' do
     render
     diffs.each do |diff|
-      link = profile_project_file_infos_path(project.owner,
-                                             project,
-                                             diff.remote_file_id)
+      link = profile_project_file_infos_path(
+        project.owner,
+        project,
+        VCS::File.id_to_hashid(diff.file_id)
+      )
       expect(rendered).to have_link(text: '', href: link)
     end
   end

@@ -23,7 +23,7 @@ feature 'File Info' do
     # then I should be on the file's info page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "files/#{file.remote_file_id}/info"
+      "files/#{file.hashed_file_id}/info"
     )
     # and see one revision
     expect(page.find_all('.revision .metadata .title b').map(&:text))
@@ -48,7 +48,7 @@ feature 'File Info' do
     # then I should be on the file's info page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "files/#{file.remote_file_id}/info"
+      "files/#{file.hashed_file_id}/info"
     )
     # and see no revisions
     expect(page).to have_text 'No previous versions'
@@ -73,7 +73,7 @@ feature 'File Info' do
     # then I should be on the file's info page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "files/#{file.remote_file_id}/info"
+      "files/#{file.hashed_file_id}/info"
     )
     # and see two revisions
     expect(page.find_all('.revision .metadata .title b').map(&:text))
