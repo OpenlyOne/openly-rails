@@ -191,6 +191,11 @@ module VCS
       children_in_branch.select(&:folder?)
     end
 
+    # When parameterizing this resource, return the hashed file ID
+    def to_param
+      hashed_file_id
+    end
+
     private
 
     def any_errors?

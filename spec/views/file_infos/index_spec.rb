@@ -81,8 +81,11 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'does not have a button to force sync the file' do
       render
       sync_path =
-        profile_project_force_syncs_path(project.owner, project,
-                                         uncaptured_file_diff.remote_file_id)
+        profile_project_force_syncs_path(
+          project.owner,
+          project,
+          VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+        )
       expect(rendered).not_to have_css(
         'form'\
         "[action='#{sync_path}']"\
@@ -147,8 +150,11 @@ RSpec.describe 'file_infos/index', type: :view do
       it 'has a button to force sync the file' do
         render
         sync_path =
-          profile_project_force_syncs_path(project.owner, project,
-                                           uncaptured_file_diff.remote_file_id)
+          profile_project_force_syncs_path(
+            project.owner,
+            project,
+            VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+          )
         expect(rendered).to have_css(
           'form'\
           "[action='#{sync_path}']"\

@@ -17,22 +17,20 @@ class FileInfosController < ApplicationController
 
   private
 
-  # Attempt to find the file diff of stage (base) and last revision
-  # (differentiator)
+  # Set the uncaptured file diff if file in branch has current or committed
+  # version present
   def set_uncaptured_file_diff
-    file_in_branch = @master_branch.files
-                                   .without_root
-                                   .joins_version
-                                   .find_by(file_id: file_id)
+    return unless file_in_branch.version.present?
 
-    @uncaptured_file_diff = file_in_branch&.diff(with_ancestry: true)
-  rescue ActiveRecord::RecordNotFound
-    @uncaptured_file_diff = nil
+    @uncaptured_file_diff = file_in_branch.diff(with_ancestry: true)
   end
 
-  def file_id
-    @file_id ||= @project.repository.file_versions
-                         .find_by!(remote_file_id: params[:id]).file_id
+  def file_in_branch
+    @file_in_branch ||=
+      @master_branch
+      .files
+      .without_root
+      .find_by_hashed_file_id_or_remote_file_id!(params[:id])
   end
 
   def preload_backups_for_committed_file_diffs
@@ -43,6 +41,8 @@ class FileInfosController < ApplicationController
   end
 
   # Find file in stage or version history
+  # TODO: This needs major rework. Should probably move methods into
+  # =>    FileInBranch model.
   def set_file
     # Set the file from uncaptured_file_diff OR
     @file = @uncaptured_file_diff&.current_or_previous_version
@@ -64,13 +64,14 @@ class FileInfosController < ApplicationController
       .preload(:new_version, :old_version)
       .where(
         vcs_commits: { branch_id: @master_branch.id, is_published: true },
-        current_or_previous_version: { file_id: file_id }
+        current_or_previous_version: { file_id: file_in_branch.file_id }
       ).merge(VCS::Commit.order(id: :desc))
   end
 
   # Set the parent of file in stage
   def set_parent_in_branch
-    @parent_in_branch = @master_branch.files.find_by(file_id: @file.parent_id)
+    @parent_in_branch =
+      @master_branch.files.find_by(file_id: @uncaptured_file_diff&.parent_id)
   end
 
   def set_user_can_force_sync_files
