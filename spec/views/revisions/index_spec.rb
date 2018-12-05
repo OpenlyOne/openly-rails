@@ -113,7 +113,8 @@ RSpec.describe 'revisions/index', type: :view do
       render
       diffs.each do |diff|
         link = profile_project_revision_folder_path(
-          project.owner, project.slug, revisions.first.id, diff.remote_file_id
+          project.owner, project.slug, revisions.first.id,
+          VCS::File.id_to_hashid(diff.file_id)
         )
         expect(rendered).to have_link(text: diff.name, href: link)
       end

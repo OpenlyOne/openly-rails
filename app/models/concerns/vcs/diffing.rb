@@ -7,7 +7,7 @@ module VCS
 
     # Delegations
     delegate :id, to: :current_or_previous_version, prefix: true
-    delegate :remote_file_id, :link_to_remote, :file_id, :folder?, :icon,
+    delegate :remote_file_id, :link_to_remote, :file, :file_id, :folder?, :icon,
              :mime_type, :name, :parent_id, :provider, :symbolic_mime_type,
              :thumbnail_id, :thumbnail_image, :thumbnail_image_or_fallback,
              to: :current_or_previous_version

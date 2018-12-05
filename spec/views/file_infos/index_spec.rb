@@ -74,7 +74,7 @@ RSpec.describe 'file_infos/index', type: :view do
     it 'has a link to the parent folder' do
       render
       link = profile_project_folder_path(project.owner, project,
-                                         parent_in_branch.remote_file_id)
+                                         parent_in_branch.hashed_file_id)
       expect(rendered).to have_link 'Open Parent Folder', href: link
     end
 

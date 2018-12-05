@@ -5,15 +5,16 @@ module FileHelper
   # Wrap block into a link_to the file.
   # If the file is a directory, wraps into an internal link to that directory.
   # If the file is not a directory, wraps into an remote link to Drive.
-  def link_to_file(file, project, options = {}, &block)
+  def link_to_file(diff, project, options = {}, &block)
     # internal link to that folder
-    if file.folder?
-      path =
-        profile_project_folder_path(project.owner, project, file.remote_file_id)
+    if diff.folder?
+      path = profile_project_folder_path(
+        project.owner, project, VCS::File.id_to_hashid(diff.file_id)
+      )
 
     # remote link to the original file on Google Drive
     else
-      path = file.link_to_remote
+      path = diff.link_to_remote
       options = options.reverse_merge target: '_blank'
     end
 
@@ -40,12 +41,14 @@ module FileHelper
 
   private
 
-  def file_backup_path(file, revision, project)
-    if file.folder? && revision.published?
-      profile_project_revision_folder_path(project.owner, project,
-                                           revision.id, file.remote_file_id)
+  def file_backup_path(diff, revision, project)
+    if diff.folder? && revision.published?
+      profile_project_revision_folder_path(
+        project.owner, project, revision.id,
+        VCS::File.id_to_hashid(diff.file_id)
+      )
     else
-      file.backup&.link_to_remote
+      diff.backup&.link_to_remote
     end
   end
 end

@@ -24,7 +24,7 @@ RSpec.describe Revisions::FoldersController, type: :controller do
       profile_handle: project.owner.to_param,
       project_slug:   project.slug,
       revision_id:    revision.id,
-      id:             folder.remote_file_id
+      id:             folder.hashed_file_id
     }
   end
   let(:current_account) { project.owner.account }
