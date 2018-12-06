@@ -38,6 +38,16 @@ div.file[class=file_change.symbolic_mime_type
                          link_options: link_options }
 
   - if file_change.modification? && file_change.content_change.present?
-    div.content-change
+    .content-change
       = render partial: 'revisions/content_change_fragment',
-               collection: file_change.content_change.fragments
+               collection: file_change.content_change.fragments,
+               locals: { truncate_content: true }
+
+      .links
+        - if revision.nil? || !revision.published?
+          - path = profile_project_file_change_path(project.owner, project, file_change.hashed_file_id)
+        - else
+          - path = profile_project_revision_file_change_path(project.owner, project, revision, file_change.hashed_file_id)
+        = link_to 'View side-by-side',
+                  path,
+                  link_options.merge(class: 'btn-flat btn-slim grey lighten-2')

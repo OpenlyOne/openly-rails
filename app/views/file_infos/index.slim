@@ -1,14 +1,3 @@
-.page-subheading.gray.lighten-3
-  .container
-    .row.no-margin-bottom
-      .col.s12
-        h2
-          = image_tag @file.icon,
-                      alt: 'File icon',
-                      size: '56',
-                      class: 'img-responsive left'
-          span = @file.name
-
 .container
 
   = render partial: 'file_status',

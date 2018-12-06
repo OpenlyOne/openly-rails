@@ -18,12 +18,42 @@ RSpec.describe 'revisions/folders/show', type: :view do
     controller.action_name = action
   end
 
+  # Overwrite the render method to include locals
+  def render
+    allow(view).to receive(:parent_layout)
+    file_name = self.class.top_level_description
+    super(
+      template: file_name,
+      layout: "layouts/#{file_name.rpartition('/').first}"
+    )
+  end
+
   it 'renders revision metadata' do
     render
     expect(rendered).to have_text(revision.title)
     expect(rendered).to have_text(revision.author.name)
     expect(rendered)
       .to have_text("#{time_ago_in_words(revision.created_at)} ago")
+  end
+
+  it 'has a link to the revision root folder path' do
+    render
+    expect(rendered).to have_link(
+      revision.title,
+      href: profile_project_revision_root_folder_path(
+        project.owner, project, revision
+      )
+    )
+  end
+
+  it 'has a link to the revisions page' do
+    render
+    expect(rendered).to have_link(
+      "#{time_ago_in_words(revision.created_at)} ago",
+      href: profile_project_revisions_path(
+        project.owner, project, anchor: revision
+      )
+    )
   end
 
   it 'has a button to restore the revision' do
@@ -36,7 +66,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
       'form'\
       "[action='#{restore_action}']"\
       "[method='post']",
-      text: 'Restore'
+      text: 'Restore Revision'
     )
   end
 

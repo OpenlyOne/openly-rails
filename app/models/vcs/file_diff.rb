@@ -68,6 +68,16 @@ module VCS
     validates :new_version_id, presence: true, unless: :old_version_id
     validates :old_version_id, presence: true, unless: :new_version_id
 
+    # Find diff by hashed file ID
+    # Raises ActiveRecord::RecordNotFound error if no match is found.
+    def self.find_by_hashed_file_id!(id)
+      with_file_id.find_by!(
+        current_or_previous_version: {
+          file_id: VCS::File.hashid_to_id(id)
+        }
+      )
+    end
+
     # Apply selected changes to this file diff
     def apply_selected_changes
       # Skip if all changes are selected

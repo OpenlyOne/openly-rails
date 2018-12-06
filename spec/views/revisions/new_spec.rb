@@ -116,6 +116,11 @@ RSpec.describe 'revisions/new', type: :view do
           old_content: 'bye'
         )
       end
+      let(:link_to_side_by_side) do
+        profile_project_file_change_path(
+          project.owner, project, change.hashed_file_id
+        )
+      end
 
       before do
         allow(change).to receive(:modification?).and_return true
@@ -126,6 +131,19 @@ RSpec.describe 'revisions/new', type: :view do
         render
         expect(rendered).to have_css('.fragment.addition', text: 'hi')
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+      end
+
+      it 'has a link to side-by-side diff' do
+        render
+        expect(rendered)
+          .to have_link('View side-by-side', href: link_to_side_by_side)
+      end
+
+      it 'opens side-by-side diff in a new tab' do
+        render
+        expect(rendered).to have_selector(
+          "a[href='#{link_to_side_by_side}'][target='_blank']"
+        )
       end
     end
   end

@@ -1,0 +1,21 @@
+.fragment {
+  white-space: pre-wrap;
+
+  &.addition {
+    background-color: color('green', 'lighten-5');
+    color: color('green', 'darken-2');
+  }
+
+  &.deletion {
+    background-color: color('red', 'lighten-5');
+    color: color('red', 'darken-2');
+    text-decoration: line-through;
+  }
+
+  &.linebreak {
+    svg {
+      height: 18px;
+      vertical-align: middle;
+    }
+  }
+}

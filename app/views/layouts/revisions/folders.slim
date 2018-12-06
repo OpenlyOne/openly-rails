@@ -1,5 +1,9 @@
 = render partial: 'projects/head', object: @project, as: :project
 
+= render partial: 'revisions/head', object: @revision, as: :revision,
+         locals: { project: @project }
+
+
 = yield
 
 = parent_layout 'application'

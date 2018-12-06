@@ -161,6 +161,14 @@ RSpec.describe 'revisions/index', type: :view do
         expect(rendered).to have_css('.fragment.addition', text: 'hi')
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
       end
+
+      it 'does not have a link to side-by-side diff' do
+        render
+        link = profile_project_file_change_path(
+          project.owner, project, diffs.first.hashed_file_id
+        )
+        expect(rendered).not_to have_link(href: link)
+      end
     end
   end
 end

@@ -55,4 +55,29 @@ RSpec.describe VCS::FileDiff, type: :model do
       expect(files).to eq(files.sort_by { |file| file.name.downcase })
     end
   end
+
+  describe '.find_by_hashed_file_id!(id)' do
+    subject(:finding) { described_class.find_by_hashed_file_id!(id_to_find) }
+
+    let(:id_to_find)  { diff.hashed_file_id }
+    let!(:diff)       { create :vcs_file_diff }
+
+    it { is_expected.to eq diff }
+
+    context 'when no match exists' do
+      before { diff.destroy }
+
+      it { expect { finding }.to raise_error ActiveRecord::RecordNotFound }
+    end
+
+    context 'when it is being chained' do
+      subject(:finding) do
+        described_class.none.find_by_hashed_file_id!(id_to_find)
+      end
+
+      it 'is applied within the scope of the chain' do
+        expect { finding }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
 end

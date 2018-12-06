@@ -39,6 +39,32 @@
   z-index: 100;
 }
 
+// page subheading color
+.page-subheading {
+  background-color: color('gray', 'lighten-3');
+
+  // a page SUB sub heading should be differentiated by background color
+  + .page-subheading {
+    background-color: transparent;
+  }
+
+  &.with-image {
+    // the image (such as file icon)
+    img {
+      height: 1em;
+      position: relative;
+      top: 2px;
+      width: auto;
+    }
+
+    // the actual heading
+    span {
+      display: block;
+      padding-left: 1.3em;
+    }
+  }
+}
+
 
 // Show a horizontal line/divider behind heading
 // Adapted from: https://codepen.io/ericrasch/pen/Irlpm

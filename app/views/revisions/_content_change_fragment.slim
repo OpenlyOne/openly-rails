@@ -1,7 +1,18 @@
-- if content_change_fragment.no_change?
+- if truncate_content && content_change_fragment.retain?
   - content = content_change_fragment.truncated_content(250)
 - else
   - content = content_change_fragment.content
 
-span.fragment[class=content_change_fragment.type]
-  = content.gsub(/\n(\n)+/, "\n\n")
+- pieces = content.split(/(\n)/).reject(&:empty?)
+
+- pieces.each do |piece|
+  / is this a line break?
+  - is_linebreak = piece.eql?("\n")
+  span.fragment[class=[content_change_fragment.type, ('linebreak' if is_linebreak)]]
+    / if so, then draw a enter key symbol and add line break
+    - if is_linebreak
+      svg viewBox="0 0 24 24"
+        path fill="currentColor" d="M19,7V11H5.83L9.41,7.41L8,6L2,12L8,18L9.41,16.58L5.83,13H21V7H19Z"
+      br
+    - else
+      = piece

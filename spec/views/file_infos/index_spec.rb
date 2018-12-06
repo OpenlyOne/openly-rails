@@ -18,16 +18,6 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:committed_file_diffs, committed_file_diffs)
   end
 
-  it 'renders the file icon' do
-    render
-    expect(rendered).to have_css "h2 img[src='#{view.asset_path(file.icon)}']"
-  end
-
-  it 'renders the file name' do
-    render
-    expect(rendered).to have_css 'h2', text: file.name
-  end
-
   it 'renders that the file has been deleted from the project' do
     render
     expect(rendered)
@@ -141,6 +131,14 @@ RSpec.describe 'file_infos/index', type: :view do
           expect(rendered).to have_css('.fragment.addition', text: 'hi')
           expect(rendered).to have_css('.fragment.deletion', text: 'bye')
         end
+
+        it 'has a link to side-by-side diff' do
+          render
+          link = profile_project_file_change_path(
+            project.owner, project, uncaptured_file_diff.hashed_file_id
+          )
+          expect(rendered).to have_link('View side-by-side', href: link)
+        end
       end
     end
 
@@ -234,6 +232,36 @@ RSpec.describe 'file_infos/index', type: :view do
         ".revision[id='#{r3.id}'] .file.addition",
         text: 'f3 added'
       )
+    end
+
+    context 'when diff is modification and has content change' do
+      let(:content_change) do
+        VCS::Operations::ContentDiffer.new(
+          new_content: 'hi',
+          old_content: 'bye'
+        )
+      end
+
+      before do
+        allow(committed_file_diffs.first)
+          .to receive(:modification?).and_return true
+        allow(committed_file_diffs.first)
+          .to receive(:content_change).and_return content_change
+      end
+
+      it 'shows the diff' do
+        render
+        expect(rendered).to have_css('.fragment.addition', text: 'hi')
+        expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+      end
+
+      it 'does not have a link to side-by-side diff' do
+        render
+        link = profile_project_file_change_path(
+          project.owner, project, committed_file_diffs.first.hashed_file_id
+        )
+        expect(rendered).to have_link(href: link)
+      end
     end
 
     context 'when diff is restorable' do
