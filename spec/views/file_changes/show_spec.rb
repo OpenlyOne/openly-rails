@@ -29,6 +29,11 @@ RSpec.describe 'file_changes/show', type: :view do
     allow(file_diff).to receive(:content_change).and_return differ
   end
 
+  it 'has headers: Before <-> Now' do
+    render
+    expect(rendered).to have_css('.header-row', text: 'BeforeNow')
+  end
+
   it 'renders correct content on the old/left side' do
     render
     left_side =
@@ -51,5 +56,16 @@ RSpec.describe 'file_changes/show', type: :view do
     expect(left_side).to eq(
       ["Hi,\n\n", "my name is Finn.\n\nHow are you? :)\n"]
     )
+  end
+
+  context 'when revision is present' do
+    before do
+      assign(:revision, instance_double(VCS::Commit))
+    end
+
+    it 'has headers: Before <-> After' do
+      render
+      expect(rendered).to have_css('.header-row', text: 'BeforeAfter')
+    end
   end
 end

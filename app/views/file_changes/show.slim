@@ -3,7 +3,11 @@
     .col.s6
       h3.no-margin-top Before
     .col.s6
-      h3.no-margin-top Now
+      h3.no-margin-top
+        - if @revision.present?
+          | After
+        - else
+          | Now
 
   / The content side-by side
   .content.white
