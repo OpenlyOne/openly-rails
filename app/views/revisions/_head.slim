@@ -3,10 +3,13 @@
     .row.no-margin-bottom
       .col.s12
         p.flow-text.no-margin
-          b = revision.title
+          = link_to profile_project_revision_root_folder_path(project.owner, project, revision)
+            b.black-text = revision.title
         p.no-margin
           => link_to profile_path(revision.author)
             = revision.author.name
-          | &middot;
-          =<> time_ago_in_words(revision.created_at)
-          | ago
+          ' &middot;
+          = link_to profile_project_revisions_path(project.owner, project, anchor: revision),
+                    class: 'black-text'
+            => time_ago_in_words(revision.created_at)
+            | ago
