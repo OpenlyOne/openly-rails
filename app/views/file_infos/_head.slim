@@ -2,9 +2,10 @@
   .container
     .row.no-margin-bottom
       .col.s12
-        h2
-          = image_tag file.icon,
-                      alt: 'File icon',
-                      size: '56',
-                      class: 'img-responsive left'
-          span = file.name
+        = link_to profile_project_file_infos_path(project.owner, project, file.hashed_file_id)
+          h2
+            = image_tag file.icon,
+                        alt: 'File icon',
+                        size: '56',
+                        class: 'img-responsive left'
+            span.black-text = file.name

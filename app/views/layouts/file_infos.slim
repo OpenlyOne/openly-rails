@@ -1,7 +1,8 @@
 = render partial: 'projects/head', object: @project, as: :project,
          locals: { active_tab: nil }
 
-= render partial: 'file_infos/head', object: @file, as: :file
+= render partial: 'file_infos/head', object: @file, as: :file,
+         locals: { project: @project }
 
 = yield
 
