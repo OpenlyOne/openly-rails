@@ -16,19 +16,21 @@ class FileChangesController < ApplicationController
 
   # Raise error unless we have a modification
   def ensure_modification
-    raise ActiveRecord::RecordNotFound unless @file_diff.modification?
+    return if @file_diff.modification?
+
+    raise ActiveRecord::RecordNotFound
   end
 
   # Raise error unless we have content change
   def ensure_content_change
-    raise ActiveRecord::RecordNotFound unless @file_diff.content_change.present?
+    return if @file_diff.content_change.present?
+
+    raise ActiveRecord::RecordNotFound
   end
 
   # Set the uncaptured file diff if file in branch has current or committed
   # version present
   def set_file_diff
-    return unless file_in_branch.version.present?
-
     @file_diff = file_in_branch.diff
   end
 
@@ -37,6 +39,7 @@ class FileChangesController < ApplicationController
       @master_branch
       .files
       .without_root
+      .joins_version
       .find_by_hashed_file_id!(params[:id])
   end
 end

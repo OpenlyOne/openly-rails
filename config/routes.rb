@@ -89,6 +89,10 @@ Rails.application.routes.draw do
           post 'restore' => 'restores#create', as: :restores
           get 'restore/status', to: 'restores#show', as: :restore_status,
                                 on: :collection
+
+          resources :file_changes, path: 'changes',
+                                   controller: 'file_changes',
+                                   only: :show
         end
       end
       # Routes for changes

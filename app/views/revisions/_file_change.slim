@@ -43,8 +43,11 @@ div.file[class=file_change.symbolic_mime_type
                collection: file_change.content_change.fragments,
                locals: { truncate_content: true }
 
-      - if revision.nil? || !revision.published?
-        .links
-          = link_to 'View side-by-side',
-                    profile_project_file_change_path(project.owner, project, file_change.hashed_file_id),
-                    link_options.merge(class: 'btn-flat btn-slim grey lighten-2')
+      .links
+        - if revision.nil? || !revision.published?
+          - path = profile_project_file_change_path(project.owner, project, file_change.hashed_file_id)
+        - else
+          - path = profile_project_revision_file_change_path(project.owner, project, revision, file_change.hashed_file_id)
+        = link_to 'View side-by-side',
+                  path,
+                  link_options.merge(class: 'btn-flat btn-slim grey lighten-2')

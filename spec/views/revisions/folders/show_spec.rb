@@ -18,6 +18,16 @@ RSpec.describe 'revisions/folders/show', type: :view do
     controller.action_name = action
   end
 
+  # Overwrite the render method to include locals
+  def render
+    allow(view).to receive(:parent_layout)
+    file_name = self.class.top_level_description
+    super(
+      template: file_name,
+      layout: "layouts/#{file_name.rpartition('/').first}"
+    )
+  end
+
   it 'renders revision metadata' do
     render
     expect(rendered).to have_text(revision.title)

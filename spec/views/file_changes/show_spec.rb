@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'file_changes/show', type: :view do
-  let(:file_in_branch) { build_stubbed :vcs_file_in_branch }
+  let(:file_diff) { instance_double VCS::FileDiff }
   let(:differ) do
     VCS::Operations::ContentDiffer.new(
       new_content: new_content, old_content: old_content
@@ -25,10 +25,8 @@ RSpec.describe 'file_changes/show', type: :view do
   end
 
   before do
-    assign(:file_in_branch, file_in_branch)
-    diff = instance_double VCS::FileDiff
-    allow(file_in_branch).to receive(:diff).and_return diff
-    allow(diff).to receive(:content_change).and_return differ
+    assign(:file_diff, file_diff)
+    allow(file_diff).to receive(:content_change).and_return differ
   end
 
   it 'renders correct content on the old/left side' do
