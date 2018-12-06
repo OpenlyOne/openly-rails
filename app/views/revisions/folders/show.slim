@@ -14,3 +14,12 @@
              object: child,
              locals: {project: @project,
                       revision: @revision}
+
+/ button for restoring commit
+/ TODO: Implement check
+- if true || @user_can_restore_revision
+  .fixed-action-btn
+    =<> button_to profile_project_revision_restores_path(@project.owner, @project, @revision),
+                  method: :post,
+                  class: 'btn btn-large primary-color primary-color-text'
+      | Restore Revision

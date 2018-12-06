@@ -46,7 +46,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
       'form'\
       "[action='#{restore_action}']"\
       "[method='post']",
-      text: 'Restore'
+      text: 'Restore Revision'
     )
   end
 
