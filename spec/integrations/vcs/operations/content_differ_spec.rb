@@ -33,9 +33,16 @@ RSpec.describe VCS::Operations::ContentDiffer, type: :model do
 
     it 'fragments the change' do
       expect(fragments.length).to eq 7
-      expect(fragments.map(&:fragment)).to eq(
-        ['{--Hi,--}', '{++Hello,++}', ' my ', '{--last--}', ' name is ',
-         '{--Long.--}', '{++Lara.++}']
+      expect(fragments.map { |frag| [frag.type, frag.content]}).to eq(
+        [
+          [:deletion, 'Hi,'],
+          [:addition, 'Hello,'],
+          [:middle,   ' my '],
+          [:deletion, 'last'],
+          [:middle,   ' name is '],
+          [:deletion, 'Long.'],
+          [:addition, 'Lara.']
+        ]
       )
     end
   end

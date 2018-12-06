@@ -1,4 +1,4 @@
-- if content_change_fragment.no_change?
+- if content_change_fragment.retain?
   - content = content_change_fragment.truncated_content(250)
 - else
   - content = content_change_fragment.content
