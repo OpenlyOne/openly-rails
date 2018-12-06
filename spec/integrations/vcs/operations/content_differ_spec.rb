@@ -13,7 +13,7 @@ RSpec.describe VCS::Operations::ContentDiffer, type: :model do
 
     it do
       is_expected.to eq(
-        '{--Hi,--}{++Hello,++} my {--last--} name is {--Long.--} {++Lara.++}'
+        '{--Hi,--}{++Hello,++} my {--last --}name is {--Long.--}{++Lara.++}'
       )
     end
 
@@ -26,6 +26,26 @@ RSpec.describe VCS::Operations::ContentDiffer, type: :model do
         is_expected.not_to include('++}')
       end
     end
+
+    context 'when inserting line breaks' do
+      let(:new_content) { "Hello,\n\nmy name is Lara." }
+      let(:old_content) { 'Hello, my name is Lara.' }
+
+      it 'shows two line breaks as added and one space as removed' do
+        is_expected.to eq("Hello,{-- --}{++\n\n++}my name is Lara.")
+      end
+    end
+
+    context 'when inserting spaces' do
+      let(:new_content) { 'Hello, my name is   Lara.' }
+      let(:old_content) { 'Hello, my name is Lara.' }
+
+      it 'shows two line breaks as added and one space as removed' do
+        is_expected.to eq(
+          'Hello, my name is {++  ++}Lara.'
+        )
+      end
+    end
   end
 
   describe '#fragments' do
@@ -33,17 +53,33 @@ RSpec.describe VCS::Operations::ContentDiffer, type: :model do
 
     it 'fragments the change' do
       expect(fragments.length).to eq 7
-      expect(fragments.map { |frag| [frag.type, frag.content]}).to eq(
+      expect(fragments.map { |frag| [frag.type, frag.content] }).to eq(
         [
           [:deletion, 'Hi,'],
           [:addition, 'Hello,'],
           [:middle,   ' my '],
-          [:deletion, 'last'],
-          [:middle,   ' name is '],
+          [:deletion, 'last '],
+          [:middle,   'name is '],
           [:deletion, 'Long.'],
           [:addition, 'Lara.']
         ]
       )
+    end
+
+    context 'when making changes to consecutive words' do
+      let(:new_content) { 'This is super incredibly awesome' }
+      let(:old_content) { 'This is pretty wonderfully awesome' }
+
+      it 'keeps related changes together' do
+        expect(fragments.map { |frag| [frag.type, frag.content] }).to eq(
+          [
+            [:beginning,  'This is '],
+            [:deletion,   'pretty wonderfully'],
+            [:addition,   'super incredibly'],
+            [:ending,     ' awesome']
+          ]
+        )
+      end
     end
   end
 end

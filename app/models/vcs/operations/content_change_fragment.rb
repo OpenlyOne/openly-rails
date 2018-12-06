@@ -75,10 +75,24 @@ module VCS
         end
       end
 
+      # Aggregrate changes across individual whitespace (combine multiple
+      # changes into one to improve readability)
+      def self.aggregate(fragments)
+        groups = fragments.split_with_delimiter { |f| f.retain? && !f.space? }
+
+        groups.flat_map do |group|
+          # Skip this group unless it includes both additions and deletions
+          next group unless group.any?(&:addition?) && group.any?(&:deletion?)
+
+          [Deletion.merge(group.reject(&:addition?)),
+           Addition.merge(group.reject(&:deletion?))]
+        end
+      end
+
       # Break apart the content change string into its fragments
       def self.fragment(content_change)
         fragments = content_change.split(/(\{[-\+]{2}.*?[-\+]{2}\})/m)
-        fragments.delete_if(&:blank?)
+        fragments.delete_if(&:empty?)
 
         fragments.each_with_index.map do |fragment, index|
           klass_for_fragment(fragment).new(
@@ -87,6 +101,12 @@ module VCS
             is_last: (index == fragments.length - 1)
           )
         end
+      end
+
+      # Break apart the content change string into its fragments and aggregate
+      # related changes
+      def self.fragment_and_aggregate(content_change)
+        aggregate(fragment(content_change))
       end
 
       def self.klass_for_fragment(raw_content)
@@ -106,6 +126,11 @@ module VCS
         )
       end
 
+      # Merge the provided fragment contents into a single fragment
+      def self.merge(fragments)
+        new(content: fragments.map(&:content).join)
+      end
+
       def initialize(content:, is_first: false, is_last: false)
         self.content = content
         self.is_first = is_first
@@ -122,6 +147,11 @@ module VCS
 
       def retain?
         false
+      end
+
+      # Is this fragment a single whitespace?
+      def space?
+        content.eql?(' ')
       end
     end
   end
