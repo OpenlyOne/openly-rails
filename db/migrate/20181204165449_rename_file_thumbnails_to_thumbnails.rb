@@ -1,6 +1,6 @@
 class RenameFileThumbnailsToThumbnails < ActiveRecord::Migration[5.2]
   def up
-    rename_table :vcs_thumbnails, :vcs_thumbnails
+    rename_table :vcs_file_thumbnails, :vcs_thumbnails
 
     # rename attachment directory
     FileUtils.mv(
@@ -10,7 +10,7 @@ class RenameFileThumbnailsToThumbnails < ActiveRecord::Migration[5.2]
   end
 
   def down
-    rename_table :vcs_thumbnails, :vcs_thumbnails
+    rename_table :vcs_thumbnails, :vcs_file_thumbnails
 
     # rename attachment directory
     FileUtils.mv(
@@ -22,7 +22,7 @@ class RenameFileThumbnailsToThumbnails < ActiveRecord::Migration[5.2]
   private
 
   def old_path_for_file_thumbnail_storage
-    Rails.root.join(Settings.attachment_storage, 'vcs', 'thumbnails')
+    Rails.root.join(Settings.attachment_storage, 'vcs', 'file_thumbnails')
   end
 
   def new_path_for_file_thumbnail_storage

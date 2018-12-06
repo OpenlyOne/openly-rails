@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.30.1 (Dec 6, 2018)
+
+**Fixes:**
+- Fix the latest database migration that was accidentally modified while doing
+  a find-and-replace operation
+
 ## v0.30 (Dec 6, 2018)
 
 **New Features:**
