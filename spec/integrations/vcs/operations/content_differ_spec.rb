@@ -82,4 +82,18 @@ RSpec.describe VCS::Operations::ContentDiffer, type: :model do
       end
     end
   end
+
+  describe '#fragments_by_paragraph' do
+    subject(:fragments_by_paragraph) { differ.fragments_by_paragraph }
+
+    let(:new_content) { "This is a\n\ngreat opportunity." }
+    let(:old_content) { "This\n\nwas is fantastic" }
+
+    it 'returns paragraphs' do
+      expect(fragments_by_paragraph.map(&:content)).to eq(
+        ['This', "\n\n", 'was', ' is ', 'fantastic', 'a', "\n\n",
+         'great opportunity.']
+      )
+    end
+  end
 end

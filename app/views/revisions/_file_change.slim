@@ -40,7 +40,8 @@ div.file[class=file_change.symbolic_mime_type
   - if file_change.modification? && file_change.content_change.present?
     .content-change
       = render partial: 'revisions/content_change_fragment',
-               collection: file_change.content_change.fragments
+               collection: file_change.content_change.fragments,
+               locals: { truncate_content: true }
 
       - if revision.nil? || !revision.published?
         .links

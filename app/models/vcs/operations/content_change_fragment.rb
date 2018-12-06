@@ -7,8 +7,12 @@ module VCS
     class ContentChangeFragment
       attr_accessor :content, :is_first, :is_last
 
+      # Regex for a paragraph break
+      PARAGRAPH_BREAK = /\n(?:\n)+/
+
       class << self
-        delegate :unescape, to: :'VCS::Operations::ContentDiffer'
+        delegate :unescape, :word_delimiter,
+                 to: :'VCS::Operations::ContentDiffer'
       end
 
       # A fragment that has been added to new content
@@ -137,6 +141,14 @@ module VCS
         self.is_last = is_last
       end
 
+      def break_into_paragraphs
+        content.split(/(#{PARAGRAPH_BREAK})/).map do |paragraph|
+          next if paragraph.empty?
+
+          self.class.new(content: paragraph)
+        end.compact
+      end
+
       def addition?
         false
       end
@@ -147,6 +159,10 @@ module VCS
 
       def retain?
         false
+      end
+
+      def paragraph_break?
+        content.match?(/^#{PARAGRAPH_BREAK}$/)
       end
 
       # Is this fragment a single whitespace?

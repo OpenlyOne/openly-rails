@@ -82,7 +82,7 @@ RSpec.describe VCS::Operations::ContentChangeFragment, type: :model do
       it { expect(retain.type).to eq :ending }
     end
 
-    describe 'truncated_content(num_chars)' do
+    describe '#truncated_content(num_chars)' do
       subject(:truncated_content) { retain.truncated_content(num_chars) }
 
       let(:retain)        { described_class::Retain.new(content: content) }

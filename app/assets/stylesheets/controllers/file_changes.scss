@@ -1,0 +1,45 @@
+// Styling for FileChangesController
+
+.c-file-changes {
+  .side-by-side {
+
+    // remove margin, so that border-left fills entire vertical height
+    .row {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .content {
+      border: 2px solid color('shades', 'black');
+
+      // scss-lint:disable NestingDepth, SelectorDepth
+      // right side: add border on the left
+      .col:last-child {
+        border-left: 2px solid color('shades', 'black');
+        // pull the element two pixels to the left, so that the borders overlap
+        margin-left: -2px;
+      }
+
+      // left side: add border on the right
+      .col:first-child {
+        border-right: 2px solid color('shades', 'black');
+      }
+
+      // first row, add padding to border
+      .row:first-child .col {
+        padding-top: 10px;
+      }
+
+      // last row, add padding to border
+      .row:last-child .col {
+        padding-bottom: 10px;
+      }
+      // scss-lint:enable NestingDepth, SelectorDepth
+    }
+
+    .fragment.addition,
+    .fragment.deletion {
+      font-weight: bold;
+    }
+  }
+}

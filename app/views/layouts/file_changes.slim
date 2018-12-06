@@ -1,7 +1,7 @@
 = render partial: 'projects/head', object: @project, as: :project,
          locals: { active_tab: nil }
 
-= render partial: 'file_infos/head', object: @file, as: :file
+= render partial: 'file_infos/head', object: @file_in_branch, as: :file
 
 = yield
 

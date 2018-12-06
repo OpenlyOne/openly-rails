@@ -18,16 +18,6 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:committed_file_diffs, committed_file_diffs)
   end
 
-  it 'renders the file icon' do
-    render
-    expect(rendered).to have_css "h2 img[src='#{view.asset_path(file.icon)}']"
-  end
-
-  it 'renders the file name' do
-    render
-    expect(rendered).to have_css 'h2', text: file.name
-  end
-
   it 'renders that the file has been deleted from the project' do
     render
     expect(rendered)

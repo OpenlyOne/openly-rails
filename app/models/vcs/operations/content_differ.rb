@@ -95,6 +95,10 @@ module VCS
         @fragments ||=
           VCS::Operations::ContentChangeFragment.fragment_and_aggregate(full)
       end
+
+      def fragments_by_paragraph
+        @fragments_by_paragraph ||= fragments.flat_map(&:break_into_paragraphs)
+      end
     end
   end
 end
