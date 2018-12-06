@@ -1,22 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe FileHelper, type: :helper do
-  describe '#link_to_file(file, project, options = {})' do
+  describe '#link_to_file(diff, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { build_stubbed :project }
-    let(:file)        { instance_double VCS::FileSnapshot }
+    let(:file)        { instance_double VCS::Version }
     let(:is_folder)   { false }
 
-    before { allow(file).to receive(:folder?).and_return is_folder }
-    before { allow(file).to receive(:external_id).and_return 'external-id' }
-    before { allow(file).to receive(:external_link).and_return 'external-link' }
+    before do
+      allow(file).to receive(:folder?).and_return is_folder
+      allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
+      allow(file).to receive(:link_to_remote).and_return 'remote-link'
+    end
 
     context 'when file is folder' do
       let(:is_folder) { true }
 
       it 'returns internal link to directory' do
         expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/external-id",
+          "/#{project.owner.handle}/#{project.slug}/folders/hashed-file-id",
           any_args
         )
         method
@@ -31,8 +33,8 @@ RSpec.describe FileHelper, type: :helper do
     context 'when file is not directory' do
       let(:is_folder) { false }
 
-      it 'sets url to external_link_for_file' do
-        expect(helper).to receive(:link_to).with('external-link', kind_of(Hash))
+      it 'sets url to link_to_remote_for_file' do
+        expect(helper).to receive(:link_to).with('remote-link', kind_of(Hash))
         method
       end
 
@@ -68,19 +70,19 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#link_to_file_backup(file, revision, project, opts = {}, &block)' do
     subject(:method) do
-      helper.link_to_file_backup(snapshot, revision, project) {}
+      helper.link_to_file_backup(version, revision, project) {}
     end
-    let(:snapshot)    { instance_double VCS::FileSnapshot }
+    let(:version)     { instance_double VCS::Version }
     let(:backup_path) { 'some-path' }
     let(:revision)    { instance_double VCS::Commit }
     let(:project)     { instance_double Project }
     let(:is_folder)   { false }
 
     before do
-      allow(snapshot).to receive(:folder?).and_return(is_folder)
+      allow(version).to receive(:folder?).and_return(is_folder)
       allow(helper)
         .to receive(:file_backup_path)
-        .with(snapshot, revision, project)
+        .with(version, revision, project)
         .and_return backup_path
     end
 
@@ -120,7 +122,7 @@ RSpec.describe FileHelper, type: :helper do
 
     context 'when options are passed' do
       subject(:method) do
-        helper.link_to_file_backup(snapshot, revision, project, options) {}
+        helper.link_to_file_backup(version, revision, project, options) {}
       end
       let(:options) { {} }
 
@@ -143,16 +145,16 @@ RSpec.describe FileHelper, type: :helper do
 
   describe '#link_to_file_backup?(file, revision)' do
     subject(:method) do
-      helper.link_to_file_backup?(snapshot, revision, project)
+      helper.link_to_file_backup?(version, revision, project)
     end
-    let(:snapshot)    { instance_double VCS::FileSnapshot }
-    let(:revision)    { instance_double VCS::Commit }
-    let(:project)     { instance_double Project }
+    let(:version)   { instance_double VCS::Version }
+    let(:revision)  { instance_double VCS::Commit }
+    let(:project)   { instance_double Project }
 
     before do
       allow(helper)
         .to receive(:file_backup_path)
-        .with(snapshot, revision, project)
+        .with(version, revision, project)
         .and_return path
     end
 
@@ -169,14 +171,14 @@ RSpec.describe FileHelper, type: :helper do
     end
   end
 
-  describe '#file_backup_path(file, revision, project)' do
+  describe '#file_backup_path(diff, revision, project)' do
     subject(:method) { helper.send(:file_backup_path, file, revision, project) }
-    let(:file)          { instance_double VCS::FileSnapshot }
+    let(:file)          { instance_double VCS::Version }
     let(:revision)      { instance_double VCS::Commit }
     let(:project)       { instance_double Project }
     let(:is_folder)     { false }
     let(:backup) { nil }
-    let(:file_resource) { instance_double VCS::StagedFile }
+    let(:file_resource) { instance_double VCS::FileInBranch }
 
     before do
       allow(file).to receive(:folder?).and_return(is_folder)
@@ -190,17 +192,17 @@ RSpec.describe FileHelper, type: :helper do
       before do
         allow(project).to receive(:owner).and_return 'owner'
         allow(project).to receive(:to_param).and_return 'project'
-        allow(revision).to receive(:id).and_return 'r-id'
+        allow(revision).to receive(:id).and_return 'revision-id'
         allow(revision).to receive(:published?).and_return is_published
-        allow(file).to receive(:external_id).and_return 'ext-id'
+        allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
       end
 
       it do
         is_expected.to eq profile_project_revision_folder_path(
           'owner',
           'project',
-          'r-id',
-          'ext-id'
+          'revision-id',
+          'hashed-file-id'
         )
       end
 
@@ -216,10 +218,10 @@ RSpec.describe FileHelper, type: :helper do
 
       before do
         allow(file).to receive(:backup).and_return backup
-        allow(backup).to receive(:external_link).and_return 'external'
+        allow(backup).to receive(:link_to_remote).and_return 'remote'
       end
 
-      it { is_expected.to eq 'external' }
+      it { is_expected.to eq 'remote' }
     end
 
     context 'when file does not have backup' do

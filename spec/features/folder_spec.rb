@@ -5,10 +5,8 @@ feature 'Folder' do
     create :project, :setup_complete, :skip_archive_setup, :with_repository
   end
   let(:branch)  { project.master_branch }
-  let(:root)    { create :vcs_staged_file, :root, branch: branch }
-  let!(:files) do
-    create_list :vcs_staged_file, 5, parent: root
-  end
+  let(:root)    { create :vcs_file_in_branch, :root, branch: branch }
+  let!(:files)  { create_list :vcs_file_in_branch, 5, parent_in_branch: root }
   let(:create_revision) do
     c = branch.commits.create_draft_and_commit_files!(project.owner)
     c.update(is_published: true, title: 'origin revision')
@@ -34,9 +32,9 @@ feature 'Folder' do
 
   scenario 'User can view sub-folder' do
     # given there is a subfolder
-    subfolder =
-      create :vcs_staged_file, :folder, name: 'A Unique Subfolder', parent: root
-    subfiles = create_list :vcs_staged_file, 5, parent: subfolder
+    subfolder = create :vcs_file_in_branch, :folder,
+                       name: 'A Unique Subfolder', parent_in_branch: root
+    subfiles = create_list :vcs_file_in_branch, 5, parent_in_branch: subfolder
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -48,7 +46,7 @@ feature 'Folder' do
     # then I should be on the project's subfolder page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}/" \
-      "folders/#{subfolder.external_id}"
+      "folders/#{subfolder.hashed_file_id}"
     )
     # and see the files in the project subfolder
     subfiles.each do |file|
@@ -57,7 +55,8 @@ feature 'Folder' do
   end
 
   scenario 'User can see files in correct order' do
-    folders = create_list :vcs_staged_file, 5, :folder, parent: root
+    folders =
+      create_list :vcs_file_in_branch, 5, :folder, parent_in_branch: root
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -65,29 +64,31 @@ feature 'Folder' do
     click_on 'Files'
 
     # then I should see files in the correct order
-    file_order = VCS::StagedFile.where(id: folders).order(:name).pluck(:name) +
-                 VCS::StagedFile.where(id: files).order(:name).pluck(:name)
+    file_order =
+      VCS::FileInBranch.where(id: folders).order(:name).pluck(:name) +
+      VCS::FileInBranch.where(id: files).order(:name).pluck(:name)
     expect(page.all('.file').map(&:text)).to eq file_order
   end
 
   scenario 'User can see diffs in folder' do
-    folder                      = create :vcs_staged_file, :folder, parent: root
-    modified_file               = create :vcs_staged_file, parent: folder
-    moved_out_file              = create :vcs_staged_file, parent: folder
-    moved_in_file               = create :vcs_staged_file, parent: root
-    moved_in_and_modified_file  = create :vcs_staged_file, parent: root
-    removed_file                = create :vcs_staged_file, parent: folder
-    unchanged_file              = create :vcs_staged_file, parent: folder
+    folder = create :vcs_file_in_branch, :folder, parent_in_branch: root
+    modified_file   = create :vcs_file_in_branch, parent_in_branch: folder
+    moved_out_file  = create :vcs_file_in_branch, parent_in_branch: folder
+    moved_in_file   = create :vcs_file_in_branch, parent_in_branch: root
+    moved_in_and_modified_file =
+      create :vcs_file_in_branch, parent_in_branch: root
+    removed_file    = create :vcs_file_in_branch, parent_in_branch: folder
+    unchanged_file  = create :vcs_file_in_branch, parent_in_branch: folder
     # and files are committed
     create_revision
 
     # when changes are made to files
-    added_file = create :vcs_staged_file, parent: folder
+    added_file = create :vcs_file_in_branch, parent_in_branch: folder
     modified_file.update(content_version: 'new-version')
-    moved_out_file.update(file_record_parent_id: root.file_record_id)
-    moved_in_file.update(file_record_parent_id: folder.file_record_id)
+    moved_out_file.update(parent_id: root.file_id)
+    moved_in_file.update(parent_id: folder.file_id)
     moved_in_and_modified_file
-      .update(file_record_parent_id: folder.file_record_id,
+      .update(parent_id: folder.file_id,
               content_version: 'new-version')
     removed_file.update(is_deleted: true)
 
@@ -112,9 +113,15 @@ feature 'Folder' do
   end
 
   context 'User can see correct ancestry path for folders' do
-    let(:fold) { create :vcs_staged_file, :folder, name: 'Fol', parent: root }
-    let(:docs) { create :vcs_staged_file, :folder, name: 'Docs', parent: fold }
-    let(:code) { create :vcs_staged_file, :folder, name: 'Code', parent: docs }
+    let(:fold) do
+      create :vcs_file_in_branch, :folder, name: 'Fol', parent_in_branch: root
+    end
+    let(:docs) do
+      create :vcs_file_in_branch, :folder, name: 'Docs', parent_in_branch: fold
+    end
+    let(:code) do
+      create :vcs_file_in_branch, :folder, name: 'Code', parent_in_branch: docs
+    end
     let(:init_folders) { [fold, docs, code] }
     before do
       init_folders
@@ -123,7 +130,7 @@ feature 'Folder' do
     let(:action) do
       # when I visit the code folder
       visit "#{project.owner.to_param}/#{project.to_param}/" \
-            "folders/#{code.external_id}"
+            "folders/#{code.remote_file_id}"
     end
 
     context 'when code folder exists' do
@@ -135,7 +142,7 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed' do
-      before  { code.update(parent: nil) }
+      before  { code.update(parent_in_branch: nil) }
       before  { action }
 
       it 'then ancestry path is root > folder > documents > code' do
@@ -144,8 +151,8 @@ feature 'Folder' do
     end
 
     context 'when code folder is removed and documents is moved into root' do
-      before  { code.update(parent: nil) }
-      before  { docs.update(name: 'The Docs', parent: root) }
+      before  { code.update(parent_in_branch: nil) }
+      before  { docs.update(name: 'The Docs', parent_in_branch: root) }
       before  { action }
 
       it 'then ancestry path is root > documents > code' do

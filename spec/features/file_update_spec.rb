@@ -48,9 +48,9 @@ feature 'File Update', :vcr do
 
     # then I should see the file among my project's files
     then_i_should_see_file_in_project(name: 'My New File', status: 'addition')
-    # and have a backup of the file snapshot
-    staged = project.staged_files.find_by_external_id(file.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    # and have a backup of the file version
+    file_in_branch = project.files.find_by_remote_file_id(file.id)
+    and_have_a_backup_of_file_version(file_in_branch.current_version)
   end
 
   scenario 'In Google Drive, user updates file content' do
@@ -73,12 +73,12 @@ feature 'File Update', :vcr do
     # then I should see the file among my project's files as modified
     then_i_should_see_file_in_project(name: 'File', status: 'modification')
 
-    # and have a backup of the file snapshot as it is now
-    staged = project.staged_files.find_by_external_id(file_to_modify.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    # and have a backup of the file version as it is now
+    file_in_branch = project.files.find_by_remote_file_id(file_to_modify.id)
+    and_have_a_backup_of_file_version(file_in_branch.current_version)
 
-    # and have a backup of the file snapshot as it was before
-    and_have_a_backup_of_file_snapshot(staged.file_record.file_snapshots.first)
+    # and have a backup of the file version as it was before
+    and_have_a_backup_of_file_version(file_in_branch.file.versions.first)
   end
 
   scenario 'In Google Drive, user renames file' do
@@ -101,12 +101,12 @@ feature 'File Update', :vcr do
     # then I should see the file among my project's files as modified
     then_i_should_see_file_in_project(name: 'New File Name', status: 'rename')
 
-    # and have a backup of the file snapshot as it is now
-    staged = project.staged_files.find_by_external_id(file_to_rename.id)
-    and_have_a_backup_of_file_snapshot(staged.current_snapshot)
+    # and have a backup of the file version as it is now
+    file_in_branch = project.files.find_by_remote_file_id(file_to_rename.id)
+    and_have_a_backup_of_file_version(file_in_branch.current_version)
 
-    # and have a backup of the file snapshot as it was before
-    and_have_a_backup_of_file_snapshot(staged.file_record.file_snapshots.first)
+    # and have a backup of the file version as it was before
+    and_have_a_backup_of_file_version(file_in_branch.file.versions.first)
   end
 
   scenario 'In Google Drive, user moves file within project folder' do
@@ -284,12 +284,13 @@ end
 
 # rubocop:disable Metrics/AbcSize
 # TODO: Reduce complexity
-def and_have_a_backup_of_file_snapshot(file_snapshot)
-  external_id_of_backup = file_snapshot.backup.external_id
-  external_backup = Providers::GoogleDrive::FileSync.new(external_id_of_backup)
-  expect(external_backup.name).to eq(file_snapshot.name)
-  expect(external_backup.parent_id)
-    .to eq(project.archive.external_id)
+def and_have_a_backup_of_file_version(file_version)
+  remote_file_id_of_backup = file_version.backup.remote_file_id
+  remote_backup =
+    Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
+  expect(remote_backup.name).to eq(file_version.name)
+  expect(remote_backup.parent_id)
+    .to eq(project.archive.remote_file_id)
 end
 # rubocop:enable Metrics/AbcSize
 

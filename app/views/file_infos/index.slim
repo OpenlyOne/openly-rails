@@ -1,18 +1,7 @@
-.page-subheading.gray.lighten-3
-  .container
-    .row.no-margin-bottom
-      .col.s12
-        h2
-          = image_tag @file.icon,
-                      alt: 'File icon',
-                      size: '56',
-                      class: 'img-responsive left'
-          span = @file.name
-
 .container
 
   = render partial: 'file_status',
-           locals: { staged_file_diff: @staged_file_diff,
+           locals: { uncaptured_file_diff: @uncaptured_file_diff,
                      user_can_force_sync_files: @user_can_force_sync_files,
                      project: @project }
 

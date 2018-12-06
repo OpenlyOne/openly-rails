@@ -25,7 +25,7 @@ feature 'Force Sync', :vcr do
 
   before { sign_in_as current_account }
 
-  scenario 'User can force sync file', :delayed_job do
+  scenario 'User can force sync file' do
     # given a folder within the project folder
     folder = create_google_drive_file(
       name: 'Folder',
@@ -42,8 +42,6 @@ feature 'Force Sync', :vcr do
 
     # given project is imported and changes committed
     setup
-    Delayed::Worker.new(exit_on_complete: true).work_off
-    Delayed::Job.find_each(&:invoke_job)
 
     # when I update the file
     file.rename('Doc ABC')
@@ -65,12 +63,12 @@ feature 'Force Sync', :vcr do
 
     # and have a backup of the file
     # TODO: Refactor
-    staged = project.staged_files.find_by_external_id(file.id)
-    external_id_of_backup = staged.current_snapshot.backup.external_id
-    external_backup =
-      Providers::GoogleDrive::FileSync.new(external_id_of_backup)
-    expect(external_backup.name).to eq(staged.name)
-    expect(external_backup.parent_id)
-      .to eq(project.archive.external_id)
+    file_in_branch = project.files.find_by_remote_file_id(file.id)
+    remote_file_id_of_backup =
+      file_in_branch.current_version.backup.remote_file_id
+    remote_backup =
+      Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
+    expect(remote_backup.name).to eq(file_in_branch.name)
+    expect(remote_backup.parent_id).to eq(project.archive.remote_file_id)
   end
 end

@@ -28,7 +28,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Thu, 08 Nov 2018 18:54:01 GMT
+      - Sat, 01 Dec 2018 07:59:52 GMT
       Server:
       - ESF
       Cache-Control:
@@ -53,7 +53,7 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:01 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:52 GMT
 - request:
     method: post
     uri: https://oauth2.googleapis.com/token
@@ -82,7 +82,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Thu, 08 Nov 2018 18:54:02 GMT
+      - Sat, 01 Dec 2018 07:59:52 GMT
       Server:
       - ESF
       Cache-Control:
@@ -107,14 +107,14 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:02 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:52 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-11-08
-        18:54:02 UTC","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-12-01
+        07:59:52 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -123,7 +123,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:02 GMT
+      - Sat, 01 Dec 2018 07:59:52 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -140,7 +140,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:02 GMT
+      - Sat, 01 Dec 2018 07:59:52 GMT
       Vary:
       - Origin
       - X-Origin
@@ -164,8 +164,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6",
-         "name": "Test @ 2018-11-08 18:54:02 UTC",
+         "id": "1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM",
+         "name": "Test @ 2018-12-01 07:59:52 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -185,10 +185,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:02 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:52 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6/permissions?sendNotificationEmail=false
+    uri: https://www.googleapis.com/drive/v3/files/1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM/permissions?sendNotificationEmail=false
     body:
       encoding: UTF-8
       string: '{"emailAddress":"<EMAIL ADDRESS FOR TRACKING ACCOUNT>","role":"writer","type":"user"}'
@@ -200,7 +200,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:03 GMT
+      - Sat, 01 Dec 2018 07:59:52 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -217,7 +217,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:03 GMT
+      - Sat, 01 Dec 2018 07:59:53 GMT
       Vary:
       - Origin
       - X-Origin
@@ -247,7 +247,7 @@ http_interactions:
          "role": "writer"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:03 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:53 GMT
 - request:
     method: get
     uri: https://www.googleapis.com/drive/v3/changes/startPageToken
@@ -262,7 +262,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:03 GMT
+      - Sat, 01 Dec 2018 07:59:53 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -273,9 +273,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:03 GMT
+      - Sat, 01 Dec 2018 07:59:53 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:03 GMT
+      - Sat, 01 Dec 2018 07:59:53 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -302,16 +302,16 @@ http_interactions:
       string: |
         {
          "kind": "drive#startPageToken",
-         "startPageToken": "18545"
+         "startPageToken": "21912"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:04 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:53 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.document","name":"File","parents":["1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6"]}'
+      string: '{"mimeType":"application/vnd.google-apps.document","name":"File","parents":["1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -320,7 +320,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:04 GMT
+      - Sat, 01 Dec 2018 07:59:54 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -337,7 +337,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:05 GMT
+      - Sat, 01 Dec 2018 07:59:55 GMT
       Vary:
       - Origin
       - X-Origin
@@ -361,12 +361,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw",
+         "id": "156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0",
          "name": "File",
          "mimeType": "application/vnd.google-apps.document",
          "trashed": false,
          "parents": [
-          "1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6"
+          "1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM"
          ],
          "thumbnailVersion": "0",
          "permissions": [
@@ -391,13 +391,14 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:05 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:55 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"8 RW6 (Archive)","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"20 Tanngrisnir
+        (Archive)","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -406,7 +407,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:05 GMT
+      - Sat, 01 Dec 2018 07:59:55 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -423,7 +424,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:06 GMT
+      - Sat, 01 Dec 2018 07:59:55 GMT
       Vary:
       - Origin
       - X-Origin
@@ -447,8 +448,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm",
-         "name": "8 RW6 (Archive)",
+         "id": "1ULRo35koIPyulvDk4x58hARNSYz1ZD7G",
+         "name": "20 Tanngrisnir (Archive)",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -468,10 +469,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:06 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:56 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm/permissions?sendNotificationEmail=false
+    uri: https://www.googleapis.com/drive/v3/files/1ULRo35koIPyulvDk4x58hARNSYz1ZD7G/permissions?sendNotificationEmail=false
     body:
       encoding: UTF-8
       string: '{"emailAddress":"<EMAIL ADDRESS FOR USER ACCOUNT>","role":"reader","type":"user"}'
@@ -483,7 +484,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:06 GMT
+      - Sat, 01 Dec 2018 07:59:56 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -500,7 +501,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:07 GMT
+      - Sat, 01 Dec 2018 07:59:56 GMT
       Vary:
       - Origin
       - X-Origin
@@ -530,10 +531,10 @@ http_interactions:
          "role": "reader"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:07 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:56 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -545,7 +546,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:07 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -556,9 +557,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -584,8 +585,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6",
-         "name": "Test @ 2018-11-08 18:54:02 UTC",
+         "id": "1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM",
+         "name": "Test @ 2018-12-01 07:59:52 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "thumbnailVersion": "0",
@@ -611,10 +612,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:08 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:57 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -626,7 +627,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -644,9 +645,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Expires:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -678,10 +679,10 @@ http_interactions:
          }
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:08 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:57 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/permissions,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6%27%20in%20parents
+    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/permissions,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM%27%20in%20parents
     body:
       encoding: UTF-8
       string: ''
@@ -693,7 +694,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -704,9 +705,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -734,14 +735,14 @@ http_interactions:
         {
          "files": [
           {
-           "id": "1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw",
+           "id": "156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0",
            "name": "File",
            "mimeType": "application/vnd.google-apps.document",
            "trashed": false,
            "parents": [
-            "1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6"
+            "1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM"
            ],
-           "thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw&v=1&s=AMedNnoAAAAAW-SicGWi4trRBe-hWDa2l-oIsjygc3Ar&sz=s220",
+           "thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0&v=1&s=AMedNnoAAAAAXAJbnVK0HYvqkOo0fHPBC3h7J_9ilBap&sz=s220",
            "thumbnailVersion": "1",
            "permissions": [
             {
@@ -767,10 +768,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:08 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:57 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -782,7 +783,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -793,9 +794,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:08 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -824,13 +825,13 @@ http_interactions:
          "kind": "drive#revision",
          "id": "1",
          "mimeType": "application/vnd.google-apps.document",
-         "modifiedTime": "2018-11-08T18:54:04.699Z"
+         "modifiedTime": "2018-12-01T07:59:54.450Z"
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:09 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:57 GMT
 - request:
     method: get
-    uri: https://docs.google.com/feeds/vt?gd=true&id=1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw&s=AMedNnoAAAAAW-SicGWi4trRBe-hWDa2l-oIsjygc3Ar&sz=s350&v=1
+    uri: https://docs.google.com/feeds/vt?gd=true&id=156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0&s=AMedNnoAAAAAXAJbnVK0HYvqkOo0fHPBC3h7J_9ilBap&sz=s350&v=1
     body:
       encoding: UTF-8
       string: ''
@@ -842,7 +843,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:09 GMT
+      - Sat, 01 Dec 2018 07:59:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -873,7 +874,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Date:
-      - Thu, 08 Nov 2018 18:54:09 GMT
+      - Sat, 01 Dec 2018 07:59:58 GMT
       Server:
       - fife
       Content-Length:
@@ -887,13 +888,13 @@ http_interactions:
       string: !binary |-
         iVBORw0KGgoAAAANSUhEUgAAAQ8AAAFeCAIAAAAUnw07AAAAA3NCSVQICAjb4U/gAAADtklEQVR4nO3TQQ0AIBDAMMC/58PCfoSkVbDP9swsIDivA+AbboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QOUWqNwClVugcgtUboHKLVC5BSq3QHUBmEIFueK0cc8AAAAASUVORK5CYII=
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:09 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:58 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw/copy?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0/copy?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"name":"File","parents":["1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm"]}'
+      string: '{"name":"File","parents":["1ULRo35koIPyulvDk4x58hARNSYz1ZD7G"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -902,7 +903,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:09 GMT
+      - Sat, 01 Dec 2018 07:59:58 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -919,7 +920,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:11 GMT
+      - Sat, 01 Dec 2018 07:59:59 GMT
       Vary:
       - Origin
       - X-Origin
@@ -943,12 +944,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s",
+         "id": "1sWEa03sbCGpUNZGDxY81Tbc9-odFDwdKNe1PHfJx5GQ",
          "name": "File",
          "mimeType": "application/vnd.google-apps.document",
          "trashed": false,
          "parents": [
-          "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm"
+          "1ULRo35koIPyulvDk4x58hARNSYz1ZD7G"
          ],
          "thumbnailVersion": "0",
          "permissions": [
@@ -973,10 +974,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:12 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:59 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1sWEa03sbCGpUNZGDxY81Tbc9-odFDwdKNe1PHfJx5GQ?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -988,7 +989,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 07:59:59 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -999,9 +1000,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 07:59:59 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 07:59:59 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -1027,12 +1028,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s",
+         "id": "1sWEa03sbCGpUNZGDxY81Tbc9-odFDwdKNe1PHfJx5GQ",
          "name": "File",
          "mimeType": "application/vnd.google-apps.document",
          "trashed": false,
          "parents": [
-          "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm"
+          "1ULRo35koIPyulvDk4x58hARNSYz1ZD7G"
          ],
          "thumbnailVersion": "0",
          "permissions": [
@@ -1057,10 +1058,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:12 GMT
+  recorded_at: Sat, 01 Dec 2018 07:59:59 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s/export?alt=media&mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    uri: https://www.googleapis.com/drive/v3/files/1sWEa03sbCGpUNZGDxY81Tbc9-odFDwdKNe1PHfJx5GQ/export?alt=media&mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document
     body:
       encoding: UTF-8
       string: ''
@@ -1072,7 +1073,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 07:59:59 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
   response:
@@ -1081,9 +1082,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 08:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:12 GMT
+      - Sat, 01 Dec 2018 08:00:00 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Content-Disposition:
@@ -1108,149 +1109,60 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        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
+        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
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:12 GMT
+  recorded_at: Sat, 01 Dec 2018 08:00:00 GMT
 - request:
-    method: get
-    uri: https://www.googleapis.com/drive/v3/files/1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      User-Agent:
-      - "<USER AGENT>"
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Thu, 08 Nov 2018 18:54:14 GMT
-      Authorization:
-      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
-      Content-Type:
-      - application/x-www-form-urlencoded
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Expires:
-      - Thu, 08 Nov 2018 18:54:14 GMT
-      Date:
-      - Thu, 08 Nov 2018 18:54:14 GMT
-      Cache-Control:
-      - private, max-age=0, must-revalidate, no-transform
-      Vary:
-      - Origin
-      - X-Origin
-      Content-Type:
-      - application/json; charset=UTF-8
-      Content-Encoding:
-      - gzip
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      Server:
-      - GSE
-      Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: UTF-8
-      string: |
-        {
-         "id": "1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s",
-         "name": "File",
-         "mimeType": "application/vnd.google-apps.document",
-         "trashed": false,
-         "parents": [
-          "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm"
-         ],
-         "thumbnailVersion": "0",
-         "permissions": [
-          {
-           "kind": "drive#permission",
-           "id": "13193959451567607887",
-           "type": "user",
-           "emailAddress": "<EMAIL ADDRESS FOR USER ACCOUNT>",
-           "role": "reader",
-           "displayName": "Testuser Upshift One",
-           "deleted": false
-          },
-          {
-           "kind": "drive#permission",
-           "id": "11673017242486491425",
-           "type": "user",
-           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
-           "role": "owner",
-           "displayName": "Upshift One",
-           "deleted": false
-          }
-         ]
-        }
-    http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:14 GMT
-- request:
-    method: get
-    uri: https://www.googleapis.com/drive/v3/files/1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s/export?alt=media&mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      User-Agent:
-      - "<USER AGENT>"
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Thu, 08 Nov 2018 18:54:14 GMT
-      Authorization:
-      - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Expires:
-      - Thu, 08 Nov 2018 18:54:15 GMT
-      Date:
-      - Thu, 08 Nov 2018 18:54:15 GMT
-      Cache-Control:
-      - private, max-age=0, must-revalidate, no-transform
-      Content-Disposition:
-      - attachment
-      Vary:
-      - Origin
-      - X-Origin
-      Content-Type:
-      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      Content-Length:
-      - '6092'
-      Server:
-      - GSE
-      Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+    method: put
+    uri: http://localhost:9998/tika
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        UEsDBBQACAgIAMdWaE0AAAAAAAAAAAAAAAASAAAAd29yZC9udW1iZXJpbmcueG1spZNNTsMwEIVPwB0i79skFSAUNe2CCjbsgAO4jpNYtT3W2Eno7XGbv1IklIZV5Izf98bj5/X2S8mg5mgF6JTEy4gEXDPIhC5S8vnxsngigXVUZ1SC5ik5cku2m7t1k+hK7Tn6fYFHaJsolpLSOZOEoWUlV9QuwXDtizmgos4vsQgVxUNlFgyUoU7shRTuGK6i6JF0GEhJhTrpEAslGIKF3J0kCeS5YLz79Aqc4ttKdsAqxbU7O4bIpe8BtC2FsT1NzaX5YtlD6r8OUSvZ72vMFLcMaePnrGRr1ABmBoFxa/3fXVsciHE0YYAnxKCY0sJPz74TRYUeMKd0XIEG76X37oZ2Ro0HGWdh5ZRG2tKb2CPF4+8u6Ix5XuqNmJTiK4JXuQqHQM5BsJKi6wFyDkECO/DsmeqaDmHOiklxviJlghZI1RhSe9PNxtFVXN5LavhIK/5He0WozBj3+zm0ixcYP9wGWPWAcPMNUEsHCEkTQ39oAQAAPQUAAFBLAwQUAAgICADHVmhNAAAAAAAAAAAAAAAAEQAAAHdvcmQvc2V0dGluZ3MueG1spZXNbtswDMefYO8Q6J74o0k2GHV6WLHtsJ7SPQAjybYQfUGS4+XtJ8eW1aRA4WanSH+SP9IMTT8+/RV8caLGMiVLlK1StKASK8JkXaI/rz+W39DCOpAEuJK0RGdq0dPuy2NXWOqc97ILT5C2ELhEjXO6SBKLGyrArpSm0hsrZQQ4fzV1IsAcW73ESmhw7MA4c+ckT9MtGjGqRK2RxYhYCoaNsqpyfUihqophOv6ECDMn7xDyrHArqHSXjImh3NegpG2YtoEm7qV5YxMgp48e4iR48Ov0nGzEQOcbLfiQqFOGaKMwtdarz4NxImbpjAb2iCliTgnXOUMlApicMP1w3ICm3Cufe2zaBRUfJPbC8jmFDKbf7GDAnN9XAXf08228ZrOm+Ibgo1xrpoG8B4EbMC4A+D0ErvCRku8gTzANM6lnjfMNiTCoDYg4pPZT/2yW3ozLvgFNI63+P9pPo1odx319D+3NG5htPgfIA2DnVyChFbTcvcJh75RedMUJ/BR/zVOU9OZhy8XTftiYwS9bI3+UIPybc7UQXxShvak1bH5xfcrkKic3+z6IvoDWQ9pDnZWIs7pxWc93/kb8Qr5cDnU+2vKLLR9slwtg7Pec9x4PUcuD9sbvIWgPUVsHbR21TdA2UdsGbdtrzVlTw5k8+jaEY69XinPVUfIr2t9JYz/CV2r3D1BLBwiP9pC/BQIAAOoGAABQSwMEFAAICAgAx1ZoTQAAAAAAAAAAAAAAABIAAAB3b3JkL2ZvbnRUYWJsZS54bWyllE1OwzAQhU/AHSLv26QIEIqaVAgEG3bAAQbHSazaHmvsNPT2uDQ/UCSUhlWUjN/3xuMXrzcfWkU7QU6iydhqmbBIGI6FNFXG3l4fF7csch5MAQqNyNheOLbJL9ZtWqLxLgpy41LNM1Z7b9M4drwWGtwSrTChWCJp8OGVqlgDbRu74KgtePkulfT7+DJJbliHwYw1ZNIOsdCSEzos/UGSYllKLrpHr6ApvkfJA/JGC+O/HGMSKvSAxtXSup6m59JCse4hu782sdOqX9faKW4FQRvOQqujUYtUWEIunAtfH47FgbhKJgzwgBgUU1r46dl3okGaAXNIxglo8F4G725oX6hxI+MsnJrSyLH0LN8JaP+7C5gxz+96Kyel+IQQVL6hIZBzELwG8j1AzSEo5FtR3IPZwRDmopoU5xNSIaEi0GNI3Vknu0pO4vJSgxUjrfof7YmwsWPcr+bQvv2Bq+vzAJc9IO/uv6hNDegQ/juSoFicr+PuYsw/AVBLBwith20AeQEAAFoFAABQSwMEFAAICAgAx1ZoTQAAAAAAAAAAAAAAAA8AAAB3b3JkL3N0eWxlcy54bWzVlu1u2jAUhq9g94Dyv01IAkOotKpadZs0ddPaXcDBMcSqY1u2A2VXPzufkIQpDZXo4Af42Od9ncfHsa9uXhM62mCpCGcLZ3zpOSPMEI8IWy+c388PFzNnpDSwCChneOHssHJurj9dbedK7yhWI5PP1DxBCyfWWsxdV6EYJ6AuucDMdK64TECbply7CciXVFwgngjQZEko0TvX97ypU8jwhZNKNi8kLhKCJFd8pW3KnK9WBOHip8yQfXzzlHuO0gQznTm6ElMzB85UTIQq1ZKhaqYzLkU2/3qITULLcVvRxy2SsDWLkdDcaMtlJCRHWCkTvc87K8Wx1wOglagy+kzh0LOcSQKEVTK2NBpClfel8S6gZVL1g9QsFO0zkbzrO1lKkLv2LGAAz/18QXpVcUPBZOlUVgU5RALFIHUpQIcoUI5ecHQHbANVMUfrXuXcUIoIrCUkdZGqN63s2GuUy1MMAtdq69PUvkieirrcwyFqeztwPHmbgF8KXJsXYMTRPV5BSrWyTflTFs2ilf08cKbVaDsHhQhZOLeSgLHfzpHaa2BQ+lYR2AvFt0xV410rpf6Y8AbMRvH9MnKnmjEKbF3GMLMxt5iM25yiaLYyTQGIZBKU2E3tf546ReNXSk0AUs1zK2QeDb/qFOhTlZT5jgtbUdjuG7ktbtk5YlL1Thh5AdLWn4ita9b1LVo4j7ZeMy5RnmlNbDKDBJe2LB+Ue2epbXkNS4oPpJ9tpJd+NnL02MOl+yG+YrDHals4zjtG45zrEhSOfrCytzY0WYZ3V7xYvBeMxePekELQhr+bBVSNeL3WsNLYnKRj37MzXmLzfjCPEXpe99q7lWNR5nVthl67NvPYXh0OweYfxeZ/MGzBtC+2ZansNbd40LHF89iJGIOjGINzY5wdUvSHUkScclnVXmC/rTforOMNOnsHvOFRvOHHwuvP+uI9wDnNPi2cYQfO8B1wTo7inHwwnOF74jx6vp+Ic3oU5/R/xUkawmfB+0y0uVW07gtZ9Mxcpwdc336eTzpgTU6C9ZQudSevquPMyAJ/ELN3vOpXRd11onUXddBx7wqO3LvKf+r6L1BLBwidKXMALAMAAP8RAABQSwMEFAAICAgAx1ZoTQAAAAAAAAAAAAAAABEAAAB3b3JkL2RvY3VtZW50LnhtbKWV227bMAyGn2DvEPg+sR2kW2HU6cWCDQO2IWi6B2Ak2RaqEyg5afb0k+JTDkXhZrkhSIoff8mM9PD4KsVkx9ByrfIonSXRhCmiKVdlHv15/ja9jybWgaIgtGJ5dGA2elx+ethnVJNaMuUmnqBsJkkeVc6ZLI4tqZgEO9OGKZ8sNEpw3sUyloAvtZkSLQ04vuWCu0M8T5LPUYvReVSjylrEVHKC2urChZJMFwUnrDVdBY7p25SsWsnHjjEy4TVoZStubEeTt9J8suogu/c2sZOiW7c3Y7pRhL3/HFI0jfYaqUFNmLU+umqSPTFNRhxgQPQVYySc9+yUSOCqx4ThuAD1vWe+d3toR9SwkeEsrBgjpEn95FsEPFyrgBvO87Te8FFTfEHwVa7GfiBvQZAK0HUAcQtBaPLC6FdQO+iHmZajxvmCRDmUCHIYUvuhL5smF+OyqcCwgVb+H+076toM4764hXbyD0zvPgaYd4ClvwK3mh6CNZN95m9Q+pRHSfuL2tCKievg+jr0tGIF1MK9kVnjWTBdZAYQftCT6FHEGoMhWjn26moQGwPEH5jH7CCIiOKQxzV6G/fr8T2hb2zoXE5LPBonzlrFbSbYpmFYZRlxzXpTbv76gsq/Onf3iyPf30XpfL5olZryFwR1W+2c9oOcLppVTpvBEaxwg4e8rE7cigFlQW5wCq1dcL7Me/7vWj4fDPNJ/8RhKGyFdyrj7hvHw3u3/AdQSwcIvnBuHiYCAAA0BwAAUEsDBBQACAgIAMdWaE0AAAAAAAAAAAAAAAAcAAAAd29yZC9fcmVscy9kb2N1bWVudC54bWwucmVsc62STWrDMBCFT9A7iNnXstMfSomcTQhkW9wDKPL4h1ojIU1KffuKlCQOBNOFl++JefPNjNabHzuIbwyxd6SgyHIQSMbVPbUKPqvd4xuIyJpqPThCBSNG2JQP6w8cNKea2PU+ihRCUUHH7N+ljKZDq2PmPFJ6aVywmpMMrfTafOkW5SrPX2WYZkB5kyn2tYKwrwsQ1ejxP9muaXqDW2eOFonvtJCcajEF6tAiKzjJP7PIUhjI+wyrJRkiMqflxivG2ZlDeFoSoXHElT4Mk1VcrDmI5yUh6GgPGNLcV4iLNQfxsugxeBxweoqTPreXN5+8/AVQSwcIkACr6/EAAAAsAwAAUEsDBBQACAgIAMdWaE0AAAAAAAAAAAAAAAALAAAAX3JlbHMvLnJlbHONzzsOwjAMBuATcIfIO03LgBBq0gUhdUXlAFHiphHNQ0l49PZkYADEwGj792e57R52JjeMyXjHoKlqIOikV8ZpBufhuN4BSVk4JWbvkMGCCTq+ak84i1x20mRCIgVxicGUc9hTmuSEVqTKB3RlMvpoRS5l1DQIeREa6aautzS+G8A/TNIrBrFXDZBhCfiP7cfRSDx4ebXo8o8TX4kii6gxM7j7qKh6tavCAuUt/XiRPwFQSwcILWjPIrEAAAAqAQAAUEsDBBQACAgIAMdWaE0AAAAAAAAAAAAAAAAVAAAAd29yZC90aGVtZS90aGVtZTEueG1s7VlLb9s2HL8P2HcgdG9l2VbqBHWK2LHbrU0bJG6HHmmJlthQokDSSXwb2uOAAcO6YYcV2G2HYVuBFtil+zTZOmwd0K+wvx6WKZvOo023Dq0PNkn9/u8HSfnylcOIoX0iJOVx23Iu1ixEYo/7NA7a1u1B/0LLQlLh2MeMx6RtTYi0rqx/+MFlvKZCEhEE9LFcw20rVCpZs23pwTKWF3lCYng24iLCCqYisH2BD4BvxOx6rbZiR5jGFopxBGxvjUbUI2iQsrTWp8x7DL5iJdMFj4ldL5OoU2RYf89Jf+REdplA+5i1LZDj84MBOVQWYlgqeNC2atnHstcv2yURU0toNbp+9inoCgJ/r57RiWBYEjr95uqlzZJ/Pee/iOv1et2eU/LLANjzwFJnAdvst5zOlKcGyoeLvLs1t9as4jX+jQX8aqfTcVcr+MYM31zAt2orzY16Bd+c4d1F/Tsb3e5KBe/O8CsL+P6l1ZVmFZ+BQkbjvQV0Gs8yMiVkxNk1I7wF8NY0AWYoW8uunD5Wy3Itwve46AMgCy5WNEZqkpAR9gDXxYwOBU0F4DWCtSf5kicXllJZSHqCJqptfZxgqIgZ5OWzH18+e4KO7j89uv/L0YMHR/d/NlBdw3GgU734/ou/H32K/nry3YuHX5nxUsf//tNnv/36pRmodODzrx//8fTx828+//OHhwb4hsBDHT6gEZHoJjlAOzwCwwwCyFCcjWIQYqpTbMSBxDFOaQzongor6JsTzLAB1yFVD94R0AJMwKvjexWFd0MxVtQAvB5GFeAW56zDhdGm66ks3QvjODALF2Mdt4Pxvkl2dy6+vXECuUxNLLshqai5zSDkOCAxUSh9xvcIMZDdpbTi1y3qCS75SKG7FHUwNbpkQIfKTHSNRhCXiUlBiHfFN1t3UIczE/tNsl9FQlVgZmJJWMWNV/FY4cioMY6YjryBVWhScncivIrDpYJIB4Rx1POJlCaaW2JSUfc6tA5z2LfYJKoihaJ7JuQNzLmO3OR73RBHiVFnGoc69iO5BymK0TZXRiV4tULSOcQBx0vDfYcSdbbavk2D0Jwg6ZOxMJUE4dV6nLARJnHR4Su9OqLxcY07gr6Nz7txQ6t8/u2j/1HL3gAnmGpmvlEvw8235y4XPn37u/MmHsfbBArifXN+35zfxea8rJ7PvyXPurCtH7QzNtHSU/eIMrarJozckFn/lmCe34fFbJIRlYf8JIRhIa6CCwTOxkhw9QlV4W6IExDjZBICWbAOJEq4hKuFtZR3dj+lYHO25k4vlYDGaov7+XJDv2yWbLJZIHVBjZTBaYU1Lr2eMCcHnlKa45qlucdKszVvQt0gnL5KcFbquWhIFMyIn/o9ZzANyxsMkVPTYhRinxiWNfucxhvxpnsmJc7HybUFJ9uL1cTi6gwdtK1Vt+5ayMNJ2xrBaQmGUQL8ZNppMAvituWp3MCTa3HO4lVzVjk1d5nBFRGJkGoTyzCnyh5NX6XEM/3rbjP1w/kYYGgmp9Oi0XL+Qy3s+dCS0Yh4asnKbFo842NFxG7oH6AhG4sdDHo38+zyqYROX59OBOR2s0i8auEWtTH/yqaoGcySEBfZ3tJin8OzcalDNtPUs5fo/oqmNM7RFPfdNSXNXDifNvzs0gS7uMAozdG2xYUKOXShJKReX8C+n8kCvRCURaoSYukL6FRXsj/rWzmPvMkFodqhARIUOp0KBSHbqrDzBGZOXd8ep4yKPlOqK5P8d0j2CRuk1buS2m+hcNpNCkdkuPmg2abqGgb9t/jg0nyljWcmqHmWza+pNX1tK1h9PRVOswFr4upmi+vu0p1nfqtN4JaB0i9o3FR4bHY8HfAdiD4q93kEiXihVZRfuTgEnVuacSmrf+sU1FoS7/M8O2rObixx9vHiXt3ZrsHX7vGuthdL1NbuIdls4Y8oPrwHsjfhejNm+YpMYJYPtkVm8JD7k2LIZN4SckdMWzqLd8gIUf9wGtY5jxb/9JSb+U4uILW9JGycTFjgZ5tISVw/mbikmN7xSuLsFmdiwGaSc3we5bJFlp5i8eu47BTKm11mzN7TuuwUgXoFl6nD411WeMo2JR45VAJ3p39dQf7as5Rd/wdQSwcIIVqihCwGAADbHQAAUEsDBBQACAgIAMdWaE0AAAAAAAAAAAAAAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbLWTTW7CMBCFT9A7RN5WxNBFVVUEFv1Ztl3QAwzOBKz6T56Bwu07CZAFAqmVmo1l+82893kkT+c774otZrIxVGpSjlWBwcTahlWlPhevowdVEEOowcWAldojqfnsZrrYJ6RCmgNVas2cHrUms0YPVMaEQZQmZg8sx7zSCcwXrFDfjcf32sTAGHjErYeaTZ+xgY3j4ulw31pXClJy1gALlxYzVbzsRDxgtmf9i75tqM9gRkeQMqPramhtE92eB4hKbcK7TCbbGv8UEZvGGqyj2XhpKb9jrlOOBolkqN6VhMyyO6Z+QOY38GKr20p9UsvjI4dB4L3DawCdNmh8I14LWDq8TNDLg0KEjV9ilv1liF4eFKJXPNhwGaQv+UcOlo96ZfiddFgnp0jd/fbZD1BLBwgzrw+3LAEAAC0EAABQSwECFAAUAAgICADHVmhNSRNDf2gBAAA9BQAAEgAAAAAAAAAAAAAAAAAAAAAAd29yZC9udW1iZXJpbmcueG1sUEsBAhQAFAAICAgAx1ZoTY/2kL8FAgAA6gYAABEAAAAAAAAAAAAAAAAAqAEAAHdvcmQvc2V0dGluZ3MueG1sUEsBAhQAFAAICAgAx1ZoTa2HbQB5AQAAWgUAABIAAAAAAAAAAAAAAAAA7AMAAHdvcmQvZm9udFRhYmxlLnhtbFBLAQIUABQACAgIAMdWaE2dKXMALAMAAP8RAAAPAAAAAAAAAAAAAAAAAKUFAAB3b3JkL3N0eWxlcy54bWxQSwECFAAUAAgICADHVmhNvnBuHiYCAAA0BwAAEQAAAAAAAAAAAAAAAAAOCQAAd29yZC9kb2N1bWVudC54bWxQSwECFAAUAAgICADHVmhNkACr6/EAAAAsAwAAHAAAAAAAAAAAAAAAAABzCwAAd29yZC9fcmVscy9kb2N1bWVudC54bWwucmVsc1BLAQIUABQACAgIAMdWaE0taM8isQAAACoBAAALAAAAAAAAAAAAAAAAAK4MAABfcmVscy8ucmVsc1BLAQIUABQACAgIAMdWaE0hWqKELAYAANsdAAAVAAAAAAAAAAAAAAAAAJgNAAB3b3JkL3RoZW1lL3RoZW1lMS54bWxQSwECFAAUAAgICADHVmhNM68PtywBAAAtBAAAEwAAAAAAAAAAAAAAAAAHFAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLBQYAAAAACQAJAEICAAB0FQAAAAA=
+        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
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - text/html
+      User-Agent:
+      - Ruby
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/octet-stream
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 01 Dec 2018 08:00:00 GMT
+      Content-Type:
+      - text/html
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - Jetty(9.4.z-SNAPSHOT)
+    body:
+      encoding: UTF-8
+      string: |
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+        <meta name="X-Parsed-By" content="org.apache.tika.parser.DefaultParser"/>
+        <meta name="X-Parsed-By" content="org.apache.tika.parser.microsoft.ooxml.OOXMLParser"/>
+        <meta name="Content-Type" content="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+        <title>
+        </title>
+        </head>
+        <body>
+        <p/>
+        </body>
+        </html>
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:15 GMT
+  recorded_at: Sat, 01 Dec 2018 08:00:00 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6
+    uri: https://www.googleapis.com/drive/v3/files/1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM
     body:
       encoding: UTF-8
       string: ''
@@ -1262,7 +1174,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:54:18 GMT
+      - Sat, 01 Dec 2018 08:00:00 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
       Content-Type:
@@ -1279,7 +1191,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 08 Nov 2018 18:54:18 GMT
+      - Sat, 01 Dec 2018 08:00:00 GMT
       Vary:
       - Origin
       - X-Origin
@@ -1291,10 +1203,10 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:54:18 GMT
+  recorded_at: Sat, 01 Dec 2018 08:00:00 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/changes?fields=nextPageToken,newStartPageToken,changes/fileId,changes/file/parents&pageSize=100&pageToken=18545
+    uri: https://www.googleapis.com/drive/v3/changes?fields=nextPageToken,newStartPageToken,changes/fileId,changes/file/parents&pageSize=100&pageToken=21912
     body:
       encoding: UTF-8
       string: ''
@@ -1306,7 +1218,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:55:18 GMT
+      - Sat, 01 Dec 2018 08:01:00 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -1317,9 +1229,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 08 Nov 2018 18:55:19 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Date:
-      - Thu, 08 Nov 2018 18:55:19 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -1345,13 +1257,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "newStartPageToken": "18560",
+         "newStartPageToken": "21923",
          "changes": [
           {
-           "fileId": "1SLk06PZQx7-LCAk14OZaq5rxFi9WQclw"
+           "fileId": "1ElW16U9O28QAmjni09h4clb2VgwF9jeZGEfxmsoREGc",
+           "file": {
+            "parents": [
+             "1zsn7aujd1ZHtyL0ta9dZHLGjYsLuKcjM"
+            ]
+           }
           },
           {
-           "fileId": "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm",
+           "fileId": "1ULRo35koIPyulvDk4x58hARNSYz1ZD7G",
            "file": {
             "parents": [
              "0AIeK5UAEPQfeUk9PVA"
@@ -1359,61 +1276,34 @@ http_interactions:
            }
           },
           {
-           "fileId": "1YxhC0WycuWqeYUrzknSK_NfCaB4oqTVzEiyH8Mgq63Q"
+           "fileId": "1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM"
           },
           {
-           "fileId": "1d6VkNXEseG4npQZ6aUvwMKF1mnlacKTyDw-Eocn5ubU",
+           "fileId": "156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0"
+          },
+          {
+           "fileId": "1sWEa03sbCGpUNZGDxY81Tbc9-odFDwdKNe1PHfJx5GQ",
            "file": {
             "parents": [
-             "1uWVr0R2qpiycwVCkb7nNIA0JNYccaPrR"
+             "1ULRo35koIPyulvDk4x58hARNSYz1ZD7G"
             ]
            }
           },
           {
-           "fileId": "15vy8VAyFQyGFRDoL-t48mVLXtz6G301hy2Lgx6QYuqw",
+           "fileId": "1_93ScaOzJtWibN9TgXeSK36koYtfcQYX9JlaWcsUfdk",
            "file": {
             "parents": [
-             "1uWVr0R2qpiycwVCkb7nNIA0JNYccaPrR"
-            ]
-           }
-          },
-          {
-           "fileId": "1hxxm0gSUdFESDWyDXsUHBCmsVRC5u9azGlnbB_9Gh_s",
-           "file": {
-            "parents": [
-             "1TSoWjO_ratt7QXHsQ2e3TbxJZH_v_kUm"
-            ]
-           }
-          },
-          {
-           "fileId": "1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6"
-          },
-          {
-           "fileId": "1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw"
-          },
-          {
-           "fileId": "13qPiY8iAn5v6HYt-vntN4kxwAjF3ag4SkUHCwjONaaY",
-           "file": {
-            "parents": [
-             "1HmiF27yPSxlxl56tI8w_xnOL3TCbS6Jw"
-            ]
-           }
-          },
-          {
-           "fileId": "1BQntqPKuJbznFhwOM2Ky65eEHS5K-xsArahXZ_e6lZk",
-           "file": {
-            "parents": [
-             "1HmiF27yPSxlxl56tI8w_xnOL3TCbS6Jw"
+             "1vWEZdpWPJwymnahRwA0SHsZ8Z6bpiOXv"
             ]
            }
           }
          ]
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:55:19 GMT
+  recorded_at: Sat, 01 Dec 2018 08:01:01 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -1425,7 +1315,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:55:19 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -1443,9 +1333,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Thu, 08 Nov 2018 18:55:19 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Expires:
-      - Thu, 08 Nov 2018 18:55:19 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -1469,20 +1359,20 @@ http_interactions:
            {
             "domain": "global",
             "reason": "notFound",
-            "message": "File not found: 1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6.",
+            "message": "File not found: 1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM.",
             "locationType": "parameter",
             "location": "fileId"
            }
           ],
           "code": 404,
-          "message": "File not found: 1U--1u5QwzU_qCrVxxcb6ZcLX92ywwiA6."
+          "message": "File not found: 1nz7YMdjVjqzYeqE_JSe_yC_NGEBTIobM."
          }
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:55:20 GMT
+  recorded_at: Sat, 01 Dec 2018 08:01:01 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -1494,7 +1384,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Nov 2018 18:55:20 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -1512,9 +1402,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Thu, 08 Nov 2018 18:55:20 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Expires:
-      - Thu, 08 Nov 2018 18:55:20 GMT
+      - Sat, 01 Dec 2018 08:01:01 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -1538,15 +1428,15 @@ http_interactions:
            {
             "domain": "global",
             "reason": "notFound",
-            "message": "File not found: 1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw.",
+            "message": "File not found: 156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0.",
             "locationType": "parameter",
             "location": "fileId"
            }
           ],
           "code": 404,
-          "message": "File not found: 1G2b-xbrWTDZv9MlLJLOXuiDv8CTZpx_34-TiEU3eDFw."
+          "message": "File not found: 156FMHHjGWV4eoKuxebG_uSh6safOi9pPMj6HQN_5TQ0."
          }
         }
     http_version: 
-  recorded_at: Thu, 08 Nov 2018 18:55:20 GMT
+  recorded_at: Sat, 01 Dec 2018 08:01:01 GMT
 recorded_with: VCR 4.0.0

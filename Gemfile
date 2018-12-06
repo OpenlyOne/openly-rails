@@ -69,7 +69,7 @@ gem 'inky-rb', '~> 1.3', require: 'inky'
 # Stylesheet inlining for email
 gem 'premailer-rails', '~> 1.10'
 # Extract text and metadata from files and documents
-gem 'henkei', '~> 1.18'
+gem 'henkei', '~> 1.19'
 # Tame Rails logs to make them more useful & readable
 gem 'lograge', '~> 0.10'
 

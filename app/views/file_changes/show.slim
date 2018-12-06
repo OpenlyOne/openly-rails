@@ -1,0 +1,38 @@
+.container.side-by-side
+  .row.header-row
+    .col.s6
+      h3.no-margin-top Before
+    .col.s6
+      h3.no-margin-top
+        - if @revision.present?
+          | After
+        - else
+          | Now
+
+  / The content side-by side
+  .content.white
+    / Separate fragments into paragraphs
+    - fragments_by_paragraph = @file_diff.content_change.fragments_by_paragraph
+
+    / Group paragraphs into blocks:
+    / A block can consist of no_change(s), addition(s), and deletion(s)
+    / The block ends (and a new one begins) when we encounter a no_change
+    / fragment that is a paragraph break
+    - fragment_blocks = fragments_by_paragraph.slice_after do |fragment|
+      - fragment.retain? && fragment.paragraph_break?
+
+    / Render each block
+    / Old content (everything but additions) on the left
+    / New content (everything but deletions) on the right
+    - fragment_blocks.each do |blocks|
+      .row
+        .col.s6.old
+          = render partial: 'revisions/content_change_fragment',
+                   collection: blocks.reject(&:addition?),
+                   locals: { truncate_content: false }
+        .col.s6.new
+          = render partial: 'revisions/content_change_fragment',
+                   collection: blocks.reject(&:deletion?),
+                   locals: { truncate_content: false }
+
+.spacing.v48px

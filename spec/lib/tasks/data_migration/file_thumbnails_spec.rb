@@ -9,7 +9,7 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   let(:run_the_task) { subject.invoke }
 
   let!(:old_thumbnails) do
-    build_list(:vcs_file_thumbnail, 3, file_record_id: nil).each do |record|
+    build_list(:vcs_file_thumbnail, 3, file_id: nil).each do |record|
       record.save!(validate: false)
     end
   end
@@ -26,15 +26,15 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
   after do
     # verify that old thumbnails no longer exist
     old_thumbnails.each do |thumbnail|
-      expect(VCS::FileThumbnail).not_to be_exists(thumbnail.id)
+      expect(VCS::Thumbnail).not_to be_exists(thumbnail.id)
     end
   end
 
   it 'migrates file thumbnails' do
-    file1 = create :vcs_staged_file, thumbnail: old_thumbnails.first
-    file2 = create :vcs_staged_file, thumbnail: old_thumbnails.first
-    file3 = create :vcs_staged_file, thumbnail: old_thumbnails.second
-    file4 = create :vcs_staged_file, thumbnail: old_thumbnails.second
+    file1 = create :vcs_file_in_branch, thumbnail: old_thumbnails.first
+    file2 = create :vcs_file_in_branch, thumbnail: old_thumbnails.first
+    file3 = create :vcs_file_in_branch, thumbnail: old_thumbnails.second
+    file4 = create :vcs_file_in_branch, thumbnail: old_thumbnails.second
 
     run_the_task
 
@@ -46,18 +46,18 @@ RSpec.describe 'data_migration:file_thumbnails', :archived do
     expect(file3.thumbnail_id).not_to eq file4.thumbnail_id
   end
 
-  context 'when two snapshots have the same file record id' do
+  context 'when two versions have the same file record id' do
     let(:new_thumbnail) do
-      VCS::FileThumbnail.find_by(
-        external_id: old_thumbnail.external_id,
+      VCS::Thumbnail.find_by(
+        remote_file_id: old_thumbnail.remote_file_id,
         version_id: old_thumbnail.version_id,
-        file_record_id: snap1.file_record_id
+        file_id: snap1.file_id
       )
     end
-    let!(:snap1) { create :vcs_file_snapshot, thumbnail: old_thumbnail }
+    let!(:snap1) { create :vcs_version, thumbnail: old_thumbnail }
     let!(:snap2) do
-      create :vcs_file_snapshot,
-             file_record_id: snap1.file_record_id, thumbnail: old_thumbnail
+      create :vcs_version,
+             file_id: snap1.file_id, thumbnail: old_thumbnail
     end
     let(:old_thumbnail) { old_thumbnails.first }
 

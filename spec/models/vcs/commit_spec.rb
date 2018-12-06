@@ -37,10 +37,10 @@ RSpec.describe VCS::Commit, type: :model do
     it { is_expected.to have_many(:committed_files).dependent(:delete_all) }
     it do
       is_expected
-        .to have_many(:committed_snapshots)
-        .class_name('VCS::FileSnapshot')
+        .to have_many(:committed_versions)
+        .class_name('VCS::Version')
         .through(:committed_files)
-        .source(:file_snapshot)
+        .source(:version)
     end
     it do
       is_expected
@@ -75,7 +75,7 @@ RSpec.describe VCS::Commit, type: :model do
 
     before do
       allow(described_class).to receive(:create!).and_return(draft)
-      allow(draft).to receive(:commit_all_files_staged_in_branch)
+      allow(draft).to receive(:commit_all_files_in_branch)
       allow(draft).to receive(:generate_diffs)
       allow(branch).to receive(:commits).and_return commits
     end
@@ -90,19 +90,19 @@ RSpec.describe VCS::Commit, type: :model do
       )
     end
 
-    it { expect(draft).to receive(:commit_all_files_staged_in_branch) }
+    it { expect(draft).to receive(:commit_all_files_in_branch) }
   end
 
-  describe '#commit_all_files_staged_in_branch' do
-    subject(:commit_files)  { commit.commit_all_files_staged_in_branch }
+  describe '#commit_all_files_in_branch' do
+    subject(:commit_files)  { commit.commit_all_files_in_branch }
     let(:query)             { class_double ActiveRecord::Relation }
 
     before do
       allow(VCS::CommittedFile).to receive(:insert_from_select_query)
-      collection_proxy = class_double VCS::StagedFile
+      collection_proxy = class_double VCS::FileInBranch
       allow(commit.branch)
         .to receive_message_chain(
-          :staged_file_snapshots,
+          :versions_in_branch,
           :without_root
         ).and_return collection_proxy
       allow(collection_proxy)
@@ -115,7 +115,7 @@ RSpec.describe VCS::Commit, type: :model do
     it 'calls CommittedFile.insert_from_select_query' do
       expect(VCS::CommittedFile)
         .to receive(:insert_from_select_query)
-        .with(%i[commit_id file_snapshot_id], query)
+        .with(%i[commit_id version_id], query)
       commit_files
     end
   end

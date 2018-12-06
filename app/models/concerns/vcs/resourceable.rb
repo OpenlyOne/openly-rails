@@ -7,7 +7,7 @@ module VCS
 
     included do
       # TODO: Delete orphaned thumbnail records
-      belongs_to :thumbnail, class_name: 'VCS::FileThumbnail', optional: true
+      belongs_to :thumbnail, class_name: 'VCS::Thumbnail', optional: true
     end
 
     def folder?
@@ -22,8 +22,11 @@ module VCS
       folder? || folder_before_last_save?
     end
 
-    def external_link
-      provider_link_class.for(external_id: external_id, mime_type: mime_type)
+    def link_to_remote
+      provider_link_class.for(
+        remote_file_id: remote_file_id,
+        mime_type: mime_type
+      )
     end
 
     def icon
@@ -44,7 +47,7 @@ module VCS
     end
 
     def thumbnail_image_or_fallback
-      thumbnail_image || VCS::FileThumbnail.new.image
+      thumbnail_image || VCS::Thumbnail.new.image
     end
 
     private

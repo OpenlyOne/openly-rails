@@ -32,7 +32,7 @@ module VCS
 
         # Undo movement of the file resource
         def unapply
-          current_snapshot.parent_id = previous_snapshot.parent_id
+          current_version.parent_id = previous_version.parent_id
         end
       end
     end

@@ -3,10 +3,10 @@
 # Define helpers needed for file restoration
 module FileRestoresHelper
   def restorable?(diff, branch)
-    return false unless diff.new_snapshot.present?
+    return false unless diff.new_version.present?
 
     VCS::Operations::FileRestore
-      .new(snapshot: diff.new_snapshot, target_branch: branch)
+      .new(version: diff.new_version, target_branch: branch)
       .restorable?
   end
 
@@ -14,7 +14,7 @@ module FileRestoresHelper
     return nil unless restorable?(diff, project.master_branch)
 
     profile_project_file_restores_path(
-      project.owner, project, diff.new_snapshot
+      project.owner, project, diff.new_version
     )
   end
 end

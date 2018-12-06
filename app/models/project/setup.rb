@@ -92,7 +92,7 @@ class Project
     def file_is_accessible
       # TODO: Add check for file.inaccessible?
       # => Then we can remove the 'unless root?' from
-      # the line 'mark_as_removed unless root?' in VCS::StagedFile
+      # the line 'mark_as_removed unless root?' in VCS::FileInBranch
       return unless file.deleted?
 
       errors.add(:link, 'appears to be inaccessible. Have you shared the ' \
@@ -120,8 +120,8 @@ class Project
     def file
       @file ||=
         master_branch
-        .staged_files
-        .build(is_root: true, external_id: id_from_link)
+        .files
+        .build(is_root: true, remote_file_id: id_from_link)
         .tap(&:fetch)
     end
 
@@ -144,7 +144,7 @@ class Project
     def start_folder_import_job_for_root_folder
       FolderImportJob.perform_later(
         reference: self,
-        staged_file_id: master_branch.root.id
+        file_in_branch_id: master_branch.root.id
       )
     end
   end

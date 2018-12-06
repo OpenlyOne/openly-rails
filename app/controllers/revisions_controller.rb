@@ -20,7 +20,7 @@ class RevisionsController < ApplicationController
       .commits
       .order(id: :desc)
       .includes(:author)
-      .preload_file_diffs_with_snapshots
+      .preload_file_diffs_with_versions
 
     preload_backups_for_file_diffs_in_revisions(@revisions)
   end
@@ -66,14 +66,14 @@ class RevisionsController < ApplicationController
   def find_revision_by_id(id)
     @revision =
       VCS::Commit
-      .preload_file_diffs_with_snapshots
+      .preload_file_diffs_with_versions
       .find_by!(id: id, branch: @project.master_branch, author: current_user)
   end
 
   def preload_backups_for_file_diffs_in_revisions(revisions)
     ActiveRecord::Associations::Preloader.new.preload(
       Array(revisions).flat_map(&:file_diffs)
-                      .flat_map(&:current_or_previous_snapshot),
+                      .flat_map(&:current_or_previous_version),
       :backup
     )
   end

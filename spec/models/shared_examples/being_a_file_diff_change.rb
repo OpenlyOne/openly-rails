@@ -10,18 +10,20 @@ RSpec.shared_examples 'being a file diff change' do
 
   describe 'delegations' do
     it { is_expected.to delegate_method(:ancestor_path).to(:diff) }
-    it { is_expected.to delegate_method(:current_snapshot).to(:diff) }
-    it { is_expected.to respond_to(:current_snapshot=) }
+    it { is_expected.to delegate_method(:current_version).to(:diff) }
+    it { is_expected.to respond_to(:current_version=) }
     it do
-      is_expected.to delegate_method(:current_or_previous_snapshot).to(:diff)
+      is_expected.to delegate_method(:current_or_previous_version).to(:diff)
     end
+    it { is_expected.to delegate_method(:file_id).to(:diff) }
     it { is_expected.to delegate_method(:file_resource_id).to(:diff) }
-    it { is_expected.to delegate_method(:external_id).to(:diff) }
+    it { is_expected.to delegate_method(:remote_file_id).to(:diff) }
+    it { is_expected.to delegate_method(:hashed_file_id).to(:diff) }
     it { is_expected.to delegate_method(:icon).to(:diff) }
     it { is_expected.to delegate_method(:name).to(:diff) }
     it { is_expected.to delegate_method(:parent_id).to(:diff) }
     it { is_expected.to delegate_method(:previous_parent_id).to(:diff) }
-    it { is_expected.to delegate_method(:previous_snapshot).to(:diff) }
+    it { is_expected.to delegate_method(:previous_version).to(:diff) }
     it { is_expected.to delegate_method(:symbolic_mime_type).to(:diff) }
     it { is_expected.to delegate_method(:revision).to(:diff) }
     it { is_expected.to delegate_method(:content_change).to(:diff) }
@@ -71,7 +73,7 @@ RSpec.shared_examples 'being a file diff change' do
 
   describe '#id' do
     subject { change.id }
-    before  { allow(diff).to receive(:external_id).and_return 'extID' }
+    before  { allow(diff).to receive(:remote_file_id).and_return 'extID' }
     it      { is_expected.to eq "extID_#{type}" }
   end
 

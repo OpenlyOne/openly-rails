@@ -5,7 +5,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
   let(:project)   { build_stubbed :project, :with_repository }
   let(:master)    { project.master_branch }
   let(:revision)  { build_stubbed :vcs_commit, :published, branch: master }
-  let(:children)  { build_stubbed_list :vcs_file_snapshot, 5 }
+  let(:children)  { build_stubbed_list :vcs_version, 5 }
   let(:ancestors) { [] }
   let(:action)    { 'root' }
 
@@ -18,12 +18,42 @@ RSpec.describe 'revisions/folders/show', type: :view do
     controller.action_name = action
   end
 
+  # Overwrite the render method to include locals
+  def render
+    allow(view).to receive(:parent_layout)
+    file_name = self.class.top_level_description
+    super(
+      template: file_name,
+      layout: "layouts/#{file_name.rpartition('/').first}"
+    )
+  end
+
   it 'renders revision metadata' do
     render
     expect(rendered).to have_text(revision.title)
     expect(rendered).to have_text(revision.author.name)
     expect(rendered)
       .to have_text("#{time_ago_in_words(revision.created_at)} ago")
+  end
+
+  it 'has a link to the revision root folder path' do
+    render
+    expect(rendered).to have_link(
+      revision.title,
+      href: profile_project_revision_root_folder_path(
+        project.owner, project, revision
+      )
+    )
+  end
+
+  it 'has a link to the revisions page' do
+    render
+    expect(rendered).to have_link(
+      "#{time_ago_in_words(revision.created_at)} ago",
+      href: profile_project_revisions_path(
+        project.owner, project, anchor: revision
+      )
+    )
   end
 
   it 'has a button to restore the revision' do
@@ -36,7 +66,7 @@ RSpec.describe 'revisions/folders/show', type: :view do
       'form'\
       "[action='#{restore_action}']"\
       "[method='post']",
-      text: 'Restore'
+      text: 'Restore Revision'
     )
   end
 
@@ -89,7 +119,8 @@ RSpec.describe 'revisions/folders/show', type: :view do
         expect(rendered).to have_link(
           child.name,
           href: profile_project_revision_folder_path(
-            project.owner, project.slug, revision.id, child.external_id
+            project.owner, project.slug, revision.id,
+            VCS::File.id_to_hashid(child.file_id)
           )
         )
       end
@@ -101,14 +132,14 @@ RSpec.describe 'revisions/folders/show', type: :view do
       children.each do |child|
         association = child.association(:backup)
         association.target =
-          build_stubbed(:vcs_file_backup, file_snapshot: child)
+          build_stubbed(:vcs_file_backup, file_version: child)
       end
     end
 
     it 'renders the links of file backups' do
       render
       children.each do |child|
-        link = child.backup.external_link
+        link = child.backup.link_to_remote
         expect(rendered).to have_css "a[href='#{link}'][target='_blank']"
       end
     end
@@ -117,9 +148,11 @@ RSpec.describe 'revisions/folders/show', type: :view do
   it 'renders a link to infos for each file' do
     render
     children.each do |child|
-      link = profile_project_file_infos_path(project.owner,
-                                             project,
-                                             child.external_id)
+      link = profile_project_file_infos_path(
+        project.owner,
+        project,
+        VCS::File.id_to_hashid(child.file_id)
+      )
       expect(rendered).to have_link(text: '', href: link)
     end
   end
@@ -127,9 +160,9 @@ RSpec.describe 'revisions/folders/show', type: :view do
   context 'when action name is show' do
     let(:action)      { 'show' }
     let(:ancestors)   { [parent, grandparent] }
-    let(:grandparent) { build_stubbed :vcs_file_snapshot, name: 'Docs' }
-    let(:parent)      { build_stubbed :vcs_file_snapshot, name: 'Other' }
-    let(:folder)      { build_stubbed :vcs_file_snapshot, name: 'Folder' }
+    let(:grandparent) { build_stubbed :vcs_version, name: 'Docs' }
+    let(:parent)      { build_stubbed :vcs_version, name: 'Other' }
+    let(:folder)      { build_stubbed :vcs_version, name: 'Folder' }
 
     it 'renders breadcrumbs' do
       render

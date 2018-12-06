@@ -10,7 +10,9 @@ RSpec.describe Notification, type: :model do
     is_expected.to be_valid
   end
 
-  it_should_behave_like 'acting as hash ID'
+  it_should_behave_like 'acting as hash ID' do
+    let(:minimum_length) { 8 }
+  end
 
   it_should_behave_like 'having jobs' do
     let(:owning_object) { notification }

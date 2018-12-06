@@ -37,7 +37,7 @@ module VCS
 
       # Return an array of ancestors names for a given diff, up to default depth
       def ancestors_names_for(diff)
-        ancestry_tree.ancestors_names_for(diff['file_record_id'],
+        ancestry_tree.ancestors_names_for(diff['file_id'],
                                           depth: ancestor_depth)
       end
 
@@ -47,7 +47,7 @@ module VCS
           FileAncestryTree.generate(
             commit: commit,
             parent_commit: parent_commit,
-            file_record_ids: raw_diffs.map { |diff| diff['file_record_id'] },
+            file_ids: raw_diffs.map { |diff| diff['file_id'] },
             depth: ancestor_depth
           )
       end
@@ -58,47 +58,47 @@ module VCS
         raw_diffs.map do |raw_diff|
           raw_diff_to_diff(raw_diff)
             .merge('first_three_ancestors' => ancestors_names_for(raw_diff))
-            .except('file_record_id')
+            .except('file_id')
         end
       end
 
-      # Return committed files where snapshot changed from commit parent to
+      # Return committed files where version changed from commit parent to
       # commit
-      def committed_files_where_snapshot_changed
+      def committed_files_where_version_changed
         VCS::CommittedFile
-          .where_snapshot_changed_between_commits(commit, parent_commit&.id)
+          .where_version_changed_between_commits(commit, parent_commit&.id)
       end
 
       # Parse a single raw diff to an attribute diff
       def raw_diff_to_diff(raw_diff)
         raw_diff
-          .slice('file_record_id')
+          .slice('file_id')
           .merge(
             'commit_id' => commit.id,
-            'new_snapshot_id' =>
-              snapshot_id_from_raw_diff(raw_diff, commit.id),
-            'old_snapshot_id' =>
-              snapshot_id_from_raw_diff(raw_diff, parent_commit&.id)
+            'new_version_id' =>
+              version_id_from_raw_diff(raw_diff, commit.id),
+            'old_version_id' =>
+              version_id_from_raw_diff(raw_diff, parent_commit&.id)
           )
       end
 
-      # Return committed files where snapshot changed from commit parent to
+      # Return committed files where version changed from commit parent to
       # commit grouped into a single row for every file resource
       def raw_diffs
         @raw_diffs ||=
           VCS::FileDiff
-          .select('file_record_id', 'json_agg(subquery) AS snapshots')
-          .from(committed_files_where_snapshot_changed)
-          .group('file_record_id')
-          .reorder('subquery.file_record_id')
+          .select('file_id', 'json_agg(subquery) AS versions')
+          .from(committed_files_where_version_changed)
+          .group('file_id')
+          .reorder('subquery.file_id')
           .map(&:attributes)
       end
 
-      # Retrieve the file resource snapshot from the given raw diff and commit
-      def snapshot_id_from_raw_diff(raw_diff, commit_id)
-        raw_diff['snapshots']
-          .find { |snapshots| snapshots['commit_id'] == commit_id }
-          &.fetch('file_snapshot_id', nil)
+      # Retrieve the file resource version from the given raw diff and commit
+      def version_id_from_raw_diff(raw_diff, commit_id)
+        raw_diff['versions']
+          .find { |versions| versions['commit_id'] == commit_id }
+          &.fetch('version_id', nil)
           &.to_i
       end
     end

@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.30 (Dec 6, 2018)
+
+**New Features:**
+- Captured and uncaptured file content changes can now be opened on a dedicated
+  page where they can be viewed side-by-side
+
+**Enhancements:**
+- Hashed file IDs are now used as primary routing parameter for the file infos
+  page and the folders page. This makes the URLs stable across time,
+  revisions, and branches (in the future). We still support the remote Google
+  Drive file/folder ID as fallback.
+- Henkei (our document text parser) now runs in server mode which has better
+  performance
+
+**Fixes:**
+- Several lines of unused code has been removed
+- Four VCS models have been renamed internally
+- Migrations prior to August 1, 2018 have been squashed together
+- Resources have been removed. Resources used to be links to individual Google
+  documents/files. We tried them as a more lightweight alternative to
+  repositories, to make it very easy for people to share resources with each
+  other. We couldn't really get people to share any resources, so we decided to
+  continue with our initial focus on repositories.
+
 ## v0.29.1 (Nov 24, 2018)
 
 **Fixes:**

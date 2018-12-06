@@ -5,7 +5,7 @@ RSpec.shared_examples 'vcs: being resourceable' do
     it do
       is_expected
         .to belong_to(:thumbnail)
-        .class_name('VCS::FileThumbnail')
+        .class_name('VCS::Thumbnail')
         .dependent(false)
         .optional
     end
@@ -31,21 +31,21 @@ RSpec.shared_examples 'vcs: being resourceable' do
     end
   end
 
-  describe '#external_link' do
-    subject { resourceable.external_link }
+  describe '#link_to_remote' do
+    subject { resourceable.link_to_remote }
 
     before do
       allow(resourceable)
         .to receive(:provider_link_class).and_return link_class
       allow(resourceable).to receive(:mime_type).and_return 'type'
-      allow(resourceable).to receive(:external_id).and_return 'external-id'
+      allow(resourceable).to receive(:remote_file_id).and_return 'remote-id'
       allow(link_class)
         .to receive(:for)
-        .with(external_id: 'external-id', mime_type: 'type')
-        .and_return 'external-link-to-file'
+        .with(remote_file_id: 'remote-id', mime_type: 'type')
+        .and_return 'remote-link-to-file'
     end
 
-    it { is_expected.to eq 'external-link-to-file' }
+    it { is_expected.to eq 'remote-link-to-file' }
   end
 
   describe '#icon' do
@@ -85,7 +85,7 @@ RSpec.shared_examples 'vcs: being resourceable' do
     it { is_expected.to be nil }
 
     context 'when thumbnail is present' do
-      let(:thumbnail) { instance_double VCS::FileThumbnail }
+      let(:thumbnail) { instance_double VCS::Thumbnail }
       before { allow(thumbnail).to receive(:image).and_return 'image' }
       it { is_expected.to eq 'image' }
     end
@@ -94,11 +94,11 @@ RSpec.shared_examples 'vcs: being resourceable' do
   describe '#thumbnail_image_or_fallback' do
     subject(:thumbnail_image) { resourceable.thumbnail_image_or_fallback }
     let(:image)               { 'image' }
-    let(:thumbnail)           { instance_double VCS::FileThumbnail }
+    let(:thumbnail)           { instance_double VCS::Thumbnail }
 
     before do
       allow(resourceable).to receive(:thumbnail_image).and_return image
-      allow(VCS::FileThumbnail).to receive(:new).and_return thumbnail
+      allow(VCS::Thumbnail).to receive(:new).and_return thumbnail
       allow(thumbnail).to receive(:image).and_return 'fallback-image'
     end
 

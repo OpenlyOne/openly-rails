@@ -76,21 +76,21 @@ RSpec.describe 'revisions/index', type: :view do
 
   context 'when file diffs exist' do
     let(:diffs) do
-      snapshots.map do |snapshot|
-        VCS::FileDiff.new(new_snapshot: snapshot,
+      versions.map do |version|
+        VCS::FileDiff.new(new_version: version,
                           first_three_ancestors: ancestors)
       end
     end
-    let(:snapshots) do
+    let(:versions) do
       build_stubbed_list(
-        :vcs_file_snapshot, 3, :with_backup, file_record_id: 12
+        :vcs_version, 3, :with_backup, file_id: 12
       )
     end
 
     let(:ancestors) { [] }
 
     before do
-      root = instance_double VCS::StagedFile
+      root = instance_double VCS::FileInBranch
       allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       allow(revisions.first).to receive(:file_diffs).and_return diffs
@@ -99,21 +99,22 @@ RSpec.describe 'revisions/index', type: :view do
     it 'renders a link to each file backup' do
       render
       diffs.each do |diff|
-        link = diff.current_snapshot.backup.external_link
+        link = diff.current_version.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
 
     it 'renders a link to each folder' do
       diffs.each do |diff|
-        allow(diff.current_or_previous_snapshot)
+        allow(diff.current_or_previous_version)
           .to receive(:folder?).and_return true
       end
 
       render
       diffs.each do |diff|
         link = profile_project_revision_folder_path(
-          project.owner, project.slug, revisions.first.id, diff.external_id
+          project.owner, project.slug, revisions.first.id,
+          VCS::File.id_to_hashid(diff.file_id)
         )
         expect(rendered).to have_link(text: diff.name, href: link)
       end
@@ -122,9 +123,11 @@ RSpec.describe 'revisions/index', type: :view do
     it 'renders a link to infos for each file' do
       render
       diffs.each do |diff|
-        link = profile_project_file_infos_path(project.owner,
-                                               project,
-                                               diff.external_id)
+        link = profile_project_file_infos_path(
+          project.owner,
+          project,
+          VCS::File.id_to_hashid(diff.file_id)
+        )
         expect(rendered).to have_link(text: 'More', href: link)
       end
     end
@@ -157,6 +160,14 @@ RSpec.describe 'revisions/index', type: :view do
         render
         expect(rendered).to have_css('.fragment.addition', text: 'hi')
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+      end
+
+      it 'does not have a link to side-by-side diff' do
+        render
+        link = profile_project_file_change_path(
+          project.owner, project, diffs.first.hashed_file_id
+        )
+        expect(rendered).not_to have_link(href: link)
       end
     end
   end

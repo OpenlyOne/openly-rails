@@ -31,7 +31,7 @@ module VCS
 
         # Undo addition of the file resource
         def unapply
-          self.current_snapshot = nil
+          self.current_version = nil
         end
       end
     end

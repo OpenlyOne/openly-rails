@@ -25,39 +25,37 @@ module Revisions
     def set_ancestors
       @ancestors = []
       ancestor =
-        @revision.committed_snapshots
-                 .find_by(file_record_id: @folder.file_record_parent_id)
+        @revision.committed_versions
+                 .find_by(file_id: @folder.parent_id)
 
       while ancestor.present?
         @ancestors << ancestor
         ancestor =
-          @revision.committed_snapshots
-                   .find_by(file_record_id: ancestor.file_record_parent_id)
+          @revision.committed_versions
+                   .find_by(file_id: ancestor.parent_id)
       end
     end
 
     def set_children
       @children =
-        @revision.committed_snapshots
+        @revision.committed_versions
                  .includes(:backup, :thumbnail)
-                 .where(file_record_parent_id: @folder.file_record_id)
+                 .where(parent_id: @folder.file_id)
                  .order_by_name_with_folders_first
     end
 
     def set_folder_from_param
+      # TODO: Support hashed_file_id OR remote_file_id
       @folder =
         @revision
-        .committed_snapshots
-        .find_by!(external_id: params[:id])
+        .committed_versions
+        .find_by!(file_id: VCS::File.hashid_to_id(params[:id]))
 
-      # TODO: Don't check if file resource is folder NOW, check if committed
-      # =>    file resource snapshot was folder BACK at commit
       raise ActiveRecord::RecordNotFound unless @folder.folder?
     end
 
     def set_folder_from_root
-      @folder =
-        VCS::FileSnapshot.new(file_record: @master_branch.root.file_record)
+      @folder = VCS::Version.new(file: @master_branch.root.file)
     end
 
     def set_revision

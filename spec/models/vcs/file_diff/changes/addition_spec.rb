@@ -17,6 +17,6 @@ RSpec.describe VCS::FileDiff::Changes::Addition, type: :model do
 
   describe '#unapply' do
     after { change.send :unapply }
-    it    { is_expected.to receive(:current_snapshot=).with(nil) }
+    it    { is_expected.to receive(:current_version=).with(nil) }
   end
 end

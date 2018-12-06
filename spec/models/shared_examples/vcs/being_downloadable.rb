@@ -28,7 +28,7 @@ RSpec.shared_examples 'vcs: being downloadable' do
 
   describe 'delegations' do
     it do
-      is_expected.to delegate_method(:content).to(:current_snapshot).allow_nil
+      is_expected.to delegate_method(:content).to(:current_version).allow_nil
     end
     it { is_expected.to delegate_method(:text_type?).to(:mime_type_instance) }
     it { is_expected.to delegate_method(:downloaded?).to(:content).with_prefix }
@@ -80,7 +80,7 @@ RSpec.shared_examples 'vcs: being downloadable' do
       allow(ContentDownloadJob).to receive(:perform_now)
       allow(backupable).to receive(:backup).and_return backup
       allow(backupable).to receive(:content).and_return content
-      allow(backup).to receive(:external_id).and_return 'ext-id'
+      allow(backup).to receive(:remote_file_id).and_return 'ext-id'
       allow(content).to receive(:id).and_return 'content-id'
     end
 

@@ -77,15 +77,14 @@
     color: color('gray', 'base');
     margin: 5px 0 5px 28px;
     padding-left: 5px;
-    white-space: pre-line;
 
-    .addition {
-      color: color('green', 'base');
+    // Do not underline links within content change
+    a:hover {
+      text-decoration: none;
     }
 
-    .deletion {
-      color: color('red', 'base');
-      text-decoration: line-through;
+    .links {
+      margin-top: 5px;
     }
   }
 }

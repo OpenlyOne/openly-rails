@@ -4,9 +4,9 @@ module VCS
   # A syncable file
   module Syncable
     extend ActiveSupport::Concern
+    include VCS::HavingRemote
 
     included do
-      attr_writer :sync_adapter
       # Set force sync to execute all jobs synchronously
       attr_accessor :force_sync
     end
@@ -14,19 +14,19 @@ module VCS
     # TODO: Extract to parent class
     # Build the associations for this syncable resource, such as file record
     def build_associations
-      self.file_record ||=
-        VCS::FileRecord.new(repository_id: branch.repository_id)
+      self.file ||=
+        VCS::File.new(repository_id: branch.repository_id)
     end
 
     # Fetch the most recent information about this syncable resource from its
     # provider
     def fetch
-      self.is_deleted = sync_adapter.deleted?
-      self.name = sync_adapter.name
-      self.mime_type = sync_adapter.mime_type
-      self.content_version = sync_adapter.content_version
-      self.external_parent_id = sync_adapter.parent_id
-      thumbnail_from_sync_adapter
+      self.is_deleted = remote.deleted?
+      self.name = remote.name
+      self.mime_type = remote.mime_type
+      self.content_version = remote.content_version
+      self.remote_parent_id = remote.parent_id
+      thumbnail_from_remote
     end
 
     # Fetch and save the most recent information about this syncable resource
@@ -39,68 +39,55 @@ module VCS
 
     # Fetch and save the children of this syncable resource from its provider
     def pull_children
-      self.staged_children = children_from_sync_adapter
-    end
-
-    # Reset sync state when calling #reload
-    def reload
-      reset_sync_adapter
-      super
-    end
-
-    def sync_adapter
-      @sync_adapter ||= sync_adapter_class.new(external_id)
+      self.children_in_branch = children_from_remote
     end
 
     # Get version ID of thumbnail
     def thumbnail_version_id
-      sync_adapter&.thumbnail_version
+      remote&.thumbnail_version
     end
 
     private
 
     # Fetch children from sync adapter and convert to file resources
-    def children_from_sync_adapter
-      sync_adapter.children.map do |child_sync_adapter|
-        staged_child =
+    def children_from_remote
+      remote.children.map do |remote_child|
+        child_in_branch =
           self.class
-              .create_with(sync_adapter: child_sync_adapter)
+              .create_with(remote: remote_child)
               .find_or_initialize_by(
                 branch: branch,
-                external_id: child_sync_adapter.id
+                remote_file_id: remote_child.id
               )
 
         # Pull (fetch+save) child if it is a new record
-        staged_child.tap { |child| child.pull if child.new_record? }
+        child_in_branch.tap { |child| child.pull if child.new_record? }
       end
     end
 
-    # Find an instance of syncable's class from the external parent ID
+    # Find an instance of syncable's class from the remote parent ID
     # and set instance to parent of current syncable resource
-    def external_parent_id=(external_parent_id)
-      self.parent = branch.staged_files.find_by_external_id(external_parent_id)
+    def remote_parent_id=(remote_parent_id)
+      self.parent_in_branch =
+        branch.files.find_by_remote_file_id(remote_parent_id)
     end
 
     # Reset the file's synchronization adapter
-    def reset_sync_adapter
-      @sync_adapter = nil
+    def reset_remote
+      super
       @destroy_on_save = nil
-    end
-
-    def sync_adapter_class
-      'Providers::GoogleDrive::FileSync'.constantize
     end
 
     # Set thumbnail from sync adapter, either by finding an existing thumbnail
     # for this file and its thumbnail version id or by creating a new one and
     # fetching the thumbnail
-    def thumbnail_from_sync_adapter
-      return unless sync_adapter.thumbnail?
+    def thumbnail_from_remote
+      return unless remote.thumbnail?
 
       self.thumbnail =
-        VCS::FileThumbnail
-        .create_with(raw_image: proc { sync_adapter.thumbnail })
-        .find_or_initialize_by_staged_file(self)
+        VCS::Thumbnail
+        .create_with(raw_image: proc { remote.thumbnail })
+        .find_or_initialize_by_file_in_branch(self)
     end
   end
 end

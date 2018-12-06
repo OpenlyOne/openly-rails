@@ -3,28 +3,28 @@
 RSpec.describe Providers::GoogleDrive::Link, type: :model do
   subject(:link) { Providers::GoogleDrive::Link }
 
-  describe '.for(external_id:, mime_type:)' do
+  describe '.for(remote_file_id:, mime_type:)' do
     before do
       allow(Providers::GoogleDrive::MimeType)
         .to receive(:to_symbol).with('type').and_return :symbolic_type
     end
 
-    after { link.for(external_id: 'external-id', mime_type: 'type') }
+    after { link.for(remote_file_id: 'remote-id', mime_type: 'type') }
 
-    it 'calls #for_{symbolic_mime_type} with external_id' do
+    it 'calls #for_{symbolic_mime_type} with remote_file_id' do
       expect(link)
-        .to receive(:safe_send).with(:for_symbolic_type, 'external-id')
+        .to receive(:safe_send).with(:for_symbolic_type, 'remote-id')
     end
 
     context 'when safe_send returns nil' do
       before do
         allow(Providers::GoogleDrive::Link)
           .to receive(:safe_send)
-          .with(:for_symbolic_type, 'external-id')
+          .with(:for_symbolic_type, 'remote-id')
           .and_return nil
       end
 
-      it { expect(link).to receive(:for_other).with('external-id') }
+      it { expect(link).to receive(:for_other).with('remote-id') }
     end
   end
 

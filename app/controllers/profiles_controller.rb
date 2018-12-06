@@ -13,7 +13,6 @@ class ProfilesController < ApplicationController
       .where_profile_is_owner_or_collaborator(@profile)
       .includes(:owner)
       .order(:title, :id)
-    @resources = @profile.resources
     @user_can_edit_profile = can?(:edit, @profile)
   end
 

@@ -27,22 +27,22 @@ RSpec.shared_examples 'vcs: being backupable' do
 
   describe 'delegations' do
     it do
-      is_expected.to delegate_method(:backup).to(:current_snapshot).allow_nil
+      is_expected.to delegate_method(:backup).to(:current_version).allow_nil
     end
   end
 
   describe '#backed_up?' do
     subject { backupable }
 
-    let(:snapshot)      { instance_double VCS::FileSnapshot }
+    let(:version)       { instance_double VCS::Version }
     let(:backup)        { instance_double VCS::FileBackup }
     let(:is_persisted)  { false }
 
     before do
-      allow(backupable).to receive(:current_snapshot).and_return snapshot
-      next unless snapshot.present?
+      allow(backupable).to receive(:current_version).and_return version
+      next unless version.present?
 
-      allow(snapshot).to receive(:backup).and_return backup
+      allow(version).to receive(:backup).and_return backup
       next unless backup.present?
 
       allow(backup).to receive(:persisted?).and_return is_persisted
@@ -56,13 +56,13 @@ RSpec.shared_examples 'vcs: being backupable' do
       it { is_expected.to be_backed_up }
     end
 
-    context 'when current_snapshot is nil' do
-      let(:snapshot) { nil }
+    context 'when current_version is nil' do
+      let(:version) { nil }
 
       it { is_expected.not_to be_backed_up }
     end
 
-    context 'when backup of current_snapshot is present' do
+    context 'when backup of current_version is present' do
       let(:backup) { nil }
 
       it { is_expected.not_to be_backed_up }

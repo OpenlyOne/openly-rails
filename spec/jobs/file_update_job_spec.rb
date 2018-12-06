@@ -99,8 +99,8 @@ RSpec.describe FileUpdateJob, type: :job do
     let(:branches)  { instance_double ActiveRecord::Relation }
     let(:branch1)   { instance_double VCS::Branch }
     let(:branch2)   { instance_double VCS::Branch }
-    let(:file1)     { instance_double VCS::StagedFile }
-    let(:file2)     { instance_double VCS::StagedFile }
+    let(:file1)     { instance_double VCS::FileInBranch }
+    let(:file2)     { instance_double VCS::FileInBranch }
 
     before do
       allow(change).to receive(:file_id).and_return 'id'
@@ -108,7 +108,7 @@ RSpec.describe FileUpdateJob, type: :job do
       allow(file).to receive(:parents).and_return parents if file.present?
 
       allow(VCS::Branch)
-        .to receive(:where_staged_files_include_external_id)
+        .to receive(:where_files_include_remote_file_id)
         .and_return branches
 
       allow(branches)
@@ -116,23 +116,23 @@ RSpec.describe FileUpdateJob, type: :job do
         .and_yield(branch1)
         .and_yield(branch2)
 
-      allow(VCS::StagedFile)
+      allow(VCS::FileInBranch)
         .to receive(:find_or_initialize_by)
-        .with(external_id: 'id', branch: branch1)
+        .with(remote_file_id: 'id', branch: branch1)
         .and_return file1
-      allow(VCS::StagedFile)
+      allow(VCS::FileInBranch)
         .to receive(:find_or_initialize_by)
-        .with(external_id: 'id', branch: branch2)
+        .with(remote_file_id: 'id', branch: branch2)
         .and_return file2
 
       allow(file1).to receive(:pull)
       allow(file2).to receive(:pull)
     end
 
-    it 'finds branches with the correct staged files' do
+    it 'finds branches with the correct files' do
       process_change
       expect(VCS::Branch)
-        .to have_received(:where_staged_files_include_external_id)
+        .to have_received(:where_files_include_remote_file_id)
         .with(%w[id p1 p2 p3])
     end
 
@@ -145,15 +145,15 @@ RSpec.describe FileUpdateJob, type: :job do
     context 'when file is not present' do
       let(:file) { nil }
 
-      it 'find branches with staged files with external id of change' do
+      it 'find branches with files with remote id of change' do
         process_change
         expect(VCS::Branch)
-          .to have_received(:where_staged_files_include_external_id)
+          .to have_received(:where_files_include_remote_file_id)
           .with(['id'])
       end
     end
 
-    context 'when staged files are not found in any branches' do
+    context 'when files are not found in any branches' do
       before do
         allow(branches).to receive(:find_each).and_return []
       end

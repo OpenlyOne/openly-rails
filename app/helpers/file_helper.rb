@@ -4,24 +4,24 @@
 module FileHelper
   # Wrap block into a link_to the file.
   # If the file is a directory, wraps into an internal link to that directory.
-  # If the file is not a directory, wraps into an external link to Drive.
-  def link_to_file(file, project, options = {}, &block)
+  # If the file is not a directory, wraps into an remote link to Drive.
+  def link_to_file(diff, project, options = {}, &block)
     # internal link to that folder
-    if file.folder?
-      path =
-        profile_project_folder_path(project.owner, project, file.external_id)
+    if diff.folder?
+      path = profile_project_folder_path(project.owner, project,
+                                         diff.hashed_file_id)
 
-    # external link to the original file on Google Drive
+    # remote link to the original file on Google Drive
     else
-      path = file.external_link
+      path = diff.link_to_remote
       options = options.reverse_merge target: '_blank'
     end
 
     link_to(path, options) { capture(&block) }
   end
 
-  # Wrap block into a link to the file's snapshot backup
-  # If the file snapshot has not been backed up, does not wrap block into a
+  # Wrap block into a link to the file's version backup
+  # If the file version has not been backed up, does not wrap block into a
   # link.
   def link_to_file_backup(file, revision, project, options = {}, &block)
     path = file_backup_path(file, revision, project)
@@ -40,12 +40,13 @@ module FileHelper
 
   private
 
-  def file_backup_path(file, revision, project)
-    if file.folder? && revision.published?
-      profile_project_revision_folder_path(project.owner, project,
-                                           revision.id, file.external_id)
+  def file_backup_path(diff, revision, project)
+    if diff.folder? && revision.published?
+      profile_project_revision_folder_path(
+        project.owner, project, revision.id, diff.hashed_file_id
+      )
     else
-      file.backup&.external_link
+      diff.backup&.link_to_remote
     end
   end
 end

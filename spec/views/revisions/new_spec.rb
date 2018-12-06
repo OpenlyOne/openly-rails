@@ -63,16 +63,16 @@ RSpec.describe 'revisions/new', type: :view do
 
   context 'when file diffs exist' do
     let(:file_diffs) do
-      snapshots.map do |snapshot|
-        VCS::FileDiff.new(new_snapshot: snapshot, first_three_ancestors: [])
+      versions.map do |version|
+        VCS::FileDiff.new(new_version: version, first_three_ancestors: [])
       end
     end
-    let(:snapshots) do
-      build_stubbed_list(:vcs_file_snapshot, 3, :with_backup)
+    let(:versions) do
+      build_stubbed_list(:vcs_version, 3, :with_backup)
     end
 
     before do
-      root = instance_double VCS::StagedFile
+      root = instance_double VCS::FileInBranch
       allow(master_branch).to receive(:root).and_return root
       allow(root).to receive(:provider).and_return Providers::GoogleDrive
       file_diffs.first.changes.each(&:unselect!)
@@ -97,12 +97,12 @@ RSpec.describe 'revisions/new', type: :view do
     it 'renders a link to each file backup' do
       render
       file_diffs.each do |diff|
-        link = diff.current_snapshot.backup.external_link
+        link = diff.current_version.backup.link_to_remote
         expect(rendered).to have_link(text: diff.name, href: link)
       end
     end
 
-    it 'marks all links as external links' do
+    it 'marks all links as remote links' do
       render
       expect(rendered).to have_css("a[target='_blank']")
       expect(rendered).not_to have_css("a:not([target='_blank'])")
@@ -116,6 +116,11 @@ RSpec.describe 'revisions/new', type: :view do
           old_content: 'bye'
         )
       end
+      let(:link_to_side_by_side) do
+        profile_project_file_change_path(
+          project.owner, project, change.hashed_file_id
+        )
+      end
 
       before do
         allow(change).to receive(:modification?).and_return true
@@ -126,6 +131,19 @@ RSpec.describe 'revisions/new', type: :view do
         render
         expect(rendered).to have_css('.fragment.addition', text: 'hi')
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+      end
+
+      it 'has a link to side-by-side diff' do
+        render
+        expect(rendered)
+          .to have_link('View side-by-side', href: link_to_side_by_side)
+      end
+
+      it 'opens side-by-side diff in a new tab' do
+        render
+        expect(rendered).to have_selector(
+          "a[href='#{link_to_side_by_side}'][target='_blank']"
+        )
       end
     end
   end

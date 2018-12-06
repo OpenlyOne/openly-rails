@@ -1,0 +1,12 @@
+= render partial: 'projects/head', object: @project, as: :project,
+         locals: { active_tab: nil }
+
+= render partial: 'revisions/head', object: @revision, as: :revision,
+         locals: { project: @project }
+
+= render partial: 'file_infos/head', object: @file_diff, as: :file,
+         locals: { project: @project }
+
+= yield
+
+= parent_layout 'application'

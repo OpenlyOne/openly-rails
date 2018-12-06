@@ -5,17 +5,21 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   let(:change)        { file_diffs.find(diff.id).changes.first }
   let(:child1_change) { file_diffs.find(child1_diff.id).changes.first }
   let(:child2_change) { file_diffs.find(child2_diff.id).changes.first }
-  let(:file)          { create :vcs_staged_file, name: 'c-name' }
-  let(:child1)        { create :vcs_staged_file, name: 'child1', parent: file }
-  let(:child2)        { create :vcs_staged_file, name: 'child2', parent: file }
+  let(:file)          { create :vcs_file_in_branch, name: 'c-name' }
+  let(:child1) do
+    create :vcs_file_in_branch, name: 'child1', parent_in_branch: file
+  end
+  let(:child2) do
+    create :vcs_file_in_branch, name: 'child2', parent_in_branch: file
+  end
   let(:child_changes) { [child1_change, child2_change] }
   let(:commit)        { create :vcs_commit }
   let(:file_diffs)    { commit.file_diffs.reload }
 
   let!(:diff) do
     create :vcs_file_diff,
-           current_snapshot: nil,
-           previous_snapshot: file.current_snapshot,
+           current_version: nil,
+           previous_version: file.current_version,
            commit: commit
   end
 
@@ -24,14 +28,14 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
   describe 'validation: must_not_unselect_deletion_of_children' do
     let!(:child1_diff) do
       create :vcs_file_diff,
-             current_snapshot: nil,
-             previous_snapshot: child1.current_snapshot,
+             current_version: nil,
+             previous_version: child1.current_version,
              commit: commit
     end
     let!(:child2_diff) do
       create :vcs_file_diff,
-             current_snapshot: nil,
-             previous_snapshot: child2.current_snapshot,
+             current_version: nil,
+             previous_version: child2.current_version,
              commit: commit
     end
     let(:hook)  { nil }
@@ -55,31 +59,31 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
       let(:hook) do
         child1.update(name: 'new-name')
         child2.update(name: 'new-name')
-        child1_diff.update!(current_snapshot: child1.current_snapshot)
-        child2_diff.update!(current_snapshot: child2.current_snapshot)
+        child1_diff.update!(current_version: child1.current_version)
+        child2_diff.update!(current_version: child2.current_version)
       end
       it { is_expected.to be_valid }
     end
   end
 
   describe 'validation: must_not_unselect_movement_of_children' do
-    let(:new_parent) { create :vcs_staged_file }
+    let(:new_parent) { create :vcs_file_in_branch }
 
     before do
-      child1.update!(parent: new_parent)
-      child2.update!(parent: new_parent)
+      child1.update!(parent_in_branch: new_parent)
+      child2.update!(parent_in_branch: new_parent)
     end
 
     let!(:child1_diff) do
       create :vcs_file_diff,
-             current_snapshot: child1.current_snapshot,
-             previous_snapshot_id: child1.current_snapshot_id_before_last_save,
+             current_version: child1.current_version,
+             previous_version_id: child1.current_version_id_before_last_save,
              commit: commit
     end
     let!(:child2_diff) do
       create :vcs_file_diff,
-             current_snapshot: child2.current_snapshot,
-             previous_snapshot_id: child2.current_snapshot_id_before_last_save,
+             current_version: child2.current_version,
+             previous_version_id: child2.current_version_id_before_last_save,
              commit: commit
     end
     let(:hook)  { nil }
@@ -101,10 +105,10 @@ RSpec.describe VCS::FileDiff::Changes::Deletion, type: :model do
 
     context 'when children are not being moved' do
       let(:hook) do
-        child1.update(name: 'new-name', parent: file)
-        child2.update(name: 'new-name', parent: file)
-        child1_diff.update!(current_snapshot: child1.current_snapshot)
-        child2_diff.update!(current_snapshot: child2.current_snapshot)
+        child1.update(name: 'new-name', parent_in_branch: file)
+        child2.update(name: 'new-name', parent_in_branch: file)
+        child1_diff.update!(current_version: child1.current_version)
+        child2_diff.update!(current_version: child2.current_version)
       end
       it { is_expected.to be_valid }
     end

@@ -6,7 +6,7 @@ module VCS
     # Associations
     belongs_to :repository
 
-    has_many :staged_files, dependent: :delete_all do
+    has_many :files, class_name: 'FileInBranch', dependent: :delete_all do
       def root
         find_by(is_root: true)
       end
@@ -16,19 +16,19 @@ module VCS
       end
 
       def folders
-        joins_staged_snapshot
+        joins_version
           .where(
-            'staged_snapshots.mime_type = ?',
+            'versions.mime_type = ?',
             Providers::GoogleDrive::MimeType.folder
           )
       end
     end
 
-    has_many :staged_file_snapshots,
-             through: :staged_files,
-             source: :current_snapshot do
+    has_many :versions_in_branch,
+             through: :files,
+             source: :current_version do
                def without_root
-                 where("#{StagedFile.table_name}.is_root = ?", false)
+                 where("#{VCS::FileInBranch.table_name}.is_root = ?", false)
                end
              end
 
@@ -43,17 +43,19 @@ module VCS
     end
 
     # Delegations
-    delegate :root, to: :staged_files
-    delegate :folders, to: :staged_files, prefix: :staged
+    delegate :root, to: :files
+    delegate :folders, to: :files
 
     # Scopes
-    # Return branches that have one or more staged files with the given
-    # external IDs
-    scope :where_staged_files_include_external_id, lambda { |external_ids|
-      joins(:staged_files)
-        .merge(VCS::StagedFile.joins_staged_snapshot)
-        .where(vcs_staged_files: { external_id: external_ids.to_a })
-        .distinct
+    # Return branches that have one or more files with the given remote IDs
+    scope :where_files_include_remote_file_id, lambda { |remote_file_ids|
+      joins(:files)
+        .merge(VCS::FileInBranch.joins_version)
+        .where(
+          "#{VCS::FileInBranch.table_name}": {
+            remote_file_id: remote_file_ids.to_a
+          }
+        ).distinct
     }
   end
 end

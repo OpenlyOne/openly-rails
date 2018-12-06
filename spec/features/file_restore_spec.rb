@@ -165,9 +165,9 @@ feature 'File Restore', vcr: true do
     # and be moved, modified, and renamed
     expect(page).to have_css '.file.movement.modification.rename',
                              text: 'original name'
-    # and have a new external ID
-    expect(project.staged_files.reload.find_by(name: 'original name'))
-      .not_to have_attributes(external_id: remote_file.id)
+    # and have a new remote ID
+    expect(project.files.reload.find_by(name: 'original name'))
+      .not_to have_attributes(remote_file_id: remote_file.id)
   end
 
   context 'when remote file is a folder' do

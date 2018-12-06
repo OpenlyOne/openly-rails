@@ -5,27 +5,27 @@ module VCS
     # Generate the ancestor tree for a set of files at a given revision
     class FileAncestryTree
       # Initialize and generate tree
-      # MUST PASS file_record_ids!
-      def self.generate(commit:, parent_commit: nil, file_record_ids:, depth:)
+      # MUST PASS file_ids!
+      def self.generate(commit:, parent_commit: nil, file_ids:, depth:)
         tree = new(commit: commit,
                    parent_commit: parent_commit,
-                   file_record_ids: file_record_ids)
+                   file_ids: file_ids)
         # Load generations depth + 1 times because 1st generation is just
         # current files
         tree.recursively_load_generations(depth: depth + 1)
         tree
       end
 
-      def initialize(commit:, parent_commit: nil, file_record_ids:)
+      def initialize(commit:, parent_commit: nil, file_ids:)
         self.commit = commit
         self.parent_commit = parent_commit || commit.parent
-        initialize_tree(file_record_ids)
+        initialize_tree(file_ids)
       end
 
       # Return the ancestor names for a given file ID
-      def ancestors_names_for(file_record_id, depth:)
+      def ancestors_names_for(file_id, depth:)
         ancestor_names = []
-        file = find(file_record_id)
+        file = find(file_id)
 
         (1..depth).each do
           file = find(file[:parent])
@@ -103,28 +103,28 @@ module VCS
         tree.merge!(updated_entries)
       end
 
-      # Fetch file snapshot records for the given IDs
+      # Fetch file version records for the given IDs
       def fetch_records_for(ids)
         VCS::CommittedFile
           .connection
-          .select_all(distinct_file_resources_between_revisions_with_ids(ids))
+          .select_all(distinct_versions_between_revisions_with_ids(ids))
           .rows
           .map { |id, name, parent| { id: id, name: name, parent: parent } }
       end
 
       # ActiveRecord query for distinct file resources between revision and its
       # parent revision for a given array of IDs
-      def distinct_file_resources_between_revisions_with_ids(ids)
+      def distinct_versions_between_revisions_with_ids(ids)
         VCS::CommittedFile
-          .distinct_file_resources_between_commits(commit, parent_commit&.id)
-          .joins(:file_snapshot)
-          .select("#{snapshot_table_name}.name",
-                  "#{snapshot_table_name}.file_record_parent_id")
-          .where("#{snapshot_table_name}": { file_record_id: ids })
+          .distinct_versions_between_commits(commit, parent_commit&.id)
+          .joins(:version)
+          .select("#{version_table_name}.name",
+                  "#{version_table_name}.parent_id")
+          .where("#{version_table_name}": { file_id: ids })
       end
 
-      def snapshot_table_name
-        VCS::FileSnapshot.table_name
+      def version_table_name
+        VCS::Version.table_name
       end
     end
   end

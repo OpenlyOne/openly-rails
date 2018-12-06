@@ -6,12 +6,12 @@ RSpec.describe VCS::Operations::ContentDownloader, type: :model do
   describe '#plain_text' do
     subject(:plain_text) { downloader.plain_text }
 
-    let(:text)    { 'text from parser' }
-    let(:parser)  { instance_double Henkei }
+    let(:text)  { 'text from parser' }
+    let(:file)  { instance_double File }
 
     before do
-      allow(downloader).to receive(:parser).and_return parser
-      allow(parser).to receive(:text).and_return text
+      allow(Henkei::Server).to receive(:extract_text).with(file).and_return text
+      allow(downloader).to receive(:downloaded_file).and_return file
     end
 
     it { is_expected.to eq 'text from parser' }

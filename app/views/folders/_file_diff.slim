@@ -9,8 +9,10 @@
   title=file_diff.name
 ]
 
+  / TODO: Replace file_change with file and replace VCS::File with file.hashed_file_id
   = render partial: 'link_to_file_info',
-           locals: { file_id: file_diff.external_id, project: project }
+           locals: { file_id: file_diff.hashed_file_id,
+                     project: project }
 
   = link_to_file(file_diff, project, class: 'file-link') do
 

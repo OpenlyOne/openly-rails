@@ -6,14 +6,14 @@ RSpec.describe VCS::CommittedFile, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:commit).autosave(false).dependent(false) }
     it do
-      is_expected.to belong_to(:file_snapshot).autosave(false).dependent(false)
+      is_expected.to belong_to(:version).autosave(false).dependent(false)
     end
   end
 
   describe 'scopes' do
-    it 'has scope: where_snapshot_changed_between_commits' do
+    it 'has scope: where_version_changed_between_commits' do
       expect(described_class)
-        .to respond_to(:where_snapshot_changed_between_commits)
+        .to respond_to(:where_version_changed_between_commits)
         .with(2).arguments
     end
   end
@@ -23,9 +23,9 @@ RSpec.describe VCS::CommittedFile, type: :model do
 
     it do
       is_expected
-        .to validate_uniqueness_of(:file_snapshot_id)
+        .to validate_uniqueness_of(:version_id)
         .scoped_to(:commit_id)
-        .with_message('file snapshot already exists in this revision')
+        .with_message('file version already exists in this revision')
     end
   end
 

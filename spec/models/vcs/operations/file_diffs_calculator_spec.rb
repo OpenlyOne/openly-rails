@@ -30,7 +30,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
 
   describe '#ancestors_names_for(diff)' do
     subject(:ancestors) { calculator.send :ancestors_names_for, diff }
-    let(:diff)          { { 'file_record_id' => 1, 'x' => 'y' } }
+    let(:diff)          { { 'file_id' => 1, 'x' => 'y' } }
     let(:ancestry_tree) { instance_double VCS::Operations::FileAncestryTree }
 
     before do
@@ -47,9 +47,9 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
 
   describe '#ancestry_tree' do
     let(:raw_diffs) do
-      [{ 'file_record_id' => 1, 'x' => 'y' },
-       { 'file_record_id' => 2, 'x' => 'y' },
-       { 'file_record_id' => 3, 'x' => 'y' }]
+      [{ 'file_id' => 1, 'x' => 'y' },
+       { 'file_id' => 2, 'x' => 'y' },
+       { 'file_id' => 3, 'x' => 'y' }]
     end
     let(:parent_commit) { instance_double VCS::Commit }
 
@@ -63,7 +63,7 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
       expect(VCS::Operations::FileAncestryTree)
         .to receive(:generate)
         .with(commit: commit, parent_commit: parent_commit,
-              file_record_ids: [1, 2, 3], depth: 'depth')
+              file_ids: [1, 2, 3], depth: 'depth')
       calculator.send :ancestry_tree
     end
   end
@@ -107,10 +107,10 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
     subject(:method) { calculator.send :raw_diff_to_diff, raw_diff }
 
     let(:raw_diff) do
-      { 'file_record_id' => 100,
-        'snapshots' => [
-          { 'commit_id' => 1, 'file_snapshot_id' => 9 },
-          { 'commit_id' => 2, 'file_snapshot_id' => 21 }
+      { 'file_id' => 100,
+        'versions' => [
+          { 'commit_id' => 1, 'version_id' => 9 },
+          { 'commit_id' => 2, 'version_id' => 21 }
         ] }
     end
 
@@ -120,42 +120,42 @@ RSpec.describe VCS::Operations::FileDiffsCalculator, type: :model do
       allow(commit).to receive(:parent).and_return parent_commit
       allow(parent_commit).to receive(:id).and_return 'parent-commit-id'
       allow(calculator)
-        .to receive(:snapshot_id_from_raw_diff)
+        .to receive(:version_id_from_raw_diff)
         .with(raw_diff, 'commit-id')
-        .and_return('current-snapshot-id')
+        .and_return('current-version-id')
       allow(calculator)
-        .to receive(:snapshot_id_from_raw_diff)
+        .to receive(:version_id_from_raw_diff)
         .with(raw_diff, 'parent-commit-id')
-        .and_return('previous-snapshot-id')
+        .and_return('previous-version-id')
     end
 
     it 'keeps file_resource_id' do
-      is_expected.to include('file_record_id' => 100)
+      is_expected.to include('file_id' => 100)
     end
 
     it 'sets commit id' do
       is_expected.to include('commit_id' => 'commit-id')
     end
 
-    it 'sets new snapshot id' do
-      is_expected.to include('new_snapshot_id' => 'current-snapshot-id')
+    it 'sets new version id' do
+      is_expected.to include('new_version_id' => 'current-version-id')
     end
 
-    it 'sets old snapshot id' do
-      is_expected.to include('old_snapshot_id' => 'previous-snapshot-id')
+    it 'sets old version id' do
+      is_expected.to include('old_version_id' => 'previous-version-id')
     end
   end
 
-  describe '#snapshot_id_from_raw_diff(raw_diff, commit_id)' do
+  describe '#version_id_from_raw_diff(raw_diff, commit_id)' do
     subject(:method) do
-      calculator.send :snapshot_id_from_raw_diff, raw_diff, commit_id
+      calculator.send :version_id_from_raw_diff, raw_diff, commit_id
     end
 
     let(:raw_diff) do
-      { 'file_record_id' => 100,
-        'snapshots' => [
-          { 'commit_id' => 1, 'file_snapshot_id' => 9 },
-          { 'commit_id' => 2, 'file_snapshot_id' => 21 }
+      { 'file_id' => 100,
+        'versions' => [
+          { 'commit_id' => 1, 'version_id' => 9 },
+          { 'commit_id' => 2, 'version_id' => 21 }
         ] }
     end
 

@@ -2,87 +2,87 @@
 
 module VCS
   module Operations
-    # Restore a file snapshot to the provided target branch
+    # Restore a file version to the provided target branch
     # rubocop:disable Metrics/ClassLength
     class FileRestore
       delegate :addition?, :deletion?, :modification?, :rename?, :movement?,
                to: :diff, prefix: :perform
 
       # Initialize a new instance of FileRestore and prepare for restoring the
-      # provided snapshot to the provided target_branch
-      def initialize(snapshot:, file_record_id: nil, target_branch:)
-        self.snapshot = snapshot
-        self.file_record_id = file_record_id || snapshot.file_record_id
+      # provided version to the provided target_branch
+      def initialize(version:, file_id: nil, target_branch:)
+        self.version = version
+        self.file_id = file_id || version.file_id
         self.target_branch = target_branch
       end
 
-      # Perform the restoration of the snapshot
+      # Perform the restoration of the version
       def restore
         # Do nothing if there is no diff!
         return unless diff.change?
-        raise 'This snapshot cannot be restored' unless restorable?
+        raise 'This version cannot be restored' unless restorable?
 
         perform_restoration
 
         # Update in stage
-        staged_file.update(
-          snapshot_attributes.merge(external_id: external_id,
-                                    content_version: content_version,
-                                    is_deleted: snapshot.nil?)
+        file_in_branch.update(
+          version_attributes.merge(remote_file_id: remote_file_id,
+                                   content_version: content_version,
+                                   is_deleted: version.nil?)
         )
       end
 
-      # The snapshot can only be restored if a backup is present OR
+      # The version can only be restored if a backup is present OR
       # if the restoration is only affecting location and name
       def restorable?
         # Deletion is always possible
         return true if perform_deletion?
 
-        # Otherwise, snapshot must be present AND...
-        snapshot.present? &&
-          # snapshot must be folder OR have backup OR diff is not
+        # Otherwise, version must be present AND...
+        version.present? &&
+          # version must be folder OR have backup OR diff is not
           # addition/modification (but movement/rename)
-          (snapshot.folder? ||
-          snapshot.backup.present? ||
+          (version.folder? ||
+          version.backup.present? ||
           (!perform_addition? && !perform_modification?))
       end
 
       private
 
-      attr_accessor :snapshot, :target_branch, :file_record_id
-      attr_writer :external_id, :content_version
+      attr_accessor :version, :target_branch, :file_id
+      attr_writer :remote_file_id, :content_version
 
       # Create remote file from backup copy
       def add_file
-        replacement = snapshot.folder? ? create_folder : duplicate_file
-        self.external_id = replacement.id
+        replacement = version.folder? ? create_folder : duplicate_file
+        self.remote_file_id = replacement.id
         self.content_version = replacement.content_version
 
         # Create a new remote content record that points at the same content
-        # version as the snapshot that we're restoring. Essentially, we're
+        # version as the version that we're restoring. Essentially, we're
         # mapping the new remote file's content to the existing local content,
         # saying that they're one and the same.
         # TODO: Add helper method for creating a new remote version of content
-        snapshot.content.remote_contents.create!(
-          repository: snapshot.repository,
-          remote_file_id: external_id,
+        version.content.remote_contents.create!(
+          repository: version.repository,
+          remote_file_id: remote_file_id,
           remote_content_version_id: content_version
         )
       end
 
       # Duplicate or create file depending on whether this is a folder or not
       def duplicate_file
-        file_sync_class.new(snapshot.backup.external_id).duplicate(
-          name: snapshot.name,
-          parent_id: staged_parent.external_id
+        file_sync_class.new(version.backup.remote_file_id).duplicate(
+          name: version.name,
+          parent_id: parent_in_branch.remote_file_id
         )
       end
 
       def create_folder
         file_sync_class.create(
-          name: snapshot.name,
-          parent_id: staged_parent.external_id,
-          mime_type: snapshot.mime_type
+          name: version.name,
+          parent_id: parent_in_branch.remote_file_id,
+          mime_type: version.mime_type
         )
       end
 
@@ -90,9 +90,10 @@ module VCS
       # Calling the delete API endpoint results in insufficient permission
       # error unless the action is performed by the file owner.
       def remove_file
-        file_sync_class
-          .new(staged_file.external_id)
-          .relocate(to: nil, from: staged_file.parent.external_id)
+        file_in_branch.remote.relocate(
+          to: nil,
+          from: file_in_branch.parent_in_branch.remote_file_id
+        )
       end
 
       # Create remote file from backup copy and delete current file
@@ -103,34 +104,32 @@ module VCS
 
       # Move remote file
       def relocate_file
-        file_sync_class
-          .new(staged_file.external_id)
-          .relocate(
-            to: staged_parent.external_id,
-            from: staged_file.parent.external_id
-          )
+        file_in_branch.remote.relocate(
+          to: parent_in_branch.remote_file_id,
+          from: file_in_branch.parent_in_branch.remote_file_id
+        )
       end
 
       # Rename remote file
       def rename_file
-        file_sync_class.new(staged_file.external_id).rename(snapshot.name)
+        file_in_branch.remote.rename(version.name)
       end
 
-      # Calculate the diff of new snapshot vs currently staged snapshot
+      # Calculate the diff of new version vs current version
       def diff
         @diff ||=
           VCS::FileDiff.new(
-            new_snapshot: snapshot,
-            old_snapshot: staged_file&.current_snapshot
+            new_version: version,
+            old_version: file_in_branch&.current_version
           )
       end
 
-      def external_id
-        @external_id ||= staged_file.external_id
+      def remote_file_id
+        @remote_file_id ||= file_in_branch.remote_file_id
       end
 
       def content_version
-        @content_version ||= snapshot&.content_version
+        @content_version ||= version&.content_version
       end
 
       def file_sync_class
@@ -152,34 +151,34 @@ module VCS
         rename_file if perform_rename?
       end
 
-      def staged_parent_of_snapshot_to_restore
+      def parent_in_branch_of_version_to_restore
         target_branch
-          .staged_files
-          .joins(:current_snapshot)
-          .find_by(file_record_id: snapshot.file_record_parent_id)
+          .files
+          .joins(:current_version)
+          .find_by(file_id: version.parent_id)
       end
 
-      def staged_parent
-        return nil unless snapshot.present?
+      def parent_in_branch
+        return nil unless version.present?
 
-        staged_parent_of_snapshot_to_restore || target_branch.root
+        parent_in_branch_of_version_to_restore || target_branch.root
       end
 
-      def snapshot_attributes
+      def version_attributes
         {
-          name: snapshot&.name,
-          mime_type: snapshot&.mime_type,
-          parent: staged_parent,
-          thumbnail_id: snapshot&.thumbnail_id
+          name: version&.name,
+          mime_type: version&.mime_type,
+          parent_in_branch: parent_in_branch,
+          thumbnail_id: version&.thumbnail_id
         }
       end
 
-      # Identify the StagedFile to modify with the provided snapshot
-      def staged_file
-        @staged_file ||=
+      # Identify the FileInBranch to modify with the provided version
+      def file_in_branch
+        @file_in_branch ||=
           target_branch
-          .staged_files
-          .find_by(file_record_id: file_record_id)
+          .files
+          .find_by(file_id: file_id)
       end
     end
     # rubocop:enable Metrics/ClassLength

@@ -2,22 +2,22 @@
 
 RSpec.describe VCS::Operations::FileAncestryTree, type: :model do
   subject(:ancestry_tree) do
-    described_class.new(commit: commit, file_record_ids: file_ids)
+    described_class.new(commit: commit, file_ids: file_ids)
   end
   let(:commit)    { instance_double VCS::Commit }
   let(:file_ids)  { [1, 2, 3] }
 
   before { allow(commit).to receive(:parent).and_return nil }
 
-  describe '.generate(commit:, parent_commit: nil, file_record_ids:, depth:)' do
+  describe '.generate(commit:, parent_commit: nil, file_ids:, depth:)' do
     subject(:generate)  { described_class.generate attributes }
-    let(:attributes)    { { commit: 'r', file_record_ids: 'ids', depth: 3 } }
+    let(:attributes)    { { commit: 'r', file_ids: 'ids', depth: 3 } }
     let(:new_tree)      { instance_double described_class }
 
     before do
       allow(described_class)
         .to receive(:new)
-        .with(commit: 'r', parent_commit: nil, file_record_ids: 'ids')
+        .with(commit: 'r', parent_commit: nil, file_ids: 'ids')
         .and_return new_tree
       allow(new_tree)
         .to receive(:recursively_load_generations).with(depth: 3 + 1)
@@ -36,7 +36,7 @@ RSpec.describe VCS::Operations::FileAncestryTree, type: :model do
         attributes[:parent_commit] = 'parent'
         allow(described_class)
           .to receive(:new)
-          .with(commit: 'r', parent_commit: 'parent', file_record_ids: 'ids')
+          .with(commit: 'r', parent_commit: 'parent', file_ids: 'ids')
           .and_return new_tree
       end
 

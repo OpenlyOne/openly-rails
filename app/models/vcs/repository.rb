@@ -6,9 +6,11 @@ module VCS
     has_many :branches, dependent: :destroy
 
     has_one :archive, dependent: :destroy
-    has_many :file_records, dependent: :destroy
-    has_many :file_snapshots, through: :file_records
-    has_many :file_backups, through: :file_snapshots, source: :backup
+    has_many :files, dependent: :destroy
+    has_many :file_versions, class_name: 'VCS::Version',
+                             through: :files,
+                             source: :versions
+    has_many :file_backups, through: :file_versions, source: :backup
 
     has_many :contents, dependent: :destroy
     has_many :remote_contents, dependent: :delete_all

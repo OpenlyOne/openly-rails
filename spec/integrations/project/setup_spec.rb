@@ -20,7 +20,7 @@ RSpec.describe Project::Setup, type: :model, vcr: true do
       .share_file(google_drive_test_folder_id, tracking_acct)
   end
   let(:link) do
-    Providers::GoogleDrive::Link.for(external_id: remote_root.id,
+    Providers::GoogleDrive::Link.for(remote_file_id: remote_root.id,
                                      mime_type: folder_type)
   end
 
@@ -43,8 +43,8 @@ RSpec.describe Project::Setup, type: :model, vcr: true do
     before { setup.begin(link: link) }
 
     it 'sets root folder' do
-      expect(project.staged_files.root).to be_present
-      expect(project.staged_files.root.external_id).to eq remote_root.id
+      expect(project.files.root).to be_present
+      expect(project.files.root.remote_file_id).to eq remote_root.id
     end
 
     it 'creates a FolderImportJob' do
@@ -95,7 +95,7 @@ RSpec.describe Project::Setup, type: :model, vcr: true do
 
     context 'when link ends with ?usp=sharing' do
       let(:raw_link) do
-        Providers::GoogleDrive::Link.for(external_id: remote_root.id,
+        Providers::GoogleDrive::Link.for(remote_file_id: remote_root.id,
                                          mime_type: folder_type)
       end
       let(:link) { "#{raw_link}?usp=sharing" }
@@ -148,7 +148,7 @@ RSpec.describe Project::Setup, type: :model, vcr: true do
     context 'when link is a google drive doc' do
       let(:mime_type) { document_type }
       let(:link) do
-        Providers::GoogleDrive::Link.for(external_id: remote_root.id,
+        Providers::GoogleDrive::Link.for(remote_file_id: remote_root.id,
                                          mime_type: mime_type)
       end
 

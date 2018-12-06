@@ -8,7 +8,7 @@ class ForceSyncsController < ApplicationController
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
   before_action :authorize_action
-  before_action :set_file_resource
+  before_action :set_file_in_branch
 
   def create
     @file.pull(force_sync: true)
@@ -32,18 +32,18 @@ class ForceSyncsController < ApplicationController
     super || redirect_to(file_info_path, alert: exception.message)
   end
 
-  def file_id
-    params[:id]
-  end
-
   def file_info_path
-    profile_project_file_infos_path(@project.owner, @project, file_id)
+    profile_project_file_infos_path(
+      @project.owner,
+      @project,
+      @file || params[:id]
+    )
   end
 
-  # Set the file resource
-  def set_file_resource
-    @file =
-      @project.master_branch
-              .staged_files.without_root.find_by!(external_id: file_id)
+  # Set the file in branch
+  def set_file_in_branch
+    @file = @master_branch.files
+                          .without_root
+                          .find_by_hashed_file_id!(params[:id])
   end
 end

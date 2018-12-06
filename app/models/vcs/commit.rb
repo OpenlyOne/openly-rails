@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VCS
-  # A commit is a snapshot of a branch with all its files
+  # A commit is a version of a branch with all its files
   # rubocop:disable Metrics/ClassLength
   class Commit < ApplicationRecord
     # TODO: Extract Notifying out
@@ -18,17 +18,17 @@ module VCS
     has_many :committed_files, dependent: :delete_all do
       # Get committed files that belong to the provided folder
       def in_folder(folder)
-        includes(:file_snapshot)
+        includes(:version)
           .where(
-            "#{VCS::FileSnapshot.table_name}": {
-              file_record_parent_id: folder.file_record_id
+            "#{VCS::Version.table_name}": {
+              parent_id: folder.file_id
             }
           )
       end
     end
-    has_many :committed_snapshots, class_name: 'VCS::FileSnapshot',
-                                   through: :committed_files,
-                                   source: :file_snapshot
+    has_many :committed_versions, class_name: 'VCS::Version',
+                                  through: :committed_files,
+                                  source: :version
     has_many :file_diffs, -> { order_by_name_with_folders_first },
              inverse_of: :commit, dependent: :delete_all
 
@@ -39,16 +39,12 @@ module VCS
 
     # Callbacks
     before_save :apply_selected_file_changes, if: :publishing?
-    after_save :update_staged_files, if: :publishing?
+    after_save :update_files_in_branch, if: :publishing?
     after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
 
     # Scopes
-    scope :preload_file_diffs_with_snapshots, lambda {
-      preload(file_diffs: { new_snapshot: :content, old_snapshot: :content })
-    }
-
-    scope :last_per_branch, lambda {
-      select('MAX(id) id, branch_id').published.group(:branch_id)
+    scope :preload_file_diffs_with_versions, lambda {
+      preload(file_diffs: { new_version: :content, old_version: :content })
     }
 
     scope :published, -> { where(is_published: true) }
@@ -62,21 +58,21 @@ module VCS
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
     validate :selected_file_changes_must_be_valid, if: :publishing?
 
-    # Create a non-published revision for the branch and commit all files staged
-    # in the branch
+    # Create a non-published revision for the branch and commit all files in the
+    # branch
     def self.create_draft_and_commit_files_for_branch!(branch, author)
       create!(branch: branch, parent: branch.commits.last, author: author)
-        .tap(&:commit_all_files_staged_in_branch)
+        .tap(&:commit_all_files_in_branch)
         .tap(&:generate_diffs)
     end
 
-    # Take ID and current snapshot ID of all (non-root) file resources currently
-    # staged in branch and import them as committed files for this revision.
-    def commit_all_files_staged_in_branch
+    # Take ID and current version ID of all (non-root) files currently in
+    # branch and import them as committed files for this revision.
+    def commit_all_files_in_branch
       VCS::CommittedFile.insert_from_select_query(
-        %i[commit_id file_snapshot_id],
-        branch.staged_file_snapshots
-              .without_root # only commit non-root snapshots
+        %i[commit_id version_id],
+        branch.versions_in_branch
+              .without_root # only commit non-root versions
               .select(id, :id)
       )
     end
@@ -123,32 +119,33 @@ module VCS
       Project.find_by_repository_id(repository.id).present?
     end
 
-    # Update each file in stage by joining it onto committed snapshots via
-    # file record id and setting the committed_snapshot_id of staged files to
-    # the id of committed snapshots
+    # Update each file in stage by joining it onto committed versions via
+    # file record id and setting the committed_version_id of files to the id of
+    # committed versions
     # rubocop:disable Metrics/MethodLength
-    def update_staged_files
-      # Left join staged files on committed snapshots
+    def update_files_in_branch
+      # Left join files on committed versions
       # TODO: Extract into scope/query
-      staged_files_left_joining_committed_snapshots =
-        branch.staged_files.joins(
+      files_in_branch_left_joining_committed_versions =
+        branch.files.joins(
           <<~SQL
-            LEFT JOIN (#{committed_snapshots.to_sql}) committed_snapshots
-            ON (committed_snapshots.file_record_id =
-            vcs_staged_files.file_record_id)
+            LEFT JOIN (#{committed_versions.to_sql}) committed_versions
+            ON (committed_versions.file_id =
+            vcs_file_in_branches.file_id)
           SQL
-        ).select('committed_snapshots.id, vcs_staged_files.file_record_id')
+        ).select('committed_versions.id, vcs_file_in_branches.file_id')
 
       # Perform the update
       branch
-        .staged_files
+        .files
         .where(
-          'committed_snapshots.file_record_id = vcs_staged_files.file_record_id'
+          'committed_versions.file_id = ' \
+          'vcs_file_in_branches.file_id'
         ).update_all(
           <<~SQL
-            committed_snapshot_id = committed_snapshots.id
-            FROM (#{staged_files_left_joining_committed_snapshots.to_sql})
-            committed_snapshots
+            committed_version_id = committed_versions.id
+            FROM (#{files_in_branch_left_joining_committed_versions.to_sql})
+            committed_versions
           SQL
         )
     end

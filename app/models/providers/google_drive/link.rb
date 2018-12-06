@@ -8,9 +8,10 @@ module Providers
         "https://#{subdomain}.google.com"
       end
 
-      def self.for(external_id:, mime_type:)
+      def self.for(remote_file_id:, mime_type:)
         type_symbol = MimeType.to_symbol(mime_type)
-        safe_send(:"for_#{type_symbol}", external_id) || for_other(external_id)
+        safe_send(:"for_#{type_symbol}", remote_file_id) ||
+          for_other(remote_file_id)
       end
 
       def self.for_document(id)

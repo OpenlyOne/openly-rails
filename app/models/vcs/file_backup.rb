@@ -1,61 +1,61 @@
 # frozen_string_literal: true
 
 module VCS
-  # A permanent backup of a file resource snapshot
+  # A permanent backup of a file resource version
   class FileBackup < ApplicationRecord
     # Associations
-    belongs_to :file_snapshot, inverse_of: :backup
+    belongs_to :file_version, class_name: 'VCS::Version', inverse_of: :backup
 
     # Validations
-    validates :file_snapshot_id,
+    validates :file_version_id,
               presence: { message: 'must exist' },
               uniqueness: { message: 'already has a backup' }
     validates :archive, presence: true, on: :capture
-    validates :external_id, presence: true, on: %i[create update]
+    validates :remote_file_id, presence: true, on: %i[create update]
 
     # TODO: after_destroy --> destroy backup if this is last reference to it
 
-    # Create a backup for the provided file resource
-    def self.backup(staged_file_to_backup)
-      new(file_snapshot: staged_file_to_backup.current_snapshot)
+    # Create a backup for the provided file in branch
+    def self.backup(file_in_branch_to_backup)
+      new(file_version: file_in_branch_to_backup.current_version)
         .tap(&:capture)
         .tap(&:save)
     end
 
-    # Capture a backup of the file resource snapshot and store in archive
+    # Capture a backup of the file resource version and store in archive
     def capture
       return false unless valid?(:capture)
 
       # Create backup
       # TODO: Refactor to file_resource.duplicate_remote
-      file = staged_file_remote.duplicate(
-        name: file_snapshot.name,
+      file = file_in_branch_remote.duplicate(
+        name: file_version.name,
         parent_id: archive_folder_id
       )
 
       return false unless file.present?
 
-      self.external_id = file.id
+      self.remote_file_id = file.id
     end
 
-    # TODO: Refactor onto snapshot
-    def external_link
+    # TODO: Refactor onto version
+    def link_to_remote
       Providers::GoogleDrive::Link
-        .for(external_id: external_id, mime_type: file_snapshot.mime_type)
+        .for(remote_file_id: remote_file_id, mime_type: file_version.mime_type)
     end
 
     private
 
     def archive
-      @archive ||= file_snapshot.file_record.repository.archive
+      @archive ||= file_version.file.repository.archive
     end
 
     def archive_folder_id
-      archive.external_id
+      archive.remote_file_id
     end
 
-    def staged_file_remote
-      sync_adapter_class.new(file_snapshot.external_id)
+    def file_in_branch_remote
+      sync_adapter_class.new(file_version.remote_file_id)
     end
 
     def provider

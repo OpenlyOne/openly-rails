@@ -3,10 +3,10 @@
 RSpec.describe 'folders/show', type: :view do
   let(:folder)            { nil }
   let(:project)           { build_stubbed :project }
-  let(:staged_files)    { build_list :vcs_staged_file, 5, :unchanged }
-  let(:staged_folders)  { build_list :vcs_staged_file, 5, :folder, :unchanged }
+  let(:files)    { build_list :vcs_file_in_branch, 5, :unchanged }
+  let(:folders)  { build_list :vcs_file_in_branch, 5, :folder, :unchanged }
   let(:ancestors)       { [] }
-  let(:children)        { staged_folders + staged_files }
+  let(:children)        { folders + files }
   let(:diffs)           { children.map(&:diff) }
   let(:action)          { 'root' }
 
@@ -28,7 +28,7 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders the thumbnails of files and folders' do
     thumbnail = create :vcs_file_thumbnail
     diffs.each do |diff|
-      allow(diff.current_or_previous_snapshot)
+      allow(diff.current_or_previous_version)
         .to receive(:thumbnail).and_return thumbnail
     end
 
@@ -48,8 +48,8 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of files' do
     render
-    staged_files.map(&:diff).each do |diff|
-      link = diff.external_link
+    files.map(&:diff).each do |diff|
+      link = diff.link_to_remote
       expect(rendered)
         .to have_css "a[href='#{link}'][target='_blank']"
     end
@@ -57,11 +57,11 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of folders' do
     render
-    staged_folders.map(&:diff).each do |diff|
+    folders.map(&:diff).each do |diff|
       expect(rendered).to have_link(
         diff.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, diff.external_id
+          project.owner, project.slug, VCS::File.id_to_hashid(diff.file_id)
         )
       )
     end
@@ -70,9 +70,11 @@ RSpec.describe 'folders/show', type: :view do
   it 'renders a link to infos for each file' do
     render
     diffs.each do |diff|
-      link = profile_project_file_infos_path(project.owner,
-                                             project,
-                                             diff.external_id)
+      link = profile_project_file_infos_path(
+        project.owner,
+        project,
+        VCS::File.id_to_hashid(diff.file_id)
+      )
       expect(rendered).to have_link(text: '', href: link)
     end
   end
@@ -100,10 +102,12 @@ RSpec.describe 'folders/show', type: :view do
   context 'when action name is show' do
     let(:action)          { 'show' }
     let(:ancestors)       { [parent, grandparent] }
-    let(:grandparent)     { build_stubbed :vcs_file_snapshot, name: 'Docs' }
-    let(:parent)          { build_stubbed :vcs_file_snapshot, name: 'Other' }
-    let(:folder_snapshot) { build_stubbed :vcs_file_snapshot, name: 'Folder' }
-    let(:folder) { build :vcs_staged_file, current_snapshot: folder_snapshot }
+    let(:grandparent)     { build_stubbed :vcs_version, name: 'Docs' }
+    let(:parent)          { build_stubbed :vcs_version, name: 'Other' }
+    let(:folder_version) { build_stubbed :vcs_version, name: 'Folder' }
+    let(:folder) do
+      build :vcs_file_in_branch, current_version: folder_version
+    end
 
     it 'renders breadcrumbs' do
       render
