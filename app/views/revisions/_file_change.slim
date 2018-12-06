@@ -47,4 +47,4 @@ div.file[class=file_change.symbolic_mime_type
         .links
           = link_to 'View side-by-side',
                     profile_project_file_change_path(project.owner, project, file_change.hashed_file_id),
-                    class: 'btn-flat btn-slim grey lighten-2'
+                    link_options.merge(class: 'btn-flat btn-slim grey lighten-2')
