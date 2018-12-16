@@ -177,6 +177,21 @@ RSpec.describe 'revisions/folders/show', type: :view do
       expect(rendered).to have_text 'Folder'
     end
 
+    it 'renders link to folders' do
+      [grandparent, parent, folder].each do |ancestor|
+        render
+        expect(rendered).to have_link(
+          ancestor.name,
+          href: profile_project_revision_folder_path(
+            project.owner,
+            project.slug,
+            revision,
+            VCS::File.id_to_hashid(ancestor.file_id)
+          )
+        )
+      end
+    end
+
     it 'renders link to home-folder breadcrumb' do
       render
       expect(rendered).to have_link(
