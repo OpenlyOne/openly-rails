@@ -53,15 +53,14 @@ module VCS
     def children_from_remote
       remote.children.map do |remote_child|
         child_in_branch =
-          self.class
-              .create_with(remote: remote_child)
-              .find_or_initialize_by(
-                branch: branch,
-                remote_file_id: remote_child.id
-              )
+          self.class.create_with(remote: remote_child).find_or_initialize_by(
+            branch: branch, remote_file_id: remote_child.id
+          )
 
-        # Pull (fetch+save) child if it is a new record
-        child_in_branch.tap { |child| child.pull if child.new_record? }
+        # Pull (fetch+save) child if it is a new record or both versions are nil
+        child_in_branch.tap do |child|
+          child.pull if child.new_record? || child.version.nil?
+        end
       end
     end
 

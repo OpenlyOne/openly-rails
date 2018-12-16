@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.30.2 (Dec 16, 2018)
+
+**Fixes:**
+- In folders view, generate correct links in the breadcrumbs/anecestry path by
+  relying on #hashed_file_id ([#246](https://github.com/OpenlyOne/openly/issues/246))
+- When force-syncing a folder, pull any new children as well as any children
+  that have no current or committed version and can thus not be manually
+  force-synced ([#247](https://github.com/OpenlyOne/openly/issues/247))
+
 ## v0.30.1 (Dec 6, 2018)
 
 **Fixes:**

@@ -47,8 +47,12 @@ FactoryBot.define do
     end
 
     trait :with_versions do
-      current_version { create(:vcs_version, mime_type: mime_type) }
-      committed_version { create(:vcs_version, mime_type: mime_type) }
+      current_version do
+        create(:vcs_version, file: file, mime_type: mime_type)
+      end
+      committed_version do
+        create(:vcs_version, file: file, mime_type: mime_type)
+      end
     end
 
     trait :unchanged do
