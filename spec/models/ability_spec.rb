@@ -81,6 +81,28 @@ RSpec.describe Ability, type: :model do
     end
   end
 
+  context 'File in Branch' do
+    actions = %i[show]
+    let(:object)  { [:file_in_branch, project] }
+    let(:project) { build_stubbed(:project) }
+
+    context 'when user is project owner' do
+      before { project.owner = user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is collaborator' do
+      before { project.collaborators << user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not project owner or collaborator' do
+      before { project.owner = build_stubbed(:user) }
+      before { project.collaborators = [] }
+      it_should_behave_like 'not having authorization', actions
+    end
+  end
+
   describe 'Collaborators of projects' do
     actions = %i[force_sync restore_file restore_revision setup]
     let(:object)  { project }

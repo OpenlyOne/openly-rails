@@ -4,8 +4,10 @@
 class FoldersController < ApplicationController
   include CanSetProjectContext
 
+  before_action :authenticate_account!
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
+  before_action :authorize_action
   before_action :set_folder_from_param, only: :show
   before_action :set_folder_from_root, only: :root
   before_action :set_children
@@ -20,6 +22,22 @@ class FoldersController < ApplicationController
   def show; end
 
   private
+
+  rescue_from CanCan::AccessDenied do |exception|
+    can_can_access_denied(exception)
+  end
+
+  def authorize_action
+    authorize! :show, :file_in_branch, @project
+  end
+
+  def can_can_access_denied(exception)
+    super || redirect_to(project_path, alert: exception.message)
+  end
+
+  def project_path
+    profile_project_path(@project.owner, @project)
+  end
 
   def preload_thumbnails_for_children
     # FileResource::Thumbnail.preload_for(@children)
