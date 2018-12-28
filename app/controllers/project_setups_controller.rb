@@ -7,7 +7,7 @@ class ProjectSetupsController < ApplicationController
   before_action :authenticate_account!, except: :show
   before_action :set_project
   before_action :authorize_project_access
-  before_action :authorize_action, except: :show
+  before_action :authorize_action
   before_action :redirect_to_show_if_setup_started_or_done, only: %i[new create]
   before_action :redirect_to_new_if_setup_not_started,      only: :show
   before_action :redirect_to_project_if_setup_complete,     only: :show

@@ -125,6 +125,12 @@ RSpec.describe ProjectSetupsController, :delayed_job, type: :controller do
 
     it_should_behave_like 'setting project'
     it_should_behave_like 'authorizing project access'
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) { profile_project_path(project.owner, project) }
+      let(:unauthorized_message) do
+        'You are not authorized to set up this project.'
+      end
+    end
 
     it 'returns http success' do
       run_request
