@@ -9,4 +9,9 @@ module FeaturesHelper
     fill_in 'Password', with: account.password
     click_on 'Log in'
   end
+
+  # signs out the account
+  def sign_out
+    visit '/logout'
+  end
 end
