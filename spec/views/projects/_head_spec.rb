@@ -95,11 +95,20 @@ RSpec.describe 'projects/_head', type: :view do
       )
     end
 
-    it 'renders a link to open that folder in Google Drive' do
+    it 'does not render a link to open that folder in Google Drive' do
       render
-      expect(rendered).to have_link(
-        'Open in Drive', href: root.link_to_remote
-      )
+      expect(rendered).not_to have_link('Open in Drive')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to open that folder in Google Drive' do
+        render
+        expect(rendered).to have_link(
+          'Open in Drive', href: root.link_to_remote
+        )
+      end
     end
   end
 end
