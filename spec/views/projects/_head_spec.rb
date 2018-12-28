@@ -2,10 +2,12 @@
 
 RSpec.describe 'projects/_head', type: :view do
   let(:project) { build_stubbed(:project) }
+  let(:can_collaborate) { false }
 
   before do
     without_partial_double_verification do
       allow(view).to receive(:project) { project }
+      allow(view).to receive(:can_collaborate) { can_collaborate }
     end
   end
 
@@ -27,10 +29,19 @@ RSpec.describe 'projects/_head', type: :view do
 
     it 'renders a link to start the project setup' do
       render
-      expect(rendered).to have_link(
-        'Setup',
-        href: new_profile_project_setup_path(project.owner, project.slug)
-      )
+      expect(rendered).not_to have_link('Setup')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to start the project setup' do
+        render
+        expect(rendered).to have_link(
+          'Setup',
+          href: new_profile_project_setup_path(project.owner, project.slug)
+        )
+      end
     end
   end
 
@@ -38,12 +49,21 @@ RSpec.describe 'projects/_head', type: :view do
     before { allow(project).to receive(:setup_not_started?).and_return false }
     before { allow(project).to receive(:setup_in_progress?).and_return true }
 
-    it 'renders a link to the setup status' do
+    it 'does not render a link to the setup status' do
       render
-      expect(rendered).to have_link(
-        'Setup',
-        href: profile_project_setup_path(project.owner, project.slug)
-      )
+      expect(rendered).not_to have_link('Setup')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to the setup status' do
+        render
+        expect(rendered).to have_link(
+          'Setup',
+          href: profile_project_setup_path(project.owner, project.slug)
+        )
+      end
     end
   end
 

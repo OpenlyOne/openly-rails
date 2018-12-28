@@ -1,5 +1,5 @@
 = render partial: 'projects/head', object: @project, as: :project,
-         locals: { active_tab: :files }
+         locals: { active_tab: :files, can_collaborate: @can_collaborate }
 
 = yield
 

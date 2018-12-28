@@ -18,11 +18,11 @@
             div.tab
               = link_to 'Overview', profile_project_overview_path(project.owner, project),
                 class: ('active' if active_tab == :overview)
-            - if project.setup_not_started?
+            - if project.setup_not_started? && can_collaborate
               div.tab
                 = link_to 'Setup', new_profile_project_setup_path(project.owner, project),
                           class: ('active' if active_tab == :setup)
-            - elsif project.setup_in_progress?
+            - elsif project.setup_in_progress? && can_collaborate
               div.tab
                 = link_to 'Setup', profile_project_setup_path(project.owner, project),
                           class: ('active' if active_tab == :setup)
