@@ -110,6 +110,7 @@ feature 'Visitors: As a guest/non-collaborator' do
     project
     # with completed setup
     create :project_setup, :completed, project: project
+    create :vcs_file_in_branch, :root, branch: project.master_branch
     create :vcs_commit, :published, branch: project.master_branch
 
     # when I visit the project page
@@ -124,6 +125,6 @@ feature 'Visitors: As a guest/non-collaborator' do
       "revisions/#{project.revisions.last.to_param}/files"
     )
     # and see the last commit text
-    expect(page).to have_text 'Import Files'
+    expect(page).to have_text project.revisions.last.title
   end
 end

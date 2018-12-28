@@ -28,8 +28,11 @@
                           class: ('active' if active_tab == :setup)
             - elsif project.setup_completed?
               div.tab
-                = link_to 'Files', profile_project_root_folder_path(project.owner, project),
-                          class: ('active' if active_tab == :files)
+                - if can_collaborate
+                  = link_to 'Files', profile_project_root_folder_path(project.owner, project),
+                            class: ('active' if active_tab == :files)
+                - else
+                  = link_to 'Files', profile_project_revision_root_folder_path(project.owner, project, project.revisions.last)
               div.tab
                 = link_to 'Revisions', profile_project_revisions_path(project.owner, project),
                           class: ('active' if active_tab == :revisions)
