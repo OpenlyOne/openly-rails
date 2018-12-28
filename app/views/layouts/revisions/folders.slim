@@ -1,4 +1,5 @@
-= render partial: 'projects/head', object: @project, as: :project
+= render partial: 'projects/head', object: @project, as: :project,
+         locals: { active_tab: nil, can_collaborate: @can_collaborate }
 
 = render partial: 'revisions/head', object: @revision, as: :revision,
          locals: { project: @project }

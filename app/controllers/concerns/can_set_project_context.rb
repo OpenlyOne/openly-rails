@@ -24,6 +24,11 @@ module CanSetProjectContext
     render 'projects/access_unauthorized', layout: 'application', status: 403
   end
 
+  # Can the current user collaborate on this project?
+  def set_can_collaborate
+    @can_collaborate = can?(:collaborate, @project)
+  end
+
   # Find and set project. Raise 404 if project does not exist
   def set_project
     set_project_by_handle_and_slug!
@@ -35,6 +40,8 @@ module CanSetProjectContext
     @project = scope.find_by_handle_and_slug!(profile_handle, profile_slug)
     # TODO: Consider extraction
     @master_branch = @project.master_branch
+    # TODO: Consider extraction
+    set_can_collaborate
   end
   # rubocop:enable Naming/AccessorMethodName
 

@@ -1,5 +1,5 @@
 = render partial: 'projects/head', object: @project, as: :project,
-         locals: { active_tab: nil }
+         locals: { active_tab: nil, can_collaborate: @can_collaborate }
 
 = render partial: 'file_infos/head', object: @file_diff, as: :file,
          locals: { project: @project }

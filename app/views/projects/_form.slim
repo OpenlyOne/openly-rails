@@ -13,7 +13,7 @@
     end
 
   = render partial: 'projects/head', object: @project, as: :project,
-           locals: { active_tab: :overview }
+           locals: { active_tab: :overview, can_collaborate: @can_collaborate }
 
   .project-banner style="background-image: url(#{image_path('projects/banner.jpg')});"
 
