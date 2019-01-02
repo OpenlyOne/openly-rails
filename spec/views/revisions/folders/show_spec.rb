@@ -56,18 +56,9 @@ RSpec.describe 'revisions/folders/show', type: :view do
     )
   end
 
-  it 'has a button to restore the revision' do
+  it 'does not have a button to restore the revision' do
     render
-    restore_action = profile_project_revision_restores_path(
-      project.owner, project, revision.id
-    )
-
-    expect(rendered).to have_css(
-      'form'\
-      "[action='#{restore_action}']"\
-      "[method='post']",
-      text: 'Restore Revision'
-    )
+    expect(rendered).not_to have_text('Restore')
   end
 
   it 'renders the names of files and folders' do
@@ -103,6 +94,24 @@ RSpec.describe 'revisions/folders/show', type: :view do
     render
     children.each do |child|
       expect(rendered).not_to have_link(child.name)
+    end
+  end
+
+  context 'when user can restore revisions' do
+    before { assign(:user_can_restore_revision, true) }
+
+    it 'has a button to restore the revision' do
+      render
+      restore_action = profile_project_revision_restores_path(
+        project.owner, project, revision.id
+      )
+
+      expect(rendered).to have_css(
+        'form'\
+        "[action='#{restore_action}']"\
+        "[method='post']",
+        text: 'Restore Revision'
+      )
     end
   end
 
