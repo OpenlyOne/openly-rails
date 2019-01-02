@@ -28,7 +28,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Wed, 02 Jan 2019 14:02:33 GMT
+      - Wed, 02 Jan 2019 13:51:22 GMT
       Server:
       - ESF
       Cache-Control:
@@ -53,14 +53,14 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:33 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:22 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2019-01-02
-        14:02:33 UTC","parents":["root"]}'
+        13:51:22 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -69,7 +69,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:33 GMT
+      - Wed, 02 Jan 2019 13:51:22 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -86,7 +86,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:34 GMT
+      - Wed, 02 Jan 2019 13:51:23 GMT
       Vary:
       - Origin
       - X-Origin
@@ -110,8 +110,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed",
-         "name": "Test @ 2019-01-02 14:02:33 UTC",
+         "id": "1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl",
+         "name": "Test @ 2019-01-02 13:51:22 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -131,13 +131,13 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:34 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:23 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed/permissions?sendNotificationEmail=false
+    uri: https://www.googleapis.com/drive/v3/files/1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl/permissions
     body:
       encoding: UTF-8
-      string: '{"emailAddress":"<EMAIL ADDRESS FOR USER ACCOUNT>","role":"reader","type":"user"}'
+      string: '{"role":"reader","type":"anyone"}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -146,7 +146,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:34 GMT
+      - Wed, 02 Jan 2019 13:51:23 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -163,7 +163,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:35 GMT
+      - Wed, 02 Jan 2019 13:51:24 GMT
       Vary:
       - Origin
       - X-Origin
@@ -188,15 +188,16 @@ http_interactions:
       string: |
         {
          "kind": "drive#permission",
-         "id": "13193959451567607887",
-         "type": "user",
-         "role": "reader"
+         "id": "anyoneWithLink",
+         "type": "anyone",
+         "role": "reader",
+         "allowFileDiscovery": false
         }
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:35 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:24 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed/permissions?fields=permissions/id,%20permissions/emailAddress,%20permissions/type
+    uri: https://www.googleapis.com/drive/v3/files/1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl/permissions?fields=permissions/id,%20permissions/emailAddress,%20permissions/type
     body:
       encoding: UTF-8
       string: ''
@@ -208,7 +209,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:35 GMT
+      - Wed, 02 Jan 2019 13:51:24 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -219,9 +220,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Wed, 02 Jan 2019 14:02:36 GMT
+      - Wed, 02 Jan 2019 13:51:24 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:36 GMT
+      - Wed, 02 Jan 2019 13:51:24 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -249,9 +250,8 @@ http_interactions:
         {
          "permissions": [
           {
-           "id": "13193959451567607887",
-           "type": "user",
-           "emailAddress": "<EMAIL ADDRESS FOR USER ACCOUNT>"
+           "id": "anyoneWithLink",
+           "type": "anyone"
           },
           {
            "id": "11673017242486491425",
@@ -261,10 +261,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:36 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:24 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed/permissions/13193959451567607887
+    uri: https://www.googleapis.com/drive/v3/files/1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl/permissions/anyoneWithLink
     body:
       encoding: UTF-8
       string: ''
@@ -276,7 +276,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:36 GMT
+      - Wed, 02 Jan 2019 13:51:24 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -293,7 +293,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:36 GMT
+      - Wed, 02 Jan 2019 13:51:25 GMT
       Vary:
       - Origin
       - X-Origin
@@ -305,10 +305,10 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:37 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:25 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl/permissions?fields=permissions/id,%20permissions/emailAddress,%20permissions/type
     body:
       encoding: UTF-8
       string: ''
@@ -320,7 +320,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:37 GMT
+      - Wed, 02 Jan 2019 13:51:25 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -331,9 +331,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Wed, 02 Jan 2019 14:02:37 GMT
+      - Wed, 02 Jan 2019 13:51:26 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:37 GMT
+      - Wed, 02 Jan 2019 13:51:26 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -359,31 +359,19 @@ http_interactions:
       encoding: UTF-8
       string: |
         {
-         "id": "1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed",
-         "name": "Test @ 2019-01-02 14:02:33 UTC",
-         "mimeType": "application/vnd.google-apps.folder",
-         "trashed": false,
-         "parents": [
-          "0AIeK5UAEPQfeUk9PVA"
-         ],
-         "thumbnailVersion": "0",
          "permissions": [
           {
-           "kind": "drive#permission",
            "id": "11673017242486491425",
            "type": "user",
-           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>",
-           "role": "owner",
-           "displayName": "Upshift One",
-           "deleted": false
+           "emailAddress": "<EMAIL ADDRESS FOR TRACKING ACCOUNT>"
           }
          ]
         }
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:37 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:26 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1N9MM8PzOb15MnvsSdjBPve2Wl4oxYXed
+    uri: https://www.googleapis.com/drive/v3/files/1z6IY_9YsUbAYYKuBsugNPrYHS75-DpJl
     body:
       encoding: UTF-8
       string: ''
@@ -395,7 +383,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 02 Jan 2019 14:02:37 GMT
+      - Wed, 02 Jan 2019 13:51:26 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -412,7 +400,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Wed, 02 Jan 2019 14:02:37 GMT
+      - Wed, 02 Jan 2019 13:51:26 GMT
       Vary:
       - Origin
       - X-Origin
@@ -424,5 +412,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 02 Jan 2019 14:02:37 GMT
+  recorded_at: Wed, 02 Jan 2019 13:51:26 GMT
 recorded_with: VCR 4.0.0

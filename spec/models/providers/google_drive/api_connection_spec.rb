@@ -337,7 +337,6 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     subject(:file_permission_id) do
       api.file_permission_id_by_email('file-id', 'example@gmail.com')
     end
-    let(:permissions) { [permission1, permission2, permission3] }
     let(:permission1) { permission.new(id: '1', email_address: 'a@b.com') }
     let(:permission2) do
       permission.new(id: 'permission-id', email_address: 'example@gmail.com')
@@ -347,17 +346,10 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     after { file_permission_id }
 
     before do
-      permission_list = instance_double Google::Apis::DriveV3::PermissionList
-      allow(drive_service)
-        .to receive(:list_permissions).and_return permission_list
-      allow(permission_list)
-        .to receive(:permissions).and_return permissions
-    end
-
-    it 'calls #list_permissions on drive service' do
-      expect(drive_service)
-        .to receive(:list_permissions)
-        .with('file-id', fields: 'permissions/id, permissions/emailAddress')
+      allow(api)
+        .to receive(:list_file_permissions)
+        .with('file-id')
+        .and_return [permission1, permission2, permission3]
     end
 
     it { is_expected.to eq 'permission-id' }
@@ -378,6 +370,31 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     end
 
     it { is_expected.to eq 'change-list' }
+  end
+
+  describe '#list_file_permissions(id)' do
+    subject(:list_file_permissions) do
+      api.list_file_permissions('file-id')
+    end
+
+    before do
+      permission_list = instance_double Google::Apis::DriveV3::PermissionList
+      allow(drive_service)
+        .to receive(:list_permissions).and_return permission_list
+      allow(permission_list).to receive(:permissions).and_return %w[p1 p2 p3]
+    end
+
+    it 'calls #list_permissions on drive service' do
+      list_file_permissions
+      expect(drive_service)
+        .to have_received(:list_permissions)
+        .with(
+          'file-id',
+          fields: 'permissions/id, permissions/emailAddress, permissions/type'
+        )
+    end
+
+    it { is_expected.to eq %w[p1 p2 p3] }
   end
 
   describe '#refresh_authorization' do
@@ -423,6 +440,41 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
 
     context 'when role is passed' do
       subject(:share_file) { api.share_file('id', 'email', 'custom-role') }
+
+      it 'calls #create_permission with custom role' do
+        expect(drive_service).to receive(:create_permission) do |*args|
+          expect(args[1].role).to eq 'custom-role'
+        end
+      end
+    end
+  end
+
+  describe '#share_file_with_anyone(id, role = :reader)' do
+    subject(:share_file_with_anyone) { api.share_file_with_anyone('file-id') }
+    after { share_file_with_anyone }
+
+    it do
+      expect(drive_service)
+        .to receive(:create_permission)
+        .with('file-id', instance_of(Google::Apis::DriveV3::Permission))
+    end
+
+    it 'calls #create_permission with type: anyone' do
+      expect(drive_service).to receive(:create_permission) do |*args|
+        expect(args[1].type).to eq 'anyone'
+      end
+    end
+
+    it 'calls #create_permission with role: reader' do
+      expect(drive_service).to receive(:create_permission) do |*args|
+        expect(args[1].role).to eq 'reader'
+      end
+    end
+
+    context 'when role is passed' do
+      subject(:share_file_with_anyone) do
+        api.share_file_with_anyone('id', 'custom-role')
+      end
 
       it 'calls #create_permission with custom role' do
         expect(drive_service).to receive(:create_permission) do |*args|
@@ -502,6 +554,36 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
     it do
       expect(drive_service)
         .to receive(:delete_permission).with('file-id', 'permission-id')
+    end
+  end
+
+  describe '#unshare_file_with_anyone(id)' do
+    subject(:unshare_file_with_anyone) do
+      api.unshare_file_with_anyone('file-id')
+    end
+
+    let(:permission1) { permission.new(id: '1', email_address: 'a@b.com') }
+    let(:permission2) { permission.new(id: 'permission-id', type: 'anyone') }
+    let(:permission3) { permission.new(id: '3', type: 'user') }
+    let(:permission)  { Google::Apis::DriveV3::Permission }
+
+    before do
+      allow(api)
+        .to receive(:list_file_permissions)
+        .with('file-id')
+        .and_return [permission1, permission2, permission3]
+    end
+
+    it do
+      expect(drive_service)
+        .to receive(:delete_permission).with('file-id', 'permission-id')
+      unshare_file_with_anyone
+    end
+
+    context 'when permission of type anyone does not exist' do
+      before { permission2.type = 'user' }
+
+      it { is_expected.to be true }
     end
   end
 

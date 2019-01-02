@@ -134,11 +134,7 @@ module Providers
       # Retrieve the permission ID for the email account on the file identified
       # by ID
       def file_permission_id_by_email(id, email)
-        permission_list = drive_service.list_permissions(
-          id, fields: 'permissions/id, permissions/emailAddress'
-        )
-
-        permission_list.permissions.find do |permission|
+        list_file_permissions(id).find do |permission|
           permission.email_address == email
         end&.id
       end
@@ -151,6 +147,15 @@ module Providers
           fields: %w[nextPageToken newStartPageToken
                      changes/file_id changes/file/parents].join(',')
         )
+      end
+
+      # Fetch permissions for the file identified by the given ID
+      def list_file_permissions(id)
+        drive_service
+          .list_permissions(
+            id,
+            fields: 'permissions/id, permissions/emailAddress, permissions/type'
+          ).permissions
       end
 
       # Refresh the authorization token for the API connection
@@ -168,6 +173,13 @@ module Providers
 
         drive_service.create_permission(id, permission,
                                         send_notification_email: 'false')
+      end
+
+      # Share the file publicly and grant the public the provided role
+      def share_file_with_anyone(id, role = :reader)
+        permission = drive_permission.new(type: 'anyone', role: role.to_s)
+
+        drive_service.create_permission(id, permission)
       end
 
       def start_token_for_listing_changes
@@ -198,6 +210,20 @@ module Providers
         permission_id = file_permission_id_by_email(id, email)
         return true unless permission_id.present?
 
+        drive_service.delete_permission(id, permission_id)
+      end
+
+      # Stop sharing the file with anyone
+      def unshare_file_with_anyone(id)
+        # Find the permission ID with type = anyone
+        permission_id =
+          list_file_permissions(id).find do |permission|
+            permission.type == 'anyone'
+          end&.id
+
+        return true unless permission_id.present?
+
+        # Remove the permission
         drive_service.delete_permission(id, permission_id)
       end
 
