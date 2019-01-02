@@ -159,6 +159,50 @@ RSpec.describe Project, type: :model do
         it { is_expected.not_to have_received(:setup_archive) }
       end
     end
+
+    context 'before update' do
+      let(:project) do
+        create(:project, :skip_archive_setup, is_public: was_public)
+      end
+
+      before do
+        allow(project).to receive(:make_archive_public)
+        allow(project).to receive(:make_archive_private)
+        project.update(is_public: is_public)
+      end
+
+      context 'when public -> public' do
+        let(:was_public)  { true }
+        let(:is_public)   { true }
+
+        it { is_expected.not_to have_received(:make_archive_public) }
+        it { is_expected.not_to have_received(:make_archive_private) }
+      end
+
+      context 'when public -> private' do
+        let(:was_public)  { true }
+        let(:is_public)   { false }
+
+        it { is_expected.not_to have_received(:make_archive_public) }
+        it { is_expected.to have_received(:make_archive_private) }
+      end
+
+      context 'when private -> private' do
+        let(:was_public)  { false }
+        let(:is_public)   { false }
+
+        it { is_expected.not_to have_received(:make_archive_public) }
+        it { is_expected.not_to have_received(:make_archive_private) }
+      end
+
+      context 'when private -> public' do
+        let(:was_public)  { false }
+        let(:is_public)   { true }
+
+        it { is_expected.to have_received(:make_archive_public) }
+        it { is_expected.not_to have_received(:make_archive_private) }
+      end
+    end
   end
 
   describe 'validations' do
@@ -203,6 +247,50 @@ RSpec.describe Project, type: :model do
         project.slug = 'edit'
         is_expected.to be_invalid
       end
+    end
+  end
+
+  describe '#make_archive_private' do
+    subject(:make_archive_private) { project.send(:make_archive_private) }
+
+    let(:archive) { instance_double VCS::Archive }
+
+    before do
+      allow(project).to receive(:archive).and_return archive
+      allow(archive).to receive(:remove_public_access) if archive
+    end
+
+    it do
+      make_archive_private
+      expect(archive).to have_received(:remove_public_access)
+    end
+
+    context 'when archive does not exist' do
+      let(:archive) { nil }
+
+      it { expect { make_archive_private }.not_to raise_error }
+    end
+  end
+
+  describe '#make_archive_public' do
+    subject(:make_archive_public) { project.send(:make_archive_public) }
+
+    let(:archive) { instance_double VCS::Archive }
+
+    before do
+      allow(project).to receive(:archive).and_return archive
+      allow(archive).to receive(:grant_public_access) if archive
+    end
+
+    it do
+      make_archive_public
+      expect(archive).to have_received(:grant_public_access)
+    end
+
+    context 'when archive does not exist' do
+      let(:archive) { nil }
+
+      it { expect { make_archive_public }.not_to raise_error }
     end
   end
 

@@ -31,6 +31,12 @@ module VCS
       default_api_connection.share_file(remote_file_id, email, :reader)
     end
 
+    # Removes public access to the archive
+    def remove_public_access
+      # TODO: Call method #unshare on remote_archive
+      default_api_connection.unshare_file_with_anyone(remote_file_id)
+    end
+
     # Remove the given email address as a viewer from the archive folder
     def remove_read_access_from(email)
       # TODO: Call method #unshare on remote_archive

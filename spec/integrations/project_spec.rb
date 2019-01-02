@@ -135,7 +135,7 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe '.create with is_public: true' do
+  describe '.create with is_public: true', :vcr do
     let(:project) do
       create :project, :public, owner_account_email: owner_email_address
     end
@@ -147,7 +147,12 @@ RSpec.describe Project, type: :model do
     let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
     let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
 
-    it 'shares view access to the archive with anyone (e.g. guest)', :vcr do
+    before do
+      refresh_google_drive_authorization
+      refresh_google_drive_authorization(guest_api_connection)
+    end
+
+    it 'shares view access to the archive with anyone (e.g. guest)' do
       remote_archive =
         Providers::GoogleDrive::FileSync.new(
           archive.remote_file_id,
@@ -155,6 +160,79 @@ RSpec.describe Project, type: :model do
         )
 
       expect(remote_archive.name).to be_present
+    end
+  end
+
+  describe '#update', :vcr do
+    context 'when private project is made public' do
+      let(:project) do
+        create :project, owner_account_email: owner_email_address
+      end
+      let(:archive) { project.archive }
+
+      let(:guest_api_connection) do
+        Providers::GoogleDrive::ApiConnection.new(guest_email_address)
+      end
+      let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+      let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+
+      before do
+        refresh_google_drive_authorization
+        refresh_google_drive_authorization(guest_api_connection)
+
+        project.update!(is_public: true)
+      end
+
+      it 'grants view access to the archive to anyone (e.g. guest)' do
+        remote_archive =
+          Providers::GoogleDrive::FileSync.new(
+            archive.remote_file_id,
+            api_connection: guest_api_connection
+          )
+
+        expect(remote_archive.name).to be_present
+      end
+    end
+
+    context 'when public project is made private' do
+      let(:project) do
+        create :project, :public, owner_account_email: owner_email_address
+      end
+      let(:archive) { project.archive }
+      let(:remote_archive_id) { archive.remote_file_id }
+
+      let(:owner_api_connection) { api_connection.new(owner_email_address) }
+      let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+
+      let(:guest_api_connection) { api_connection.new(guest_email_address) }
+      let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+
+      let(:api_connection) { Providers::GoogleDrive::ApiConnection }
+
+      before do
+        refresh_google_drive_authorization
+        refresh_google_drive_authorization(owner_api_connection)
+        refresh_google_drive_authorization(guest_api_connection)
+        project.update!(is_public: false)
+      end
+
+      it 'continues to be accessible to the owner' do
+        remote_archive =
+          Providers::GoogleDrive::FileSync.new(
+            archive.remote_file_id,
+            api_connection: owner_api_connection
+          )
+
+        expect(remote_archive.name).to be_present
+      end
+
+      it 'removes view access to the archive from non-collaborators' do
+        expect { guest_api_connection.find_file!(remote_archive_id) }
+          .to raise_error(
+            Google::Apis::ClientError,
+            "notFound: File not found: #{remote_archive_id}."
+          )
+      end
     end
   end
 end

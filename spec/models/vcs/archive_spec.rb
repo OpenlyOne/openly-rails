@@ -74,6 +74,23 @@ RSpec.describe VCS::Archive, type: :model do
     end
   end
 
+  describe '#remove_public_access' do
+    let(:api) { instance_double Providers::GoogleDrive::ApiConnection }
+
+    before do
+      allow(archive).to receive(:default_api_connection).and_return api
+      allow(archive).to receive(:remote_file_id).and_return 'remote-archive-id'
+      allow(api).to receive(:unshare_file_with_anyone)
+    end
+
+    it 'shares the remote archive publicly' do
+      archive.remove_public_access
+      expect(api)
+        .to have_received(:unshare_file_with_anyone)
+        .with('remote-archive-id')
+    end
+  end
+
   describe '#remove_read_access_from(email)' do
     let(:api) { instance_double Providers::GoogleDrive::ApiConnection }
 

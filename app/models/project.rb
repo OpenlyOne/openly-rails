@@ -48,6 +48,10 @@ class Project < ApplicationRecord
   # Set up archive for storing file backups
   # TODO: Refactor into background job
   after_create :setup_archive, unless: :skip_archive_setup
+  # Make archive public if this project is changing from private to public
+  before_update :make_archive_public, if: :making_public?
+  # Make archive private if this project is changing from public to private
+  before_update :make_archive_private, if: :making_private?
 
   # Scopes
   # Projects where profile is owner or collaborator
@@ -103,6 +107,10 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
 
+  def private?
+    !public?
+  end
+
   def public?
     is_public
   end
@@ -156,6 +164,26 @@ class Project < ApplicationRecord
   # Grant view access to archive to the new collaborator
   def grant_read_access_to_archive(collaborator)
     archive&.grant_read_access_to(collaborator.account.email)
+  end
+
+  # Remove view access to the archive from the public
+  def make_archive_private
+    archive&.remove_public_access
+  end
+
+  # Grant view access to the archive to the public
+  def make_archive_public
+    archive&.grant_public_access
+  end
+
+  # Return true if the project is changing from public to private
+  def making_private?
+    private? && is_public_in_database
+  end
+
+  # Return true if the project is changing from private to public
+  def making_public?
+    public? && !is_public_in_database
   end
 
   # Remove view access to archive from the removed collaborator
