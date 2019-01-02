@@ -398,6 +398,7 @@ RSpec.describe Project, type: :model do
       allow(project).to receive(:repository_archive).and_return(archive)
       allow(archive).to receive(:setup)
       allow(archive).to receive(:setup_completed?).and_return setup_completed
+      allow(archive).to receive(:grant_public_access)
       allow(archive).to receive(:save)
 
       project.send(:setup_archive)
@@ -406,6 +407,10 @@ RSpec.describe Project, type: :model do
     it 'builds archive, sets it up, and saves' do
       expect(archive).to have_received(:setup)
       expect(archive).to have_received(:save)
+    end
+
+    it 'does not grant public access to the archive' do
+      expect(archive).not_to have_received(:grant_public_access)
     end
 
     context 'when repository is not present' do
@@ -423,6 +428,14 @@ RSpec.describe Project, type: :model do
       it 'does not call #setup' do
         expect(archive).not_to have_received(:setup)
         expect(archive).not_to have_received(:save)
+      end
+    end
+
+    context 'when project is public' do
+      subject(:project) { build_stubbed(:project, :public) }
+
+      it 'makes archive publicly accessible' do
+        expect(archive).to have_received(:grant_public_access)
       end
     end
   end

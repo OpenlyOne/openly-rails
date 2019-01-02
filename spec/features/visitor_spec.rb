@@ -53,7 +53,7 @@ feature 'Visitors: As a guest/non-collaborator' do
 
     let(:guest_account) { create :account, email: guest_acct }
     let(:owner_account) { create :account, email: owner_acct }
-    let(:project) { create :project, owner: owner_account.user }
+    let(:project) { create :project, :public, owner: owner_account.user }
     let(:link_to_folder) do
       "https://drive.google.com/drive/folders/#{google_drive_test_folder_id}"
     end

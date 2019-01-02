@@ -164,6 +164,9 @@ class Project < ApplicationRecord
   end
 
   # Set up the archive folder for this project
+  # TODO: Needs refactoring. Method is overloaded.
+  # =>    Consider extracting first couple lines into #build_archive method.
+  # rubocop:disable Metrics/AbcSize
   def setup_archive
     return unless repository.present?
 
@@ -172,7 +175,10 @@ class Project < ApplicationRecord
 
     return if repository_archive.setup_completed?
 
-    repository_archive.tap(&:setup).tap(&:save)
+    repository_archive.setup
+    repository_archive.grant_public_access if public?
+    repository_archive.save
   end
+  # rubocop:enable Metrics/AbcSize
 end
 # rubocop:enable Metrics/ClassLength

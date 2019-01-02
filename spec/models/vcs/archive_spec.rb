@@ -40,6 +40,23 @@ RSpec.describe VCS::Archive, type: :model do
     end
   end
 
+  describe '#grant_public_access' do
+    let(:api) { instance_double Providers::GoogleDrive::ApiConnection }
+
+    before do
+      allow(archive).to receive(:default_api_connection).and_return api
+      allow(archive).to receive(:remote_file_id).and_return 'remote-archive-id'
+      allow(api).to receive(:share_file_with_anyone)
+    end
+
+    it 'shares the remote archive publicly' do
+      archive.grant_public_access
+      expect(api)
+        .to have_received(:share_file_with_anyone)
+        .with('remote-archive-id', :reader)
+    end
+  end
+
   describe '#grant_read_access_to(email)' do
     let(:api) { instance_double Providers::GoogleDrive::ApiConnection }
 
