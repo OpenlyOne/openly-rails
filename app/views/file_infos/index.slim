@@ -1,9 +1,11 @@
 .container
 
-  = render partial: 'file_status',
-           locals: { uncaptured_file_diff: @uncaptured_file_diff,
-                     user_can_force_sync_files: @user_can_force_sync_files,
-                     project: @project }
+  / render file status only if user can view files in branch / work-in-progress
+  - if @user_can_view_file_in_branch
+    = render partial: 'file_status',
+             locals: { uncaptured_file_diff: @uncaptured_file_diff,
+                       user_can_force_sync_files: @user_can_force_sync_files,
+                       project: @project }
 
   = render partial: 'file_version_history',
            locals: { project: @project,
