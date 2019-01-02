@@ -9,6 +9,7 @@
 
   = render partial: 'file_version_history',
            locals: { project: @project,
-                     committed_file_diffs: @committed_file_diffs }
+                     committed_file_diffs: @committed_file_diffs,
+                     user_can_restore_files: @user_can_restore_files }
 
   .spacing.v48px

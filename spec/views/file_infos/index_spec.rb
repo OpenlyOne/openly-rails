@@ -292,19 +292,28 @@ RSpec.describe 'file_infos/index', type: :view do
           .and_return true
       end
 
-      it 'has restore action for diff 1' do
+      it 'does not have restore action' do
         render
-        restore_action = profile_project_file_restores_path(
-          project.owner, project, committed_file_diffs.first.new_version
-        )
+        expect(rendered).not_to have_text('Restore')
+      end
 
-        expect(rendered).to have_css(
-          'form'\
-          "[action='#{restore_action}']"\
-          "[method='post']",
-          text: 'Restore',
-          count: 1
-        )
+      context 'when current user can restore files' do
+        before { assign(:user_can_restore_files, true) }
+
+        it 'has restore action for diff 1' do
+          render
+          restore_action = profile_project_file_restores_path(
+            project.owner, project, committed_file_diffs.first.new_version
+          )
+
+          expect(rendered).to have_css(
+            'form'\
+            "[action='#{restore_action}']"\
+            "[method='post']",
+            text: 'Restore',
+            count: 1
+          )
+        end
       end
     end
   end
