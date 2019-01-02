@@ -20,6 +20,8 @@ feature 'Admin Panel' do
     expect(page).to have_text 'Accounts'
     expect(page).to have_link 'New account'
     expect(page).to have_text admin.email
+
+    click_on 'Projects'
   end
 end
 
