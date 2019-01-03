@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   authenticated :account, ->(account) { account.admin? } do
     namespace :admin do
       resources :accounts, :projects
+      namespace :profiles do
+        resources :users
+      end
 
       # Analytics Dashboard
       mount Blazer::Engine, at: 'analytics', as: :analytics

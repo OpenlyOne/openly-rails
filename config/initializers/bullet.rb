@@ -66,4 +66,14 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'VCS::Version',
                        association: :content
+
+  # Bullet complains in admin panel when showing # of project collaborators
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Project',
+                       association: :collaborators
+
+  # Bullet complains in admin panel when showing # of project collaborators
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Project',
+                       association: :projects_collaborators
 end

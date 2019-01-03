@@ -42,7 +42,8 @@ class ProjectSetupsController < ApplicationController
   end
 
   def can_can_access_denied(exception)
-    super || redirect_to([@project.owner, @project], alert: exception.message)
+    super || redirect_to(profile_project_path(@project.owner, @project),
+                         alert: exception.message)
   end
 
   def project_setup_params
@@ -65,7 +66,7 @@ class ProjectSetupsController < ApplicationController
   def redirect_to_project_if_setup_complete
     return unless @project.setup_completed?
 
-    redirect_to([@project.owner, @project],
+    redirect_to(profile_project_path(@project.owner, @project),
                 notice: 'Setup has been completed.')
   end
 

@@ -16,6 +16,8 @@ By default, the relationship is rendered as a link to the associated object.
 %>
 
 <% if field.data %>
-  <%# Do not render link to associated resource %>
-  <%= field.display_associated_resource %>
+  <%= link_to(
+    field.display_associated_resource,
+    [namespace, field.data, id: field.data.id, format: nil],
+  ) %>
 <% end %>

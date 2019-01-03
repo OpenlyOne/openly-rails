@@ -20,7 +20,7 @@ class ProfilesController < ApplicationController
 
   def update
     if @profile.update(profile_params)
-      redirect_with_success_to @profile
+      redirect_with_success_to profile_path(@profile)
     else
       render :edit
     end
@@ -29,7 +29,7 @@ class ProfilesController < ApplicationController
   private
 
   rescue_from CanCan::AccessDenied do |exception|
-    redirect_to @profile, alert: exception.message
+    redirect_to profile_path(@profile), alert: exception.message
   end
 
   def authorize_action
