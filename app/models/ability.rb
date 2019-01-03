@@ -28,6 +28,11 @@ class Ability
       can? :manage, project.owner
     end
 
+    # User can view files in branchc for projects in which they collaborate
+    can :show, :file_in_branch do |_file_in_branch, project|
+      can?(:collaborate, project)
+    end
+
     # User can force sync and restore files & setup for projects in which they
     # collaborate
     can %i[force_sync restore_file restore_revision setup], Project do |project|

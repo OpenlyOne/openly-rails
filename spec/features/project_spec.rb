@@ -41,18 +41,23 @@ feature 'Project' do
   end
 
   scenario 'User can view project' do
-    # given there is a public project
-    project = create(:project, :public, :skip_archive_setup)
+    # given there is a project
+    project = create(:project, :skip_archive_setup, :setup_complete)
+    create :vcs_file_in_branch, :root, branch: project.master_branch
     # with two collaborators
     collaborators = create_list :user, 2
     project.collaborators << collaborators
+
+    sign_in_as project.owner.account
 
     # when I visit the project's owner
     visit "/#{project.owner.to_param}"
     # and click on the project title
     click_on project.title
+    # and click on Overview
+    click_on 'Overview'
 
-    # then I should be on the project's overview page
+    # then I should be on the project's files page
     expect(page).to have_current_path(
       profile_project_overview_path(project.owner, project)
     )

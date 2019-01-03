@@ -29,6 +29,27 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model, vcr: true do
     end
   end
 
+  describe '#share_file_with_anyone' do
+    subject(:share_file_with_anyone) do
+      api.share_file_with_anyone(google_drive_test_folder_id)
+    end
+
+    it 'grants read permission to the recipient' do
+      share_file_with_anyone
+      folder = api.find_file!(google_drive_test_folder_id)
+      expect(folder.permissions.count).to eq 2
+      expect(folder.permissions).to be_any do |permission|
+        permission.role == 'reader' && permission.type == 'anyone'
+      end
+    end
+
+    context 'when file has already been shared with anyone' do
+      before { api.share_file_with_anyone(google_drive_test_folder_id) }
+
+      it { expect { share_file_with_anyone }.not_to raise_error }
+    end
+  end
+
   describe '#unshare_file' do
     subject(:unshare_file) do
       api.unshare_file(google_drive_test_folder_id, recipient_email)
@@ -51,6 +72,29 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model, vcr: true do
       before { api.unshare_file(google_drive_test_folder_id, recipient_email) }
 
       it { expect { unshare_file }.not_to raise_error }
+    end
+  end
+
+  describe '#unshare_file_with_anyone' do
+    subject(:unshare_file_with_anyone) do
+      api.unshare_file_with_anyone(google_drive_test_folder_id)
+    end
+
+    before { api.share_file_with_anyone(google_drive_test_folder_id) }
+
+    it 'removes read permission from the recipient' do
+      unshare_file_with_anyone
+      folder = api.find_file!(google_drive_test_folder_id)
+      expect(folder.permissions.count).to eq 1
+      expect(folder.permissions).to be_none do |permission|
+        permission.role == 'reader' && permission.type == 'anyone'
+      end
+    end
+
+    context 'when file has already been unshared with anyone' do
+      before { api.unshare_file_with_anyone(google_drive_test_folder_id) }
+
+      it { expect { unshare_file_with_anyone }.not_to raise_error }
     end
   end
 end

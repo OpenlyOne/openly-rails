@@ -48,6 +48,10 @@ class Project < ApplicationRecord
   # Set up archive for storing file backups
   # TODO: Refactor into background job
   after_create :setup_archive, unless: :skip_archive_setup
+  # Make archive public if this project is changing from private to public
+  before_update :make_archive_public, if: :making_public?
+  # Make archive private if this project is changing from public to private
+  before_update :make_archive_private, if: :making_private?
 
   # Scopes
   # Projects where profile is owner or collaborator
@@ -102,6 +106,10 @@ class Project < ApplicationRecord
               scope: :owner_id
             },
             unless: proc { |project| project.errors[:slug].any? }
+
+  def private?
+    !public?
+  end
 
   def public?
     is_public
@@ -158,12 +166,35 @@ class Project < ApplicationRecord
     archive&.grant_read_access_to(collaborator.account.email)
   end
 
+  # Remove view access to the archive from the public
+  def make_archive_private
+    archive&.remove_public_access
+  end
+
+  # Grant view access to the archive to the public
+  def make_archive_public
+    archive&.grant_public_access
+  end
+
+  # Return true if the project is changing from public to private
+  def making_private?
+    private? && is_public_in_database
+  end
+
+  # Return true if the project is changing from private to public
+  def making_public?
+    public? && !is_public_in_database
+  end
+
   # Remove view access to archive from the removed collaborator
   def remove_read_access_to_archive(collaborator)
     archive&.remove_read_access_from(collaborator.account.email)
   end
 
   # Set up the archive folder for this project
+  # TODO: Needs refactoring. Method is overloaded.
+  # =>    Consider extracting first couple lines into #build_archive method.
+  # rubocop:disable Metrics/AbcSize
   def setup_archive
     return unless repository.present?
 
@@ -172,7 +203,10 @@ class Project < ApplicationRecord
 
     return if repository_archive.setup_completed?
 
-    repository_archive.tap(&:setup).tap(&:save)
+    repository_archive.setup
+    repository_archive.grant_public_access if public?
+    repository_archive.save
   end
+  # rubocop:enable Metrics/AbcSize
 end
 # rubocop:enable Metrics/ClassLength

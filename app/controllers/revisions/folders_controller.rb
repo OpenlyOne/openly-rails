@@ -12,6 +12,7 @@ module Revisions
     before_action :set_folder_from_param, only: :show
     before_action :set_children, only: %i[root show]
     before_action :set_ancestors, only: %i[root show]
+    before_action :set_user_can_restore_revision
 
     def root
       render 'show'
@@ -60,6 +61,10 @@ module Revisions
 
     def set_revision
       @revision = @master_branch.commits.find(params[:revision_id])
+    end
+
+    def set_user_can_restore_revision
+      @user_can_restore_revision = can?(:restore_revision, @project)
     end
   end
 end
