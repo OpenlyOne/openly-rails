@@ -12,6 +12,7 @@ class ProjectDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     owner: Field::BelongsTo.with_options(class_name: 'Profiles::User'),
+    collaborators: Field::HasMany.with_options(class_name: 'Profiles::User'),
     id: Field::Number,
     title: Field::String,
     slug: Field::String,
@@ -31,6 +32,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     id
     title
     owner
+    collaborators
     is_public
   ].freeze
 
@@ -40,6 +42,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     id
     title
     owner
+    collaborators
     slug
     description
     tag_list
@@ -54,6 +57,7 @@ class ProjectDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     title
     owner
+    collaborators
     slug
     description
     tag_list
