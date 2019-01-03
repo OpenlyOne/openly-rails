@@ -11,7 +11,7 @@
   .row
     .col.s12.l6
       = button_to('Delete Project',
-                url_for([@project.owner, @project]),
+                url_for([@project.owner.becomes(Profiles::Base), @project]),
                 data: { confirm: 'Are you sure?' },
                 method: :delete,
                 class: 'btn primary-color primary-color-text')

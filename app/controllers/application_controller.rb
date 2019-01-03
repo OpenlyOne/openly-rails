@@ -12,10 +12,10 @@ class ApplicationController < ActionController::Base
 
   # override sign in redirect (Devise)
   def after_sign_in_path_for(resource)
-    location = stored_location_for(resource) || url_for(resource.user)
+    location = stored_location_for(resource) || profile_path(resource.user)
 
     # Redirect to profile page if stored location is root path
-    return url_for(resource.user) if location.eql?('/')
+    return profile_path(resource.user) if location.eql?('/')
 
     location
   end

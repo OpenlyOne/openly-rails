@@ -51,7 +51,7 @@ class ProjectsController < ApplicationController
 
   def destroy
     if @project.destroy
-      redirect_with_success_to [@project.owner]
+      redirect_with_success_to profile_path(@project.owner)
     else
       redirect_to project_overview_path,
                   alert: 'An unexpected error occured while deleting the ' \

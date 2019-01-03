@@ -1,4 +1,4 @@
-= form_for @profile do |f|
+= form_for @profile.becomes(Profiles::Base) do |f|
 
   .page-heading.primary-color.primary-color-text.no-margin-bottom.z-depth-1
     .container

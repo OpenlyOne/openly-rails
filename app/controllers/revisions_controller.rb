@@ -56,7 +56,8 @@ class RevisionsController < ApplicationController
   end
 
   def can_can_access_denied(exception)
-    super || redirect_to([@project.owner, @project], alert: exception.message)
+    super || redirect_to(profile_project_path(@project.owner, @project),
+                         alert: exception.message)
   end
 
   def find_revision

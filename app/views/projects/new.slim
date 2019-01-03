@@ -1,4 +1,4 @@
-= form_for [@project.owner, @project], url: url_for(@project) do |f|
+= form_for [@project.owner.becomes(Profiles::Base), @project], url: url_for(@project) do |f|
 
   .page-heading.primary-color.primary-color-text.z-depth-1
     .container
