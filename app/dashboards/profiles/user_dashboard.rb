@@ -15,6 +15,7 @@ module Profiles
       id: Field::Number,
       name: Field::String,
       handle: Field::String,
+      account: Field::BelongsTo,
       color_scheme: Field::Select.with_options(collection: Color.options),
       picture: PaperclipField,
       banner: PaperclipField,
@@ -32,17 +33,28 @@ module Profiles
     #
     # By default, it's limited to four items to reduce clutter on index pages.
     # Feel free to add, remove, or rearrange items.
-    # COLLECTION_ATTRIBUTES = [
-    #   :id,
-    #   :name
-    # ].freeze
+    COLLECTION_ATTRIBUTES = %i[
+      id
+      name
+      handle
+      account
+    ].freeze
 
     # SHOW_PAGE_ATTRIBUTES
     # an array of attributes that will be displayed on the model's show page.
-    # SHOW_PAGE_ATTRIBUTES = [
-    #   :id,
-    #   :name
-    # ].freeze
+    SHOW_PAGE_ATTRIBUTES = %i[
+      name
+      handle
+      account
+      color_scheme
+      picture
+      banner
+      about
+      location
+      link_to_website
+      link_to_facebook
+      link_to_twitter
+    ].freeze
 
     # FORM_ATTRIBUTES
     # an array of attributes that will be displayed

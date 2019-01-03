@@ -22,6 +22,7 @@ feature 'Admin Panel' do
     expect(page).to have_text admin.email
 
     click_on 'Projects'
+    click_on 'Profiles/Users'
   end
 end
 
