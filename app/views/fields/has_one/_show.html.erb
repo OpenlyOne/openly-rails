@@ -16,9 +16,13 @@ All fields of has_one relationship would be rendered
 %>
 
 <% if field.data %>
-  <%# Do not render link to associated resource %>
   <fieldset class="attribute--nested">
-    <legend><%= field.nested_form.resource_name.titleize %></legend>
+    <legend>
+      <%= link_to(
+        field.display_associated_resource,
+        [namespace, field.data, id: field.data.id, format: nil],
+      ) %>
+    </legend>
     <% field.nested_form.attributes.each do |attribute| -%>
       <div>
       <dt class="attribute-label">
