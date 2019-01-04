@@ -7,7 +7,7 @@ class ProjectSetupsController < ApplicationController
   before_action :authenticate_account!, except: :show
   before_action :set_project
   before_action :authorize_project_access
-  before_action :authorize_action, except: :show
+  before_action :authorize_action
   before_action :redirect_to_show_if_setup_started_or_done, only: %i[new create]
   before_action :redirect_to_new_if_setup_not_started,      only: :show
   before_action :redirect_to_project_if_setup_complete,     only: :show
@@ -42,7 +42,8 @@ class ProjectSetupsController < ApplicationController
   end
 
   def can_can_access_denied(exception)
-    super || redirect_to([@project.owner, @project], alert: exception.message)
+    super || redirect_to(profile_project_path(@project.owner, @project),
+                         alert: exception.message)
   end
 
   def project_setup_params
@@ -65,7 +66,7 @@ class ProjectSetupsController < ApplicationController
   def redirect_to_project_if_setup_complete
     return unless @project.setup_completed?
 
-    redirect_to([@project.owner, @project],
+    redirect_to(profile_project_path(@project.owner, @project),
                 notice: 'Setup has been completed.')
   end
 

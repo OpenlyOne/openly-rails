@@ -11,6 +11,21 @@ module Admin
   class ApplicationController < Administrate::ApplicationController
     before_action :authenticate_admin
 
+    # HACK: Overwrite #redirect_to, so that we can force-pass ID
+    # =>    This is necessary because the Project resource uses a
+    # =>    non-identifying #to_param method. A project's slug alone is not
+    # =>    sufficient to identify it. Routes in administrate are generated
+    # =>    using the polymorphic_path helper which - by default - relies on
+    # =>    the #to_param method. By explicitly passing the id: and format:
+    # =>    parameters, we can overwrite this behavior.
+    def redirect_to(path, options = {})
+      # Force pass id and format parameters if the path is an array of objects
+      path.push(id: path.last.id, format: nil) if path.is_a?(Array)
+
+      # Simply pass everything forward
+      super(path, options)
+    end
+
     private
 
     def authenticate_admin

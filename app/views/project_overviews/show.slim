@@ -4,7 +4,7 @@
   .action-bar.right
     - if @user_can_edit_project
       = link_to( \
-          url_for([:edit, @project.owner, @project]), \
+          url_for([:edit, @project.owner.becomes(Profiles::Base), @project]), \
           id: 'edit_project', \
           class: 'btn-floating btn-large primary-color primary-color-text')
         svg viewBox="0 0 24 24"

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'controllers/shared_examples/an_authenticated_action.rb'
+require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
@@ -25,11 +27,20 @@ RSpec.describe FoldersController, type: :controller do
     let(:params)          { default_params.except :id }
     let(:run_request)     { get :root, params: params }
 
+    it_should_behave_like 'an authenticated action'
     it_should_behave_like 'setting project where setup is complete'
     it_should_behave_like 'raise 404 if non-existent', nil do
       before { VCS::FileInBranch.delete_all }
     end
     it_should_behave_like 'authorizing project access'
+    it_should_behave_like 'an authorized action' do
+      let(:redirect_location) do
+        profile_project_path(project.owner, project)
+      end
+      let(:unauthorized_message) do
+        'You are not authorized to view work in progress for this project.'
+      end
+    end
 
     it 'returns http success' do
       run_request

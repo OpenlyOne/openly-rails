@@ -4,12 +4,16 @@ h3.with-separator.no-margin-bottom: span File History
 
 - committed_file_diffs.each do |diff|
 
+  / only show show restore button if user is permitted to perform restoration
+  - path_to_restore_action = \
+    user_can_restore_files ? restore_action_path(@project, diff) : nil
+
   = render partial: 'revisions/revision',
            object: diff.commit,
            locals: { project: project,
                      file_changes: diff.changes,
                      show_link_to_file_info: false,
-                     path_to_restore_action: restore_action_path(@project, diff) }
+                     path_to_restore_action: path_to_restore_action }
 
 - if committed_file_diffs.none?
 

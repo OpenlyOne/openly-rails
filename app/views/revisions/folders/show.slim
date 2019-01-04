@@ -16,8 +16,7 @@
                       revision: @revision}
 
 / button for restoring commit
-/ TODO: Implement check
-- if true || @user_can_restore_revision
+- if @user_can_restore_revision
   .fixed-action-btn
     =<> button_to profile_project_revision_restores_path(@project.owner, @project, @revision),
                   method: :post,

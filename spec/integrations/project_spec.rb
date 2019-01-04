@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Project, type: :model do
-  subject(:project)         { create :project }
-  let(:skip_archive_setup)  { true }
-
-  before do
-    next unless skip_archive_setup
-
-    allow_any_instance_of(VCS::Archive).to receive(:setup)
-  end
+  subject(:project) { create :project, :skip_archive_setup }
 
   describe 'deleteable', :delayed_job do
     before do
@@ -60,9 +53,11 @@ RSpec.describe Project, type: :model do
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
     subject(:method) { Project.where_profile_is_owner_or_collaborator(profile) }
     let(:profile)         { create :user }
-    let!(:owned_projects) { create_list :project, 3, owner: profile }
-    let!(:collaborations) { create_list :project, 3 }
-    let!(:other_projects) { create_list :project, 3 }
+    let!(:owned_projects) do
+      create_list :project, 3, :skip_archive_setup, owner: profile
+    end
+    let!(:collaborations) { create_list :project, 3, :skip_archive_setup }
+    let!(:other_projects) { create_list :project, 3, :skip_archive_setup }
 
     before do
       # add profile as a collaborator
@@ -99,10 +94,12 @@ RSpec.describe Project, type: :model do
   end
 
   describe 'scope: :where_setup_is_complete' do
-    subject(:method)             { Project.where_setup_is_complete }
-    let!(:with_complete_setup)   { create_list :project, 2 }
-    let!(:with_incomplete_setup) { create_list :project, 2 }
-    let!(:with_no_setup)         { create_list :project, 2 }
+    subject(:method)            { Project.where_setup_is_complete }
+    let!(:with_complete_setup)  { create_list :project, 2, :skip_archive_setup }
+    let!(:with_incomplete_setup) do
+      create_list :project, 2, :skip_archive_setup
+    end
+    let!(:with_no_setup) { create_list :project, 2, :skip_archive_setup }
 
     before do
       with_complete_setup.each do |project|
@@ -123,7 +120,7 @@ RSpec.describe Project, type: :model do
     subject(:method)  { Project.find_by_handle_and_slug!(handle, slug) }
     let(:handle)      { project.owner.handle }
     let(:slug)        { project.slug }
-    let(:project)     { create :project }
+    let(:project)     { create :project, :skip_archive_setup }
 
     it { is_expected.to eq project }
 
@@ -135,6 +132,107 @@ RSpec.describe Project, type: :model do
     context 'when slug does not exist' do
       let(:slug) { 'does-not-exist' }
       it { expect { method }.to raise_error ActiveRecord::RecordNotFound }
+    end
+  end
+
+  describe '.create with is_public: true', :vcr do
+    let(:project) do
+      create :project, :public, owner_account_email: owner_email_address
+    end
+    let(:archive) { project.archive }
+
+    let(:guest_api_connection) do
+      Providers::GoogleDrive::ApiConnection.new(guest_email_address)
+    end
+    let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+
+    before do
+      refresh_google_drive_authorization
+      refresh_google_drive_authorization(guest_api_connection)
+    end
+
+    it 'shares view access to the archive with anyone (e.g. guest)' do
+      remote_archive =
+        Providers::GoogleDrive::FileSync.new(
+          archive.remote_file_id,
+          api_connection: guest_api_connection
+        )
+
+      expect(remote_archive.name).to be_present
+    end
+  end
+
+  describe '#update', :vcr do
+    context 'when private project is made public' do
+      let(:project) do
+        create :project, owner_account_email: owner_email_address
+      end
+      let(:archive) { project.archive }
+
+      let(:guest_api_connection) do
+        Providers::GoogleDrive::ApiConnection.new(guest_email_address)
+      end
+      let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+      let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+
+      before do
+        refresh_google_drive_authorization
+        refresh_google_drive_authorization(guest_api_connection)
+
+        project.update!(is_public: true)
+      end
+
+      it 'grants view access to the archive to anyone (e.g. guest)' do
+        remote_archive =
+          Providers::GoogleDrive::FileSync.new(
+            archive.remote_file_id,
+            api_connection: guest_api_connection
+          )
+
+        expect(remote_archive.name).to be_present
+      end
+    end
+
+    context 'when public project is made private' do
+      let(:project) do
+        create :project, :public, owner_account_email: owner_email_address
+      end
+      let(:archive) { project.archive }
+      let(:remote_archive_id) { archive.remote_file_id }
+
+      let(:owner_api_connection) { api_connection.new(owner_email_address) }
+      let(:owner_email_address) { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+
+      let(:guest_api_connection) { api_connection.new(guest_email_address) }
+      let(:guest_email_address) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
+
+      let(:api_connection) { Providers::GoogleDrive::ApiConnection }
+
+      before do
+        refresh_google_drive_authorization
+        refresh_google_drive_authorization(owner_api_connection)
+        refresh_google_drive_authorization(guest_api_connection)
+        project.update!(is_public: false)
+      end
+
+      it 'continues to be accessible to the owner' do
+        remote_archive =
+          Providers::GoogleDrive::FileSync.new(
+            archive.remote_file_id,
+            api_connection: owner_api_connection
+          )
+
+        expect(remote_archive.name).to be_present
+      end
+
+      it 'removes view access to the archive from non-collaborators' do
+        expect { guest_api_connection.find_file!(remote_archive_id) }
+          .to raise_error(
+            Google::Apis::ClientError,
+            "notFound: File not found: #{remote_archive_id}."
+          )
+      end
     end
   end
 end

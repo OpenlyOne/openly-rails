@@ -18,12 +18,6 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:committed_file_diffs, committed_file_diffs)
   end
 
-  it 'renders that the file has been deleted from the project' do
-    render
-    expect(rendered)
-      .to have_text "This file has been deleted from #{project.title}."
-  end
-
   it 'does not have a link to the file on Google Drive' do
     render
     expect(rendered).not_to have_link 'Open in Drive'
@@ -39,6 +33,16 @@ RSpec.describe 'file_infos/index', type: :view do
     expect(rendered).to have_text 'No previous versions of this file exist.'
   end
 
+  context 'when current user can view files in branches' do
+    before { assign(:user_can_view_file_in_branch, true) }
+
+    it 'renders that the file has been deleted from the project' do
+      render
+      expect(rendered)
+        .to have_text "This file has been deleted from #{project.title}."
+    end
+  end
+
   context 'when uncaptured file diff is present' do
     let(:uncaptured_file_diff) do
       build_stubbed :vcs_file_diff,
@@ -47,25 +51,14 @@ RSpec.describe 'file_infos/index', type: :view do
     let(:version) { build_stubbed :vcs_version, name: 'My Document' }
     let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :folder }
 
-    it 'has a link to the file on Google Drive' do
+    it 'does not have a link to the file on Google Drive' do
       render
-      expect(rendered).to have_link 'Open in Drive',
-                                    href: uncaptured_file_diff.link_to_remote
+      expect(rendered).not_to have_link 'Open in Drive'
     end
 
-    it 'renders that the file has been unchanged since the last revision' do
+    it 'does not have a link to the parent folder' do
       render
-      expect(rendered).to have_text 'New Changes (since last revision)'
-      expect(rendered).to have_text(
-        'No changes have been made to this file since the last revision'
-      )
-    end
-
-    it 'has a link to the parent folder' do
-      render
-      link = profile_project_folder_path(project.owner, project,
-                                         parent_in_branch.hashed_file_id)
-      expect(rendered).to have_link 'Open Parent Folder', href: link
+      expect(rendered).not_to have_link 'Open Parent Folder'
     end
 
     it 'does not have a button to force sync the file' do
@@ -83,82 +76,109 @@ RSpec.describe 'file_infos/index', type: :view do
       )
     end
 
-    context 'when parent is root folder' do
-      let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :root }
+    context 'when current user can view files in branches' do
+      before { assign(:user_can_view_file_in_branch, true) }
 
-      it 'has a link to the root folder' do
+      it 'has a link to the file on Google Drive' do
         render
-        link = profile_project_root_folder_path(project.owner, project)
-        expect(rendered).to have_link 'Open Home Folder', href: link
-      end
-    end
-
-    context 'when uncaptured file diff has changes' do
-      before do
-        allow(uncaptured_file_diff).to receive(:change_types)
-          .and_return %i[addition modification movement rename deletion]
-        allow(uncaptured_file_diff).to receive(:ancestor_path).and_return 'Home'
+        expect(rendered).to have_link 'Open in Drive',
+                                      href: uncaptured_file_diff.link_to_remote
       end
 
-      it 'renders uncaptured changes' do
+      it 'renders that the file has been unchanged since the last revision' do
         render
-        expect(rendered).to have_text 'My Document added to Home'
+        expect(rendered).to have_text 'New Changes (since last revision)'
         expect(rendered).to have_text(
-          'My Document renamed from ' \
-          "'#{uncaptured_file_diff.previous_name}' in Home"
+          'No changes have been made to this file since the last revision'
         )
-        expect(rendered).to have_text 'My Document modified in Home'
-        expect(rendered).to have_text 'My Document moved to Home'
-        expect(rendered).to have_text 'My Document deleted from Home'
       end
 
-      context 'when diff is modification and has content change' do
-        let(:content_change) do
-          VCS::Operations::ContentDiffer.new(
-            new_content: 'hi',
-            old_content: 'bye'
-          )
-        end
-
-        before do
-          allow(uncaptured_file_diff).to receive(:modification?).and_return true
-          allow(uncaptured_file_diff)
-            .to receive(:content_change).and_return content_change
-        end
-
-        it 'shows the diff' do
-          render
-          expect(rendered).to have_css('.fragment.addition', text: 'hi')
-          expect(rendered).to have_css('.fragment.deletion', text: 'bye')
-        end
-
-        it 'has a link to side-by-side diff' do
-          render
-          link = profile_project_file_change_path(
-            project.owner, project, uncaptured_file_diff.hashed_file_id
-          )
-          expect(rendered).to have_link('View side-by-side', href: link)
-        end
-      end
-    end
-
-    context 'when current user can force sync files in project' do
-      before { assign(:user_can_force_sync_files, true) }
-
-      it 'has a button to force sync the file' do
+      it 'has a link to the parent folder' do
         render
-        sync_path =
-          profile_project_force_syncs_path(
-            project.owner,
-            project,
-            VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+        link = profile_project_folder_path(project.owner, project,
+                                           parent_in_branch.hashed_file_id)
+        expect(rendered).to have_link 'Open Parent Folder', href: link
+      end
+
+      context 'when parent is root folder' do
+        let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :root }
+
+        it 'has a link to the root folder' do
+          render
+          link = profile_project_root_folder_path(project.owner, project)
+          expect(rendered).to have_link 'Open Home Folder', href: link
+        end
+      end
+
+      context 'when uncaptured file diff has changes' do
+        before do
+          allow(uncaptured_file_diff).to receive(:change_types)
+            .and_return %i[addition modification movement rename deletion]
+          allow(uncaptured_file_diff)
+            .to receive(:ancestor_path).and_return 'Home'
+        end
+
+        it 'renders uncaptured changes' do
+          render
+          expect(rendered).to have_text 'My Document added to Home'
+          expect(rendered).to have_text(
+            'My Document renamed from ' \
+            "'#{uncaptured_file_diff.previous_name}' in Home"
           )
-        expect(rendered).to have_css(
-          'form'\
-          "[action='#{sync_path}']"\
-          "[method='post']",
-          text: 'Force Sync'
-        )
+          expect(rendered).to have_text 'My Document modified in Home'
+          expect(rendered).to have_text 'My Document moved to Home'
+          expect(rendered).to have_text 'My Document deleted from Home'
+        end
+
+        context 'when diff is modification and has content change' do
+          let(:content_change) do
+            VCS::Operations::ContentDiffer.new(
+              new_content: 'hi',
+              old_content: 'bye'
+            )
+          end
+
+          before do
+            allow(uncaptured_file_diff)
+              .to receive(:modification?).and_return true
+            allow(uncaptured_file_diff)
+              .to receive(:content_change).and_return content_change
+          end
+
+          it 'shows the diff' do
+            render
+            expect(rendered).to have_css('.fragment.addition', text: 'hi')
+            expect(rendered).to have_css('.fragment.deletion', text: 'bye')
+          end
+
+          it 'has a link to side-by-side diff' do
+            render
+            link = profile_project_file_change_path(
+              project.owner, project, uncaptured_file_diff.hashed_file_id
+            )
+            expect(rendered).to have_link('View side-by-side', href: link)
+          end
+        end
+
+        context 'when current user can force sync files in project' do
+          before { assign(:user_can_force_sync_files, true) }
+
+          it 'has a button to force sync the file' do
+            render
+            sync_path =
+              profile_project_force_syncs_path(
+                project.owner,
+                project,
+                VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+              )
+            expect(rendered).to have_css(
+              'form'\
+              "[action='#{sync_path}']"\
+              "[method='post']",
+              text: 'Force Sync'
+            )
+          end
+        end
       end
     end
   end
@@ -272,19 +292,28 @@ RSpec.describe 'file_infos/index', type: :view do
           .and_return true
       end
 
-      it 'has restore action for diff 1' do
+      it 'does not have restore action' do
         render
-        restore_action = profile_project_file_restores_path(
-          project.owner, project, committed_file_diffs.first.new_version
-        )
+        expect(rendered).not_to have_text('Restore')
+      end
 
-        expect(rendered).to have_css(
-          'form'\
-          "[action='#{restore_action}']"\
-          "[method='post']",
-          text: 'Restore',
-          count: 1
-        )
+      context 'when current user can restore files' do
+        before { assign(:user_can_restore_files, true) }
+
+        it 'has restore action for diff 1' do
+          render
+          restore_action = profile_project_file_restores_path(
+            project.owner, project, committed_file_diffs.first.new_version
+          )
+
+          expect(rendered).to have_css(
+            'form'\
+            "[action='#{restore_action}']"\
+            "[method='post']",
+            text: 'Restore',
+            count: 1
+          )
+        end
       end
     end
   end

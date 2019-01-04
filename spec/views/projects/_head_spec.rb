@@ -2,10 +2,12 @@
 
 RSpec.describe 'projects/_head', type: :view do
   let(:project) { build_stubbed(:project) }
+  let(:can_collaborate) { false }
 
   before do
     without_partial_double_verification do
       allow(view).to receive(:project) { project }
+      allow(view).to receive(:can_collaborate) { can_collaborate }
     end
   end
 
@@ -27,10 +29,19 @@ RSpec.describe 'projects/_head', type: :view do
 
     it 'renders a link to start the project setup' do
       render
-      expect(rendered).to have_link(
-        'Setup',
-        href: new_profile_project_setup_path(project.owner, project.slug)
-      )
+      expect(rendered).not_to have_link('Setup')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to start the project setup' do
+        render
+        expect(rendered).to have_link(
+          'Setup',
+          href: new_profile_project_setup_path(project.owner, project.slug)
+        )
+      end
     end
   end
 
@@ -38,12 +49,21 @@ RSpec.describe 'projects/_head', type: :view do
     before { allow(project).to receive(:setup_not_started?).and_return false }
     before { allow(project).to receive(:setup_in_progress?).and_return true }
 
-    it 'renders a link to the setup status' do
+    it 'does not render a link to the setup status' do
       render
-      expect(rendered).to have_link(
-        'Setup',
-        href: profile_project_setup_path(project.owner, project.slug)
-      )
+      expect(rendered).not_to have_link('Setup')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to the setup status' do
+        render
+        expect(rendered).to have_link(
+          'Setup',
+          href: profile_project_setup_path(project.owner, project.slug)
+        )
+      end
     end
   end
 
@@ -57,14 +77,29 @@ RSpec.describe 'projects/_head', type: :view do
       allow(project).to receive(:setup_not_started?).and_return false
       allow(project).to receive(:setup_in_progress?).and_return false
       allow(project).to receive(:setup_completed?).and_return true
+      allow(project).to receive(:revisions).and_return %w[r1]
     end
 
-    it 'renders a link to the project files' do
+    it 'renders a link to the project files at last revision' do
       render
       expect(rendered).to have_link(
         'Files',
-        href: profile_project_root_folder_path(project.owner, project.slug)
+        href: profile_project_revision_root_folder_path(
+          project.owner, project.slug, project.revisions.last
+        )
       )
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to the project files' do
+        render
+        expect(rendered).to have_link(
+          'Files',
+          href: profile_project_root_folder_path(project.owner, project.slug)
+        )
+      end
     end
 
     it 'renders a link to the project revisions' do
@@ -75,11 +110,20 @@ RSpec.describe 'projects/_head', type: :view do
       )
     end
 
-    it 'renders a link to open that folder in Google Drive' do
+    it 'does not render a link to open that folder in Google Drive' do
       render
-      expect(rendered).to have_link(
-        'Open in Drive', href: root.link_to_remote
-      )
+      expect(rendered).not_to have_link('Open in Drive')
+    end
+
+    context 'when user can collaborate on project' do
+      let(:can_collaborate) { true }
+
+      it 'renders a link to open that folder in Google Drive' do
+        render
+        expect(rendered).to have_link(
+          'Open in Drive', href: root.link_to_remote
+        )
+      end
     end
   end
 end

@@ -19,10 +19,22 @@ module VCS
       api_connection_class.default
     end
 
+    # Makes the archive publicly accessible
+    def grant_public_access
+      # TODO: Call method #share on remote_archive
+      default_api_connection.share_file_with_anyone(remote_file_id, :reader)
+    end
+
     # Add the given email address as a viewer to the archive folder
     def grant_read_access_to(email)
       # TODO: Call method #share on remote_archive
       default_api_connection.share_file(remote_file_id, email, :reader)
+    end
+
+    # Removes public access to the archive
+    def remove_public_access
+      # TODO: Call method #unshare on remote_archive
+      default_api_connection.unshare_file_with_anyone(remote_file_id)
     end
 
     # Remove the given email address as a viewer from the archive folder

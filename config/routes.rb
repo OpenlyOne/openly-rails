@@ -4,7 +4,10 @@ Rails.application.routes.draw do
   # Admin panel routing, return 404 unless account is admin
   authenticated :account, ->(account) { account.admin? } do
     namespace :admin do
-      resources :accounts
+      resources :accounts, :projects
+      namespace :profiles do
+        resources :users
+      end
 
       # Analytics Dashboard
       mount Blazer::Engine, at: 'analytics', as: :analytics

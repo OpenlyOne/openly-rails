@@ -1,5 +1,5 @@
 .col.s12.m6.l4
-  = link_to url_for([project.owner, project]), class: 'card hoverable'
+  = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable'
     .card-image style="background-image: url(#{image_path('projects/banner.jpg')});"
     .card-title.truncate.primary-color.primary-color-text = project.title
     - if project.tags.any? || project.description.present?

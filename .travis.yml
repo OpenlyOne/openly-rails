@@ -10,6 +10,11 @@ cache:
 services:
   - postgresql
 
+# Install bundler to avoid 'The program bundle is currently not installed'
+before_install:
+  - "travis_retry gem update --system"
+  - "travis_retry gem install bundler"
+
 before_script:
   - psql -c 'create database openly_test;' -U postgres
 

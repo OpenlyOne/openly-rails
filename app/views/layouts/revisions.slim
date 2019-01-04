@@ -1,5 +1,8 @@
 = render partial: 'projects/head', object: @project, as: :project,
-         locals: { active_tab: [:new, :create].include?(action_name.to_sym) ? :files : :revisions }
+         locals: { \
+           active_tab: [:new, :create].include?(action_name.to_sym) ? :files : :revisions,
+           can_collaborate: @can_collaborate \
+         }
 
 = yield
 

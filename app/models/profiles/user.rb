@@ -7,12 +7,6 @@ module Profiles
   class User < Base
     acts_as_notifier
 
-    # Adopt route key of Profiles::Base class
-    # See: https://stackoverflow.com/a/9463495/6451879
-    def self.model_name
-      Base.model_name
-    end
-
     # Associations
     belongs_to :account
     has_many :visits, class_name: 'Ahoy::Visit'
