@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.31 (Jan 4, 2019)
+
+**Features:**
+- Admins can make projects public. Revisions, file infos, and archived files of
+  public projects can be viewed by anyone. Work-in-progress (i.e. uncaptured
+  changes) are visible to project collaborators only
+  ([#251](https://github.com/OpenlyOne/openly/issues/251))
+
+**Enhancements:**
+- Projects can now be managed by admins via the admin panel
+- Project collaborators can now be managed by admins via the admin panel
+  ([#250](https://github.com/OpenlyOne/openly/issues/250))
+
+
 ## v0.30.2 (Dec 16, 2018)
 
 **Fixes:**
