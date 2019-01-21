@@ -45,7 +45,6 @@ module VCS
     # Validations
     validates :file_id,         presence: true
     validates :name,            presence: true
-    validates :content_version, presence: true
     validates :mime_type,       presence: true
     validates :remote_file_id,  presence: true
     validates :file_id,
@@ -90,7 +89,7 @@ module VCS
 
     # The set of supplemental attributes to a version
     def self.supplemental_attribute_keys
-      %i[thumbnail_id remote_file_id content_version]
+      %i[thumbnail_id remote_file_id]
     end
 
     # The plain text content of this version

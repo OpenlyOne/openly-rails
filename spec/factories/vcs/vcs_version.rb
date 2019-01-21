@@ -11,7 +11,6 @@ FactoryBot.define do
     remote_file_id      { Faker::Crypto.unique.sha1 }
     parent              { parent_in_branch&.file || create(:vcs_file) }
     name                { Faker::File.file_name('', nil, nil, '') }
-    content_version     { rand(1..1000) }
     mime_type           { 'application/vnd.google-apps.document' }
 
     trait :folder do

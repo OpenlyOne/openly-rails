@@ -175,24 +175,28 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
     let(:file_attributes)     { file_from_database.attributes }
     let(:version_attributes)  { file_from_database.current_version.attributes }
-    let(:expected_attributes) do
-      {
-        'name' => 'Test File',
-        'parent_id' => parent_in_branch.file_id,
-        'content_version' => '1',
-        'mime_type' => Providers::GoogleDrive::MimeType.document,
-        'remote_file_id' => remote_file_id,
-        'thumbnail_id' => nil
-      }
-    end
 
     # Pull parent resource
     before { parent_in_branch.pull }
 
     it 'can pull a version of a new file' do
       file_in_branch.pull
-      expect(file_attributes).to include(expected_attributes)
-      expect(version_attributes).to include(expected_attributes)
+      expect(file_attributes).to include(
+        'name' => 'Test File',
+        'parent_id' => parent_in_branch.file_id,
+        'content_version' => '1',
+        'mime_type' => Providers::GoogleDrive::MimeType.document,
+        'remote_file_id' => remote_file_id,
+        'thumbnail_id' => nil
+      )
+      expect(version_attributes).to include(
+        'name' => 'Test File',
+        'parent_id' => parent_in_branch.file_id,
+        'content_id' => file_in_branch.content_id,
+        'mime_type' => Providers::GoogleDrive::MimeType.document,
+        'remote_file_id' => remote_file_id,
+        'thumbnail_id' => nil
+      )
     end
 
     it 'can pull a version of an existing file' do
@@ -205,11 +209,20 @@ RSpec.describe VCS::FileInBranch, type: :model do
       sleep 5 if VCR.current_cassette.recording?
 
       file_in_branch.reload.pull
-      expected_attributes['name'] = 'my new file name'
-      expected_attributes.delete('content_version')
-      expected_attributes['thumbnail_id'] = VCS::Thumbnail.first.id
-      expect(file_attributes).to include(expected_attributes)
-      expect(version_attributes).to include(expected_attributes)
+      expect(file_attributes).to include(
+        'name' => 'my new file name',
+        'parent_id' => parent_in_branch.file_id,
+        'mime_type' => Providers::GoogleDrive::MimeType.document,
+        'remote_file_id' => remote_file_id,
+        'thumbnail_id' => VCS::Thumbnail.first.id
+      )
+      expect(version_attributes).to include(
+        'name' => 'my new file name',
+        'parent_id' => parent_in_branch.file_id,
+        'mime_type' => Providers::GoogleDrive::MimeType.document,
+        'remote_file_id' => remote_file_id,
+        'thumbnail_id' => VCS::Thumbnail.first.id
+      )
     end
 
     it 'can pull a version of a removed file' do

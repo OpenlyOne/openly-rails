@@ -58,7 +58,6 @@ RSpec.shared_examples 'vcs: being versionable' do
       allow(versionable).to receive(:parent_id).and_return 'parent-id'
       allow(versionable).to receive(:name).and_return 'name'
       allow(versionable).to receive(:mime_type).and_return 'mime-type'
-      allow(versionable).to receive(:content_version).and_return 'content-vers'
       allow(versionable).to receive(:content_id).and_return 'content_id'
       allow(versionable).to receive(:thumbnail_id).and_return 'thumbnail_id'
     end
@@ -70,7 +69,6 @@ RSpec.shared_examples 'vcs: being versionable' do
         parent_id: 'parent-id',
         name: 'name',
         mime_type: 'mime-type',
-        content_version: 'content-vers',
         content_id: 'content_id',
         thumbnail_id: 'thumbnail_id'
       )

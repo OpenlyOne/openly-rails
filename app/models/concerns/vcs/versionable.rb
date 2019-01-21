@@ -42,7 +42,6 @@ module VCS
         parent_id: parent_id,
         name: name,
         mime_type: mime_type,
-        content_version: content_version,
         content_id: content_id,
         thumbnail_id: thumbnail_id
       }
