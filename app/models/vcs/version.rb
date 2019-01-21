@@ -63,30 +63,10 @@ module VCS
       )
     end
 
-    # TODO: Content generation should not be happening here. Move to
-    # =>    FileInBranch instead
-    def self.repository(attributes)
-      VCS::File.find(attributes[:file_id])&.repository
-    end
-
-    # TODO: Content generation should not be happening here. Move to
-    # =>    FileInBranch instead
-    def self.content_id(attributes)
-      attributes.symbolize_keys!
-      VCS::Operations::ContentGenerator.generate(
-        repository: repository(attributes),
-        remote_file_id: attributes[:remote_file_id],
-        remote_content_version_id: attributes[:content_version]
-      )&.id
-    end
-
-    # TODO: Content generation should not be happening here. Move to
-    # =>    FileInBranch instead
     # The set of core attributes that uniquely identify a version
     def self.core_attributes(attributes)
       attributes
         .symbolize_keys
-        .reverse_merge(content_id: content_id(attributes))
         .slice(*core_attribute_keys)
     end
 

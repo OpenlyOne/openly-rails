@@ -5,6 +5,7 @@ module VCS
   # rubocop:disable Metrics/ClassLength
   class FileInBranch < ApplicationRecord
     belongs_to :branch
+    has_one :repository, through: :branch
     belongs_to :file
     belongs_to :parent, class_name: 'File', optional: true
 
@@ -122,6 +123,17 @@ module VCS
             parent_id: file_id
           }
         )
+    end
+
+    # Return the content ID for the remote file ID & remote content version
+    def content_id
+      return nil unless remote_file_id.present?
+
+      VCS::Operations::ContentGenerator.generate(
+        repository: repository,
+        remote_file_id: remote_file_id,
+        remote_content_version_id: content_version
+      )&.id
     end
 
     def parent_in_branch

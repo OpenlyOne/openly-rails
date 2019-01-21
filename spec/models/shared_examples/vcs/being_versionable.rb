@@ -49,6 +49,34 @@ RSpec.shared_examples 'vcs: being versionable' do
     end
   end
 
+  describe '#versionable_attributes' do
+    subject { versionable.send :versionable_attributes }
+
+    before do
+      allow(versionable).to receive(:file_id).and_return 'file-id'
+      allow(versionable).to receive(:remote_file_id).and_return 'remote-file-id'
+      allow(versionable).to receive(:parent_id).and_return 'parent-id'
+      allow(versionable).to receive(:name).and_return 'name'
+      allow(versionable).to receive(:mime_type).and_return 'mime-type'
+      allow(versionable).to receive(:content_version).and_return 'content-vers'
+      allow(versionable).to receive(:content_id).and_return 'content_id'
+      allow(versionable).to receive(:thumbnail_id).and_return 'thumbnail_id'
+    end
+
+    it 'returns a hash of the above attributes' do
+      is_expected.to include(
+        file_id: 'file-id',
+        remote_file_id: 'remote-file-id',
+        parent_id: 'parent-id',
+        name: 'name',
+        mime_type: 'mime-type',
+        content_version: 'content-vers',
+        content_id: 'content_id',
+        thumbnail_id: 'thumbnail_id'
+      )
+    end
+  end
+
   describe '#version!' do
     subject(:capture_version)    { versionable.send :version! }
     let(:version)                { instance_double VCS::Version }
@@ -56,12 +84,12 @@ RSpec.shared_examples 'vcs: being versionable' do
     before do
       allow(VCS::Version)
         .to receive(:for)
-        .with(attribute: 'attr', file_id: 'id')
+        .with(attribute: 'attr')
         .and_return version
       allow(versionable).to receive(:current_version=).with(version)
       allow(versionable).to receive(:current_version).and_return(version)
-      allow(versionable).to receive(:attributes).and_return(attribute: 'attr')
-      allow(versionable).to receive(:file_id).and_return 'id'
+      allow(versionable)
+        .to receive(:versionable_attributes).and_return(attribute: 'attr')
       allow(version).to receive(:id).and_return 123
       allow(versionable).to receive(:update_column)
     end
@@ -71,7 +99,7 @@ RSpec.shared_examples 'vcs: being versionable' do
     it 'calls for .for on VCS::Version and sets current_version' do
       expect(VCS::Version)
         .to receive(:for)
-        .with(attribute: 'attr', file_id: 'id')
+        .with(attribute: 'attr')
         .and_return(version)
       expect(versionable).to receive(:current_version=).with(version)
     end
