@@ -100,6 +100,19 @@ RSpec.describe 'folders/show', type: :view do
     )
   end
 
+  context 'when file has no remote file ID' do
+    let(:files) do
+      build_list :vcs_file_in_branch, 5, :unchanged, remote_file_id: nil
+    end
+
+    it 'does not render the link of files' do
+      render
+      expect(rendered).not_to have_css "a[target='_blank']"
+      expect(rendered)
+        .to have_css '.file.z-depth-1:not(.hover-effect)', count: files.count
+    end
+  end
+
   context 'when current user can edit project' do
     before { assign(:user_can_commit_changes, true) }
 

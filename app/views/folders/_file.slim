@@ -1,6 +1,7 @@
 / render a single file with diff/change indicator
 
-.file.hover-effect.z-depth-1[
+.file.z-depth-1[
+  class=((file.remote_file_id.present? || file.diff.folder?) ? 'hover-effect' : '')
   class=file.diff.symbolic_mime_type
   class=(file.diff.changes.any? ? 'change' : 'no-change')
   class=file.diff.change_types.join(' ')

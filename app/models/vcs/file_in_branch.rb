@@ -138,6 +138,8 @@ module VCS
 
     # Return the link to the remote resource
     def link_to_remote
+      return nil unless remote_file_id.present?
+
       provider_link_class.for(
         remote_file_id: remote_file_id,
         mime_type: mime_type

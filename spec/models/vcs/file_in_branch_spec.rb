@@ -292,13 +292,14 @@ RSpec.describe VCS::FileInBranch, type: :model do
   describe '#link_to_remote' do
     subject { file_in_branch.link_to_remote }
 
-    let(:link_class) { class_double Providers::GoogleDrive::Link }
+    let(:link_class)  { class_double Providers::GoogleDrive::Link }
+    let(:remote_id)   { 'remote-id' }
 
     before do
       allow(file_in_branch)
         .to receive(:provider_link_class).and_return link_class
       allow(file_in_branch).to receive(:mime_type).and_return 'type'
-      allow(file_in_branch).to receive(:remote_file_id).and_return 'remote-id'
+      allow(file_in_branch).to receive(:remote_file_id).and_return remote_id
       allow(link_class)
         .to receive(:for)
         .with(remote_file_id: 'remote-id', mime_type: 'type')
@@ -306,6 +307,12 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
 
     it { is_expected.to eq 'remote-link-to-file' }
+
+    context 'when remote_file_id is nil' do
+      let(:remote_id) { nil }
+
+      it { is_expected.to be nil }
+    end
   end
 
   describe '#subfolders' do

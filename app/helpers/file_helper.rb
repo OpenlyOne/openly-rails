@@ -3,20 +3,16 @@
 # Define helpers needed for Google Drive Files
 module FileHelper
   # Wrap block into a link_to the file.
-  # If the file is a directory, wraps into an internal link to that directory.
-  # If the file is not a directory, wraps into an external link to Drive.
+  # If no link to the file, wrap block into a span tag.
   def link_to_file(file, folder_path, path_parameters, options = {}, &block)
-    # internal link to that folder
-    if file.diff.folder?
-      path = send(folder_path, *path_parameters, file.diff.hashed_file_id)
+    path = file_path(file, folder_path, path_parameters)
 
-    # remote link to the original file on Google Drive
+    if path.present?
+      options = options.reverse_merge target: '_blank' unless file.diff.folder?
+      link_to(path, options) { capture(&block) }
     else
-      path = file.link_to_remote
-      options = options.reverse_merge target: '_blank'
+      content_tag(:span) { capture(&block) }
     end
-
-    link_to(path, options) { capture(&block) }
   end
 
   # Wrap block into a link to the file's version backup
@@ -38,6 +34,14 @@ module FileHelper
   end
 
   private
+
+  # If the file is not a directory, return the external link to Drive.
+  # If the file is a directory, return the internal link to that directory.
+  def file_path(file, folder_path, path_parameters)
+    return file.link_to_remote unless file.diff.folder?
+
+    send(folder_path, *path_parameters, file.diff.hashed_file_id)
+  end
 
   def file_backup_path(diff, revision, project)
     if diff.folder? && revision.published?
