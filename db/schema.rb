@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_22_232359) do
+ActiveRecord::Schema.define(version: 2019_01_23_122919) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -305,7 +305,7 @@ ActiveRecord::Schema.define(version: 2019_01_22_232359) do
   create_table "vcs_file_in_branches", force: :cascade do |t|
     t.bigint "branch_id", null: false
     t.bigint "file_id", null: false
-    t.text "remote_file_id", null: false
+    t.text "remote_file_id"
     t.bigint "parent_id"
     t.text "name"
     t.text "content_version"

@@ -47,7 +47,6 @@ module VCS
     }
 
     # Validations
-    validates :remote_file_id, presence: true
     validates :remote_file_id, uniqueness: { scope: :branch_id },
                                if: :will_save_change_to_remote_file_id?
 
@@ -60,6 +59,7 @@ module VCS
 
     # Require presence of metadata unless file resource is deleted
     with_options unless: :deleted? do
+      validates :remote_file_id, presence: true
       # TODO: Refactor. Must use if: :not_root? because unless: :root? would
       # => overwrite top level condition.
       # See: https://stackoverflow.com/a/15388137/6451879

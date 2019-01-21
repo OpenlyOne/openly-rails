@@ -110,6 +110,7 @@ RSpec.describe VCS::FileInBranch, type: :model do
     context 'when file is deleted' do
       before { allow(file_in_branch).to receive(:deleted?).and_return true }
 
+      it { is_expected.not_to validate_presence_of(:remote_file_id) }
       it { is_expected.not_to validate_presence_of(:name) }
       it { is_expected.not_to validate_presence_of(:mime_type) }
       it { is_expected.not_to validate_presence_of(:content_version) }
