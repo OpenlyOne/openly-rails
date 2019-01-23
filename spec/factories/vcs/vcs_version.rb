@@ -8,10 +8,9 @@ FactoryBot.define do
 
     association :file, factory: :vcs_file
     association :content, factory: :vcs_content
-    remote_file_id      { Faker::Crypto.unique.sha1 }
-    parent              { parent_in_branch&.file || create(:vcs_file) }
-    name                { Faker::File.file_name('', nil, nil, '') }
-    mime_type           { 'application/vnd.google-apps.document' }
+    parent      { parent_in_branch&.file || create(:vcs_file) }
+    name        { Faker::File.file_name('', nil, nil, '') }
+    mime_type   { 'application/vnd.google-apps.document' }
 
     trait :folder do
       mime_type { 'application/vnd.google-apps.folder' }

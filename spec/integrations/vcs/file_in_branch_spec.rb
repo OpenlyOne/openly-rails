@@ -194,7 +194,6 @@ RSpec.describe VCS::FileInBranch, type: :model do
         'parent_id' => parent_in_branch.file_id,
         'content_id' => file_in_branch.content_id,
         'mime_type' => Providers::GoogleDrive::MimeType.document,
-        'remote_file_id' => remote_file_id,
         'thumbnail_id' => nil
       )
     end
@@ -220,7 +219,6 @@ RSpec.describe VCS::FileInBranch, type: :model do
         'name' => 'my new file name',
         'parent_id' => parent_in_branch.file_id,
         'mime_type' => Providers::GoogleDrive::MimeType.document,
-        'remote_file_id' => remote_file_id,
         'thumbnail_id' => VCS::Thumbnail.first.id
       )
     end

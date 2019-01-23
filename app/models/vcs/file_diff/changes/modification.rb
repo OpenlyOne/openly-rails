@@ -30,11 +30,9 @@ module VCS
         end
 
         # Undo modification of the file resource
-        # TODO: Remove rolling back of remote ID
         def unapply
           current_version.content_id       = previous_version.content_id
           current_version.mime_type        = previous_version.mime_type
-          current_version.remote_file_id   = previous_version.remote_file_id
           current_version.thumbnail_id     = previous_version.thumbnail_id
         end
       end

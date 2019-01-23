@@ -11,9 +11,9 @@ module VCS
       # Delegations
       delegate :ancestor_path, :current_version, :current_version=,
                :current_or_previous_version, :file_id, :file_resource_id,
-               :remote_file_id, :hashed_file_id, :icon, :name, :parent_id,
-               :previous_parent_id, :previous_version, :symbolic_mime_type,
-               :revision, :content_change,
+               :hashed_file_id, :icon, :name, :parent_id, :previous_parent_id,
+               :previous_version, :symbolic_mime_type, :revision,
+               :content_change,
                to: :diff
 
       delegate :unselected_file_changes, to: :revision
@@ -44,9 +44,10 @@ module VCS
         type == 'deletion'
       end
 
-      # The identifier for the change, consisting of remote ID and change type
+      # The identifier for the change, consisting of hashed file ID and
+      # change type
       def id
-        "#{remote_file_id}_#{type}"
+        "#{hashed_file_id}_#{type}"
       end
 
       # Return true if the change is a ::Modification

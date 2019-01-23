@@ -288,6 +288,25 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '#link_to_remote' do
+    subject { file_in_branch.link_to_remote }
+
+    let(:link_class) { class_double Providers::GoogleDrive::Link }
+
+    before do
+      allow(file_in_branch)
+        .to receive(:provider_link_class).and_return link_class
+      allow(file_in_branch).to receive(:mime_type).and_return 'type'
+      allow(file_in_branch).to receive(:remote_file_id).and_return 'remote-id'
+      allow(link_class)
+        .to receive(:for)
+        .with(remote_file_id: 'remote-id', mime_type: 'type')
+        .and_return 'remote-link-to-file'
+    end
+
+    it { is_expected.to eq 'remote-link-to-file' }
+  end
+
   describe '#subfolders' do
     subject(:subfolders)  { file_in_branch.subfolders }
     let(:folder1)         { instance_double described_class }
