@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe FileHelper, type: :helper do
-  describe '#link_to_file(diff, project, options = {})' do
+  describe '#link_to_file(file, project, options = {})' do
     subject(:method)  { helper.link_to_file(file, project) {} }
     let(:project)     { build_stubbed :project }
-    let(:file)        { instance_double VCS::Version }
+    let(:file)        { instance_double VCS::FileInBranch }
+    let(:diff)        { instance_double VCS::FileDiff }
     let(:is_folder)   { false }
 
     before do
-      allow(file).to receive(:folder?).and_return is_folder
-      allow(file).to receive(:hashed_file_id).and_return 'hashed-file-id'
+      allow(file).to receive(:diff).and_return diff
+      allow(diff).to receive(:folder?).and_return is_folder
+      allow(diff).to receive(:hashed_file_id).and_return 'hashed-file-id'
       allow(file).to receive(:link_to_remote).and_return 'remote-link'
     end
 

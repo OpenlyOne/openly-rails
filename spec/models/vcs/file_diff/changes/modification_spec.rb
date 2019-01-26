@@ -28,11 +28,7 @@ RSpec.describe VCS::FileDiff::Changes::Modification, type: :model do
       allow(previous_version)
         .to receive(:content_id).and_return 'previous-content-id'
       allow(previous_version)
-        .to receive(:content_version).and_return 'previous-content-version'
-      allow(previous_version)
         .to receive(:mime_type).and_return 'previous-mime-type'
-      allow(previous_version)
-        .to receive(:remote_file_id).and_return 'previous-remote-id'
       allow(previous_version)
         .to receive(:thumbnail_id).and_return 'previous-thumbnail-id'
     end
@@ -41,9 +37,7 @@ RSpec.describe VCS::FileDiff::Changes::Modification, type: :model do
 
     it 'resets content' do
       is_expected.to receive(:content_id=).with 'previous-content-id'
-      is_expected.to receive(:content_version=).with 'previous-content-version'
       is_expected.to receive(:mime_type=).with 'previous-mime-type'
-      is_expected.to receive(:remote_file_id=).with 'previous-remote-id'
       is_expected.to receive(:thumbnail_id=).with 'previous-thumbnail-id'
     end
   end

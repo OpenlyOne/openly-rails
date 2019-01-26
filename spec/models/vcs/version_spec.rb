@@ -42,9 +42,7 @@ RSpec.describe VCS::Version, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:file_id) }
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_presence_of(:content_version) }
     it { is_expected.to validate_presence_of(:mime_type) }
-    it { is_expected.to validate_presence_of(:remote_file_id) }
     it do
       is_expected.to validate_presence_of(:content).with_message('must exist')
     end

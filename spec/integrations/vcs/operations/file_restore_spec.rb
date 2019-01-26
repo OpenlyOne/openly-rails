@@ -70,9 +70,13 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
           .find_by(file_id: version_to_restore.parent_id)
     end
     let(:expected_parent)           { parent_of_version_to_restore }
-    let(:expected_content_version)  { version_to_restore.content_version }
     let(:expected_deletion_status)  { false }
     let(:expected_version_id)       { version_to_restore&.id }
+    let(:expected_content_version) do
+      version_to_restore
+        .content.remote_contents.find_by(remote_file_id: file.remote_file_id)
+        .remote_content_version_id
+    end
 
     before do
       # Disable downloading of content
