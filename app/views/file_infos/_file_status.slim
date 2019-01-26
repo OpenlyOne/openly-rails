@@ -6,7 +6,7 @@
   .row
     .col.s12.m4
       = render partial: 'link_to_open_in_drive',
-               locals: { file: uncaptured_file_diff.current_or_previous_version }
+               locals: { file: file_in_branch }
 
     .col.s12.m4
       / Add vertical spacing between the two buttons on mobile devices
