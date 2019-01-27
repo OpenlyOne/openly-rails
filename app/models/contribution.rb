@@ -10,7 +10,8 @@ class Contribution < ApplicationRecord
                       optional: true
 
   # Delegations
-  delegate :branches, :revisions, to: :project, prefix: true
+  delegate :branches, :master_branch, :revisions, to: :project, prefix: true
+  delegate :files, to: :branch
 
   # Validations
   validates :branch, presence: { message: 'must exist' }, on: %i[create update]
@@ -25,26 +26,19 @@ class Contribution < ApplicationRecord
 
     return false unless valid?(:setup)
 
-    create_fork_off_master_branch
+    fork_master_branch
+    grant_creator_write_access_to_branch
 
     save
   end
 
   private
 
-  # rubocop:disable Metrics/AbcSize
-  def create_fork_off_master_branch
-    # create new branch
-    self.branch = project_branches.create!
-
-    # create remote root
-    branch.create_remote_root_folder
-
-    # grant write access to contribution creator
-    branch.root.remote.grant_write_access_to(creator.account.email)
-
-    # copy files from last commit
-    branch.restore_commit(project_revisions.last, author: creator)
+  def fork_master_branch
+    self.branch = project_master_branch.create_fork(creator: creator)
   end
-  # rubocop:enable Metrics/AbcSize
+
+  def grant_creator_write_access_to_branch
+    branch.root.remote.grant_write_access_to(creator.account.email)
+  end
 end

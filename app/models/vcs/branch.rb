@@ -43,8 +43,8 @@ module VCS
     end
 
     # Delegations
-    delegate :root, to: :files
-    delegate :folders, to: :files
+    delegate :folders, :root, to: :files
+    delegate :branches, to: :repository, prefix: true
 
     # Scopes
     # Return branches that have one or more files with the given remote IDs
@@ -79,6 +79,31 @@ module VCS
       ).tap(&:pull)
     end
     # rubocop:enable Metrics/MethodLength
+
+    # Copy all committed files from branch over to this branch
+    # All new files are marked as deleted
+    def copy_committed_files_from(branch_to_copy_from)
+      branch_to_copy_from.files.committed.find_each do |file_in_branch|
+        files.create!(
+          file_id: file_in_branch.file_id,
+          committed_version_id: file_in_branch.committed_version_id,
+          is_deleted: true
+        )
+      end
+    end
+
+    # Fork this branch
+    # TODO: Author should be extracted out of this operation. It is
+    # =>    not needed. But we need to remove the not null constraint from the
+    # =>    database (which we need to do anyway to make it possible for
+    # =>    users to delete their accounts).
+    def create_fork(creator:)
+      repository_branches.create!.tap do |fork|
+        fork.create_remote_root_folder
+        fork.copy_committed_files_from(self)
+        fork.restore_commit(commits.last, author: creator)
+      end
+    end
 
     # Copy files from specified commit to stage
     # TODO: Author should be extracted out of this operation. It is

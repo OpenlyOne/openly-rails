@@ -30,6 +30,7 @@ RSpec.describe VCS::Branch, type: :model do
   describe 'delegations' do
     it { is_expected.to delegate_method(:root).to(:files) }
     it { is_expected.to delegate_method(:folders).to(:files) }
+    it { is_expected.to delegate_method(:branches).to(:repository).with_prefix }
   end
 
   describe 'commits#create_draft_and_commit_files!' do
@@ -107,6 +108,33 @@ RSpec.describe VCS::Branch, type: :model do
 
       it { expect(sync_adapter_class).not_to have_received(:create) }
       it { expect(files).not_to have_received(:build) }
+    end
+  end
+
+  describe '#create_fork(creator:)' do
+    subject(:create_fork) { branch.create_fork(creator: 'creator') }
+
+    let(:fork)          { instance_double described_class }
+    let(:repo_branches) { class_double described_class }
+
+    before do
+      allow(branch).to receive(:repository_branches).and_return repo_branches
+      allow(repo_branches).to receive(:create!).and_return fork
+      allow(branch).to receive(:commits).and_return %w[1st 2nd last]
+      allow(fork).to receive(:create_remote_root_folder)
+      allow(fork).to receive(:copy_committed_files_from)
+      allow(fork).to receive(:restore_commit)
+
+      create_fork
+    end
+
+    it { expect(fork).to have_received(:create_remote_root_folder) }
+    it do
+      expect(fork).to have_received(:copy_committed_files_from).with(branch)
+    end
+    it do
+      expect(fork)
+        .to have_received(:restore_commit).with('last', author: 'creator')
     end
   end
 

@@ -67,12 +67,13 @@ RSpec.describe ContributionsController, type: :controller do
         }
       }
     end
+    let(:fork) { create :vcs_branch }
 
     before do
+      allow_any_instance_of(VCS::Branch)
+        .to receive(:create_fork).and_return(fork)
       allow_any_instance_of(Contribution)
-        .to receive(:create_fork_off_master_branch) do |contribution|
-        contribution.branch = contribution.project_branches.create!
-      end
+        .to receive(:grant_creator_write_access_to_branch)
     end
 
     it_should_behave_like 'an authenticated action'

@@ -46,6 +46,9 @@ module VCS
       )
     }
 
+    # Return only files in branch that have been committed
+    scope :committed, -> { where('committed_version_id IS NOT NULL') }
+
     # Validations
     validates :remote_file_id, uniqueness: { scope: :branch_id },
                                if: :will_save_change_to_remote_file_id?

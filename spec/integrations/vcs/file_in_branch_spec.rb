@@ -58,6 +58,32 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '.committed' do
+    subject { described_class.committed }
+
+    let(:committed) do
+      create :vcs_file_in_branch, :with_versions, current_version: nil
+    end
+    let(:committed_and_current) do
+      create :vcs_file_in_branch, :with_versions
+    end
+    let(:uncommitted) do
+      create :vcs_file_in_branch, :with_versions, committed_version: nil
+    end
+
+    it 'returns files that are committed' do
+      is_expected.to include(committed)
+    end
+
+    it 'returns files that are committed and current' do
+      is_expected.to include(committed_and_current)
+    end
+
+    it 'does not return files that are not committed' do
+      is_expected.not_to include(uncommitted)
+    end
+  end
+
   describe '.find_by_hashed_file_id!(id)' do
     subject(:finding) { described_class.find_by_hashed_file_id!(id_to_find) }
 

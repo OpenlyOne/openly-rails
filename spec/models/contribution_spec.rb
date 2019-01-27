@@ -22,7 +22,9 @@ RSpec.describe Contribution, type: :model do
   describe 'delegations' do
     it do
       is_expected.to delegate_method(:branches).to(:project).with_prefix
+      is_expected.to delegate_method(:master_branch).to(:project).with_prefix
       is_expected.to delegate_method(:revisions).to(:project).with_prefix
+      is_expected.to delegate_method(:files).to(:branch)
     end
   end
 
@@ -54,7 +56,8 @@ RSpec.describe Contribution, type: :model do
     before do
       allow(contribution).to receive(:assign_attributes)
       allow(contribution).to receive(:valid?).and_return is_valid
-      allow(contribution).to receive(:create_fork_off_master_branch)
+      allow(contribution).to receive(:fork_master_branch)
+      allow(contribution).to receive(:grant_creator_write_access_to_branch)
       allow(contribution).to receive(:save).and_return 'result-of-save'
 
       setup
@@ -64,7 +67,11 @@ RSpec.describe Contribution, type: :model do
       expect(contribution).to have_received(:assign_attributes).with('attrs')
     end
     it { expect(contribution).to have_received(:valid?).with(:setup) }
-    it { expect(contribution).to have_received(:create_fork_off_master_branch) }
+    it { expect(contribution).to have_received(:fork_master_branch) }
+    it do
+      expect(contribution)
+        .to have_received(:grant_creator_write_access_to_branch)
+    end
     it { expect(contribution).to have_received(:save) }
 
     it 'returns the result of #save' do
@@ -75,60 +82,17 @@ RSpec.describe Contribution, type: :model do
       let(:is_valid) { false }
 
       it { is_expected.to eq false }
-      it { expect(contribution).not_to receive(:create_fork_off_master_branch) }
+      it do
+        expect(contribution).not_to have_received(:fork_master_branch)
+        expect(contribution)
+          .not_to have_received(:grant_creator_write_access_to_branch)
+      end
     end
 
     context 'when called without attributes' do
       subject(:setup) { contribution.setup }
 
       it { expect(contribution).to have_received(:assign_attributes).with({}) }
-    end
-  end
-
-  describe '#create_fork_off_master_branch' do
-    let(:new_project_branch) { instance_double VCS::Branch }
-    let(:root)    { instance_double VCS::FileInBranch }
-    let(:creator) { instance_double Profiles::User }
-    let(:account) { instance_double Account }
-    let(:remote)  { instance_double Providers::GoogleDrive::FileSync }
-
-    before do
-      allow(contribution).to receive(:branch=)
-      allow(contribution)
-        .to receive_message_chain(:project_branches, :create!)
-        .and_return new_project_branch
-      allow(contribution).to receive(:branch).and_return new_project_branch
-      allow(new_project_branch).to receive(:create_remote_root_folder)
-      allow(new_project_branch).to receive(:root).and_return root
-      allow(root).to receive(:remote).and_return remote
-      allow(remote).to receive(:grant_write_access_to)
-      allow(contribution).to receive(:creator).and_return creator
-      allow(creator).to receive(:account).and_return account
-      allow(account).to receive(:email).and_return 'em@il'
-      allow(new_project_branch).to receive(:restore_commit)
-      allow(contribution)
-        .to receive_message_chain(:project_revisions, :last)
-        .and_return 'last_commit'
-
-      contribution.send(:create_fork_off_master_branch)
-    end
-
-    it 'sets branch to new project branch' do
-      expect(contribution).to have_received(:branch=).with(new_project_branch)
-    end
-
-    it 'creates remote folder for new branch' do
-      expect(new_project_branch).to have_received(:create_remote_root_folder)
-    end
-
-    it 'grants contribution creator write access to remote folder' do
-      expect(remote).to have_received(:grant_write_access_to).with('em@il')
-    end
-
-    it 'restores the last commit to the new branch' do
-      expect(new_project_branch)
-        .to have_received(:restore_commit)
-        .with('last_commit', author: creator)
     end
   end
 end
