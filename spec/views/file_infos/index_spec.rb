@@ -102,6 +102,15 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_link 'Open Parent Folder', href: link
       end
 
+      context 'when remote_file_id of file is nil' do
+        before { file_in_branch.remote_file_id = nil }
+
+        it 'does not have a link to the file on Google Drive' do
+          render
+          expect(rendered).not_to have_link 'Open in Drive'
+        end
+      end
+
       context 'when parent is root folder' do
         let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :root }
 
@@ -179,6 +188,25 @@ RSpec.describe 'file_infos/index', type: :view do
               "[method='post']",
               text: 'Force Sync'
             )
+          end
+
+          context 'when remote_file_id of file is nil' do
+            before { file_in_branch.remote_file_id = nil }
+
+            it 'does not have a button to force sync the file' do
+              render
+              sync_path =
+                profile_project_force_syncs_path(
+                  project.owner,
+                  project,
+                  VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+                )
+              expect(rendered).not_to have_css(
+                'form'\
+                "[action='#{sync_path}']"\
+                "[method='post']"
+              )
+            end
           end
         end
       end

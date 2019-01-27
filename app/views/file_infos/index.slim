@@ -2,13 +2,13 @@
 
   / render file status only if user can view files in branch / work-in-progress
   - if @user_can_view_file_in_branch
-    = render partial: 'file_status',
+    = render partial: 'file_infos/file_status',
              locals: { file_in_branch: @file_in_branch,
                        uncaptured_file_diff: @uncaptured_file_diff,
                        user_can_force_sync_files: @user_can_force_sync_files,
                        project: @project }
 
-  = render partial: 'file_version_history',
+  = render partial: 'file_infos/file_version_history',
            locals: { project: @project,
                      committed_file_diffs: @committed_file_diffs,
                      user_can_restore_files: @user_can_restore_files }
