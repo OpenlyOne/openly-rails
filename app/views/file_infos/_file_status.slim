@@ -17,7 +17,10 @@
 
       = render partial: 'file_infos/link_to_parent_folder',
                locals: { project: project,
-                         file: uncaptured_file_diff.current_or_previous_version }
+                         file: uncaptured_file_diff.current_or_previous_version,
+                         path_parameters: path_parameters,
+                         folder_path: folder_path,
+                         root_folder_path: root_folder_path }
 
     - if user_can_force_sync_files && has_remote_file_id
       .col.s12.m4

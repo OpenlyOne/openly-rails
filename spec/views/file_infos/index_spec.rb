@@ -9,6 +9,14 @@ RSpec.describe 'file_infos/index', type: :view do
   let(:uncaptured_file_diff)  { nil }
   let(:committed_file_diffs)  { [] }
 
+  let(:locals) do
+    {
+      path_parameters:  [project.owner, project],
+      folder_path:      'profile_project_folder_path',
+      root_folder_path: 'profile_project_root_folder_path'
+    }
+  end
+
   before do
     allow(project).to receive(:master_branch).and_return master_branch
     assign(:project, project)
@@ -18,6 +26,11 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:parent_in_branch, parent_in_branch)
     assign(:uncaptured_file_diff, uncaptured_file_diff)
     assign(:committed_file_diffs, committed_file_diffs)
+  end
+
+  # Overwrite the render method to include locals
+  def render
+    super(template: self.class.top_level_description, locals: locals)
   end
 
   it 'does not have a link to the file on Google Drive' do

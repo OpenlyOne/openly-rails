@@ -1,0 +1,12 @@
+= render partial: 'contributions/head', object: @contribution, as: :contribution,
+         locals: { project: @project, active_tab: nil }
+
+= render partial: 'file_infos/head', object: @file, as: :file,
+         locals: { project: @project,
+                   path_parameters: local_assigns[:path_parameters],
+                   file_infos_path: local_assigns[:file_infos_path] }
+
+
+= yield
+
+= parent_layout 'contribution'
