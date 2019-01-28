@@ -125,6 +125,22 @@ RSpec.describe Ability, type: :model do
     end
   end
 
+  describe 'Creators of contributions' do
+    actions = %i[force_sync]
+    let(:object)        { contribution }
+    let(:contribution)  { build_stubbed(:contribution) }
+
+    context 'when user is creator' do
+      before { contribution.creator = user }
+      it_should_behave_like 'having authorization', actions
+    end
+
+    context 'when user is not creator' do
+      before { contribution.creator = build_stubbed(:user) }
+      it_should_behave_like 'not having authorization', actions
+    end
+  end
+
   context 'Revisions' do
     actions = %i[new create]
     let(:project)   { create :project, :skip_archive_setup }

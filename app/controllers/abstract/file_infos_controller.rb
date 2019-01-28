@@ -24,6 +24,7 @@ module Abstract
         path_parameters: path_parameters,
         file_infos_path: "#{link_path_prefix}file_infos_path",
         folder_path: "#{link_path_prefix}folder_path",
+        force_syncs_path: "#{link_path_prefix}force_syncs_path",
         root_folder_path: "#{link_path_prefix}root_folder_path"
       }
     end

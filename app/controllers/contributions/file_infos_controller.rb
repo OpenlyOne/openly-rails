@@ -21,10 +21,8 @@ module Contributions
       @contribution = @project.contributions.find(params[:contribution_id])
     end
 
-    # TODO: Only contribution creator can force sync files in contribution
     def set_user_can_force_sync_files
-      @user_can_force_sync_files = false
-      # @user_can_force_sync_files = can?(:force_sync, @project)
+      @user_can_force_sync_files = can?(:force_sync, @contribution)
     end
 
     # TODO: Only contribution creator can restore files in contribution

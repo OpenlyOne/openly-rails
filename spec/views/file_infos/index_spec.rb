@@ -13,6 +13,7 @@ RSpec.describe 'file_infos/index', type: :view do
     {
       path_parameters:  [project.owner, project],
       folder_path:      'profile_project_folder_path',
+      force_syncs_path: 'profile_project_force_syncs_path',
       root_folder_path: 'profile_project_root_folder_path'
     }
   end

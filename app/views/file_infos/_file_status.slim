@@ -29,7 +29,9 @@
 
         = render partial: 'file_infos/link_to_force_sync',
                  locals: { project: project,
-                           file: uncaptured_file_diff.current_or_previous_version }
+                           file: uncaptured_file_diff.current_or_previous_version,
+                           path_parameters: path_parameters,
+                           force_syncs_path: force_syncs_path, }
 
 
   .spacing.v16px

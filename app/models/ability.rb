@@ -39,6 +39,9 @@ class Ability
       can?(:collaborate, project)
     end
 
+    # User can force sync for contributions which they created
+    can %i[force_sync], Contribution, creator_id: user.id
+
     # User can commit changes for projects of profiles that they can manage
     # or of which they are a collaborator
     can %i[new create], :revision do |_revision, project|
