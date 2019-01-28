@@ -12,6 +12,7 @@ RSpec.describe 'file_infos/index', type: :view do
   let(:locals) do
     {
       path_parameters:  [project.owner, project],
+      file_change_path: 'profile_project_file_change_path',
       folder_path:      'profile_project_folder_path',
       force_syncs_path: 'profile_project_force_syncs_path',
       root_folder_path: 'profile_project_root_folder_path'
@@ -319,10 +320,10 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
       end
 
-      it 'does not have a link to side-by-side diff' do
+      it 'has a link to side-by-side diff' do
         render
-        link = profile_project_file_change_path(
-          project.owner, project, committed_file_diffs.first.hashed_file_id
+        link = profile_project_revision_file_change_path(
+          project.owner, project, r1, committed_file_diffs.first.hashed_file_id
         )
         expect(rendered).to have_link(href: link)
       end

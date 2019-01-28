@@ -44,10 +44,8 @@ div.file[class=file_change.symbolic_mime_type
                locals: { truncate_content: true }
 
       .links
-        - if revision.nil? || !revision.published?
-          - path = profile_project_file_change_path(project.owner, project, file_change.hashed_file_id)
-        - else
-          - path = profile_project_revision_file_change_path(project.owner, project, revision, file_change.hashed_file_id)
+        - file_change_path ||= :profile_project_file_change_path
+        - path_parameters ||= [project.owner, project]
         = link_to 'View side-by-side',
-                  path,
+                  send(file_change_path, *path_parameters, file_change.hashed_file_id),
                   link_options.merge(class: 'btn-flat btn-slim grey lighten-2')

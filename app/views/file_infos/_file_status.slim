@@ -38,6 +38,8 @@
 
   = render partial: 'file_infos/new_file_changes',
            locals: { project: project,
+                     path_parameters: path_parameters,
+                     file_change_path: file_change_path,
                      uncaptured_file_diff: uncaptured_file_diff }
 
   .spacing.v16px

@@ -13,7 +13,9 @@ h3.with-separator
            locals: { project: project,
                      revision: VCS::Commit.new,
                      show_link_to_file_info: false,
-                     all_links_in_new_tab: false }
+                     all_links_in_new_tab: false,
+                     path_parameters: path_parameters,
+                     file_change_path: file_change_path }
 
 
 - else

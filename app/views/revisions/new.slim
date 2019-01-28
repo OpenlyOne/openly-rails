@@ -27,6 +27,8 @@
                  object: @revision.file_changes,
                  locals: { project: @project,
                            revision: @revision,
+                           path_parameters: [@project.owner, @project],
+                           file_change_path: :profile_project_file_change_path,
                            show_link_to_file_info: true,
                            all_links_in_new_tab: true,
                            file_change_wrapper: 'file_change_checkbox' }

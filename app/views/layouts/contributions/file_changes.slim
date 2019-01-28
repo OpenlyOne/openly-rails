@@ -1,7 +1,7 @@
 = render partial: 'contributions/head', object: @contribution, as: :contribution,
          locals: { project: @project, active_tab: nil }
 
-= render partial: 'file_infos/head', object: @file, as: :file,
+= render partial: 'file_infos/head', object: @file_diff, as: :file,
          locals: { project: @project,
                    path_parameters: [@project.owner, @project, @contribution],
                    file_infos_path: :profile_project_contribution_file_infos_path }
