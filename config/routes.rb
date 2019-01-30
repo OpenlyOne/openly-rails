@@ -105,6 +105,9 @@ Rails.application.routes.draw do
           get 'files' => 'folders#root', as: :root_folder
           resources :folders, only: :show
 
+          # Review
+          resource :review, only: :show
+
           # Routes for file infos
           resources :file_infos, path: 'files/:id/info', only: :index
           resources :force_syncs, path: 'files/:id/sync', only: :create

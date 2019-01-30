@@ -44,7 +44,8 @@ module VCS
 
     # Scopes
     scope :preload_file_diffs_with_versions, lambda {
-      preload(file_diffs: { new_version: :content, old_version: :content })
+      preload(file_diffs: { new_version: %i[backup content],
+                            old_version: %i[backup content] })
     }
 
     scope :published, -> { where(is_published: true) }
@@ -53,7 +54,7 @@ module VCS
     # Require title for published revisions
     validates :title, presence: true, if: :is_published
 
-    validate :parent_must_belong_to_same_branch, if: :parent_id
+    validate :parent_must_belong_to_same_repository, if: :parent_id
     validate :can_only_have_one_revision_with_parent, if: :parent_id
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
     validate :selected_file_changes_must_be_valid, if: :publishing?
@@ -179,10 +180,10 @@ module VCS
                  'the changes you are currently reviewing.')
     end
 
-    def parent_must_belong_to_same_branch
-      return if parent.branch_id == branch_id
+    def parent_must_belong_to_same_repository
+      return if parent.repository.id == branch.repository_id
 
-      errors.add(:parent, 'must belong to same branch')
+      errors.add(:parent, 'must belong to same repository')
     end
 
     def published_origin_revision_exists_for_branch?

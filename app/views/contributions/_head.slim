@@ -16,3 +16,6 @@
          div.tab
            = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
                       class: ('active' if active_tab == :files)
+         div.tab
+           = link_to 'Review', profile_project_contribution_review_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :review)
