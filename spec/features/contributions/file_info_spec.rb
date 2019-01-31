@@ -13,7 +13,7 @@ feature 'Contributions: File Info' do
   scenario 'User can see file info' do
     # given there is a file and it is committed
     file = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
-    create_revision
+    create_revision('origin')
 
     # and there is a contribution
     contribution
@@ -57,9 +57,9 @@ feature 'Contributions: File Info' do
   end
 end
 
-def create_revision
+def create_revision(title)
   r = master_branch.commits.create_draft_and_commit_files!(project.owner)
-  r.update(is_published: true, title: 'revision')
+  r.update(is_published: true, title: title)
 end
 
 def when_i_visit_the_contribution_page_and_click_on_files
