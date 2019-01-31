@@ -64,4 +64,13 @@ RSpec.describe 'contributions/index', type: :view do
       href: new_profile_project_contribution_path(project.owner, project)
     )
   end
+
+  context 'when contribution has been accepted' do
+    before { contributions.first.is_accepted = true }
+
+    it 'has accepted label' do
+      render
+      expect(rendered).to have_text('Accepted', count: 1)
+    end
+  end
 end

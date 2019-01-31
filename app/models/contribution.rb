@@ -19,6 +19,14 @@ class Contribution < ApplicationRecord
   validates :title, presence: true
   validates :description, presence: true
 
+  def accepted?
+    is_accepted
+  end
+
+  def open?
+    !accepted?
+  end
+
   # Setup the contribution.
   # Works just like #save/#update but forks off the master branch.
   def setup(attributes = {})

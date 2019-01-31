@@ -11,6 +11,9 @@
          | &middot;
          =<> time_ago_in_words(contribution.created_at)
          | ago
+         - if contribution.accepted?
+           = ' '
+           | &middot; accepted
 
        div.tabs.static.no-margin-top
          div.tab

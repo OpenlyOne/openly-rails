@@ -48,6 +48,26 @@ RSpec.describe Contribution, type: :model do
     end
   end
 
+  describe '#accepted?' do
+    it { is_expected.not_to be_accepted }
+
+    context 'when is_accepted=true' do
+      before { contribution.is_accepted = true }
+
+      it { is_expected.to be_accepted }
+    end
+  end
+
+  describe '#open?' do
+    it { is_expected.to be_open }
+
+    context 'when is_accepted=true' do
+      before { contribution.is_accepted = true }
+
+      it { is_expected.not_to be_open }
+    end
+  end
+
   describe '#setup' do
     subject(:setup) { contribution.setup('attrs') }
 
