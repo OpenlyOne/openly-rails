@@ -225,28 +225,9 @@ RSpec.describe 'contributions/reviews/show', type: :view do
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
       end
 
-      it 'has a link to side-by-side diff' do
+      it 'does not have link to side-by-side diff' do
         render
-        expect(rendered)
-          .to have_link('View side-by-side', href: link_to_side_by_side)
-      end
-
-      it 'opens side-by-side diff in the same tab' do
-        render
-        expect(rendered).to have_selector(
-          "a[href='#{link_to_side_by_side}']:not([target='_blank'])"
-        )
-      end
-
-      context 'when user can accept changes' do
-        before { assign(:user_can_accept_contribution, true) }
-
-        it 'opens side-by-side diff in a new tab' do
-          render
-          expect(rendered).to have_selector(
-            "a[href='#{link_to_side_by_side}'][target='_blank']"
-          )
-        end
+        expect(rendered).not_to have_link(href: link_to_side_by_side)
       end
     end
   end

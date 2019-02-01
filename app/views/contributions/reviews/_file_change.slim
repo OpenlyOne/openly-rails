@@ -45,10 +45,3 @@ div.file[class=file_change.symbolic_mime_type
       = render partial: 'revisions/content_change_fragment',
                collection: file_change.content_change.fragments,
                locals: { truncate_content: true }
-
-      .links
-        - file_change_path ||= :profile_project_file_change_path
-        - path_parameters ||= [project.owner, project]
-        = link_to 'View side-by-side',
-                  send(file_change_path, *path_parameters, file_change.hashed_file_id),
-                  link_options.merge(class: 'btn-flat btn-slim grey lighten-2')
