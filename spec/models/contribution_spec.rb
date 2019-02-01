@@ -48,21 +48,114 @@ RSpec.describe Contribution, type: :model do
     end
   end
 
+  describe '#accept(revision:)' do
+    subject(:accept) { contribution.accept(revision: revision) }
+
+    let(:revision)      { instance_double VCS::Commit }
+    let(:master_branch) { instance_double VCS::Branch }
+    let(:creator)       { contribution.creator }
+    let(:contribution)  { create :contribution, project: project }
+    let(:project) { create :project, :skip_archive_setup, :with_repository }
+    let(:successfully_published) { true }
+
+    before do
+      allow(revision).to receive(:publish).and_return successfully_published
+      allow(project).to receive(:master_branch).and_return master_branch
+      allow(project).to receive(:master_branch_id).and_return 'master_branch_id'
+      allow(master_branch).to receive(:restore_commit)
+    end
+
+    it { is_expected.to be true }
+
+    it 'publishes the commit' do
+      accept
+      expect(revision)
+        .to have_received(:publish)
+        .with(author_id: creator.id,
+              branch_id: 'master_branch_id',
+              select_all_file_changes: true)
+    end
+
+    it 'applies changes to the master branch' do
+      accept
+      expect(master_branch)
+        .to have_received(:restore_commit)
+        .with(revision, author: creator)
+    end
+
+    it 'updates the contribution to accepted' do
+      expect { accept }.to change(contribution, :accepted?).to(true)
+    end
+
+    context 'when contribution has already been accepted' do
+      before { contribution.update_attribute(:is_accepted, true) }
+
+      it { is_expected.to be false }
+
+      it 'adds a validation error' do
+        accept
+        expect(contribution.errors.full_messages).to include(
+          'Contribution has already been accepted.'
+        )
+      end
+
+      it 'does not publish the commit' do
+        accept
+        expect(revision).not_to have_received(:publish)
+      end
+
+      it 'does not apply changes to the master branch' do
+        accept
+        expect(master_branch).not_to have_received(:restore_commit)
+      end
+    end
+
+    context 'when publication of revision fails' do
+      let(:successfully_published) { false }
+
+      it { is_expected.to be false }
+
+      it 'does not apply changes to the master branch' do
+        accept
+        expect(master_branch).not_to have_received(:restore_commit)
+      end
+
+      it 'does not persist contribution' do
+        accept
+        expect(contribution.changes).to be_any
+      end
+    end
+  end
+
   describe '#accepted?' do
+    let(:contribution) { create :contribution }
+
     it { is_expected.not_to be_accepted }
 
     context 'when is_accepted=true' do
       before { contribution.is_accepted = true }
+
+      it { is_expected.not_to be_accepted }
+    end
+
+    context 'when is accepted and persisted' do
+      before { contribution.update(is_accepted: true) }
 
       it { is_expected.to be_accepted }
     end
   end
 
   describe '#open?' do
-    it { is_expected.to be_open }
+    before { allow(contribution).to receive(:accepted?).and_return accepted }
 
-    context 'when is_accepted=true' do
-      before { contribution.is_accepted = true }
+    context 'when not accepted' do
+      let(:accepted) { false }
+
+      it { is_expected.to be_open }
+    end
+
+    context 'when accepted' do
+      let(:accepted) { true }
 
       it { is_expected.not_to be_open }
     end

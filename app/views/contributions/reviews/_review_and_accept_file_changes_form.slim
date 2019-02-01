@@ -1,0 +1,33 @@
+= form_for contribution,
+           url: profile_project_contribution_acceptance_path(project.owner, project, contribution),
+           method: :post do |f|
+
+  = f.hidden_field :revision_id
+
+  - if contribution.errors.any? || contribution.revision.errors.any?
+    .row.no-margin-bottom
+      .col.s12
+        .validation-errors
+          = render partial: "error",
+                   collection: contribution.errors.full_messages + \
+                               contribution.revision.errors.full_messages,
+                   as: :error
+
+  = render partial: 'contributions/reviews/review_file_changes',
+          locals: { contribution: contribution,
+                    project: project,
+                    all_links_in_new_tab: true }
+
+  / show button for accepting contribution, if not yet accepted
+  - if contribution.open?
+    .spacing.v32px
+
+    .row
+      .col.s12.left-align
+        / HACK: Technically not a validation error, but the styling is appropriate
+        .validation-errors
+          = render partial: 'error',
+                            object: 'Have you captured all changes in this project? When accepting this contribution, you will lose any uncaptured changes.',
+                            as: :error
+        button action='submit' class='btn btn-large primary-color primary-color-text'
+          | Accept Changes

@@ -1,27 +1,11 @@
 .spacing.v32px
 
 .container
-  .row
-    .col.s12
-      h4.no-margin: span Review Changes
-      p.gray-text.text-darken-2.no-margin-top
-        => @contribution.creator.name
-        | is suggesting the following changes:
-      = render partial: 'file_changes',
-               object: @revision.file_changes,
-               locals: { project: @project,
-                         revision: @revision,
-                         contribution: @contribution,
-                         path_parameters: [@project.owner, @project, @contribution],
-                         file_change_path: :profile_project_contribution_file_change_path,
-                         show_link_to_file_info: true,
-                         all_links_in_new_tab: true }
+  - if @user_can_accept_contribution
+    = render partial: 'contributions/reviews/review_and_accept_file_changes_form',
+             locals: { contribution: @contribution, project: @project }
+  - else
+    = render partial: 'contributions/reviews/review_file_changes',
+             locals: { contribution: @contribution, project: @project }
 
-  .spacing.v32px
-
-  .row
-    .col.s12.left-align
-      button action='submit' class="btn-large primary-color primary-color-text"
-        | Accept Changes
-
-  .spacing.v48px
+.spacing.v48px

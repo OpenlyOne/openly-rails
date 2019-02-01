@@ -13,7 +13,7 @@ div.file[class=file_change.symbolic_mime_type
 
   - if show_link_to_file_info
    / TODO: Replace file_change with file and replace VCS::File with file.hashed_file_id
-   = render partial: 'link_to_file_info',
+   = render partial: 'contributions/reviews/link_to_file_info',
             locals: { file_id: file_change.hashed_file_id,
                       project: project,
                       contribution: contribution,
@@ -33,7 +33,7 @@ div.file[class=file_change.symbolic_mime_type
       = file_change.description
 
     - if show_link_to_file_info
-      = render partial: 'link_to_file_info',
+      = render partial: 'contributions/reviews/link_to_file_info',
                locals: { file_id: file_change.hashed_file_id,
                          project: project,
                          contribution: contribution,

@@ -8,12 +8,14 @@ RSpec.describe 'contributions/reviews/show', type: :view do
   let(:contribution)  { build_stubbed :contribution, project: project }
   let(:file_diffs)    { [] }
 
-  before { allow(revision).to receive(:file_diffs).and_return(file_diffs) }
+  before do
+    allow(contribution).to receive(:revision).and_return revision
+    allow(revision).to receive(:file_diffs).and_return(file_diffs)
+  end
 
   before do
     assign(:project, project)
     assign(:master_branch, master_branch)
-    assign(:revision, revision)
     assign(:contribution, contribution)
     controller.request.path_parameters[:profile_handle] = project.owner.to_param
     controller.request.path_parameters[:project_slug] = project.to_param
@@ -22,6 +24,75 @@ RSpec.describe 'contributions/reviews/show', type: :view do
   it 'lets the user know that there are no changes to review' do
     render
     expect(rendered).to have_text 'No changes suggested.'
+  end
+
+  it 'does not have a form to accept changes' do
+    render
+    path = profile_project_contribution_acceptance_path(
+      project.owner, project, contribution
+    )
+    expect(rendered).not_to have_css(
+      "form[action='#{path}'][method='post']", text: 'Accept Changes'
+    )
+  end
+
+  context 'when user has permission to accept contribution' do
+    before { assign(:user_can_accept_contribution, true) }
+
+    it 'renders a button to accept the contribution' do
+      render
+      path = profile_project_contribution_acceptance_path(
+        project.owner, project, contribution
+      )
+      expect(rendered).to have_css(
+        "form[action='#{path}'][method='post']", text: 'Accept Changes'
+      )
+    end
+
+    it 'renders errors' do
+      # add contribution error
+      contribution.errors.add(:base, 'mock contribution error')
+      # add revision error
+      revision.errors.add(:base, 'mock revision error')
+      render
+      expect(rendered).to have_css '.validation-errors',
+                                   text: 'mock revision error'
+      expect(rendered).to have_css '.validation-errors',
+                                   text: 'mock contribution error'
+    end
+
+    it 'shows a warning about uncaptured changes being lost' do
+      render
+      expect(rendered).to have_text 'lose any uncaptured changes'
+    end
+
+    context 'when contribution has already been accepted' do
+      before do
+        allow(contribution).to receive(:open?).and_return false
+      end
+
+      it 'does not have a form to accept changes' do
+        render
+        path = profile_project_contribution_acceptance_path(
+          project.owner, project, contribution
+        )
+        expect(rendered).not_to have_css(
+          "form[action='#{path}'][method='post']", text: 'Accept Changes'
+        )
+      end
+
+      it 'still displays form errors' do
+        # add contribution error
+        contribution.errors.add(:base, 'mock contribution error')
+        # add revision error
+        revision.errors.add(:base, 'mock revision error')
+        render
+        expect(rendered).to have_css '.validation-errors',
+                                     text: 'mock revision error'
+        expect(rendered).to have_css '.validation-errors',
+                                     text: 'mock contribution error'
+      end
+    end
   end
 
   context 'when file diffs exist' do
@@ -66,10 +137,20 @@ RSpec.describe 'contributions/reviews/show', type: :view do
       end
     end
 
-    it 'marks all links as remote links' do
+    it 'marks all links as local links' do
       render
-      expect(rendered).to have_css("a[target='_blank']")
-      expect(rendered).not_to have_css("a:not([target='_blank'])")
+      expect(rendered).not_to have_css("a[target='_blank']", text: 'More')
+      expect(rendered).to have_css("a:not([target='_blank'])", text: 'More')
+    end
+
+    context 'when user can accept changes' do
+      before { assign(:user_can_accept_contribution, true) }
+
+      it 'marks all links as remote links' do
+        render
+        expect(rendered).to have_css("a[target='_blank']")
+        expect(rendered).not_to have_css("a:not([target='_blank'])")
+      end
     end
 
     context 'when change is addition' do
@@ -150,11 +231,22 @@ RSpec.describe 'contributions/reviews/show', type: :view do
           .to have_link('View side-by-side', href: link_to_side_by_side)
       end
 
-      it 'opens side-by-side diff in a new tab' do
+      it 'opens side-by-side diff in the same tab' do
         render
         expect(rendered).to have_selector(
-          "a[href='#{link_to_side_by_side}'][target='_blank']"
+          "a[href='#{link_to_side_by_side}']:not([target='_blank'])"
         )
+      end
+
+      context 'when user can accept changes' do
+        before { assign(:user_can_accept_contribution, true) }
+
+        it 'opens side-by-side diff in a new tab' do
+          render
+          expect(rendered).to have_selector(
+            "a[href='#{link_to_side_by_side}'][target='_blank']"
+          )
+        end
       end
     end
   end

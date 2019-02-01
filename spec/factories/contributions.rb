@@ -2,9 +2,9 @@
 
 FactoryBot.define do
   factory :contribution do
-    project
+    association :project, :skip_archive_setup, :with_repository
     association :creator, factory: :user
-    association :branch, factory: :vcs_branch
+    branch      { build :vcs_branch, repository: project.repository }
     title       { Faker::HarryPotter.quote }
     description { Faker::Lorem.paragraph }
 

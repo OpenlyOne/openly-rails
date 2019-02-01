@@ -33,19 +33,22 @@ module VCS
              inverse_of: :commit, dependent: :delete_all
 
     # Attributes
-    attr_readonly :branch_id, :parent_id, :author_id
+    # HACK: Set to true to force select all attributes and not selectively
+    # =>    commit changes
+    attr_accessor :select_all_file_changes
+    attr_readonly :parent_id
     # TODO: Remove. Legacy support only
     alias_attribute :revision, :commit
 
     # Callbacks
-    before_save :apply_selected_file_changes, if: :publishing?
+    before_save :apply_selected_file_changes,
+                if: :publishing?, unless: :select_all_file_changes
     after_save :update_files_in_branch, if: :publishing?
     after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
 
     # Scopes
     scope :preload_file_diffs_with_versions, lambda {
-      preload(file_diffs: { new_version: %i[backup content],
-                            old_version: %i[backup content] })
+      preload(scope_for_preloading_file_diffs_with_versions)
     }
 
     scope :published, -> { where(is_published: true) }
@@ -57,7 +60,9 @@ module VCS
     validate :parent_must_belong_to_same_repository, if: :parent_id
     validate :can_only_have_one_revision_with_parent, if: :parent_id
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
-    validate :selected_file_changes_must_be_valid, if: :publishing?
+    validate :selected_file_changes_must_be_valid,
+             if: :publishing?, unless: :select_all_file_changes
+    validate :cannot_change_branch_id, if: :published?
 
     # Create a non-published revision for the branch and commit all files in the
     # branch
@@ -65,6 +70,16 @@ module VCS
       create!(branch: branch, parent: branch.commits.last, author: author)
         .tap(&:commit_all_files_in_branch)
         .tap(&:generate_diffs)
+    end
+
+    # File diffs & associations to preload
+    def self.scope_for_preloading_file_diffs_with_versions
+      {
+        file_diffs: {
+          new_version: %i[backup content],
+          old_version: %i[backup content]
+        }
+      }
     end
 
     # Take ID and current version ID of all (non-root) files currently in
@@ -89,6 +104,14 @@ module VCS
       VCS::Operations::FileDiffsCalculator.new(commit: self).cache_diffs!
       file_diffs.reset                          # Reset association
       true                                      # Return success
+    end
+
+    # Preload file diffs and versions for a single instance
+    def preload_file_diffs_with_versions
+      ActiveRecord::Associations::Preloader.new.preload(
+        Array(self),
+        self.class.scope_for_preloading_file_diffs_with_versions
+      )
     end
 
     # Publish this revision, optionally updating the given attributes
@@ -178,6 +201,10 @@ module VCS
                  'started reviewing changes. To prevent you and your team ' \
                  "from overwriting each other's changes, you cannot capture " \
                  'the changes you are currently reviewing.')
+    end
+
+    def cannot_change_branch_id
+      errors.add(:branch, 'is readonly') if branch_id_changed?
     end
 
     def parent_must_belong_to_same_repository

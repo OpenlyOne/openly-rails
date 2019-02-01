@@ -123,6 +123,24 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
+  describe 'validation: cannot change branch when published' do
+    before do
+      commit.branch = create(:vcs_branch, repository: commit.branch.repository)
+    end
+
+    context 'when commit is published' do
+      subject(:commit) { create(:vcs_commit, :published) }
+
+      it { is_expected.to be_invalid }
+    end
+
+    context 'when commit is not published' do
+      subject(:commit) { create(:vcs_commit) }
+
+      it { is_expected.to be_valid }
+    end
+  end
+
   describe 'callback: apply_selected_changes' do
     let(:apply_changes) { commit.publish(title: 'new commit') }
     let(:author)    { create(:user) }

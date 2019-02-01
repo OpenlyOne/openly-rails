@@ -66,7 +66,7 @@ RSpec.describe 'contributions/index', type: :view do
   end
 
   context 'when contribution has been accepted' do
-    before { contributions.first.is_accepted = true }
+    before { allow(contributions.first).to receive(:accepted?).and_return true }
 
     it 'has accepted label' do
       render

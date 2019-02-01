@@ -370,6 +370,15 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#switch_api_connection(api_connection)' do
+    subject(:switch) { file_sync.switch_api_connection('new-connection') }
+
+    it do
+      switch
+      expect(file_sync.send(:api_connection)).to eq 'new-connection'
+    end
+  end
+
   describe '#thumbnail' do
     subject(:thumbnail)   { file_sync.thumbnail }
     let(:thumbnail_ivar)  { 'thumbnail' }

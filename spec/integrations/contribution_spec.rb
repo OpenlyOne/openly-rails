@@ -5,6 +5,66 @@ RSpec.describe Contribution, type: :model do
 
   let(:project) { create :project }
 
+  describe '#accept(revision:)' do
+    subject(:accept) { contribution.accept(revision: revision) }
+
+    let(:contribution) { create :contribution, :mock_setup, project: project }
+    let(:creator)      { contribution.creator }
+    let(:revision) do
+      contribution.prepare_revision_for_acceptance(author: create(:user))
+    end
+    let(:project) { create :project, :skip_archive_setup, :with_repository }
+    let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
+    let(:master_branch) { project.master_branch }
+
+    before { allow(master_branch).to receive(:restore_commit) }
+
+    it 'publishes the revision on the master branch' do
+      accept
+      expect(project.revisions.last).to have_attributes(
+        title: contribution.title,
+        summary: contribution.description,
+        author: contribution.creator
+      )
+    end
+
+    it 'applies suggested changes to the master branch' do
+      accept
+      expect(master_branch)
+        .to have_received(:restore_commit)
+        .with(revision, author: creator)
+    end
+
+    it 'marks the contribution as accepted' do
+      accept
+      expect(contribution).to be_accepted
+    end
+  end
+
+  describe '#prepare_revision_for_acceptance(author:)' do
+    subject(:prepare_revision) do
+      contribution.prepare_revision_for_acceptance(author: user)
+    end
+
+    let(:contribution)  { create :contribution }
+    let(:project)       { contribution.project }
+    let(:user)          { create :user }
+    let!(:last_revision) do
+      create :vcs_commit, :published, branch: project.master_branch
+    end
+
+    it 'creates a revision draft' do
+      prepare_revision
+      expect(contribution.revision).to have_attributes(
+        is_published: false,
+        parent: last_revision,
+        title: contribution.title,
+        summary: contribution.description,
+        author: user
+      )
+    end
+  end
+
   describe '#setup', :vcr do
     subject(:setup) { contribution.setup(creator: current_account.user) }
 

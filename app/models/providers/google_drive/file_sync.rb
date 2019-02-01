@@ -134,6 +134,12 @@ module Providers
         api_connection.unshare_file(id, email)
       end
 
+      # Switches the active API connection to the newly provided one.
+      # Does NOT clear any cached attributes.
+      def switch_api_connection(api_connection)
+        @api_connection = api_connection
+      end
+
       # Return the file's thumbnail
       def thumbnail
         return nil unless thumbnail?

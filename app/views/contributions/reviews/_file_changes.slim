@@ -5,7 +5,7 @@
 
 .revision-diff
   - if file_changes.any?
-    = render partial: 'file_change',
+    = render partial: 'contributions/reviews/file_change',
              layout: file_change_wrapper,
              collection: file_changes,
              locals: { project: project,

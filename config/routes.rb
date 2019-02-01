@@ -107,6 +107,7 @@ Rails.application.routes.draw do
 
           # Review
           resource :review, only: :show
+          resource :acceptance, path: 'accept', only: :create
 
           # Routes for file infos
           resources :file_infos, path: 'files/:id/info', only: :index
