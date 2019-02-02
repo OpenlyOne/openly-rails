@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.32.1 (Feb 3, 2019)
+
+**Fixes:**
+- Fix images on landing page that prevented page from rendering.
+
 ## v0.32 (Feb 3, 2019)
 
 **Enhancements:**
