@@ -257,9 +257,12 @@
 
     .row
       .col.s12.l4
-        = image_tag 'logo-text.svg', class: 'responsive-img'
+        .hide-on-med-and-down
+          = image_tag 'logo-text.svg', class: 'responsive-img'
+        .hide-on-large-only.center-align
+          = image_tag 'logo.png', class: 'responsive-img', width: 100
 
-      .col.s12.m12.l4
+      .col.s6.l4
         p
           b Openly One Inc.
           br
@@ -271,7 +274,7 @@
           br
           | USA
 
-      .col.s12.l4
+      .col.s16.l4
         p
           = mail_to 'hello@openly.one', nil, class: 'white-text'
           br
