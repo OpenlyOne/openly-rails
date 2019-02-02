@@ -1,7 +1,10 @@
 // Styling for StaticController
 
 .c-static.a-index {
-
+  $header-color: #1b2733;
+  $header-color-light: #0009;
+  $box-shadow-color: rgba(99, 114, 130, .1);
+  $white: #fff;
   $hero-darken-alpha: .35;
   $hero-darken-color: rgba(0, 0, 0, $hero-darken-alpha);
 
@@ -13,6 +16,215 @@
     height: 100%;
   }
 
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: $header-color;
+    font-family: "Quicksand", sans-serif;
+  }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  h4 {
+    color: $header-color-light;
+    font-size: 1.75rem;
+    font-weight: normal;
+  }
+
+  nav {
+    // scss-lint:disable ImportantRule
+    background: none !important;
+    box-shadow: none !important;
+  }
+
+
+  .highlights {
+    h3 { margin-top: 0; }
+    p {
+      color: $header-color-light;
+      margin: 0;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 0 10px $box-shadow-color;
+      margin-bottom: 30px;
+      padding: 25px 20px;
+    }
+
+    img {
+      height: 32px;
+    }
+  }
+
+  .features {
+    h3 {
+      margin-bottom: 8px;
+      margin-top: 8px;
+    }
+
+    h4 { margin-top: 0; }
+
+    img { width: 70px; }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      margin-left: 30px;
+      padding-left: 8px;
+      position: relative;
+    }
+
+    li::before {
+      // scss-lint:disable ColorVariable
+      background: rgba(47, 91, 231, .8);
+      border-radius: 50%;
+      box-shadow: 0 0 0 7px rgba(47, 91, 231, .1);
+      content: '';
+      display: inline-block;
+      height: 8px;
+      margin-left: -30px;
+      margin-right: 22px;
+      vertical-align: middle;
+      width: 8px;
+    }
+
+    .col {
+      margin-top: 20px;
+    }
+  }
+
+  .testimonial {
+    .img {
+      // scss-lint:disable ColorVariable
+      border: 3px solid $white;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+      display: block;
+      height: 120px;
+      margin-left: 24px;
+      margin-right: 24px;
+      overflow: hidden;
+      width: 120px;
+    }
+
+    img {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
+    p {
+      margin: 0;
+      margin-left: 170px;
+    }
+  }
+
+  .pricing {
+    h4 {
+      font-weight: 500;
+      margin-top: 0;
+    }
+
+    .table-title {
+      margin-bottom: 10px;
+      margin-right: 10px;
+    }
+
+    .chip {
+      margin: 0;
+      vertical-align: middle;
+    }
+
+    .price-table {
+      background: $white;
+      padding: 20px 30px;
+    }
+
+    .highlight {
+      position: relative;
+      z-index: 10;
+    }
+
+    .price-table:not(.highlight) {
+      margin-bottom: 40px;
+      margin-top: 40px;
+    }
+
+    li {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      margin-left: 30px;
+      padding-left: 8px;
+      position: relative;
+    }
+
+    // scss-lint:disable PropertyCount
+    li::before {
+      // scss-lint:disable ColorVariable
+      backface-visibility: hidden;
+      border-bottom: 2px solid #26a627;
+      border-left: 2px solid transparent;
+      border-right: 2px solid #26a62c;
+      border-top: 2px solid transparent;
+      content: '';
+      height: 22px;
+      left: -30px;
+      position: absolute;
+      top: 0;
+      transform: rotate(40deg);
+      transform-origin: 100% 100%;
+      width: 12px;
+    }
+
+    ul {
+      // scss-lint:disable ColorVariable
+      border-bottom: 1px solid #808000;
+      border-top: 1px solid #808000;
+      list-style-type: none;
+      padding: 0;
+      padding-bottom: 8px;
+      padding-top: 16px;
+    }
+
+    .price {
+      font-family: 'Roboto';
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .subtext {
+      font-size: 1rem;
+    }
+
+    sup {
+      font-weight: normal;
+    }
+  }
+
   // Style signup form
   form input {
     border-radius: 5px;
@@ -20,13 +232,6 @@
 
   // Full height banner on top
   .hero {
-    // Background pattern
-    background-image: image-url('static/desk.min.jpg');
-    background-position: center center;
-    background-repeat: no-repeat;
-
-    // Scale background image to cover screen
-    background-size: cover;
 
     // Vertical padding
     padding: 50px 0;
@@ -34,45 +239,22 @@
     // To enable absolute positioning of .hero-darken
     position: relative;
 
-    // Fill viewport height (minus navbar)
+    // Fill viewport height (minus navbar) - 100px
     &.full-height {
-      min-height: calc(100% - #{$navbar-height-mobile});
+      min-height: calc(100% - #{$navbar-height-mobile} - 250px);
 
       @media #{$medium-and-up} {
-        min-height: calc(100% - #{$navbar-height});
+        min-height: calc(100% - #{$navbar-height} - 250px);
       }
 
     }
-  }
 
-  // Background darkener for cover image
-  .hero-darken {
-    background-color: $hero-darken-color;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    width: 100%;
+    p { margin: 32px 0; }
   }
 
   // Text on hero banner
   .hero-content {
     position: relative;
-
-    .content-text-shadow {
-      position: relative;
-      // for text legibility
-      text-shadow: 0 0 5px $black, 0 0 10px $black, 0 0 20px $black,
-                   0 0 40px $black, 0 0 40px $black, 0 0 40px $black;
-    }
-
-    // overlay text again on top of text shadow to prevent shadow from
-    // overlapping text
-    .content-text {
-      left: 0;
-      position: absolute;
-      top: 0;
-      width: 100%;
-    }
   }
 
   // Disable the default footer because it is not positioned correctly
