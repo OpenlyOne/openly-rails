@@ -22,13 +22,6 @@ module VCS
       folder? || folder_before_last_save?
     end
 
-    def link_to_remote
-      provider_link_class.for(
-        remote_file_id: remote_file_id,
-        mime_type: mime_type
-      )
-    end
-
     def icon
       provider_icon_class.for(mime_type: mime_type)
     end

@@ -50,13 +50,12 @@ module VCS
       private
 
       attr_accessor :version, :target_branch, :file_id
-      attr_writer :remote_file_id, :content_version
+      attr_writer :remote_file_id
 
       # Create remote file from backup copy
       def add_file
         replacement = version.folder? ? create_folder : duplicate_file
         self.remote_file_id = replacement.id
-        self.content_version = replacement.content_version
 
         # Create a new remote content record that points at the same content
         # version as the version that we're restoring. Essentially, we're
@@ -66,7 +65,7 @@ module VCS
         version.content.remote_contents.create!(
           repository: version.repository,
           remote_file_id: remote_file_id,
-          remote_content_version_id: content_version
+          remote_content_version_id: replacement.content_version
         )
       end
 
@@ -128,8 +127,17 @@ module VCS
         @remote_file_id ||= file_in_branch.remote_file_id
       end
 
+      def content
+        @content ||= version&.content
+      end
+
       def content_version
-        @content_version ||= version&.content_version
+        @content_version ||=
+          VCS::RemoteContent.find_by(
+            repository: version&.repository,
+            content_id: content&.id,
+            remote_file_id: remote_file_id
+          )&.remote_content_version_id
       end
 
       def file_sync_class

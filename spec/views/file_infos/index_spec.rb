@@ -4,6 +4,7 @@ RSpec.describe 'file_infos/index', type: :view do
   let(:project)               { build_stubbed :project }
   let(:master_branch)         { build_stubbed :vcs_branch }
   let(:file)                  { build_stubbed :vcs_version }
+  let(:file_in_branch)        { build_stubbed :vcs_file_in_branch }
   let(:parent_in_branch)      { nil }
   let(:uncaptured_file_diff)  { nil }
   let(:committed_file_diffs)  { [] }
@@ -13,6 +14,7 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:project, project)
     assign(:master_branch, project.master_branch)
     assign(:file, file)
+    assign(:file_in_branch, file_in_branch)
     assign(:parent_in_branch, parent_in_branch)
     assign(:uncaptured_file_diff, uncaptured_file_diff)
     assign(:committed_file_diffs, committed_file_diffs)
@@ -82,7 +84,7 @@ RSpec.describe 'file_infos/index', type: :view do
       it 'has a link to the file on Google Drive' do
         render
         expect(rendered).to have_link 'Open in Drive',
-                                      href: uncaptured_file_diff.link_to_remote
+                                      href: file_in_branch.link_to_remote
       end
 
       it 'renders that the file has been unchanged since the last revision' do

@@ -8,8 +8,8 @@
 .container
   - @children.each do |child|
 
-    = render partial: 'file_diff',
-             object: child.diff,
+    = render partial: 'file',
+             object: child,
              locals: { project: @project }
 
 / button for committing changes

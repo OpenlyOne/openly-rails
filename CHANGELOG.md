@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.32 (Feb 3, 2019)
+
+**Enhancements:**
+- Rework the landing page with a more modern design and new wording
+
+**Fixes:**
+- Fix a bug where admins could not search projects due to administrate trying
+  to query a virtual attribute in the database.
+
 ## v0.31 (Jan 4, 2019)
 
 **Features:**
@@ -12,7 +21,6 @@
 - Projects can now be managed by admins via the admin panel
 - Project collaborators can now be managed by admins via the admin panel
   ([#250](https://github.com/OpenlyOne/openly/issues/250))
-
 
 ## v0.30.2 (Dec 16, 2018)
 

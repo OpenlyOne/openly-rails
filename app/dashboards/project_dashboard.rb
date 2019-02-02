@@ -17,7 +17,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     title: Field::String,
     slug: Field::String,
     description: Field::Text,
-    tag_list: Field::String,
+    tag_list: Field::String.with_options(searchable: false),
     is_public: Field::Boolean,
     created_at: Field::DateTime,
     updated_at: Field::DateTime

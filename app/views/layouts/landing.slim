@@ -1,0 +1,48 @@
+doctype html
+html
+  head
+    / Global site tag (gtag.js) - Google Analytics
+    script async src="https://www.googletagmanager.com/gtag/js?id=UA-133689601-1"
+    javascript:
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-133689601-1');
+
+    title
+      ' Manage Documents just like Code -
+      = Settings.app_name
+    = csrf_meta_tags
+
+    / Google font
+    link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,700" rel="stylesheet"
+
+    = stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload'
+    / javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+
+    meta name='viewport' content='width=device-width, initial-scale=1.0'
+
+    / SEO
+    meta name="description" content="The best of software development adapted for documents: Repos, commits, diffs, pull requests, ... Integrates with Google Drive, OneDrive, Box, and Dropbox."
+    / SMO
+    meta property="og:title" content="Manage Documents just like Code"
+    meta property="og:description" content="The best of software development adapted for documents: Repos, commits, diffs, pull requests, ... Integrates with Google Drive, OneDrive, Box, and Dropbox."
+    meta property="og:image" content="#{image_url 'cover.png'}"
+
+    = render 'application/favicon'
+
+  / body class=[controller_action_identifier, color_scheme(@color_scheme)]
+  / TODO: Set correct color once identified by design team
+  body class=[controller_action_identifier, color_scheme('blue darken-2')]
+    main
+      = render 'landing_navbar'
+      = yield
+
+      / Show notices and alerts as toasts
+      #toast-container
+        = render(partial: 'toast',
+                 collection: [notice, alert].select(&:present?),
+                 as: :content)
+
+    = render 'footer'

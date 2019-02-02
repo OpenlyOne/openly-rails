@@ -30,7 +30,7 @@ module VCS
 
     # The action for performing the backup
     def perform_backup
-      VCS::FileBackup.backup(self)
+      VCS::Operations::FileBackup.backup(self)
       true
     end
   end

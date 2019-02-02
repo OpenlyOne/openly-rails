@@ -40,8 +40,11 @@ RSpec.describe VCS::Version, type: :model do
     subject               { described_class.for(attributes) }
     let!(:file_in_branch) { create :vcs_file_in_branch }
     let(:file)            { file_in_branch.file }
+    let(:content)         { file_in_branch.content }
     let(:attributes) do
-      attributes_for(:vcs_version, file: file, file_id: file.id)
+      attributes_for(:vcs_version,
+                     file: file, file_id: file.id,
+                     content: content, content_id: content.id)
     end
 
     it 'creates a new version' do

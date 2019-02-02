@@ -32,6 +32,9 @@ RSpec.describe VCS::FileInBranch, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:branch).dependent(false) }
+    it do
+      is_expected.to have_one(:repository).through(:branch).dependent(false)
+    end
     it { is_expected.to belong_to(:file).dependent(false) }
     it do
       is_expected
@@ -111,6 +114,29 @@ RSpec.describe VCS::FileInBranch, type: :model do
       it { is_expected.not_to validate_presence_of(:mime_type) }
       it { is_expected.not_to validate_presence_of(:content_version) }
       it { is_expected.not_to validate_presence_of(:parent_id) }
+    end
+  end
+
+  describe '#content_id' do
+    subject(:content_id) { file_in_branch.content_id }
+
+    before { allow(VCS::Operations::ContentGenerator).to receive(:generate) }
+
+    it 'passes attributes to ContentGenerator operation' do
+      content_id
+      expect(VCS::Operations::ContentGenerator)
+        .to have_received(:generate)
+        .with(
+          repository: file_in_branch.repository,
+          remote_file_id: file_in_branch.remote_file_id,
+          remote_content_version_id: file_in_branch.content_version
+        )
+    end
+
+    context 'when remote_file_id is nil' do
+      before { file_in_branch.remote_file_id = nil }
+
+      it { is_expected.to be nil }
     end
   end
 
@@ -260,6 +286,25 @@ RSpec.describe VCS::FileInBranch, type: :model do
       is_expected.to eq 'hashed-id'
       expect(VCS::File).to have_received(:id_to_hashid).with('file-id')
     end
+  end
+
+  describe '#link_to_remote' do
+    subject { file_in_branch.link_to_remote }
+
+    let(:link_class) { class_double Providers::GoogleDrive::Link }
+
+    before do
+      allow(file_in_branch)
+        .to receive(:provider_link_class).and_return link_class
+      allow(file_in_branch).to receive(:mime_type).and_return 'type'
+      allow(file_in_branch).to receive(:remote_file_id).and_return 'remote-id'
+      allow(link_class)
+        .to receive(:for)
+        .with(remote_file_id: 'remote-id', mime_type: 'type')
+        .and_return 'remote-link-to-file'
+    end
+
+    it { is_expected.to eq 'remote-link-to-file' }
   end
 
   describe '#subfolders' do

@@ -106,13 +106,14 @@ RSpec.shared_examples 'vcs: being backupable' do
   describe '#perform_backup' do
     subject(:method) { backupable.send(:perform_backup) }
 
-    it 'calls .backup on VCS::FileBackup with self' do
-      expect(VCS::FileBackup).to receive(:backup).with(backupable)
+    it 'calls .backup on VCS::Operations::FileBackup with self' do
+      expect(VCS::Operations::FileBackup).to receive(:backup).with(backupable)
       method
     end
 
     it 'returns true' do
-      allow(VCS::FileBackup).to receive(:backup).and_return 'some-output'
+      allow(VCS::Operations::FileBackup)
+        .to receive(:backup).and_return 'some-output'
       expect(method).to be true
     end
   end

@@ -34,12 +34,22 @@ module VCS
       errors.add(:current_version, "must belong to this #{model_name}")
     end
 
+    # The attributes that fall under version control
+    def versionable_attributes
+      {
+        file_id: file_id,
+        remote_file_id: remote_file_id,
+        parent_id: parent_id,
+        name: name,
+        mime_type: mime_type,
+        content_id: content_id,
+        thumbnail_id: thumbnail_id
+      }
+    end
+
     # Capture a version of this versionable instance
     def version!
-      self.current_version =
-        VCS::Version.for(attributes.merge(file_id: file_id))
-      # find_or_create_current_version_by!(core_version_attributes,
-      #                                     supplemental_version_attributes)
+      self.current_version = VCS::Version.for(versionable_attributes)
       update_column('current_version_id', current_version.id)
     end
   end

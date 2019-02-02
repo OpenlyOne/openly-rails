@@ -48,10 +48,9 @@ RSpec.describe 'folders/show', type: :view do
 
   it 'renders the links of files' do
     render
-    files.map(&:diff).each do |diff|
-      link = diff.link_to_remote
-      expect(rendered)
-        .to have_css "a[href='#{link}'][target='_blank']"
+    files.each do |file|
+      link = file.link_to_remote
+      expect(rendered).to have_css "a[href='#{link}'][target='_blank']"
     end
   end
 
