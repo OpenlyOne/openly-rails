@@ -1,67 +1,287 @@
-.hero.full-height.valign-wrapper.black.white-text
-  .hero-darken
-  .container.center-align.hero-content
-    .content-text-shadow
-      = render 'hero_text'
+.hero.full-height.valign-wrapper
+  .container.left-align.hero-content
+    .row
+      .col.s12.m6.l6
+        h1 Work on documents just like you do on code.
+        p.flow-text.gray-text.text-darken-2
+          ' What if you could manage documents with the efficiency you know and
+          | love from software development?
+        = render 'call_to_action'
 
-    .content-text
-      = render 'hero_text'
+      .col.s12.m6.l6
+        = image_tag 'static/versioning.svg', class: 'responsive-img'
 
-    .section
-      = render 'call_to_action'
 
     .spacing.v48px
 
-.spacing.v64px
+.spacing.v64px.hide-on-med-and-down
 
-.container
+.container.highlights
   .row
-    .col.s12.m6.l6
-      h4 The Best of GitHub&trade;
-      p.flow-text.no-margin-top
-        ' Repositories, commits, diffs, pull requests, and issue tracking &mdash;
-        | we’ve replicated the best of GitHub.
-    .col.s12.m6.l5.push-l1.center-align
-      = image_tag 'static/github.min.svg', class: 'responsive-img'
+    .col.s12.m4.l4
+      .card
+        h3 The Best of Git & GitHub
+        p.flow-text Repos, commits, diffs, pulls, and issue tracking &mdash; we’ve replicated the best of GitHub.
+        .left-align
+          = image_tag 'static/github', class: 'responsive-img'
+
+    .col.s12.m4.l4
+      .card
+        h3 Adapted for Documents
+        p.flow-text Diffing and merging optimized for binary file formats &mdash; from documents to spreadsheets.
+        .left-align
+          = image_tag 'static/documents', class: 'responsive-img'
+
+    .col.s12.m4.l4
+      .card
+        h3 Integrated with Cloud
+        p.flow-text Your repositories are imported from the cloud service you trust &mdash; and always stay in sync.
+        .left-align
+          = image_tag 'static/clouds', class: 'responsive-img'
+
+.gray.lighten-3
+
+  .spacing.v32px
+
+  .container.features
+    .row
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-repository-100.png', class: 'responsive-img'
+        h3 Organize Your Work
+        h4 Repositories
+        ul
+          li Public or private
+          li All file types supported
+          li Import files from Google Drive, OneDrive, Dropbox, and Box
+          li Keep files in your cloud updated with 2-way sync
+
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-transfer-100.png', class: 'responsive-img'
+        h3 Track Changes
+        h4 Version Control
+        ul
+          li Repo-wide version control
+          li Diffing for docs, spreadsheets, presentations
+          li Restore files or entire commits
+          li Full web UI &mdash; zero command line
+
+      div.hide-on-large-only
+        .clearfix
+
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-edit-property-100.png', class: 'responsive-img'
+        h3 Capture Insights
+        h4 Commits
+        ul
+          li Capture and annotate file changes
+          li Record critical context and insights
+          li Automatic in-app/email notifications to team
+          li Integrate with Slack
+
+      div.hide-on-med-only
+        .clearfix
+
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-workflow-100.png', class: 'responsive-img'
+        h3 Streamline Workflows
+        h4 Pull Requests
+        ul
+          li Bring Gitflow to document projects
+          li Keep work-in-progress in dedicated branches
+          li Review and approve pull requests
+          li Merge documents, spreadsheets, presentations
+
+      div.hide-on-large-only
+        .clearfix
+
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-solve-100.png', class: 'responsive-img'
+        h3 Tackle Problems
+        h4 Issue Tracking
+        ul
+          li Comments in files automatically create issues
+          li Discuss issues and mention users
+          li Reference commits, pull requests, and other issues
+          li Integrate with Trello
+
+      .col.s12.m6.l4
+        = image_tag 'static/icons8/icons8-secure-100.png', class: 'responsive-img'
+        h3 Safe &amp; Secure
+        h4 Security
+        ul
+          li Fine-grained access control & permissions
+          li Two factor authentication
+          li Encrypted at rest using 256-bit AES
+          li Continuous backups
+
+  .spacing.v32px
+
+.container.testimonial
+
+  .spacing.v16px
+
+  .row
+    .col.s12
+      h3 What Our Early Adopters Say
+
+  .row
+    .col.s12.
+      div.img.left
+        = image_tag 'static/stephanie', class: 'responsive-img'
+      p.flow-text I’ve wanted Git for Google Docs for ages.
+      p.gray-text.text-darken-2 &mdash; Stephanie, PM, Microsoft
+
+  .spacing.v16px
+
+  .row
+    .col.s12.
+      div.img.left
+        = image_tag 'static/dave', class: 'responsive-img'
+      p.flow-text We are working with dozens of people on our cloud and it was an absolute mess. Everyone just dumped files wherever they wanted, no one could find what they were looking for. We need Openly.
+      p.gray-text.text-darken-2 &mdash; Dave, Founder and CEO, software development &amp; consulting
+
+  .spacing.v16px
+
+  .row
+    .col.s12
+      div.img.left
+        = image_tag 'static/mike', class: 'responsive-img'
+      p.flow-text Openly supports docs just like code and you don't even need to use the command line.
+      p.gray-text.text-darken-2 &mdash; Mike, Senior Technical Writer
+
+  .spacing.v32px
+
+.gray.lighten-3
+
+  .spacing.v32px
+
+  .container.pricing
+
+    .row
+      .col.s12
+        h3 Pricing
+
+    .row.left-align
+      .col.s12.m12.xl4.price-table.z-depth-1
+          h4.black-text Open Source
+          p.gray-text.text-darken-2
+            ' We
+            span.red-text.text-darken-3
+              ' &hearts;
+            ' open source.
+            br
+            | Free and always will be.
+
+          ul
+            li All features
+            li Unlimited public repositories
+            li Integrate with Google Drive, OneDrive, Box, and Dropbox
+            li Data encryption
+
+          h3.price
+            ' $0
+            span.gray-text.text-darken-2.subtext per active user/month
+
+      .col.s12.m12.xl4.highlight.price-table.z-depth-1.indigo.darken-2.white-text
+          h4.white-text
+            span.table-title Startup
+            span.chip.white.indigo-text.text-darken-2
+              | early bird pricing &mdash; limited time
+          p.indigo-text.text-lighten-3
+            | For individuals, small teams, and growing businesses.
+
+          ul
+            li All features
+            li Unlimited public repositories
+            li: b Unlimited private repositories
+            li Integrate with Google Drive, OneDrive, Box, and Dropbox
+            li Data encryption
+            li Unlimited private repositories
+            li: b Dedicated customer support
+            li: b User management
+            li: b Team access controls
+            li: b Insights & Analytics
+
+
+          h3.price.white-text
+            ' $5
+            span.indigo-text.text-lighten-3.subtext per active user/month
+
+      .col.s12.m12.l12.xl4.price-table.z-depth-1
+          h4.black-text Enterprise
+          p.gray-text.text-darken-2
+            ' For large numbers of teams, departments, and businesses with
+            | custom requirements.
+
+          ul
+            li All features
+            li Unlimited public repositories
+            li Unlimited private repositories
+            li Integrate with Google Drive, OneDrive, Box, and Dropbox
+            li Data encryption
+            li Dedicated customer support
+            li User management
+            li Team access controls
+            li Insights & Analytics
+            li: b SAML single sign-on
+            li: b Self-hosted or cloud-hosted
+
+          p.price.subtext
+            span.no-margin-bottom.gray-text.text-darken-2
+              | Contact us and we will work with you to find a price that matches your budget.
+
+
+
+
+  .spacing.v32px
+
+
+.container.center-align
 
   .spacing.v64px
 
   .row
-    .col.s12.m6.push-m6.l6.push-l6
-      h4 Optimized for Documents
-      p.flow-text.no-margin-top
-        ' Diffing and merging optimized for Google file formats &mdash;
-        | from docs to sheets to slides.
-    .col.s12.m6.pull-m6.l5.pull-l6.center-align
-      = image_tag 'static/files.min.svg', class: 'responsive-img'
+    .col.s12
+      h2 Curious? Experience it yourself.
+
+      .section
+        = render 'call_to_action'
 
   .spacing.v64px
 
-  .row
-    .col.s12.m6.l6
-      h4 Built for Google Drive&trade;
-      p.flow-text.no-margin-top.no-margin-bottom
-        ' All Git functionality layered right on top of Drive in your
-        | browser &mdash; bye, bye command line.
-        span.gray-text *
-      p.no-margin-top.gray-text
-        | * at least while you're working on documents ;)
-    .col.s12.m6.l5.push-l1.center-align
-      = image_tag 'static/drive.min.svg', class: 'responsive-img'
+.black.white-text
 
-  .spacing.v64px
+  .container
 
-.hero.valign-wrapper.black.white-text
-  .hero-darken
-  .container.center-align.hero-content
-    .content-text-shadow
-      = render 'closing_text'
+    .spacing.v8px
 
-    .content-text
-      = render 'closing_text'
+    .row
+      .col.s12.l4
+        = image_tag 'logo-text.svg', class: 'responsive-img'
 
-    .section
-      = render 'call_to_action'
+      .col.s12.m12.l4
+        p
+          b Openly One Inc.
+          br
+          | Suite 631
+          br
+          | 1312 17th Street
+          br
+          | Denver, CO 80202
+          br
+          | USA
+
+      .col.s12.l4
+        p
+          = mail_to 'hello@openly.one', nil, class: 'white-text'
+          br
+          br
+          | Incorporated in Delaware.
+          br
+          | Built in Colorado.
+
+    .spacing.v8px
+
 
 / add non-sticky footer here manually as a replacement for overriding the
 / default footer
