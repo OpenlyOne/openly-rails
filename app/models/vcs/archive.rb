@@ -3,6 +3,8 @@
 module VCS
   # The archive for storing file backups, just like a .git folder
   class Archive < ApplicationRecord
+    include VCS::HavingRemote
+
     belongs_to :repository
 
     # TODO: Make name & owners updatable
@@ -10,6 +12,7 @@ module VCS
 
     delegate :file_backups, to: :repository
     alias backups file_backups
+    delegate :grant_read_access_to, :revoke_access_from, to: :remote
 
     # Validations
     validates :repository_id, uniqueness: { message: 'already has an archive' }
@@ -25,22 +28,10 @@ module VCS
       default_api_connection.share_file_with_anyone(remote_file_id, :reader)
     end
 
-    # Add the given email address as a viewer to the archive folder
-    def grant_read_access_to(email)
-      # TODO: Call method #share on remote_archive
-      default_api_connection.share_file(remote_file_id, email, :reader)
-    end
-
     # Removes public access to the archive
     def remove_public_access
       # TODO: Call method #unshare on remote_archive
       default_api_connection.unshare_file_with_anyone(remote_file_id)
-    end
-
-    # Remove the given email address as a viewer from the archive folder
-    def remove_read_access_from(email)
-      # TODO: Call method #unshare on remote_archive
-      default_api_connection.unshare_file(remote_file_id, email)
     end
 
     # Set up the archive folder with the provider by creating it and granting

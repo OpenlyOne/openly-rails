@@ -29,6 +29,8 @@
              object: file_changes,
              locals: { project: project,
                        revision: revision,
+                       path_parameters: [project.owner, project, revision],
+                       file_change_path: :profile_project_revision_file_change_path,
                        show_link_to_file_info: show_link_to_file_info,
                        all_links_in_new_tab: false }
 

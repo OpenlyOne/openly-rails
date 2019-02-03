@@ -1,0 +1,6 @@
+= render partial: 'projects/head', object: @project, as: :project,
+         locals: { active_tab: :contributions, can_collaborate: @can_collaborate }
+
+= yield
+
+= parent_layout 'application'

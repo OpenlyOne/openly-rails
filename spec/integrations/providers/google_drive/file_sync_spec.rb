@@ -130,7 +130,7 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     # TODO: Add spec for binary file type and ensure that version ID is not 0!
   end
 
-  describe '.download(destination:)' do
+  describe '#download' do
     subject(:download) { file.download }
 
     let(:file) do
@@ -221,6 +221,52 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
     end
   end
 
+  describe '#grant_read_access_to(email)' do
+    subject!(:grant_access) { file_sync.grant_read_access_to(collaborator) }
+    let(:file_sync) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type)     { Providers::GoogleDrive::MimeType.document }
+    let(:collaborator)  { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:collaborator_api) do
+      Providers::GoogleDrive::ApiConnection.new(collaborator)
+    end
+    let(:file_as_collaborator) do
+      described_class.new(file_sync.id, api_connection: collaborator_api)
+    end
+
+    before { refresh_google_drive_authorization(collaborator_api) }
+
+    it { expect(file_as_collaborator).to be_can_read }
+  end
+
+  describe '#grant_write_access_to(email)' do
+    subject!(:grant_access) { file_sync.grant_write_access_to(collaborator) }
+    let(:file_sync) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type)     { Providers::GoogleDrive::MimeType.document }
+    let(:collaborator)  { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:collaborator_api) do
+      Providers::GoogleDrive::ApiConnection.new(collaborator)
+    end
+    let(:file_as_collaborator) do
+      described_class.new(file_sync.id, api_connection: collaborator_api)
+    end
+
+    before { refresh_google_drive_authorization(collaborator_api) }
+
+    it { expect(file_as_collaborator).to be_can_edit }
+  end
+
   describe '#rename(name)' do
     subject(:renamed_file) { @renamed_file }
 
@@ -272,6 +318,43 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model, vcr: true do
 
     it 'relocates file to subfolder' do
       expect(relocated_file.parent_id).to eq subfolder_id
+    end
+  end
+
+  describe '#revoke_access_from(email)' do
+    subject(:revoke_access) { file_sync.revoke_access_from(collaborator) }
+    let(:file_sync) do
+      described_class.create(
+        name: 'Test File',
+        parent_id: google_drive_test_folder_id,
+        mime_type: mime_type
+      )
+    end
+    let(:mime_type)     { Providers::GoogleDrive::MimeType.document }
+    let(:collaborator)  { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+    let(:collaborator_api) do
+      Providers::GoogleDrive::ApiConnection.new(collaborator)
+    end
+    let(:file_as_collaborator) do
+      described_class.new(file_sync.id, api_connection: collaborator_api)
+    end
+
+    before do
+      refresh_google_drive_authorization(collaborator_api)
+      grant_access
+      revoke_access
+    end
+
+    context 'when access is read' do
+      let(:grant_access) { file_sync.grant_read_access_to(collaborator) }
+
+      it { expect(file_as_collaborator).not_to be_can_read }
+    end
+
+    context 'when access is edit' do
+      let(:grant_access) { file_sync.grant_write_access_to(collaborator) }
+
+      it { expect(file_as_collaborator).not_to be_can_read }
     end
   end
 

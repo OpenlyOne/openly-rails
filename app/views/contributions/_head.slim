@@ -1,0 +1,27 @@
+.page-subheading.gray.lighten-3.no-padding-bottom.no-margin-bottom
+ .container
+   .row.no-margin-bottom
+     .col.s12
+       p.flow-text.no-margin
+         b = contribution.title
+       p.no-margin
+         ' proposed by
+         => link_to profile_path(contribution.creator)
+           = contribution.creator.name
+         | &middot;
+         =<> time_ago_in_words(contribution.created_at)
+         | ago
+         - if contribution.accepted?
+           = ' '
+           | &middot; accepted
+
+       div.tabs.static.no-margin-top
+         div.tab
+           = link_to 'Description', profile_project_contribution_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :description)
+         div.tab
+           = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :files)
+         div.tab
+           = link_to 'Review', profile_project_contribution_review_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :review)

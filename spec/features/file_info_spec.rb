@@ -11,7 +11,7 @@ feature 'File Info' do
   scenario 'User can see file info' do
     # given there is a file and it is committed
     file = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
-    create_revision
+    create_revision('origin')
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -57,9 +57,9 @@ feature 'File Info' do
   scenario 'User can see file info of deleted files' do
     # given there is a file that has been deleted since the last revision
     file = create :vcs_file_in_branch, name: 'File1', parent_in_branch: root
-    create_revision
+    create_revision('origin')
     file.update(is_deleted: true)
-    create_revision
+    create_revision('second')
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -84,8 +84,8 @@ feature 'File Info' do
     )
   end
 
-  def create_revision
+  def create_revision(title)
     r = master_branch.commits.create_draft_and_commit_files!(project.owner)
-    r.update(is_published: true, title: 'revision')
+    r.update(is_published: true, title: title)
   end
 end

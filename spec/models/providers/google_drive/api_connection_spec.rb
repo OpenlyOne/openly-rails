@@ -209,7 +209,12 @@ RSpec.describe Providers::GoogleDrive::ApiConnection, type: :model do
 
   describe '#find_file(id)' do
     subject(:find_file) { api.find_file('id') }
-    before { allow(api).to receive(:find_file!).with('id').and_return 'file' }
+    before do
+      allow(api)
+        .to receive(:find_file!)
+        .with('id', fields: nil)
+        .and_return 'file'
+    end
 
     it { is_expected.to eq 'file' }
 

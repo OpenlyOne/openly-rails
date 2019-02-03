@@ -1,0 +1,39 @@
+= form_for(@contribution, method: :post, url: profile_project_contributions_path(@project.owner, @project)) do |f|
+
+  .page-subheading.gray.lighten-3
+    .container
+      .row.no-margin-bottom
+        .col.s12
+          h2 New Contribution
+
+  .container
+    - if @contribution.errors.any?
+      .row.no-margin-bottom
+        .col.s12
+          .validation-errors
+            = render partial: "error",
+                     collection: @contribution.errors.full_messages,
+                     as: :error
+
+    .spacing.v32px
+
+    .row
+      .col.s12.l12
+        .input-field
+          = f.text_field :title
+          = f.label :title, 'Title'
+
+    .row
+      .col.s12.l12
+        .input-field
+          = f.text_area :description,
+                        rows: 3,
+                        class: 'materialize-textarea noscript'
+          = f.label :description, 'Description'
+
+    .row
+      .col.s12.right-align
+        button action='submit' class="btn-large primary-color primary-color-text"
+          | Create Contribution
+
+    .spacing.v48px

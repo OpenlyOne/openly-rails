@@ -1,0 +1,12 @@
+= render partial: 'contributions/head', object: @contribution, as: :contribution,
+         locals: { project: @project, active_tab: :description }
+
+.spacing.v32px
+
+.container
+
+  .description
+    h5.title Description
+    = simple_format html_escape(@contribution.description)
+
+.spacing.v32px

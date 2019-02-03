@@ -45,6 +45,19 @@ class Ability
       can?(:collaborate, project)
     end
 
+    # Users can create contributions for projects that they can access
+    can %i[new create], Contribution do |contribution|
+      can?(:access, contribution.project)
+    end
+
+    # User can accept contributions for projects that they are collaborators of
+    can %i[accept], Contribution do |contribution|
+      can?(:collaborate, contribution.project)
+    end
+
+    # User can force sync for contributions which they created
+    can %i[force_sync], Contribution, creator_id: user.id
+
     # Admins can use the administration back end
     return unless user.admin?
 

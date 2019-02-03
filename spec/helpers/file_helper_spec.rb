@@ -1,57 +1,63 @@
 # frozen_string_literal: true
 
 RSpec.describe FileHelper, type: :helper do
-  describe '#link_to_file(file, project, options = {})' do
-    subject(:method)  { helper.link_to_file(file, project) {} }
-    let(:project)     { build_stubbed :project }
+  describe '#link_to_file(file, folder_path, path_parameters, options = {})' do
+    subject(:method)  { helper.link_to_file(file, folder_path, path_params) {} }
+    let(:folder_path) { 'folder_path' }
+    let(:path_params) { %w[p1 p2] }
     let(:file)        { instance_double VCS::FileInBranch }
     let(:diff)        { instance_double VCS::FileDiff }
     let(:is_folder)   { false }
+    let(:file_path)   { 'file-path' }
 
     before do
       allow(file).to receive(:diff).and_return diff
       allow(diff).to receive(:folder?).and_return is_folder
-      allow(diff).to receive(:hashed_file_id).and_return 'hashed-file-id'
-      allow(file).to receive(:link_to_remote).and_return 'remote-link'
+      allow(helper)
+        .to receive(:file_path)
+        .with(file, folder_path, path_params)
+        .and_return file_path
+    end
+
+    it 'returns link to file_path' do
+      expect(helper).to receive(:link_to).with(file_path, kind_of(Hash))
+      method
+    end
+
+    it 'sets target to _blank' do
+      expect(helper).to receive(:link_to).with(
+        file_path,
+        hash_including(target: '_blank')
+      )
+      method
     end
 
     context 'when file is folder' do
       let(:is_folder) { true }
 
-      it 'returns internal link to directory' do
-        expect(helper).to receive(:link_to).with(
-          "/#{project.owner.handle}/#{project.slug}/folders/hashed-file-id",
-          any_args
-        )
-        method
-      end
-
       it 'does not set target to _blank' do
-        expect(helper).to receive(:link_to).with(kind_of(String), {})
+        expect(helper).to receive(:link_to).with(
+          kind_of(String),
+          hash_excluding(target: '_blank')
+        )
         method
       end
     end
 
-    context 'when file is not directory' do
-      let(:is_folder) { false }
+    context 'when file path is nil' do
+      let(:file_path) { nil }
 
-      it 'sets url to link_to_remote_for_file' do
-        expect(helper).to receive(:link_to).with('remote-link', kind_of(Hash))
-        method
-      end
-
-      it 'sets target to _blank' do
-        expect(helper).to receive(:link_to).with(
-          kind_of(String),
-          hash_including(target: '_blank')
-        )
+      it 'returns content tag span' do
+        expect(helper).to receive(:content_tag).with(:span)
         method
       end
     end
 
     context 'when options are passed' do
-      subject(:method)  { helper.link_to_file(file, project, options) {} }
-      let(:options)     { {} }
+      subject(:method) do
+        helper.link_to_file(file, folder_path, path_params, options) {}
+      end
+      let(:options) { {} }
 
       it 'does not modify the passed options hash' do
         expect { method }.not_to(change { options })
@@ -170,6 +176,43 @@ RSpec.describe FileHelper, type: :helper do
       let(:path) { nil }
 
       it { is_expected.to be false }
+    end
+  end
+
+  describe '#file_path(file, folder_path, path_parameters)' do
+    subject(:method)  { helper.send :file_path, file, folder_path, path_params }
+    let(:folder_path) { 'folder_path' }
+    let(:path_params) { %w[p1 p2] }
+    let(:file)        { instance_double VCS::FileInBranch }
+    let(:diff)        { instance_double VCS::FileDiff }
+    let(:is_folder)   { false }
+
+    before do
+      allow(file).to receive(:diff).and_return diff
+      allow(diff).to receive(:folder?).and_return is_folder
+      allow(diff).to receive(:hashed_file_id).and_return 'hashed-file-id'
+      allow(file).to receive(:link_to_remote).and_return 'remote-link'
+      allow(helper).to receive(:send).and_call_original
+      allow(helper)
+        .to receive(:send)
+        .with(folder_path, *path_params, 'hashed-file-id')
+        .and_return 'folder-path-with-params-and-hashed-file-id'
+    end
+
+    context 'when file is folder' do
+      let(:is_folder) { true }
+
+      it 'returns internal link to directory' do
+        is_expected.to eq 'folder-path-with-params-and-hashed-file-id'
+      end
+    end
+
+    context 'when file is not directory' do
+      let(:is_folder) { false }
+
+      it 'returns link_to_remote for file' do
+        is_expected.to eq 'remote-link'
+      end
     end
   end
 

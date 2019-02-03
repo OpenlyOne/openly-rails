@@ -6,7 +6,12 @@ module VCS
     has_many :branches, dependent: :destroy
 
     has_one :archive, dependent: :destroy
-    has_many :files, dependent: :destroy
+    has_many :files, dependent: :destroy do
+      def root
+        joins(:staged_instances)
+          .find_by("#{VCS::FileInBranch.table_name}": { is_root: true })
+      end
+    end
     has_many :file_versions, class_name: 'VCS::Version',
                              through: :files,
                              source: :versions

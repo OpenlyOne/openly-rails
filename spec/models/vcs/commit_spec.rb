@@ -49,9 +49,7 @@ RSpec.describe VCS::Commit, type: :model do
   end
 
   describe 'attributes' do
-    it { is_expected.to have_readonly_attribute(:branch_id) }
     it { is_expected.to have_readonly_attribute(:parent_id) }
-    it { is_expected.to have_readonly_attribute(:author_id) }
   end
 
   describe 'validations' do

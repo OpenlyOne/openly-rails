@@ -3,33 +3,43 @@
 
 - if uncaptured_file_diff.present?
 
+  - has_remote_file_id = file_in_branch.remote_file_id.present?
+
   .row
-    .col.s12.m4
-      = render partial: 'link_to_open_in_drive',
-               locals: { file: file_in_branch }
+    - if has_remote_file_id
+      .col.s12.m4
+        = render partial: 'file_infos/link_to_open_in_drive',
+                 locals: { file: file_in_branch }
 
     .col.s12.m4
       / Add vertical spacing between the two buttons on mobile devices
       .spacing.v32px.hide-on-med-and-up
 
-      = render partial: 'link_to_parent_folder',
+      = render partial: 'file_infos/link_to_parent_folder',
                locals: { project: project,
-                         file: uncaptured_file_diff.current_or_previous_version }
+                         file: uncaptured_file_diff.current_or_previous_version,
+                         path_parameters: path_parameters,
+                         folder_path: folder_path,
+                         root_folder_path: root_folder_path }
 
-    - if user_can_force_sync_files
+    - if user_can_force_sync_files && has_remote_file_id
       .col.s12.m4
         / Add vertical spacing between the two buttons on mobile devices
         .spacing.v32px.hide-on-med-and-up
 
-        = render partial: 'link_to_force_sync',
+        = render partial: 'file_infos/link_to_force_sync',
                  locals: { project: project,
-                           file: uncaptured_file_diff.current_or_previous_version }
+                           file: uncaptured_file_diff.current_or_previous_version,
+                           path_parameters: path_parameters,
+                           force_syncs_path: force_syncs_path, }
 
 
   .spacing.v16px
 
-  = render partial: 'new_file_changes',
+  = render partial: 'file_infos/new_file_changes',
            locals: { project: project,
+                     path_parameters: path_parameters,
+                     file_change_path: file_change_path,
                      uncaptured_file_diff: uncaptured_file_diff }
 
   .spacing.v16px

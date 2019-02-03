@@ -53,13 +53,20 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
-  describe 'validation: parent must belong to same project' do
+  describe 'validation: parent must belong to same repo' do
     let(:parent)        { create(:vcs_commit) }
     before              { commit.parent = parent }
 
-    context 'when parent commit belongs to different branch' do
+    context 'when parent commit belongs to different repo' do
       before  { commit.branch = create(:vcs_branch) }
       it      { is_expected.to be_invalid }
+    end
+
+    context 'when parent commit belongs to a branch in the same repo' do
+      let(:parent_repo) { parent.repository }
+
+      before  { commit.branch = create(:vcs_branch, repository: parent_repo) }
+      it      { is_expected.to be_valid }
     end
 
     context 'when parent commit belongs to same branch' do
@@ -113,6 +120,24 @@ RSpec.describe VCS::Commit, type: :model do
     context 'when commit with same parent does not exist' do
       let!(:existing) { create :vcs_commit, :with_parent }
       it              { is_expected.to be_valid }
+    end
+  end
+
+  describe 'validation: cannot change branch when published' do
+    before do
+      commit.branch = create(:vcs_branch, repository: commit.branch.repository)
+    end
+
+    context 'when commit is published' do
+      subject(:commit) { create(:vcs_commit, :published) }
+
+      it { is_expected.to be_invalid }
+    end
+
+    context 'when commit is not published' do
+      subject(:commit) { create(:vcs_commit) }
+
+      it { is_expected.to be_valid }
     end
   end
 

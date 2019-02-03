@@ -10,12 +10,26 @@ RSpec.describe 'folders/show', type: :view do
   let(:diffs)           { children.map(&:diff) }
   let(:action)          { 'root' }
 
+  let(:locals) do
+    {
+      path_parameters:  [project.owner, project],
+      folder_path:      'profile_project_folder_path',
+      file_infos_path:  'profile_project_file_infos_path',
+      root_folder_path: 'profile_project_root_folder_path'
+    }
+  end
+
   before do
-    assign(:project,      project)
-    assign(:folder,       folder)
-    assign(:children,     children)
-    assign(:ancestors,    ancestors)
+    assign(:project,          project)
+    assign(:folder,           folder)
+    assign(:children,         children)
+    assign(:ancestors,        ancestors)
     controller.action_name = action
+  end
+
+  # Overwrite the render method to include locals
+  def render
+    super(template: self.class.top_level_description, locals: locals)
   end
 
   it 'renders the names of files and folders' do
@@ -60,7 +74,7 @@ RSpec.describe 'folders/show', type: :view do
       expect(rendered).to have_link(
         diff.name,
         href: profile_project_folder_path(
-          project.owner, project.slug, VCS::File.id_to_hashid(diff.file_id)
+          project.owner, project, diff.hashed_file_id
         )
       )
     end
@@ -84,6 +98,19 @@ RSpec.describe 'folders/show', type: :view do
       'Capture Changes',
       href: new_profile_project_revision_path(project.owner, project)
     )
+  end
+
+  context 'when file has no remote file ID' do
+    let(:files) do
+      build_list :vcs_file_in_branch, 5, :unchanged, remote_file_id: nil
+    end
+
+    it 'does not render the link of files' do
+      render
+      expect(rendered).not_to have_css "a[target='_blank']"
+      expect(rendered)
+        .to have_css '.file.z-depth-1:not(.hover-effect)', count: files.count
+    end
   end
 
   context 'when current user can edit project' do

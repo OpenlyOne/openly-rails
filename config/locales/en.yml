@@ -21,9 +21,11 @@ en:
     destroy:
       all: "You are not authorized to delete this %{subject}."
     new:
+      contribution: "You are not authorized to create contributions in this project."
       revision: "You are not authorized to commit changes for this project."
       all: "You are not authorized to add a new %{subject}."
     create:
+      contribution: "You are not authorized to create contributions in this project."
       revision: "You are not authorized to commit changes for this project."
       all: "You are not authorized to create a new %{subject}."
     show:
@@ -33,6 +35,7 @@ en:
       project: "You are not authorized to set up this project."
     force_sync:
       project: "You are not authorized to force sync files of this project."
+      contribution: "You are not authorized to force sync files of this contribution."
     restore_file:
       project: "You are not authorized to restore files of this project."
     restore_revision:

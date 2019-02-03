@@ -1,0 +1,15 @@
+.container
+
+  .spacing.v32px
+
+  = render partial: 'contribution',
+           collection: @contributions,
+           locals: { project: @project }
+
+.spacing.v48px
+
+/ button for committing changes
+.fixed-action-btn
+  = link_to 'New Contribution',
+      new_profile_project_contribution_path(@project.owner, @project),
+      class: 'btn btn-large primary-color primary-color-text'
