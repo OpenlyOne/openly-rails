@@ -34,6 +34,21 @@ module Providers
         @api_connection = attributes.delete(:api_connection)
       end
 
+      # Requires an extra request -- we do not need this often enough to
+      # warrant inclusion in default fields
+      def capabilities
+        @capabilities ||=
+          api_connection.find_file(id, fields: 'capabilities')&.capabilities
+      end
+
+      def can_read?
+        capabilities.present?
+      end
+
+      def can_edit?
+        capabilities&.can_edit
+      end
+
       def children
         @children ||= fetch_children_as_file_syncs
       end
@@ -77,6 +92,16 @@ module Providers
         self.class.new(copy.id, file: copy)
       end
 
+      # Provide the user with read/view access to the file
+      def grant_read_access_to(email)
+        api_connection.share_file(id, email, :reader)
+      end
+
+      # Provide the user with write/edit access to the file
+      def grant_write_access_to(email)
+        api_connection.share_file(id, email, :writer)
+      end
+
       def mime_type
         file&.mime_type
       end
@@ -93,6 +118,19 @@ module Providers
         file&.permissions
       end
 
+      # Clear all cached attributes
+      def reload
+        @capabilities = nil
+        @children = nil
+        @content = nil
+        @content_version = nil
+        @file = nil
+        @thumbnail = nil
+
+        # Return self for chaining
+        self
+      end
+
       # Relocate the file to a new parent, optionally removing old parent
       def relocate(to:, from:)
         @file =
@@ -102,6 +140,17 @@ module Providers
       # Rename the file
       def rename(name)
         @file = api_connection.update_file_name(id, name)
+      end
+
+      # Removes the Google user with the email from those that have file access
+      def revoke_access_from(email)
+        api_connection.unshare_file(id, email)
+      end
+
+      # Switches the active API connection to the newly provided one.
+      # Does NOT clear any cached attributes. Also see #reload.
+      def switch_api_connection(api_connection)
+        @api_connection = api_connection
       end
 
       # Return the file's thumbnail

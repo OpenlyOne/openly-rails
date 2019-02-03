@@ -9,6 +9,16 @@ RSpec.describe 'file_infos/index', type: :view do
   let(:uncaptured_file_diff)  { nil }
   let(:committed_file_diffs)  { [] }
 
+  let(:locals) do
+    {
+      path_parameters:  [project.owner, project],
+      file_change_path: 'profile_project_file_change_path',
+      folder_path:      'profile_project_folder_path',
+      force_syncs_path: 'profile_project_force_syncs_path',
+      root_folder_path: 'profile_project_root_folder_path'
+    }
+  end
+
   before do
     allow(project).to receive(:master_branch).and_return master_branch
     assign(:project, project)
@@ -18,6 +28,11 @@ RSpec.describe 'file_infos/index', type: :view do
     assign(:parent_in_branch, parent_in_branch)
     assign(:uncaptured_file_diff, uncaptured_file_diff)
     assign(:committed_file_diffs, committed_file_diffs)
+  end
+
+  # Overwrite the render method to include locals
+  def render
+    super(template: self.class.top_level_description, locals: locals)
   end
 
   it 'does not have a link to the file on Google Drive' do
@@ -102,6 +117,15 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_link 'Open Parent Folder', href: link
       end
 
+      context 'when remote_file_id of file is nil' do
+        before { file_in_branch.remote_file_id = nil }
+
+        it 'does not have a link to the file on Google Drive' do
+          render
+          expect(rendered).not_to have_link 'Open in Drive'
+        end
+      end
+
       context 'when parent is root folder' do
         let(:parent_in_branch) { build_stubbed :vcs_file_in_branch, :root }
 
@@ -179,6 +203,25 @@ RSpec.describe 'file_infos/index', type: :view do
               "[method='post']",
               text: 'Force Sync'
             )
+          end
+
+          context 'when remote_file_id of file is nil' do
+            before { file_in_branch.remote_file_id = nil }
+
+            it 'does not have a button to force sync the file' do
+              render
+              sync_path =
+                profile_project_force_syncs_path(
+                  project.owner,
+                  project,
+                  VCS::File.id_to_hashid(uncaptured_file_diff.file_id)
+                )
+              expect(rendered).not_to have_css(
+                'form'\
+                "[action='#{sync_path}']"\
+                "[method='post']"
+              )
+            end
           end
         end
       end
@@ -277,10 +320,10 @@ RSpec.describe 'file_infos/index', type: :view do
         expect(rendered).to have_css('.fragment.deletion', text: 'bye')
       end
 
-      it 'does not have a link to side-by-side diff' do
+      it 'has a link to side-by-side diff' do
         render
-        link = profile_project_file_change_path(
-          project.owner, project, committed_file_diffs.first.hashed_file_id
+        link = profile_project_revision_file_change_path(
+          project.owner, project, r1, committed_file_diffs.first.hashed_file_id
         )
         expect(rendered).to have_link(href: link)
       end

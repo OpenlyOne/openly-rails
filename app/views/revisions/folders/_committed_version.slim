@@ -9,7 +9,9 @@
 
   = render partial: 'folders/link_to_file_info',
            locals: { file_id: committed_version.hashed_file_id,
-                     project: project }
+                     project: project,
+                     path_parameters: [project.owner, project],
+                     file_infos_path: 'profile_project_file_infos_path' }
 
   = link_to_file_backup(committed_version, revision, project, class: 'file-link') do
 

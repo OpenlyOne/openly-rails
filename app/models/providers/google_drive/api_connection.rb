@@ -83,8 +83,8 @@ module Providers
       end
 
       # Find a file by ID. Return nil if file not found
-      def find_file(id)
-        find_file!(id)
+      def find_file(id, fields: nil)
+        find_file!(id, fields: fields)
       rescue Google::Apis::ClientError => error
         # only rescue not found errors
         raise unless error.message.starts_with?('notFound')
@@ -93,8 +93,8 @@ module Providers
       end
 
       # Find a file by ID. Raise error if file not found
-      def find_file!(id)
-        drive_service.get_file(id, fields: default_file_fields)
+      def find_file!(id, fields: nil)
+        drive_service.get_file(id, fields: fields || default_file_fields)
       end
 
       # Find files by parent

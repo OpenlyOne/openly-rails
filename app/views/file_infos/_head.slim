@@ -1,8 +1,13 @@
+/ HACK: Temporary fix to avoid manually declaring these vars in various
+/       controllers that are all rendering this _head file.
+- file_infos_path ||= 'profile_project_file_infos_path'
+- path_parameters ||= [project.owner, project]
+
 .page-subheading.with-image
   .container
     .row.no-margin-bottom
       .col.s12
-        = link_to profile_project_file_infos_path(project.owner, project, file.hashed_file_id)
+        = link_to send(file_infos_path, *path_parameters, file.hashed_file_id)
           h2
             = image_tag file.icon,
                         alt: 'File icon',

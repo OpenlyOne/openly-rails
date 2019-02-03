@@ -71,7 +71,7 @@ module VCS
 
       # Duplicate or create file depending on whether this is a folder or not
       def duplicate_file
-        file_sync_class.new(version.backup.remote_file_id).duplicate(
+        version.backup.remote.duplicate(
           name: version.name,
           parent_id: parent_in_branch.remote_file_id
         )
@@ -140,6 +140,8 @@ module VCS
           )&.remote_content_version_id
       end
 
+      # TODO: Refactor. Currently needed for creating a new file, but should
+      # =>    become obsolete when we move to the #push syntax
       def file_sync_class
         Providers::GoogleDrive::FileSync
       end
@@ -186,7 +188,7 @@ module VCS
         @file_in_branch ||=
           target_branch
           .files
-          .find_by(file_id: file_id)
+          .find_or_create_by(file_id: file_id)
       end
     end
     # rubocop:enable Metrics/ClassLength

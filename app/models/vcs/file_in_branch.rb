@@ -46,8 +46,10 @@ module VCS
       )
     }
 
+    # Return only files in branch that have been committed
+    scope :committed, -> { where('committed_version_id IS NOT NULL') }
+
     # Validations
-    validates :remote_file_id, presence: true
     validates :remote_file_id, uniqueness: { scope: :branch_id },
                                if: :will_save_change_to_remote_file_id?
 
@@ -60,6 +62,7 @@ module VCS
 
     # Require presence of metadata unless file resource is deleted
     with_options unless: :deleted? do
+      validates :remote_file_id, presence: true
       # TODO: Refactor. Must use if: :not_root? because unless: :root? would
       # => overwrite top level condition.
       # See: https://stackoverflow.com/a/15388137/6451879
@@ -138,6 +141,8 @@ module VCS
 
     # Return the link to the remote resource
     def link_to_remote
+      return nil unless remote_file_id.present?
+
       provider_link_class.for(
         remote_file_id: remote_file_id,
         mime_type: mime_type

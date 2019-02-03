@@ -1,16 +1,23 @@
 - unless action_name == 'root'
-  = render partial: 'ancestors',
+  = render partial: 'folders/ancestors',
            object: @ancestors,
-           locals: { current_folder: @folder, project: @project }
+           locals: { current_folder: @folder,
+                     project: @project,
+                     path_parameters: path_parameters,
+                     root_folder_path: root_folder_path,
+                     folder_path: folder_path }
 
 .spacing.v48px
 
 .container
   - @children.each do |child|
 
-    = render partial: 'file',
+    = render partial: 'folders/file',
              object: child,
-             locals: { project: @project }
+             locals: { project: @project,
+                       path_parameters: path_parameters,
+                       folder_path: folder_path,
+                       file_infos_path: file_infos_path }
 
 / button for committing changes
 - if @user_can_commit_changes

@@ -2,20 +2,7 @@
 
 module Revisions
   # Controller for project revision file infos
-  class FileChangesController < ApplicationController
-    include CanSetProjectContext
-
-    before_action :set_project_where_setup_is_complete
-    before_action :authorize_project_access
-    before_action :set_revision
-    before_action :set_file_diff
-    before_action :ensure_modification
-    before_action :ensure_content_change
-
-    def show
-      render 'file_changes/show'
-    end
-
+  class FileChangesController < Abstract::FileChangesController
     private
 
     # Raise error unless we have a modification
@@ -32,13 +19,16 @@ module Revisions
       raise ActiveRecord::RecordNotFound
     end
 
-    # Set the uncaptured file diff if file in branch has current or committed
-    # version present
+    # Set the file diff found within the revision
     def set_file_diff
       @file_diff = @revision.file_diffs.find_by_hashed_file_id!(params[:id])
     end
 
-    def set_revision
+    def set_branch
+      @branch = @master_branch
+    end
+
+    def set_object
       @revision = @project.revisions.find(params[:revision_id])
     end
   end

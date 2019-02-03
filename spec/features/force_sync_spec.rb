@@ -62,13 +62,9 @@ feature 'Force Sync', :vcr do
     expect(page).to have_css '.fragment.addition', text: 'new file content'
 
     # and have a backup of the file
-    # TODO: Refactor
-    file_in_branch = project.files.find_by_remote_file_id(file.id)
-    remote_file_id_of_backup =
-      file_in_branch.current_version.backup.remote_file_id
-    remote_backup =
-      Providers::GoogleDrive::FileSync.new(remote_file_id_of_backup)
-    expect(remote_backup.name).to eq(file_in_branch.name)
-    expect(remote_backup.parent_id).to eq(project.archive.remote_file_id)
+    staged = project.files.find_by_remote_file_id(file.id)
+    backup = staged.current_version.backup
+    expect(backup.remote.name).to eq(staged.name)
+    expect(backup.remote.parent_id).to eq(project.archive.remote_file_id)
   end
 end

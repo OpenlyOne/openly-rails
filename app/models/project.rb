@@ -10,7 +10,7 @@ class Project < ApplicationRecord
                           association_foreign_key: 'profile_id',
                           validate: false,
                           before_add: :grant_read_access_to_archive,
-                          before_remove: :remove_read_access_to_archive
+                          before_remove: :revoke_access_to_archive
 
   has_one :setup, class_name: 'Project::Setup', dependent: :destroy
 
@@ -27,6 +27,8 @@ class Project < ApplicationRecord
 
   has_one :archive, class_name: 'VCS::Archive', through: :repository
 
+  has_many :contributions, dependent: :destroy
+
   # Attributes
   # Do not allow owner change
   attr_readonly :owner_id
@@ -36,6 +38,7 @@ class Project < ApplicationRecord
   # Delegations
   delegate :build_archive, to: :repository
   delegate :archive, to: :repository, prefix: true
+  delegate :branches, to: :repository
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
   delegate :files, to: :master_branch
 
@@ -106,6 +109,11 @@ class Project < ApplicationRecord
               scope: :owner_id
             },
             unless: proc { |project| project.errors[:slug].any? }
+
+  # Return true if the contributions feature is enabled for this project
+  def contributions_enabled?
+    are_contributions_enabled
+  end
 
   def private?
     !public?
@@ -187,8 +195,8 @@ class Project < ApplicationRecord
   end
 
   # Remove view access to archive from the removed collaborator
-  def remove_read_access_to_archive(collaborator)
-    archive&.remove_read_access_from(collaborator.account.email)
+  def revoke_access_to_archive(collaborator)
+    archive&.revoke_access_from(collaborator.account.email)
   end
 
   # Set up the archive folder for this project

@@ -229,6 +229,34 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#grant_read_access_to(email)' do
+    subject(:grant_access) { file_sync.grant_read_access_to('em@il') }
+
+    before do
+      allow(file_sync).to receive(:id).and_return 'id'
+      allow(api).to receive(:share_file)
+    end
+
+    it do
+      grant_access
+      expect(api).to have_received(:share_file).with('id', 'em@il', :reader)
+    end
+  end
+
+  describe '#grant_write_access_to(email)' do
+    subject(:grant_access) { file_sync.grant_write_access_to('em@il') }
+
+    before do
+      allow(file_sync).to receive(:id).and_return 'id'
+      allow(api).to receive(:share_file)
+    end
+
+    it do
+      grant_access
+      expect(api).to have_received(:share_file).with('id', 'em@il', :writer)
+    end
+  end
+
   describe '#mime_type' do
     subject(:mime_type) { file_sync.mime_type }
     let(:file)          { Google::Apis::DriveV3::File.new(mime_type: 'type') }
@@ -296,6 +324,28 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#reload' do
+    subject(:reload) { file_sync.reload }
+
+    let(:instance_variables) do
+      %i[@capabilities @children @content @content_version @file @thumbnail]
+    end
+
+    it 'resets all instance variables' do
+      instance_variables.each do |variable|
+        file_sync.instance_variable_set(variable, 'content')
+      end
+      reload
+      instance_variables.each do |variable|
+        expect(file_sync.instance_variable_get(variable)).to eq nil
+      end
+    end
+
+    it 'returns self for chaining' do
+      is_expected.to be file_sync
+    end
+  end
+
   describe '#relocate(to:, from:)' do
     subject(:relocate) { file_sync.relocate(to: 'to', from: 'from') }
     before  { file_sync.instance_variable_set :@id, 'id' }
@@ -325,6 +375,29 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     it 'sets instance variable @file' do
       subject
       expect(file_sync.instance_variable_get(:@file)).to be_present
+    end
+  end
+
+  describe '#revoke_access_from(email)' do
+    subject(:revoke_access) { file_sync.revoke_access_from('em@il') }
+
+    before do
+      allow(file_sync).to receive(:id).and_return 'id'
+      allow(api).to receive(:unshare_file)
+    end
+
+    it do
+      revoke_access
+      expect(api).to have_received(:unshare_file).with('id', 'em@il')
+    end
+  end
+
+  describe '#switch_api_connection(api_connection)' do
+    subject(:switch) { file_sync.switch_api_connection('new-connection') }
+
+    it do
+      switch
+      expect(file_sync.send(:api_connection)).to eq 'new-connection'
     end
   end
 

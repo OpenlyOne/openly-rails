@@ -3,6 +3,8 @@
 module VCS
   # A permanent backup of a file resource version
   class FileBackup < ApplicationRecord
+    include VCS::HavingRemote
+
     # Associations
     belongs_to :file_version, class_name: 'VCS::Version', inverse_of: :backup
 

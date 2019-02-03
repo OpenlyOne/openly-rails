@@ -6,7 +6,7 @@ nav.breadcrumbs.truncate.gray.lighten-3.black-text.z-depth-0
       .col.s12
 
         / print link back to home/root folder
-        = link_to(profile_project_root_folder_path(project.owner, project),
+        = link_to(send(root_folder_path, *path_parameters),
                   class: "breadcrumb home") do
           / home icon
           svg viewBox='0 0 24 24'
@@ -14,6 +14,9 @@ nav.breadcrumbs.truncate.gray.lighten-3.black-text.z-depth-0
                  d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"]
 
         / print each ancestor
-        = render partial: 'ancestor',
+        = render partial: 'folders/ancestor',
                 collection: ancestors.reverse.push(current_folder.version),
-                locals: { current_folder: current_folder, project: project }
+                locals: { current_folder: current_folder,
+                          project: project,
+                          path_parameters: path_parameters,
+                          folder_path: folder_path }

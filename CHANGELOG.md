@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.33 (Feb 3, 2019)
+
+**Features:**
+- Users can create contributions. A contribution is essentially an isolated
+workspace for that user to edit and modify copies of the original documents.
+The project team can then review the suggested changes and accept the
+contribution to apply the suggested changes to the original files in the
+project. This feature is only available in select projects and is disabled by
+default.
+
 ## v0.32.3 (Feb 3, 2019)
 
 **Fixes:**

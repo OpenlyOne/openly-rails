@@ -39,13 +39,20 @@
   z-index: 100;
 }
 
-// page subheading color
 .page-subheading {
+  // page subheading color
   background-color: color('gray', 'lighten-3');
+  // reduce padding
+  padding: 16px 0;
 
   // a page SUB sub heading should be differentiated by background color
   + .page-subheading {
     background-color: transparent;
+  }
+
+  // reduce margin for tabs
+  .tabs {
+    margin-top: 0;
   }
 
   &.with-image {

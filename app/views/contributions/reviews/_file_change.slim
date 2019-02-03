@@ -1,0 +1,47 @@
+/ Renders a single file change of a file
+
+/ Should all links be opened in a new tab?
+- link_options = ( all_links_in_new_tab ? { target: '_blank' } : {} )
+
+div.file[class=file_change.symbolic_mime_type
+         class=file_change.type]
+
+  = image_tag file_change.icon,
+             alt: 'File icon',
+             size: '30',
+             class: 'img-responsive file-icon'
+
+  - if show_link_to_file_info
+   / TODO: Replace file_change with file and replace VCS::File with file.hashed_file_id
+   = render partial: 'contributions/reviews/link_to_file_info',
+            locals: { file_id: file_change.hashed_file_id,
+                      project: project,
+                      contribution: contribution,
+                      device: :mobile_and_tablet,
+                      link_options: link_options }
+
+  span.file-name[class=file_change.text_color]
+
+    span.name-and-description
+      / print: filename in bold
+      b
+        = link_to_file_backup(file_change.current_or_previous_version, revision, project, link_options) do
+          = file_change.name
+
+      / print: to be added/modified/moved/renamed/deleted text
+      =<> 'to be'
+      = file_change.description
+
+    - if show_link_to_file_info
+      = render partial: 'contributions/reviews/link_to_file_info',
+               locals: { file_id: file_change.hashed_file_id,
+                         project: project,
+                         contribution: contribution,
+                         device: :desktop,
+                         link_options: link_options }
+
+  - if file_change.modification? && file_change.content_change.present?
+    .content-change
+      = render partial: 'revisions/content_change_fragment',
+               collection: file_change.content_change.fragments,
+               locals: { truncate_content: true }

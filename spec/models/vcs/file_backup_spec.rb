@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/vcs/having_remote.rb'
+
 RSpec.describe VCS::FileBackup, type: :model do
   subject(:backup) { build_stubbed :vcs_file_backup }
+
+  it_should_behave_like 'vcs: having remote' do
+    let(:object) { build :vcs_file_backup }
+  end
 
   describe 'associations' do
     it { is_expected.to belong_to(:file_version).dependent(false) }

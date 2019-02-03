@@ -147,4 +147,72 @@ RSpec.describe Ability, type: :model do
       it_should_behave_like 'not having authorization', actions
     end
   end
+
+  context 'Contributions' do
+    let(:object) { contribution }
+
+    describe 'CRUD' do
+      actions = %i[new create]
+      let(:project)       { create :project, :skip_archive_setup }
+      let(:contribution)  { project.contributions.build }
+      let(:user)          { build_stubbed :user }
+
+      before do
+        allow(Ability).to receive(:new).with(user).and_return ability
+        allow(ability).to receive(:can?).and_call_original
+        allow(ability)
+          .to receive(:can?).with(:access, project).and_return can_access
+      end
+
+      context 'when user can access project' do
+        let(:can_access) { true }
+
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when user cannot access project' do
+        let(:can_access) { false }
+
+        it_should_behave_like 'not having authorization', actions
+      end
+    end
+
+    describe 'accept' do
+      actions = %i[accept]
+
+      let(:contribution)  { build_stubbed(:contribution) }
+      let(:project)       { contribution.project }
+
+      context 'when user is project owner' do
+        before { project.owner = user }
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when user is project collaborator' do
+        before { project.collaborators << user }
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when user is not project owner or collaborator' do
+        before { project.owner = build_stubbed(:user) }
+        before { project.collaborators = [] }
+        it_should_behave_like 'not having authorization', actions
+      end
+    end
+
+    describe 'force sync' do
+      actions = %i[force_sync]
+      let(:contribution) { build_stubbed(:contribution) }
+
+      context 'when user is creator' do
+        before { contribution.creator = user }
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when user is not creator' do
+        before { contribution.creator = build_stubbed(:user) }
+        it_should_behave_like 'not having authorization', actions
+      end
+    end
+  end
 end

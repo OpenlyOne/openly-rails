@@ -1,0 +1,11 @@
+.spacing.v32px
+
+.container
+  - if @user_can_accept_contribution
+    = render partial: 'contributions/reviews/review_and_accept_file_changes_form',
+             locals: { contribution: @contribution, project: @project }
+  - else
+    = render partial: 'contributions/reviews/review_file_changes',
+             locals: { contribution: @contribution, project: @project }
+
+.spacing.v48px

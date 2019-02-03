@@ -60,17 +60,15 @@ class ApplicationController < ActionController::Base
     resource_name = options[:resource] || controller_name.singularize.humanize
     default_inflected_action_name =
       case request.params[:action].to_s
-      when 'create'
-        'created'
-      when 'update'
-        'updated'
-      when 'destroy'
-        'deleted'
+      when 'create'   then 'created'
+      when 'update'   then 'updated'
+      when 'destroy'  then 'deleted'
       end
     inflected_action_name = I18n.t action_name,
                                    scope: %i[actioncontroller actions],
                                    default: default_inflected_action_name
-    flash[:notice] = "#{resource_name} successfully #{inflected_action_name}."
+    flash[:notice] = options[:notice] ||
+                     "#{resource_name} successfully #{inflected_action_name}."
     redirect_to redirect_location
   end
   # rubocop:enable Metrics/MethodLength

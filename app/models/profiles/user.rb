@@ -10,6 +10,7 @@ module Profiles
     # Associations
     belongs_to :account
     has_many :visits, class_name: 'Ahoy::Visit'
+    has_many :contributions, dependent: :destroy, foreign_key: :creator_id
 
     # Attributes
     # Do not allow account change

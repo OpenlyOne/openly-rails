@@ -98,8 +98,29 @@ Rails.application.routes.draw do
                                    only: :show
         end
       end
+      # Routes for contributions
+      resources :contributions, only: %i[index new create show] do
+        scope module: 'contributions' do
+          # File browsing
+          get 'files' => 'folders#root', as: :root_folder
+          resources :folders, only: :show
+
+          # Review
+          resource :review, only: :show
+          resource :acceptance, path: 'accept', only: :create
+
+          # Routes for file infos
+          resources :file_infos, path: 'files/:id/info', only: :index
+          resources :force_syncs, path: 'files/:id/sync', only: :create
+
+          # Side-by-side diffs
+          resources :file_changes, path: 'changes', only: :show
+        end
+      end
+
       # Routes for changes
       resources :file_changes, path: 'changes', only: :show
+
       # Routes for file infos
       resources :file_infos, path: 'files/:id/info', only: :index
       resources :force_syncs, path: 'files/:id/sync', only: :create

@@ -3,6 +3,7 @@
 # Expect the controller action to redirect and set flash message
 RSpec.shared_examples 'a redirect with success' do
   let(:resource_name) { @controller.controller_path.singularize.humanize }
+  let(:notice) { "#{resource_name} successfully #{inflected_action_name}." }
   let(:inflected_action_name) do
     case request.params[:action].to_s
     when 'create'
@@ -20,8 +21,6 @@ RSpec.shared_examples 'a redirect with success' do
   end
 
   it 'sets flash message' do
-    expect(@controller).to set_flash[:notice].to(
-      "#{resource_name} successfully #{inflected_action_name}."
-    )
+    expect(@controller).to set_flash[:notice].to(notice)
   end
 end

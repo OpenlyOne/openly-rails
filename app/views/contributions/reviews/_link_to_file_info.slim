@@ -1,0 +1,18 @@
+/ Renders the link icon to the file's info page
+- link = profile_project_contribution_file_infos_path( \
+           project.owner, project, contribution, file_id \
+         )
+
+/ for touch devices, always display the info button
+- if device == :mobile_and_tablet
+  span.right.hide-on-large-only.grey-text
+    = link_to link, link_options, class: 'info' do
+      svg style="width:24px;height:24px" viewBox="0 0 24 24"
+        path fill="currentColor" d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z"
+
+/ for desktop devices, display info button hover only
+- elsif device == :desktop
+  span.options-on-hover.hide-on-med-and-down<
+    span.gray-text
+      | &middot;
+    =< link_to 'More', link, link_options.merge(class: 'info gray-text')

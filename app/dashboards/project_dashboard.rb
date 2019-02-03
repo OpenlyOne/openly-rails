@@ -19,6 +19,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     description: Field::Text,
     tag_list: Field::String.with_options(searchable: false),
     is_public: Field::Boolean,
+    are_contributions_enabled: Field::Boolean,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -47,6 +48,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     description
     tag_list
     is_public
+    are_contributions_enabled
     created_at
     updated_at
   ].freeze
@@ -62,6 +64,7 @@ class ProjectDashboard < Administrate::BaseDashboard
     description
     tag_list
     is_public
+    are_contributions_enabled
   ].freeze
 
   # Overwrite this method to customize how accounts are displayed
