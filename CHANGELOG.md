@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.32.2 (Feb 3, 2019)
+
+**Fixes:**
+- Various fixes for the landing page:
+  - Fix Google Analytics code
+  - Fix fonts on pricing table
+  - Fix footer alignment
+  - Fix sizing of testimonials
+
 ## v0.32.1 (Feb 3, 2019)
 
 **Fixes:**
