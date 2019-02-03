@@ -110,6 +110,11 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
 
+  # Return true if the contributions feature is enabled for this project
+  def contributions_enabled?
+    are_contributions_enabled
+  end
+
   def private?
     !public?
   end

@@ -79,6 +79,9 @@ RSpec.describe Project, type: :model do
 
   describe 'attributes' do
     it { is_expected.to have_readonly_attribute(:owner_id) }
+    it 'disables contributions by default' do
+      expect(described_class.new).not_to be_contributions_enabled
+    end
   end
 
   describe 'delegations' do

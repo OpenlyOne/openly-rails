@@ -36,9 +36,10 @@
               div.tab
                 = link_to 'Revisions', profile_project_revisions_path(project.owner, project),
                           class: ('active' if active_tab == :revisions)
-              div.tab
-                = link_to 'Contributions', profile_project_contributions_path(project.owner, project),
-                          class: ('active' if active_tab == :contributions)
+              - if project.contributions_enabled?
+                div.tab
+                  = link_to 'Contributions', profile_project_contributions_path(project.owner, project),
+                            class: ('active' if active_tab == :contributions)
               - if can_collaborate
                 div.tab
                   = link_to project.master_branch.root.link_to_remote, target: '_blank' do

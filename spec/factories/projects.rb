@@ -14,6 +14,7 @@ FactoryBot.define do
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user, account_email: owner_account_email) }
     is_public       { false }
+    are_contributions_enabled { true }
 
     trait :public do
       is_public { true }

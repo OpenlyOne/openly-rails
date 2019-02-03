@@ -4,6 +4,7 @@ require 'controllers/shared_examples/a_redirect_with_success.rb'
 require 'controllers/shared_examples/an_authenticated_action.rb'
 require 'controllers/shared_examples/an_authorized_action.rb'
 require 'controllers/shared_examples/authorizing_project_access.rb'
+require 'controllers/shared_examples/raise_404_if_contributions_disabled.rb'
 require 'controllers/shared_examples/raise_404_if_non_existent.rb'
 require 'controllers/shared_examples/setting_project.rb'
 require 'controllers/shared_examples/successfully_rendering_view.rb'
@@ -26,6 +27,7 @@ RSpec.describe ContributionsController, type: :controller do
     let(:run_request) { get :index, params: params }
 
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'raise 404 if contributions disabled'
     it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
@@ -40,6 +42,7 @@ RSpec.describe ContributionsController, type: :controller do
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'raise 404 if contributions disabled'
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) do
         profile_project_contributions_path(project.owner, project)
@@ -79,6 +82,7 @@ RSpec.describe ContributionsController, type: :controller do
 
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Project
+    it_should_behave_like 'raise 404 if contributions disabled'
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) do
         profile_project_contributions_path(project.owner, project)
@@ -110,6 +114,7 @@ RSpec.describe ContributionsController, type: :controller do
 
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'raise 404 if non-existent', Contribution
+    it_should_behave_like 'raise 404 if contributions disabled'
     it_should_behave_like 'authorizing project access'
 
     it 'returns http success' do
