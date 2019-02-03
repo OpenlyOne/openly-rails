@@ -89,7 +89,10 @@ class Contribution < ApplicationRecord
   end
 
   def fork_master_branch
-    self.branch = project_master_branch.create_fork(creator: creator)
+    self.branch = project_master_branch.create_fork(
+      creator: creator,
+      remote_parent_id: project.archive.remote_file_id
+    )
   end
 
   def grant_creator_write_access_to_branch

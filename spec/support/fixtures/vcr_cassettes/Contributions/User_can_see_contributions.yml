@@ -28,7 +28,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Thu, 06 Dec 2018 23:37:26 GMT
+      - Fri, 01 Feb 2019 14:49:51 GMT
       Server:
       - ESF
       Cache-Control:
@@ -40,7 +40,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -53,7 +53,7 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:26 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:51 GMT
 - request:
     method: post
     uri: https://oauth2.googleapis.com/token
@@ -82,7 +82,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Thu, 06 Dec 2018 23:37:26 GMT
+      - Fri, 01 Feb 2019 14:49:51 GMT
       Server:
       - ESF
       Cache-Control:
@@ -94,7 +94,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -107,14 +107,14 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:26 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:51 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2018-12-06
-        23:37:26 UTC","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2019-02-01
+        14:49:51 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -123,7 +123,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:26 GMT
+      - Fri, 01 Feb 2019 14:49:51 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -140,7 +140,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:27 GMT
+      - Fri, 01 Feb 2019 14:49:51 GMT
       Vary:
       - Origin
       - X-Origin
@@ -157,15 +157,15 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p",
-         "name": "Test @ 2018-12-06 23:37:26 UTC",
+         "id": "1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C",
+         "name": "Test @ 2019-02-01 14:49:51 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -185,10 +185,64 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:27 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:52 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p/permissions?sendNotificationEmail=false
+    uri: https://oauth2.googleapis.com/token
+    body:
+      encoding: ASCII-8BIT
+      string: grant_type=refresh_token&refresh_token=<REFRESH TOKEN FOR COLLABORATOR
+        ACCOUNT>&client_id=<CLIENT ID>&client_secret=<CLIENT SECRET>
+    headers:
+      User-Agent:
+      - Faraday v0.15.3
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Fri, 01 Feb 2019 14:49:52 GMT
+      Server:
+      - ESF
+      Cache-Control:
+      - private
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - quic=":443"; ma=2592000; v="44,43,39"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |-
+        {
+          "access_token": "<ACCESS TOKEN FOR COLLABORATOR ACCOUNT>",
+          "expires_in": 3600,
+          "scope": "https://www.googleapis.com/auth/drive",
+          "token_type": "Bearer"
+        }
+    http_version: 
+  recorded_at: Fri, 01 Feb 2019 14:49:52 GMT
+- request:
+    method: post
+    uri: https://www.googleapis.com/drive/v3/files/1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C/permissions?sendNotificationEmail=false
     body:
       encoding: UTF-8
       string: '{"emailAddress":"<EMAIL ADDRESS FOR TRACKING ACCOUNT>","role":"writer","type":"user"}'
@@ -200,7 +254,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:27 GMT
+      - Fri, 01 Feb 2019 14:49:52 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -217,7 +271,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:30 GMT
+      - Fri, 01 Feb 2019 14:49:53 GMT
       Vary:
       - Origin
       - X-Origin
@@ -234,7 +288,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -247,14 +301,14 @@ http_interactions:
          "role": "writer"
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:30 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:53 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"2 Billion
-        Year Bunker (Archive)","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"2 Krikkit
+        One (Archive)","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -263,7 +317,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:30 GMT
+      - Fri, 01 Feb 2019 14:49:53 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -280,7 +334,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:30 GMT
+      - Fri, 01 Feb 2019 14:49:54 GMT
       Vary:
       - Origin
       - X-Origin
@@ -297,15 +351,15 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1XIr-1nz1W406e1tM_kHLH2-geEOIIrw4",
-         "name": "2 Billion Year Bunker (Archive)",
+         "id": "1Q1FBgYonASkk6U64ymTPZ4ZLyi5eZqHd",
+         "name": "2 Krikkit One (Archive)",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -325,10 +379,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:30 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:55 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1XIr-1nz1W406e1tM_kHLH2-geEOIIrw4/permissions?sendNotificationEmail=false
+    uri: https://www.googleapis.com/drive/v3/files/1Q1FBgYonASkk6U64ymTPZ4ZLyi5eZqHd/permissions?sendNotificationEmail=false
     body:
       encoding: UTF-8
       string: '{"emailAddress":"<EMAIL ADDRESS FOR USER ACCOUNT>","role":"reader","type":"user"}'
@@ -340,7 +394,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:30 GMT
+      - Fri, 01 Feb 2019 14:49:55 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -357,7 +411,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:55 GMT
       Vary:
       - Origin
       - X-Origin
@@ -374,7 +428,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -387,10 +441,10 @@ http_interactions:
          "role": "reader"
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:31 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:56 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
+    uri: https://www.googleapis.com/drive/v3/files/1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
       string: ''
@@ -402,7 +456,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -413,9 +467,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -434,15 +488,15 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p",
-         "name": "Test @ 2018-12-06 23:37:26 UTC",
+         "id": "1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C",
+         "name": "Test @ 2019-02-01 14:49:51 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "thumbnailVersion": "0",
@@ -468,10 +522,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:31 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:56 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files/1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p/revisions/head
+    uri: https://www.googleapis.com/drive/v3/files/1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C/revisions/head
     body:
       encoding: UTF-8
       string: ''
@@ -483,7 +537,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -501,9 +555,9 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Expires:
-      - Thu, 06 Dec 2018 23:37:31 GMT
+      - Fri, 01 Feb 2019 14:49:56 GMT
       Cache-Control:
       - private, max-age=0
       X-Content-Type-Options:
@@ -515,7 +569,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -535,10 +589,10 @@ http_interactions:
          }
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:32 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:57 GMT
 - request:
     method: get
-    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/permissions,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p%27%20in%20parents
+    uri: https://www.googleapis.com/drive/v3/files?fields=files/id,files/name,files/mimeType,files/parents,files/permissions,files/trashed,files/thumbnailLink,files/thumbnailVersion&q=%271wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C%27%20in%20parents
     body:
       encoding: UTF-8
       string: ''
@@ -550,7 +604,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:32 GMT
+      - Fri, 01 Feb 2019 14:49:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -561,9 +615,9 @@ http_interactions:
       message: OK
     headers:
       Expires:
-      - Thu, 06 Dec 2018 23:37:32 GMT
+      - Fri, 01 Feb 2019 14:49:57 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:32 GMT
+      - Fri, 01 Feb 2019 14:49:57 GMT
       Cache-Control:
       - private, max-age=0, must-revalidate, no-transform
       Vary:
@@ -582,7 +636,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -592,10 +646,10 @@ http_interactions:
          "files": []
         }
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:32 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:57 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1BrXVFW0C17QsLHqMyAIjx9g4GolX5J6p
+    uri: https://www.googleapis.com/drive/v3/files/1wCMrD-sGFSKw1Nmq8lbQzVC3mt0woz1C
     body:
       encoding: UTF-8
       string: ''
@@ -607,7 +661,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 06 Dec 2018 23:37:32 GMT
+      - Fri, 01 Feb 2019 14:49:57 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR USER ACCOUNT>
       Content-Type:
@@ -624,17 +678,17 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Thu, 06 Dec 2018 23:37:36 GMT
+      - Fri, 01 Feb 2019 14:49:58 GMT
       Vary:
       - Origin
       - X-Origin
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 06 Dec 2018 23:37:36 GMT
+  recorded_at: Fri, 01 Feb 2019 14:49:58 GMT
 recorded_with: VCR 4.0.0

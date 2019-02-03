@@ -243,7 +243,11 @@ RSpec.describe VCS::Operations::FileRestore, type: :model, vcr: true do
 
     context 'when restoring to a new branch' do
       let(:target_branch) do
-        project.branches.create!.tap(&:create_remote_root_folder)
+        project.branches.create!.tap do |branch|
+          branch.create_remote_root_folder(
+            remote_parent_id: google_drive_test_folder_id
+          )
+        end
       end
       let(:file_actions)  { nil }
       let(:restored_file) { target_branch.files.without_root.first }

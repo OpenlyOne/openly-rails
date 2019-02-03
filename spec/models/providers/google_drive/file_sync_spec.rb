@@ -324,6 +324,28 @@ RSpec.describe Providers::GoogleDrive::FileSync, type: :model do
     end
   end
 
+  describe '#reload' do
+    subject(:reload) { file_sync.reload }
+
+    let(:instance_variables) do
+      %i[@capabilities @children @content @content_version @file @thumbnail]
+    end
+
+    it 'resets all instance variables' do
+      instance_variables.each do |variable|
+        file_sync.instance_variable_set(variable, 'content')
+      end
+      reload
+      instance_variables.each do |variable|
+        expect(file_sync.instance_variable_get(variable)).to eq nil
+      end
+    end
+
+    it 'returns self for chaining' do
+      is_expected.to be file_sync
+    end
+  end
+
   describe '#relocate(to:, from:)' do
     subject(:relocate) { file_sync.relocate(to: 'to', from: 'from') }
     before  { file_sync.instance_variable_set :@id, 'id' }

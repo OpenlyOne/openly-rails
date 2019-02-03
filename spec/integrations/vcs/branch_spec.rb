@@ -46,12 +46,16 @@ RSpec.describe VCS::Branch, type: :model do
   end
 
   describe '#create_remote_root_folder' do
-    subject(:create_remote_root_folder) { branch.create_remote_root_folder }
+    subject(:create_remote_root_folder) do
+      branch.create_remote_root_folder(remote_parent_id: remote_parent_id)
+    end
 
     let(:branch) { create :vcs_branch }
 
     context 'when root folder does not exist', :vcr do
-      before { refresh_google_drive_authorization }
+      let(:remote_parent_id) { google_drive_test_folder_id }
+
+      before { prepare_google_drive_test }
 
       it 'creates remote and local folder' do
         create_remote_root_folder
@@ -65,6 +69,8 @@ RSpec.describe VCS::Branch, type: :model do
     end
 
     context 'when root folder already exists' do
+      let(:remote_parent_id) { 'some-id' }
+
       before { create :vcs_file_in_branch, :root, branch: branch }
 
       it { is_expected.to be false }

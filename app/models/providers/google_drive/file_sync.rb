@@ -118,6 +118,19 @@ module Providers
         file&.permissions
       end
 
+      # Clear all cached attributes
+      def reload
+        @capabilities = nil
+        @children = nil
+        @content = nil
+        @content_version = nil
+        @file = nil
+        @thumbnail = nil
+
+        # Return self for chaining
+        self
+      end
+
       # Relocate the file to a new parent, optionally removing old parent
       def relocate(to:, from:)
         @file =
@@ -135,7 +148,7 @@ module Providers
       end
 
       # Switches the active API connection to the newly provided one.
-      # Does NOT clear any cached attributes.
+      # Does NOT clear any cached attributes. Also see #reload.
       def switch_api_connection(api_connection)
         @api_connection = api_connection
       end

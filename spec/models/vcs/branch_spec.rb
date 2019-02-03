@@ -30,7 +30,15 @@ RSpec.describe VCS::Branch, type: :model do
   describe 'delegations' do
     it { is_expected.to delegate_method(:root).to(:files) }
     it { is_expected.to delegate_method(:folders).to(:files) }
+    it { is_expected.to delegate_method(:archive).to(:repository).with_prefix }
     it { is_expected.to delegate_method(:branches).to(:repository).with_prefix }
+    it { is_expected.to delegate_method(:files).to(:repository).with_prefix }
+    it do
+      is_expected
+        .to delegate_method(:remote_file_id)
+        .to(:repository_archive)
+        .with_prefix(:archive)
+    end
   end
 
   describe 'commits#create_draft_and_commit_files!' do
@@ -46,8 +54,10 @@ RSpec.describe VCS::Branch, type: :model do
     end
   end
 
-  describe '#create_remote_root_folder' do
-    subject(:create_remote_root_folder) { branch.create_remote_root_folder }
+  describe '#create_remote_root_folder(remote_parent_id:)' do
+    subject(:create_remote_root_folder) do
+      branch.create_remote_root_folder(remote_parent_id: 'remote-id')
+    end
 
     let(:root)                { nil }
     let(:built_root)          { instance_double VCS::FileInBranch }
@@ -85,7 +95,7 @@ RSpec.describe VCS::Branch, type: :model do
         .to have_received(:create)
         .with(
           name: 'Branch #id-of-branch',
-          parent_id: 'root',
+          parent_id: 'remote-id',
           mime_type: 'folder-type'
         )
     end
@@ -111,8 +121,10 @@ RSpec.describe VCS::Branch, type: :model do
     end
   end
 
-  describe '#create_fork(creator:)' do
-    subject(:create_fork) { branch.create_fork(creator: 'creator') }
+  describe '#create_fork(creator:, remote_parent_id:)' do
+    subject(:create_fork) do
+      branch.create_fork(creator: 'creator', remote_parent_id: 'remote-id')
+    end
 
     let(:fork)          { instance_double described_class }
     let(:repo_branches) { class_double described_class }
@@ -128,7 +140,11 @@ RSpec.describe VCS::Branch, type: :model do
       create_fork
     end
 
-    it { expect(fork).to have_received(:create_remote_root_folder) }
+    it do
+      expect(fork)
+        .to have_received(:create_remote_root_folder)
+        .with(remote_parent_id: 'remote-id')
+    end
     it do
       expect(fork).to have_received(:copy_committed_files_from).with(branch)
     end

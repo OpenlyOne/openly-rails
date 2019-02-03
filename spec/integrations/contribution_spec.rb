@@ -141,6 +141,11 @@ RSpec.describe Contribution, type: :model do
         ).capabilities.can_edit
       ).to be true
     end
+
+    it 'creates contribution in project archive' do
+      expect(contribution.branch.root.remote.parent_id)
+        .to eq project.repository.archive.remote_file_id
+    end
   end
 
   # TODO: Extract into shared context because revision_restore_spec uses these

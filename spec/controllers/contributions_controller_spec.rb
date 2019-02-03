@@ -10,6 +10,7 @@ require 'controllers/shared_examples/successfully_rendering_view.rb'
 
 RSpec.describe ContributionsController, type: :controller do
   let!(:project)      { create :project, :setup_complete, :skip_archive_setup }
+  let!(:archive)      { create :vcs_archive, repository: project.repository }
   let(:master_branch) { project.master_branch }
   let(:default_params) do
     {

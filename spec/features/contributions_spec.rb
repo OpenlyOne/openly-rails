@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 feature 'Contributions', :vcr do
-  let(:api_connection)  { Providers::GoogleDrive::ApiConnection.new(user_acct) }
-  let(:user_acct)       { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
-  let(:tracking_acct)   { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
+  let(:api_connection)              { api_klass.new(user_acct) }
+  let(:collaborator_api_connection) { api_klass.new(collaborator_acct) }
+  let(:api_klass)         { Providers::GoogleDrive::ApiConnection }
+  let(:user_acct)         { ENV['GOOGLE_DRIVE_USER_ACCOUNT'] }
+  let(:tracking_acct)     { ENV['GOOGLE_DRIVE_TRACKING_ACCOUNT'] }
+  let(:collaborator_acct) { ENV['GOOGLE_DRIVE_COLLABORATOR_ACCOUNT'] }
 
   # create test folder
   before { prepare_google_drive_test(api_connection) }
+  before { refresh_google_drive_authorization(collaborator_api_connection) }
 
   # share test folder
   before do
@@ -17,7 +21,8 @@ feature 'Contributions', :vcr do
   # delete test folder
   after { tear_down_google_drive_test(api_connection) }
 
-  let(:current_account) { create :account, email: user_acct }
+  let(:current_account)       { create :account, email: user_acct }
+  let(:collaborator_account)  { create :account, email: collaborator_acct }
   let(:project) do
     create :project, :with_repository, owner: current_account.user
   end
@@ -47,8 +52,11 @@ feature 'Contributions', :vcr do
   end
 
   scenario 'User can create contribution' do
-    # given I am signed in as the project owner
-    sign_in_as project.owner.account
+    # given there is a project with a collaborator
+    project.collaborators << collaborator_account.user
+
+    # and I am signed in as the collaborator
+    sign_in_as collaborator_account
 
     # and the project has three files
     folder =
@@ -89,13 +97,13 @@ feature 'Contributions', :vcr do
       .to contain_exactly(folder.name, file1.name, file2.name)
 
     # and have edit access to the new branch root
-    # TODO: Refactor. Add an #as method to file_sync to switch api connection
-    remote =
-      Providers::GoogleDrive::FileSync.new(
-        contribution.branch.root.remote_file_id,
-        api_connection: api_connection
-      )
-    expect(remote).to be_can_edit
+    remote = contribution.branch.root.remote
+    remote.switch_api_connection(collaborator_api_connection)
+    expect(remote.reload).to be_can_edit
+
+    # and others in the project have view access to the files
+    remote.switch_api_connection(api_connection)
+    expect(remote.reload).to be_can_read
   end
 
   # TODO: Extract into shared context because revision_restore_spec uses these

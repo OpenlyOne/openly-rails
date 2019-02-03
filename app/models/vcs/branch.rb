@@ -44,7 +44,8 @@ module VCS
 
     # Delegations
     delegate :folders, :root, to: :files
-    delegate :branches, to: :repository, prefix: true
+    delegate :archive, :branches, :files, to: :repository, prefix: true
+    delegate :remote_file_id, to: :repository_archive, prefix: :archive
 
     # Scopes
     # Return branches that have one or more files with the given remote IDs
@@ -61,13 +62,13 @@ module VCS
     # Create a root folder for this branch remotely and locally
     # TODO: Refactor with #push method and reduce complexity
     # rubocop:disable Metrics/MethodLength
-    def create_remote_root_folder
+    def create_remote_root_folder(remote_parent_id:)
       return false if root.present?
 
       # Create remote
       root_folder = sync_adapter_class.create(
         name: "Branch ##{id}",
-        parent_id: 'root',
+        parent_id: remote_parent_id,
         mime_type: mime_type_class.folder
       )
 
@@ -75,7 +76,7 @@ module VCS
       files.build(
         remote_file_id: root_folder.id,
         is_root: true,
-        file: repository.files.root
+        file: repository_files.root
       ).tap(&:pull)
     end
     # rubocop:enable Metrics/MethodLength
@@ -97,9 +98,9 @@ module VCS
     # =>    not needed. But we need to remove the not null constraint from the
     # =>    database (which we need to do anyway to make it possible for
     # =>    users to delete their accounts).
-    def create_fork(creator:)
+    def create_fork(creator:, remote_parent_id:)
       repository_branches.create!.tap do |fork|
-        fork.create_remote_root_folder
+        fork.create_remote_root_folder(remote_parent_id: remote_parent_id)
         fork.copy_committed_files_from(self)
         fork.restore_commit(commits.last, author: creator)
       end
