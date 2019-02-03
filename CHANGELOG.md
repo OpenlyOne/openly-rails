@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.32.3 (Feb 3, 2019)
+
+**Fixes:**
+- Landing Page: Fix fonts on pricing table
+- Landing Page: Fix footer alignment type
+
 ## v0.32.2 (Feb 3, 2019)
 
 **Fixes:**
