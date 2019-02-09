@@ -70,3 +70,10 @@
                         '')
           .clearfix
 .spacing.v32px
+
+/ button for cerating new project
+- if @user_can_create_project
+  .fixed-action-btn
+    = link_to 'New Project',
+              new_project_path,
+              class: 'btn btn-large primary-color primary-color-text'

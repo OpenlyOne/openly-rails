@@ -43,6 +43,16 @@ RSpec.describe 'profiles/show', type: :view do
     end
   end
 
+  it 'does not have a link to edit the profile' do
+    render
+    expect(rendered).not_to have_link(href: edit_profile_path(profile))
+  end
+
+  it 'does not have a link to create a project' do
+    render
+    expect(rendered).not_to have_link(href: new_project_path)
+  end
+
   it 'lists projects without an uncaptured changes indicator' do
     render
     expect(rendered).not_to have_css '.uncaptured-changes-indicator'
@@ -107,9 +117,18 @@ RSpec.describe 'profiles/show', type: :view do
 
     it 'does have a link to edit the profile' do
       render
-      expect(rendered).to have_css(
-        "a[href='#{edit_profile_path(profile)}']"
-      )
+      expect(rendered)
+        .to have_link('Edit Profile', href: edit_profile_path(profile))
+    end
+  end
+
+  context 'when current user can create project' do
+    before { assign(:user_can_create_project, true) }
+
+    it 'does have a link to create a project' do
+      render
+      expect(rendered)
+        .to have_link('New Project', href: new_project_path)
     end
   end
 end
