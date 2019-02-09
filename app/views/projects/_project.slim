@@ -1,13 +1,16 @@
 .col.s12.m6.l4
   = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable'
-    .card-image style="background-image: url(#{image_path('projects/banner.jpg')});"
-    .card-title.truncate.primary-color.primary-color-text = project.title
-    - if project.tags.any? || project.description.present?
-      .card-content
-        - if project.tags.any?
-          .truncate.hide-text-overflow
-            - project.tags.each do |tag|
-              .chip.slim.tag
-                = tag_case tag
+    .card-title.truncate
+      = image_tag project.owner.picture(:medium),
+                  size: '70',
+                  class: 'responsive-img circle left',
+                  title: project.owner.name
+      = project.title
+    .card-content
+      p
         - if project.description.present?
-          p.black-text = truncate(project.description, length: 200)
+          = truncate(project.description, length: 200)
+        - else
+          | No description.
+    .card-action
+      span.btn-flat Open
