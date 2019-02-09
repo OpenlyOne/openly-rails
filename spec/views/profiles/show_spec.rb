@@ -16,13 +16,6 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.name
   end
 
-  it 'renders the social links of the profile' do
-    render
-    expect(rendered).to have_link href: profile.link_to_website
-    expect(rendered).to have_link href: profile.link_to_facebook
-    expect(rendered).to have_link href: profile.link_to_twitter
-  end
-
   it 'renders the about text of the profile' do
     render
     expect(rendered).to have_text profile.about
