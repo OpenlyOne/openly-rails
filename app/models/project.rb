@@ -40,7 +40,7 @@ class Project < ApplicationRecord
   delegate :archive, to: :repository, prefix: true
   delegate :branches, to: :repository
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
-  delegate :files, to: :master_branch
+  delegate :files, :uncaptured_changes_count, to: :master_branch
 
   # Callbacks
   # Auto-generate slug from title

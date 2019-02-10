@@ -34,6 +34,11 @@ $colors: map-merge($colors, ('white': ('base': #fff)));
     // scss-lint:disable ImportantRule
     background-color: $color !important;
   }
+  // primary-color-text-inverse: applies main color to an element as text-color
+  .primary-color-text-inverse {
+    // scss-lint:disable ImportantRule
+    color: $color !important;
+  }
 }
 
 @mixin define-classes-based-on-font-color($color) {
@@ -41,6 +46,11 @@ $colors: map-merge($colors, ('white': ('base': #fff)));
   .primary-color-text {
     // scss-lint:disable ImportantRule
     color: $color !important;
+  }
+  // primary-color-inverse: applies font color to an element as background-color
+  .primary-color-inverse {
+    // scss-lint:disable ImportantRule
+    background-color: $color !important;
   }
 }
 
