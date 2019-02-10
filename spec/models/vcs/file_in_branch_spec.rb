@@ -77,6 +77,40 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe 'callbacks' do
+    let!(:file_in_branch)  { create :vcs_file_in_branch }
+    let(:branch)           { file_in_branch.branch }
+
+    before { allow(branch).to receive(:update_uncaptured_changes_count) }
+
+    context 'when creating instance' do
+      before { create :vcs_file_in_branch, branch: branch }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+
+    context 'when updating instance' do
+      before { file_in_branch.update(name: 'ok') }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+
+    context 'when destroying instance' do
+      before { file_in_branch.destroy }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+  end
+
+  describe 'delegations' do
+    it do
+      is_expected
+        .to delegate_method(:update_uncaptured_changes_count)
+        .to(:branch)
+        .with_prefix
+    end
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:remote_file_id) }
     it { is_expected.to validate_presence_of(:name) }

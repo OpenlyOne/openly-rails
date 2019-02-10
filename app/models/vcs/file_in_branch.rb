@@ -21,6 +21,13 @@ module VCS
     include VCS::Backupable
     include VCS::Downloadable
 
+    # Callbacks
+    after_save :branch_update_uncaptured_changes_count
+    after_destroy :branch_update_uncaptured_changes_count
+
+    # Delegations
+    delegate :update_uncaptured_changes_count, to: :branch, prefix: true
+
     scope :joins_version, lambda {
       joins(
         'INNER JOIN vcs_versions versions ' \
