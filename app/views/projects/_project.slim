@@ -3,7 +3,7 @@
     .card-title.truncate
       = image_tag project.owner.picture(:medium),
                   size: '40',
-                  class: 'responsive-img circle left',
+                  class: 'responsive-img circle left title-image',
                   title: project.owner.name
 
       span.title.truncate = project.title
@@ -11,6 +11,11 @@
       / when there are uncaptured changes in project, show small indicator
       - if project.can_collaborate? && project.uncaptured_changes_count.nonzero?
         .uncaptured-changes-indicator.primary-color title='Project has uncaptured changes'
+
+      p.subtitle.truncate.gray-text.text-darken-2
+        ' Updated
+        => time_ago_in_words(project.captured_at)
+        | ago
 
     .card-content
       p

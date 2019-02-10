@@ -70,6 +70,11 @@ $picture-size-small: 100px;
   // set explicit max-width on this element, so that we can show the optional
   // uncaptured changes indicator
   .project {
+    .title-image {
+      position: relative;
+      top: 10px;
+    }
+
     .title {
       display: inline-block;
       max-width: calc(100% - 48px - 16px);
@@ -86,6 +91,12 @@ $picture-size-small: 100px;
       top: -2px;
       vertical-align: middle;
       width: 8px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      margin: 0;
+      margin-left: 50px;
     }
   }
 }
