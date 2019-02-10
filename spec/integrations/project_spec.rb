@@ -127,6 +127,68 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe 'scope: :where_permission_level_is_collaboration_or_view(profile)' do
+    subject(:method) do
+      Project.where_permission_level_is_collaboration_or_view(profile)
+    end
+    let(:profile) { creator }
+    let(:creator) { create :user }
+
+    let!(:public_owned_projects) do
+      create_list :project, 2, :public, :skip_archive_setup, owner: creator
+    end
+    let!(:public_collab_projects) do
+      create_list(:project, 2, :public, :skip_archive_setup).tap do |projects|
+        projects.each { |project| project.collaborators << creator }
+      end
+    end
+    let!(:public_projects) do
+      create_list :project, 2, :public, :skip_archive_setup
+    end
+    let!(:private_owned_projects) do
+      create_list :project, 2, :private, :skip_archive_setup, owner: creator
+    end
+    let!(:private_collab_projects) do
+      create_list(:project, 2, :private, :skip_archive_setup).tap do |projects|
+        projects.each { |project| project.collaborators << creator }
+      end
+    end
+    let!(:private_projects) do
+      create_list :project, 2, :private, :skip_archive_setup
+    end
+
+    it 'returns all but private projects' do
+      is_expected.to match_array(
+        public_owned_projects + public_collab_projects + public_projects +
+        private_owned_projects + private_collab_projects
+      )
+    end
+
+    context 'when projects have collaborators' do
+      let(:collaborators) { create_list :user, 3 }
+
+      before do
+        public_projects.each do |project|
+          project.collaborators << collaborators
+        end
+      end
+
+      it 'returns only distinct projects' do
+        expect(method.map(&:id).uniq).to eq method.map(&:id)
+      end
+    end
+
+    context 'when profile is nil' do
+      let(:profile) { nil }
+
+      it 'returns only public projects' do
+        is_expected.to match_array(
+          public_owned_projects + public_collab_projects + public_projects
+        )
+      end
+    end
+  end
+
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
     subject(:method) { Project.where_profile_is_owner_or_collaborator(profile) }
     let(:profile)         { create :user }
