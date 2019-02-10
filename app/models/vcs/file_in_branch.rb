@@ -46,6 +46,11 @@ module VCS
       )
     }
 
+    # Return only files that have uncaptured changes
+    scope :where_change_is_uncaptured, lambda {
+      where("COALESCE(#{table_name}.current_version_id, '-1') != " \
+            "COALESCE(#{table_name}.committed_version_id, '-1')")
+    }
     # Return only files in branch that have been committed
     scope :committed, -> { where('committed_version_id IS NOT NULL') }
 

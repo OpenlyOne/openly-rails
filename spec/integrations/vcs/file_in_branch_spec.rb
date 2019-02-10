@@ -58,6 +58,23 @@ RSpec.describe VCS::FileInBranch, type: :model do
     end
   end
 
+  describe '.where_change_is_uncaptured' do
+    subject(:uncaptured) { described_class.where_change_is_uncaptured }
+
+    let!(:unchanged)  { create_list :vcs_file_in_branch, 2, :unchanged }
+    let!(:deleted)    { create_list :vcs_file_in_branch, 2, :deleted }
+
+    let!(:added) { create_list :vcs_file_in_branch, 2 }
+    let!(:committed_and_deleted) do
+      create_list :vcs_file_in_branch, 2, :deleted, :with_committed_version
+    end
+    let!(:changed) { create_list :vcs_file_in_branch, 2, :with_versions }
+
+    it 'returns added, deleted, and changed files' do
+      is_expected.to match_array(added + committed_and_deleted + changed)
+    end
+  end
+
   describe '.committed' do
     subject { described_class.committed }
 
