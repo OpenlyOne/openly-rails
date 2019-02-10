@@ -2,32 +2,27 @@
 
 .card {
 
+  color: inherit;
   display: block;
 
-  // Enable full-size background image
-  .card-image {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 12 * $base-unit;
+  .card-title,
+  .card-content,
+  .card-action {
+    padding: 20px;
   }
 
-  // Add padding to card title (to match card content)
   .card-title {
-    @include seam('top');
-    padding: 12px 24px;
-  }
+    padding-bottom: 0;
 
-  // Reduce top & bottom spacing on cards
-  .card-content {
-    padding: 16px 24px;
-
-    p:not(:first-of-type) {
-      margin-top: 10px;
+    // image within card title
+    img {
+      height: 40px;
+      margin-right: 8px;
+      width: 40px;
     }
   }
 
-  .with-bottom-seam {
-    @include seam('bottom');
+  .card-action {
+    padding: 12px 4px;
   }
 }
