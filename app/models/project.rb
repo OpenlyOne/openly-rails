@@ -182,6 +182,12 @@ class Project < ApplicationRecord
     slug_in_database
   end
 
+  # Updates the `captured_at` timestamp
+  # We do not use touch because we do not want to update the updated_at time
+  def touch_captured_at
+    update_attribute(:captured_at, Time.zone.now)
+  end
+
   private
 
   # Build master branch for the repository

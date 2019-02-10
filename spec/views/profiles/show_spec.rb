@@ -33,11 +33,13 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.location
   end
 
-  it 'lists projects with title & description' do
+  it 'lists projects with title, description, and captured at' do
     render
     projects.each do |project|
       expect(rendered).to have_text project.title
       expect(rendered).to have_text truncate(project.description, length: 200)
+      expect(rendered)
+        .to have_text "Updated #{time_ago_in_words(project.captured_at)} ago"
     end
   end
 

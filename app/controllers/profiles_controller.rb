@@ -13,7 +13,7 @@ class ProfilesController < ApplicationController
       .with_permission_level(current_user)
       .where_profile_is_owner_or_collaborator(@profile)
       .includes(:owner, :master_branch)
-      .order(:title, :id)
+      .order(captured_at: :desc)
     @user_can_edit_profile = can?(:edit, @profile)
   end
 
