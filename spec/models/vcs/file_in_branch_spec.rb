@@ -8,6 +8,17 @@ require 'models/shared_examples/vcs/being_syncable.rb'
 RSpec.describe VCS::FileInBranch, type: :model do
   subject(:file_in_branch) { build :vcs_file_in_branch }
 
+  describe 'factories' do
+    describe ':unchanged' do
+      subject(:file_in_branch) { create :vcs_file_in_branch, :unchanged }
+
+      it 'creates an unchanged FileInBranch' do
+        expect(file_in_branch.current_version)
+          .to eq file_in_branch.committed_version
+      end
+    end
+  end
+
   it_should_behave_like 'vcs: being backupable' do
     let(:backupable) { file_in_branch }
   end
