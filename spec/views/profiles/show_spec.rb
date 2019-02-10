@@ -46,6 +46,15 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).not_to have_css '.uncaptured-changes-indicator'
   end
 
+  context 'when user can collaborate' do
+    before do
+      allow(projects.first).to receive(:can_collaborate?).and_return true
+      render
+    end
+
+    it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
+  end
+
   it 'links to projects' do
     render
     projects.each do |project|
@@ -58,22 +67,22 @@ RSpec.describe 'profiles/show', type: :view do
 
   context 'when project has uncaptured changes' do
     before do
-      allow(projects.first)
-        .to receive(:uncaptured_changes_count)
-        .and_return 7
-      render
+      allow(projects.first).to receive(:uncaptured_changes_count).and_return 7
     end
 
     context 'when user can collaborate' do
       before do
         allow(projects.first).to receive(:can_collaborate?).and_return true
+        render
       end
 
       it { expect(rendered).to have_css '.uncaptured-changes-indicator' }
     end
 
     context 'when user cannot collaborate' do
-      xit { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
+      before { render }
+
+      it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
     end
   end
 

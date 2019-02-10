@@ -10,6 +10,7 @@ class ProfilesController < ApplicationController
   def show
     @projects =
       Project
+      .with_permission_level(current_user)
       .where_profile_is_owner_or_collaborator(@profile)
       .includes(:owner, :master_branch)
       .order(:title, :id)

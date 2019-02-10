@@ -9,7 +9,7 @@
       span.title.truncate = project.title
 
       / when there are uncaptured changes in project, show small indicator
-      - if project.uncaptured_changes_count.nonzero?
+      - if project.can_collaborate? && project.uncaptured_changes_count.nonzero?
         .uncaptured-changes-indicator.primary-color title='Project has uncaptured changes'
 
     .card-content

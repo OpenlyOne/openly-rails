@@ -57,6 +57,25 @@ class Project < ApplicationRecord
   before_update :make_archive_private, if: :making_private?
 
   # Scopes
+  # Returns a virtual attribute permission_level that indicates the user's
+  # access level for the project: collaboration, view, or none
+  scope :with_permission_level, lambda { |profile|
+    profile_id = connection.quote(profile&.id)
+    left_joins(:collaborators)
+      .select(
+        <<~SQL
+          projects.*,
+          (CASE
+            WHEN owner_id = #{profile_id}
+                 OR profiles_projects.profile_id = #{profile_id}
+            THEN 'collaboration'
+            WHEN is_public
+            THEN 'view'
+            ELSE 'none'
+            END) AS permission_level
+        SQL
+      ).distinct
+  }
   # Projects where profile is owner or collaborator
   scope :where_profile_is_owner_or_collaborator, lambda { |profile|
     left_joins(:collaborators)
@@ -109,6 +128,18 @@ class Project < ApplicationRecord
               scope: :owner_id
             },
             unless: proc { |project| project.errors[:slug].any? }
+
+  # Virtual attribute calculated when fetching projects using the
+  # `.with_permission_level` scope
+  def can_collaborate?
+    self[:permission_level] == 'collaboration'
+  end
+
+  # Virtual attribute calculated when fetching projects using the
+  # `.with_permission_level` scope
+  def can_view?
+    can_collaborate? || self[:permission_level] == 'view'
+  end
 
   # Return true if the contributions feature is enabled for this project
   def contributions_enabled?
