@@ -101,4 +101,45 @@ RSpec.describe VCS::Branch, type: :model do
       expect(branch.files).to all(be_deleted)
     end
   end
+
+  describe '#update_uncaptured_changes_count' do
+    subject(:update_count) { branch.update_uncaptured_changes_count }
+
+    let!(:unchanged_in_branch) do
+      create_list :vcs_file_in_branch, 2, :unchanged, branch: branch
+    end
+    let!(:changed_in_branch) do
+      create_list :vcs_file_in_branch, 2, :changed, branch: branch
+    end
+
+    it { is_expected.to be true }
+
+    it 'updates the uncaptured_changes_count on instance and in database' do
+      update_count
+      expect(branch.uncaptured_changes_count).to eq 2
+      expect(branch.reload.uncaptured_changes_count).to eq 2
+    end
+
+    context 'when other branches have changed files' do
+      let(:changed_files_in_other_branch) { create_list :vcs_file_in_branch, 2 }
+
+      it 'does not change the count' do
+        branch.update_uncaptured_changes_count
+        expect { changed_files_in_other_branch && update_count }
+          .not_to change(branch, :uncaptured_changes_count)
+      end
+    end
+
+    context 'when root is unchanged' do
+      let(:change_root) do
+        create :vcs_file_in_branch, :unchanged, :root, branch: branch
+      end
+
+      it 'does not change the count' do
+        branch.update_uncaptured_changes_count
+        expect { change_root && update_count }
+          .not_to change(branch, :uncaptured_changes_count)
+      end
+    end
+  end
 end

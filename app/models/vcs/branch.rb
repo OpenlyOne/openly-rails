@@ -119,6 +119,14 @@ module VCS
       )
     end
 
+    # Update the count of files with uncaptured changes in this branch
+    def update_uncaptured_changes_count
+      update_attribute(
+        :uncaptured_changes_count,
+        files.without_root.where_change_is_uncaptured.count
+      )
+    end
+
     private
 
     def mime_type_class
