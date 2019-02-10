@@ -312,4 +312,18 @@ RSpec.describe Project, type: :model do
       end
     end
   end
+
+  describe '#touch_captured_at' do
+    subject(:touch) { project.touch_captured_at }
+
+    it 'sets captured_at to now' do
+      touch
+      project.reload
+      expect(project.captured_at.utc).to be_within(1.second).of Time.zone.now
+    end
+
+    it 'does not change updated_at' do
+      expect { touch }.to change(project, :updated_at)
+    end
+  end
 end
