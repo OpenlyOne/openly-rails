@@ -40,7 +40,7 @@ class Project < ApplicationRecord
   delegate :archive, to: :repository, prefix: true
   delegate :branches, to: :repository
   delegate :in_progress?, :completed?, to: :setup, prefix: true, allow_nil: true
-  delegate :files, to: :master_branch
+  delegate :files, :uncaptured_changes_count, to: :master_branch
 
   # Callbacks
   # Auto-generate slug from title
@@ -57,6 +57,19 @@ class Project < ApplicationRecord
   before_update :make_archive_private, if: :making_private?
 
   # Scopes
+  # Returns a virtual attribute permission_level that indicates the user's
+  # access level for the project: collaboration, view, or none
+  scope :with_permission_level, lambda { |profile|
+    left_joins(:collaborators).select(
+      "projects.*, #{permission_level_sql_for(profile)} AS permission_level"
+    ).distinct
+  }
+  # Projects where profile has permission to view or to collaborate
+  scope :where_permission_level_is_collaboration_or_view, lambda { |profile|
+    left_joins(:collaborators).where(
+      "#{permission_level_sql_for(profile)} IN ('collaboration', 'view')"
+    ).distinct
+  }
   # Projects where profile is owner or collaborator
   scope :where_profile_is_owner_or_collaborator, lambda { |profile|
     left_joins(:collaborators)
@@ -110,6 +123,34 @@ class Project < ApplicationRecord
             },
             unless: proc { |project| project.errors[:slug].any? }
 
+  # Returns the SQL statement for calculating the provided profile's
+  # permission level on the given project
+  def self.permission_level_sql_for(profile)
+    profile_id = connection.quote(profile&.id)
+
+    <<~SQL
+      (CASE
+      WHEN owner_id = #{profile_id}
+           OR profiles_projects.profile_id = #{profile_id}
+      THEN 'collaboration'
+      WHEN is_public THEN 'view'
+      ELSE 'none'
+      END)
+    SQL
+  end
+
+  # Virtual attribute calculated when fetching projects using the
+  # `.with_permission_level` scope
+  def can_collaborate?
+    self[:permission_level] == 'collaboration'
+  end
+
+  # Virtual attribute calculated when fetching projects using the
+  # `.with_permission_level` scope
+  def can_view?
+    can_collaborate? || self[:permission_level] == 'view'
+  end
+
   # Return true if the contributions feature is enabled for this project
   def contributions_enabled?
     are_contributions_enabled
@@ -149,6 +190,12 @@ class Project < ApplicationRecord
   # Use slug when generating routes
   def to_param
     slug_in_database
+  end
+
+  # Updates the `captured_at` timestamp
+  # We do not use touch because we do not want to update the updated_at time
+  def touch_captured_at
+    update_attribute(:captured_at, Time.zone.now)
   end
 
   private

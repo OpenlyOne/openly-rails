@@ -76,4 +76,10 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Project',
                        association: :projects_collaborators
+
+  # Bullet complains on the profile page when eager loading master branch but
+  # not actually showing any uncaptured changes indicator
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Project',
+                       association: :master_branch
 end

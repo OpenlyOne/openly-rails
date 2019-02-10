@@ -114,12 +114,15 @@ RSpec.describe 'folders/show', type: :view do
   end
 
   context 'when current user can edit project' do
-    before { assign(:user_can_commit_changes, true) }
+    before do
+      assign(:user_can_commit_changes, true)
+      allow(project).to receive(:uncaptured_changes_count).and_return 55
+    end
 
     it 'has a button to capture changes' do
       render
       expect(rendered).to have_link(
-        'Capture Changes',
+        'Capture Changes55',
         href: new_profile_project_revision_path(project.owner, project)
       )
     end

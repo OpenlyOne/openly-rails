@@ -59,7 +59,7 @@ feature 'Revision Restore', :vcr, :delayed_job do
     visit profile_project_path(project.owner, project)
 
     # and capture changes
-    click_on 'Capture Changes'
+    click_on 'Capture Changes8'
 
     # then I should see no changes
     expect(page).not_to have_text 'No files changed'

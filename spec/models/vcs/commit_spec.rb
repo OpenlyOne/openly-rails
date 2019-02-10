@@ -52,6 +52,56 @@ RSpec.describe VCS::Commit, type: :model do
     it { is_expected.to have_readonly_attribute(:parent_id) }
   end
 
+  describe 'callbacks' do
+    let(:commit) { build :vcs_commit }
+    context 'on saving' do
+      before do
+        allow(commit).to receive(:publishing?).and_return is_publishing
+        allow(commit).to receive(:update_files_in_branch)
+        allow(commit).to receive(:branch_update_uncaptured_changes_count)
+        allow(commit).to receive(:project_touch_captured_at)
+        commit.save
+      end
+
+      context 'when publishing' do
+        let(:is_publishing) { true }
+
+        it { is_expected.to have_received(:update_files_in_branch) }
+        it do
+          is_expected.to have_received(:branch_update_uncaptured_changes_count)
+        end
+        it { is_expected.to have_received(:project_touch_captured_at) }
+      end
+
+      context 'when not publishing' do
+        let(:is_publishing) { false }
+
+        it { is_expected.not_to have_received(:update_files_in_branch) }
+        it do
+          is_expected
+            .not_to have_received(:branch_update_uncaptured_changes_count)
+        end
+        it { is_expected.not_to have_received(:project_touch_captured_at) }
+      end
+    end
+  end
+
+  describe 'delegations' do
+    it do
+      is_expected
+        .to delegate_method(:update_uncaptured_changes_count)
+        .to(:branch)
+        .with_prefix
+    end
+    it do
+      is_expected
+        .to delegate_method(:touch_captured_at)
+        .to(:project)
+        .with_prefix
+        .allow_nil
+    end
+  end
+
   describe 'validations' do
     it { is_expected.not_to validate_presence_of(:title) }
 

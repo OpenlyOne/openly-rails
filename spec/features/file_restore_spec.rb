@@ -60,7 +60,7 @@ feature 'File Restore', vcr: true do
 
     # and commit the file
     click_on 'Files'
-    click_on 'Capture Changes'
+    click_on 'Capture Changes1'
     fill_in 'Title', with: 'Delete file'
     click_on 'Capture Changes'
 
@@ -97,7 +97,7 @@ feature 'File Restore', vcr: true do
 
       # and commit the file
       click_on 'Files'
-      click_on 'Capture Changes'
+      click_on 'Capture Changes2'
       fill_in 'Title', with: 'Delete subfolder & file'
       click_on 'Capture Changes'
 
@@ -142,7 +142,7 @@ feature 'File Restore', vcr: true do
 
     # and commit the file
     click_on 'Files'
-    click_on 'Capture Changes'
+    click_on 'Capture Changes1'
     fill_in 'Title', with: 'Change file'
     click_on 'Capture Changes'
 
@@ -185,7 +185,7 @@ feature 'File Restore', vcr: true do
 
       # and commit the folder
       click_on 'Files'
-      click_on 'Capture Changes'
+      click_on 'Capture Changes1'
       fill_in 'Title', with: 'Delete folder'
       click_on 'Capture Changes'
 

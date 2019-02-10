@@ -98,6 +98,10 @@ RSpec.describe Project, type: :model do
         .with_prefix
     end
     it { is_expected.to delegate_method(:branches).to(:repository) }
+    it do
+      is_expected
+        .to delegate_method(:uncaptured_changes_count).to(:master_branch)
+    end
   end
 
   describe 'callbacks' do

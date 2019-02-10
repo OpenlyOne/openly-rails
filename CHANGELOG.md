@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v0.34 (Feb 10, 2019)
+
+**Enhancements:**
+- Project preview cards have a new clean design
+  ([#291](https://github.com/OpenlyOne/openly/issues/291))
+- Project preview cards are now sorted by most recent commit and list that date
+  ([#79](https://github.com/OpenlyOne/openly/issues/79))
+- Project preview cards now indicate when the project has uncaptured changes
+  and the capture changes button displays the number of uncaptured changes
+  within the project
+  ([#305](https://github.com/OpenlyOne/openly/issues/305))
+
+**Fixes:**
+- Private projects are no longer listed on the profile page unless the viewing
+  user has the permission to view/collaborate on them
+  ([#302](https://github.com/OpenlyOne/openly/issues/302))
+
 ## v0.33 (Feb 3, 2019)
 
 **Features:**

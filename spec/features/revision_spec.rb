@@ -54,7 +54,7 @@ feature 'Revision' do
     # and click on Files
     click_on 'Files'
     # and click on Capture Changes
-    click_on 'Capture Changes'
+    click_on 'Capture Changes5'
     # and enter a revision title
     fill_in 'Title', with: 'Initial Capture'
     # and click on 'Capture'
@@ -70,6 +70,7 @@ feature 'Revision' do
     expect(master_branch.commits.last).to be_present
     # and see no file modification icons
     expect(page).to have_css '.file.no-change', count: 5
+    expect(page).to have_text 'Capture Changes0'
   end
 
   context 'Selective capture' do
@@ -120,7 +121,7 @@ feature 'Revision' do
       # and click on Files
       click_on 'Files'
       # and click on Capture Changes
-      click_on 'Capture Changes'
+      click_on 'Capture Changes7'
 
       # then I can see the changes I am about to commit
       expect(page).to have_css '.file.addition',      text: added_file.name

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe 'profiles/show', type: :view do
-  let(:profile)   { build(:user, :with_social_links) }
-  let(:projects)  { build_stubbed_list(:project, 3, owner: profile) }
+  let(:profile) { build(:user, :with_social_links) }
+  let(:projects) do
+    build_stubbed_list(:project, 3, :public, :with_repository, owner: profile)
+  end
 
   before do
     assign(:profile, profile)
@@ -31,13 +33,28 @@ RSpec.describe 'profiles/show', type: :view do
     expect(rendered).to have_text profile.location
   end
 
-  it 'lists projects with title & tags & description' do
+  it 'lists projects with title, description, and captured at' do
     render
     projects.each do |project|
       expect(rendered).to have_text project.title
-      expect(rendered).to have_text view.tag_case(project.tags.first)
       expect(rendered).to have_text truncate(project.description, length: 200)
+      expect(rendered)
+        .to have_text "Updated #{time_ago_in_words(project.captured_at)} ago"
     end
+  end
+
+  it 'lists projects without an uncaptured changes indicator' do
+    render
+    expect(rendered).not_to have_css '.uncaptured-changes-indicator'
+  end
+
+  context 'when user can collaborate' do
+    before do
+      allow(projects.first).to receive(:can_collaborate?).and_return true
+      render
+    end
+
+    it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
   end
 
   it 'links to projects' do
@@ -47,6 +64,41 @@ RSpec.describe 'profiles/show', type: :view do
         project.title,
         href: profile_project_path(project.owner, project)
       )
+    end
+  end
+
+  it 'does not a private indicator' do
+    render
+    expect(rendered).not_to have_css '.project .lock-icon'
+  end
+
+  context 'when project is private' do
+    before { allow(projects.first).to receive(:private?).and_return true }
+
+    it 'has a private indicator' do
+      render
+      expect(rendered).to have_css '.project .lock-icon'
+    end
+  end
+
+  context 'when project has uncaptured changes' do
+    before do
+      allow(projects.first).to receive(:uncaptured_changes_count).and_return 7
+    end
+
+    context 'when user can collaborate' do
+      before do
+        allow(projects.first).to receive(:can_collaborate?).and_return true
+        render
+      end
+
+      it { expect(rendered).to have_css '.uncaptured-changes-indicator' }
+    end
+
+    context 'when user cannot collaborate' do
+      before { render }
+
+      it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
     end
   end
 

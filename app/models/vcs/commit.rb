@@ -4,7 +4,7 @@ module VCS
   # A commit is a version of a branch with all its files
   # rubocop:disable Metrics/ClassLength
   class Commit < ApplicationRecord
-    # TODO: Extract Notifying out
+    # TODO: Extract Notifying out into a wrapper class called Revision
     include Notifying
 
     # Associations
@@ -44,7 +44,16 @@ module VCS
     before_save :apply_selected_file_changes,
                 if: :publishing?, unless: :select_all_file_changes
     after_save :update_files_in_branch, if: :publishing?
+    after_save :branch_update_uncaptured_changes_count, if: :publishing?
+    # Update the `captured_at` attribute of project
+    # TODO: Extract into wrapper class because VCS::Commit should have no
+    # =>    knowledge of project
+    after_save :project_touch_captured_at, if: :publishing?
     after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
+
+    # Delegations
+    delegate :update_uncaptured_changes_count, to: :branch, prefix: true
+    delegate :touch_captured_at, to: :project, prefix: true, allow_nil: true
 
     # Scopes
     scope :preload_file_diffs_with_versions, lambda {
@@ -211,6 +220,12 @@ module VCS
       return if parent.repository.id == branch.repository_id
 
       errors.add(:parent, 'must belong to same repository')
+    end
+
+    # The project that this commit belongs to
+    # TODO: Extract into wrapper class `Revision`
+    def project
+      Project.find_by_repository_id(repository.id)
     end
 
     def published_origin_revision_exists_for_branch?

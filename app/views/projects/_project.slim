@@ -1,13 +1,32 @@
 .col.s12.m6.l4
-  = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable'
-    .card-image style="background-image: url(#{image_path('projects/banner.jpg')});"
-    .card-title.truncate.primary-color.primary-color-text = project.title
-    - if project.tags.any? || project.description.present?
-      .card-content
-        - if project.tags.any?
-          .truncate.hide-text-overflow
-            - project.tags.each do |tag|
-              .chip.slim.tag
-                = tag_case tag
+  = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable project'
+    .card-title.truncate
+      = image_tag project.owner.picture(:medium),
+                  size: '40',
+                  class: 'responsive-img circle left title-image',
+                  title: project.owner.name
+
+      span.title.truncate = project.title
+
+      / when there are uncaptured changes in project, show small indicator
+      - if project.can_collaborate? && project.uncaptured_changes_count.nonzero?
+        .uncaptured-changes-indicator.primary-color title='Project has uncaptured changes'
+
+      p.subtitle.truncate.gray-text.text-darken-2
+        ' Updated
+        => time_ago_in_words(project.captured_at)
+        | ago
+
+    .card-content
+      p
         - if project.description.present?
-          p.black-text = truncate(project.description, length: 200)
+          = truncate(project.description, length: 200)
+        - else
+          | No description.
+
+    .card-action
+      span.btn-flat Open
+      - if project.private?
+        span.lock-icon-wrapper.right.gray-text.text-darken-2 title='Project is private'
+          svg.lock-icon style="width:24px;height:24px" viewBox="0 0 24 24"
+            path fill="currentColor" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"
