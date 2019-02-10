@@ -66,4 +66,26 @@ $picture-size-small: 100px;
       width: 32px;
     }
   }
+
+  // set explicit max-width on this element, so that we can show the optional
+  // uncaptured changes indicator
+  .project {
+    .title {
+      display: inline-block;
+      max-width: calc(100% - 48px - 16px);
+      vertical-align: top;
+      width: auto;
+    }
+
+    .uncaptured-changes-indicator {
+      border-radius: 100%;
+      display: inline-block;
+      height: 8px;
+      margin-left: 8px;
+      position: relative;
+      top: -2px;
+      vertical-align: middle;
+      width: 8px;
+    }
+  }
 }

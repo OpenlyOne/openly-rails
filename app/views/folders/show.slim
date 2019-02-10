@@ -22,6 +22,8 @@
 / button for committing changes
 - if @user_can_commit_changes
   .fixed-action-btn
-    = link_to 'Capture Changes',
-        new_profile_project_revision_path(@project.owner, @project),
-        class: 'btn btn-large primary-color primary-color-text'
+    = link_to new_profile_project_revision_path(@project.owner, @project),
+              class: 'btn btn-large primary-color primary-color-text'
+      | Capture Changes
+      span.chip.slim.primary-color-inverse.primary-color-text-inverse
+        = @project.uncaptured_changes_count

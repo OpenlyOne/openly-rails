@@ -8,6 +8,17 @@ require 'models/shared_examples/vcs/being_syncable.rb'
 RSpec.describe VCS::FileInBranch, type: :model do
   subject(:file_in_branch) { build :vcs_file_in_branch }
 
+  describe 'factories' do
+    describe ':unchanged' do
+      subject(:file_in_branch) { create :vcs_file_in_branch, :unchanged }
+
+      it 'creates an unchanged FileInBranch' do
+        expect(file_in_branch.current_version)
+          .to eq file_in_branch.committed_version
+      end
+    end
+  end
+
   it_should_behave_like 'vcs: being backupable' do
     let(:backupable) { file_in_branch }
   end
@@ -63,6 +74,40 @@ RSpec.describe VCS::FileInBranch, type: :model do
         .class_name('VCS::Version')
         .dependent(false)
         .optional
+    end
+  end
+
+  describe 'callbacks' do
+    let!(:file_in_branch)  { create :vcs_file_in_branch }
+    let(:branch)           { file_in_branch.branch }
+
+    before { allow(branch).to receive(:update_uncaptured_changes_count) }
+
+    context 'when creating instance' do
+      before { create :vcs_file_in_branch, branch: branch }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+
+    context 'when updating instance' do
+      before { file_in_branch.update(name: 'ok') }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+
+    context 'when destroying instance' do
+      before { file_in_branch.destroy }
+
+      it { expect(branch).to have_received(:update_uncaptured_changes_count) }
+    end
+  end
+
+  describe 'delegations' do
+    it do
+      is_expected
+        .to delegate_method(:update_uncaptured_changes_count)
+        .to(:branch)
+        .with_prefix
     end
   end
 

@@ -52,6 +52,46 @@ RSpec.describe VCS::Commit, type: :model do
     it { is_expected.to have_readonly_attribute(:parent_id) }
   end
 
+  describe 'callbacks' do
+    let(:commit) { build :vcs_commit }
+    context 'on saving' do
+      before do
+        allow(commit).to receive(:publishing?).and_return is_publishing
+        allow(commit).to receive(:update_files_in_branch)
+        allow(commit).to receive(:branch_update_uncaptured_changes_count)
+        commit.save
+      end
+
+      context 'when publishing' do
+        let(:is_publishing) { true }
+
+        it { is_expected.to have_received(:update_files_in_branch) }
+        it do
+          is_expected.to have_received(:branch_update_uncaptured_changes_count)
+        end
+      end
+
+      context 'when not publishing' do
+        let(:is_publishing) { false }
+
+        it { is_expected.not_to have_received(:update_files_in_branch) }
+        it do
+          is_expected
+            .not_to have_received(:branch_update_uncaptured_changes_count)
+        end
+      end
+    end
+  end
+
+  describe 'delegations' do
+    it do
+      is_expected
+        .to delegate_method(:update_uncaptured_changes_count)
+        .to(:branch)
+        .with_prefix
+    end
+  end
+
   describe 'validations' do
     it { is_expected.not_to validate_presence_of(:title) }
 

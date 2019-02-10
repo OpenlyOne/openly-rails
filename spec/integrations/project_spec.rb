@@ -50,6 +50,83 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe 'scope: :with_permission_level(profile)' do
+    subject(:method)  { Project.with_permission_level(profile) }
+    let(:profile)     { creator }
+    let(:creator)     { create :user }
+
+    let!(:public_owned_projects) do
+      create_list :project, 2, :public, :skip_archive_setup, owner: creator
+    end
+    let!(:public_collab_projects) do
+      create_list(:project, 2, :public, :skip_archive_setup).tap do |projects|
+        projects.each { |project| project.collaborators << creator }
+      end
+    end
+    let!(:public_projects) do
+      create_list :project, 2, :public, :skip_archive_setup
+    end
+    let!(:private_owned_projects) do
+      create_list :project, 2, :private, :skip_archive_setup, owner: creator
+    end
+    let!(:private_collab_projects) do
+      create_list(:project, 2, :private, :skip_archive_setup).tap do |projects|
+        projects.each { |project| project.collaborators << creator }
+      end
+    end
+    let!(:private_projects) do
+      create_list :project, 2, :private, :skip_archive_setup
+    end
+
+    it 'sets collab permission on all owned & collaborator projects' do
+      expect(method.select(&:can_collaborate?)).to match_array(
+        public_owned_projects + public_collab_projects +
+        private_owned_projects + private_collab_projects
+      )
+    end
+
+    it 'sets view permission on all owned & collaborator & public projects' do
+      expect(method.select(&:can_view?)).to match_array(
+        public_owned_projects + public_collab_projects + public_projects +
+        private_owned_projects + private_collab_projects
+      )
+    end
+
+    it 'sets none permission on private projects' do
+      expect(method.reject(&:can_view?)).to match_array(private_projects)
+    end
+
+    context 'when projects have collaborators' do
+      let(:collaborators) { create_list :user, 3 }
+
+      before do
+        public_projects.each do |project|
+          project.collaborators << collaborators
+        end
+      end
+
+      it 'returns only distinct projects' do
+        expect(method.map(&:id).uniq).to eq method.map(&:id)
+      end
+    end
+
+    context 'when profile is nil' do
+      let(:profile) { nil }
+
+      it 'sets view permission on public projects' do
+        expect(method.select(&:can_view?)).to match_array(
+          public_owned_projects + public_collab_projects + public_projects
+        )
+      end
+
+      it 'sets none permission on private projects' do
+        expect(method.reject(&:can_view?)).to match_array(
+          private_owned_projects + private_collab_projects + private_projects
+        )
+      end
+    end
+  end
+
   describe 'scope: :where_profile_is_owner_or_collaborator(profile)' do
     subject(:method) { Project.where_profile_is_owner_or_collaborator(profile) }
     let(:profile)         { create :user }

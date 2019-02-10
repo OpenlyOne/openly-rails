@@ -20,6 +20,10 @@ FactoryBot.define do
       is_public { true }
     end
 
+    trait :private do
+      is_public { false }
+    end
+
     trait :setup_complete do
       after(:create) do |project|
         create(:project_setup, :completed, project: project)

@@ -44,7 +44,11 @@ module VCS
     before_save :apply_selected_file_changes,
                 if: :publishing?, unless: :select_all_file_changes
     after_save :update_files_in_branch, if: :publishing?
+    after_save :branch_update_uncaptured_changes_count, if: :publishing?
     after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
+
+    # Delegations
+    delegate :update_uncaptured_changes_count, to: :branch, prefix: true
 
     # Scopes
     scope :preload_file_diffs_with_versions, lambda {

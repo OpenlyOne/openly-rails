@@ -9,6 +9,12 @@ FactoryBot.define do
           branch&.repository ||
           create(:vcs_repository)
       end
+      # Allows overriding the mime type used for the versions
+      # Needed for the deleted trait because mime_type is nil
+      version_mime_type { mime_type || 'application/vnd.google-apps.document' }
+      # Allows overriding the remote file ID used for the remote content
+      # Needed for the files without remote ID, otherwise fails
+      content_remote_file_id { remote_file_id || Faker::Crypto.unique.sha1 }
     end
 
     with_parent
@@ -47,17 +53,42 @@ FactoryBot.define do
     end
 
     trait :with_versions do
-      current_version do
-        create(:vcs_version, file: file, mime_type: mime_type)
+      with_current_version
+      with_committed_version
+    end
+
+    trait :with_current_version do
+      with_parent
+
+      transient do
+        remote_content do
+          create :vcs_remote_content,
+                 remote_content_version_id: content_version,
+                 repository: repository,
+                 remote_file_id: content_remote_file_id
+        end
       end
+
+      current_version do
+        create(:vcs_version,
+               file: file, name: name, parent: parent,
+               mime_type: version_mime_type, content: remote_content.content)
+      end
+    end
+
+    trait :with_committed_version do
       committed_version do
-        create(:vcs_version, file: file, mime_type: mime_type)
+        create(:vcs_version, file: file, mime_type: version_mime_type)
       end
     end
 
     trait :unchanged do
-      with_versions
+      with_current_version
       committed_version { current_version }
+    end
+
+    trait :changed do
+      with_versions
     end
 
     trait :with_backup do

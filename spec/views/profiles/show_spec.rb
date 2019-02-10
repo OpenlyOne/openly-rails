@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe 'profiles/show', type: :view do
-  let(:profile)   { build(:user, :with_social_links) }
-  let(:projects)  { build_stubbed_list(:project, 3, owner: profile) }
+  let(:profile) { build(:user, :with_social_links) }
+  let(:projects) do
+    build_stubbed_list(:project, 3, :with_repository, owner: profile)
+  end
 
   before do
     assign(:profile, profile)
@@ -39,6 +41,20 @@ RSpec.describe 'profiles/show', type: :view do
     end
   end
 
+  it 'lists projects without an uncaptured changes indicator' do
+    render
+    expect(rendered).not_to have_css '.uncaptured-changes-indicator'
+  end
+
+  context 'when user can collaborate' do
+    before do
+      allow(projects.first).to receive(:can_collaborate?).and_return true
+      render
+    end
+
+    it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
+  end
+
   it 'links to projects' do
     render
     projects.each do |project|
@@ -46,6 +62,27 @@ RSpec.describe 'profiles/show', type: :view do
         project.title,
         href: profile_project_path(project.owner, project)
       )
+    end
+  end
+
+  context 'when project has uncaptured changes' do
+    before do
+      allow(projects.first).to receive(:uncaptured_changes_count).and_return 7
+    end
+
+    context 'when user can collaborate' do
+      before do
+        allow(projects.first).to receive(:can_collaborate?).and_return true
+        render
+      end
+
+      it { expect(rendered).to have_css '.uncaptured-changes-indicator' }
+    end
+
+    context 'when user cannot collaborate' do
+      before { render }
+
+      it { expect(rendered).not_to have_css '.uncaptured-changes-indicator' }
     end
   end
 

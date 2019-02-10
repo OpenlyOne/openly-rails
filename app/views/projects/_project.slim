@@ -1,16 +1,23 @@
 .col.s12.m6.l4
-  = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable'
+  = link_to url_for([project.owner.becomes(Profiles::Base), project]), class: 'card hoverable project'
     .card-title.truncate
       = image_tag project.owner.picture(:medium),
-                  size: '70',
+                  size: '40',
                   class: 'responsive-img circle left',
                   title: project.owner.name
-      = project.title
+
+      span.title.truncate = project.title
+
+      / when there are uncaptured changes in project, show small indicator
+      - if project.can_collaborate? && project.uncaptured_changes_count.nonzero?
+        .uncaptured-changes-indicator.primary-color title='Project has uncaptured changes'
+
     .card-content
       p
         - if project.description.present?
           = truncate(project.description, length: 200)
         - else
           | No description.
+
     .card-action
       span.btn-flat Open

@@ -65,7 +65,7 @@ feature 'File Content Change' do
     visit "#{project.owner.to_param}/#{project.to_param}"
 
     # and click on Capture Changes
-    click_on 'Capture Changes'
+    click_on 'Capture Changes3'
 
     # then I should see one file change
     expect(page).to have_text(
