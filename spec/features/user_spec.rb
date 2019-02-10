@@ -4,8 +4,9 @@ feature 'User' do
   scenario 'User can view user profile' do
     # given there is a user
     user = create(:user)
-    # with three projects
-    projects = create_list(:project, 3, :skip_archive_setup, owner: user)
+    # with three public projects
+    projects =
+      create_list(:project, 3, :public, :skip_archive_setup, owner: user)
 
     # when I visit the user profile
     visit "/#{user.handle}"
@@ -15,6 +16,39 @@ feature 'User' do
     # and the user's projects
     projects.each do |project|
       expect(page).to have_text project.title
+    end
+  end
+
+  scenario 'User cannot see private projects that they do not collaborate in' do
+    me = create(:user)
+    sign_in_as me.account
+
+    # given there is a user
+    user = create(:user)
+    # with two public projects
+    public_projects =
+      create_list(:project, 2, :public, :skip_archive_setup, owner: user)
+    # with two collaboration projects
+    collab_projects =
+      create_list(:project, 2, :private, :skip_archive_setup, owner: user)
+    collab_projects.each do |project|
+      project.collaborators << me
+    end
+    # with two private projects
+    private_projects =
+      create_list(:project, 2, :private, :skip_archive_setup, owner: user)
+
+    # when I visit the user profile
+    visit "/#{user.handle}"
+
+    # then I should see the public and collaboration projects
+    (public_projects + collab_projects).each do |project|
+      expect(page).to have_link(href: profile_project_path(user, project))
+    end
+
+    # but not see the private projects
+    private_projects.each do |project|
+      expect(page).not_to have_link(href: profile_project_path(user, project))
     end
   end
 

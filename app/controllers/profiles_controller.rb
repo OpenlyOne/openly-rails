@@ -12,6 +12,7 @@ class ProfilesController < ApplicationController
       Project
       .with_permission_level(current_user)
       .where_profile_is_owner_or_collaborator(@profile)
+      .where_permission_level_is_collaboration_or_view(current_user)
       .includes(:owner, :master_branch)
       .order(captured_at: :desc)
     @user_can_edit_profile = can?(:edit, @profile)

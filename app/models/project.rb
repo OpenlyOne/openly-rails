@@ -60,21 +60,15 @@ class Project < ApplicationRecord
   # Returns a virtual attribute permission_level that indicates the user's
   # access level for the project: collaboration, view, or none
   scope :with_permission_level, lambda { |profile|
-    profile_id = connection.quote(profile&.id)
-    left_joins(:collaborators)
-      .select(
-        <<~SQL
-          projects.*,
-          (CASE
-            WHEN owner_id = #{profile_id}
-                 OR profiles_projects.profile_id = #{profile_id}
-            THEN 'collaboration'
-            WHEN is_public
-            THEN 'view'
-            ELSE 'none'
-            END) AS permission_level
-        SQL
-      ).distinct
+    left_joins(:collaborators).select(
+      "projects.*, #{permission_level_sql_for(profile)} AS permission_level"
+    ).distinct
+  }
+  # Projects where profile has permission to view or to collaborate
+  scope :where_permission_level_is_collaboration_or_view, lambda { |profile|
+    left_joins(:collaborators).where(
+      "#{permission_level_sql_for(profile)} IN ('collaboration', 'view')"
+    ).distinct
   }
   # Projects where profile is owner or collaborator
   scope :where_profile_is_owner_or_collaborator, lambda { |profile|
@@ -128,6 +122,22 @@ class Project < ApplicationRecord
               scope: :owner_id
             },
             unless: proc { |project| project.errors[:slug].any? }
+
+  # Returns the SQL statement for calculating the provided profile's
+  # permission level on the given project
+  def self.permission_level_sql_for(profile)
+    profile_id = connection.quote(profile&.id)
+
+    <<~SQL
+      (CASE
+      WHEN owner_id = #{profile_id}
+           OR profiles_projects.profile_id = #{profile_id}
+      THEN 'collaboration'
+      WHEN is_public THEN 'view'
+      ELSE 'none'
+      END)
+    SQL
+  end
 
   # Virtual attribute calculated when fetching projects using the
   # `.with_permission_level` scope
