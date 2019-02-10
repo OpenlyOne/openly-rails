@@ -3,7 +3,7 @@
 RSpec.describe 'profiles/show', type: :view do
   let(:profile) { build(:user, :with_social_links) }
   let(:projects) do
-    build_stubbed_list(:project, 3, :with_repository, owner: profile)
+    build_stubbed_list(:project, 3, :public, :with_repository, owner: profile)
   end
 
   before do
@@ -64,6 +64,20 @@ RSpec.describe 'profiles/show', type: :view do
         project.title,
         href: profile_project_path(project.owner, project)
       )
+    end
+  end
+
+  it 'does not a private indicator' do
+    render
+    expect(rendered).not_to have_css '.project .lock-icon'
+  end
+
+  context 'when project is private' do
+    before { allow(projects.first).to receive(:private?).and_return true }
+
+    it 'has a private indicator' do
+      render
+      expect(rendered).to have_css '.project .lock-icon'
     end
   end
 
