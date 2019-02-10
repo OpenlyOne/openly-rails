@@ -70,7 +70,7 @@ feature 'Revision' do
     expect(master_branch.commits.last).to be_present
     # and see no file modification icons
     expect(page).to have_css '.file.no-change', count: 5
-    expect(page).to have_text 'Capture Changes'
+    expect(page).to have_text 'Capture Changes0'
   end
 
   context 'Selective capture' do
