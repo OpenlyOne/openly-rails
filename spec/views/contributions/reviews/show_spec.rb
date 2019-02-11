@@ -210,6 +210,7 @@ RSpec.describe 'contributions/reviews/show', type: :view do
           project.owner, project, contribution, diff.hashed_file_id
         )
       end
+      let(:text_unchanged_message) { 'Text will not change' }
     end
   end
 end
