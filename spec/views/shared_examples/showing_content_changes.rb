@@ -3,6 +3,8 @@
 RSpec.shared_examples 'showing content changes' \
   do |with_link_to_side_by_side: true, link_in_new_tab: false|
 
+  let(:text_unchanged_message) { 'Text did not change' }
+
   it 'does not show the content change' do
     render
     expect(rendered).not_to have_css('.fragment.addition')
@@ -50,7 +52,7 @@ RSpec.shared_examples 'showing content changes' \
       end
     end
 
-    xcontext 'when all fragments are retained' do
+    context 'when all fragments are retained' do
       before do
         content_change.fragments.each do |fragment|
           allow(fragment).to receive(:retain?).and_return true
@@ -59,7 +61,7 @@ RSpec.shared_examples 'showing content changes' \
 
       it 'displays information that the text did not change' do
         render
-        expect(rendered).to have_text 'Text did not change'
+        expect(rendered).to have_text text_unchanged_message
       end
     end
   end
