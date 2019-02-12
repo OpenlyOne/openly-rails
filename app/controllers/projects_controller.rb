@@ -6,14 +6,15 @@ class ProjectsController < ApplicationController
 
   before_action :authenticate_account!, except: :show
   before_action :build_project, only: %i[new create]
+  before_action :assign_create_params_to_project, only: %i[create]
   before_action :set_project, only: %i[show edit update destroy]
-  before_action :authorize_action, only: %i[edit update destroy]
+  before_action :authorize_action, only: %i[create edit update destroy]
   before_action :authorize_project_access, only: :show
 
   def new; end
 
   def create
-    if @project.update(project_params)
+    if @project.save
       redirect_with_success_to(
         new_profile_project_setup_path(@project.owner, @project)
       )
@@ -62,11 +63,20 @@ class ProjectsController < ApplicationController
   private
 
   rescue_from CanCan::AccessDenied do |exception|
-    can_can_access_denied(exception)
+    case action_name.to_sym
+    when :create
+      raise StandardError, 'Unauthorized to create private project'
+    else
+      can_can_access_denied(exception)
+    end
   end
 
   def authorize_action
     authorize! params[:action].to_sym, @project
+  end
+
+  def assign_create_params_to_project
+    @project.assign_attributes(project_create_params)
   end
 
   def build_project
@@ -81,8 +91,16 @@ class ProjectsController < ApplicationController
     params[:slug]
   end
 
+  def project_create_params
+    params
+      .require(:project)
+      .permit(:title, :slug, :tag_list, :description, :is_public)
+  end
+
   def project_params
-    params.require(:project).permit(:title, :slug, :tag_list, :description)
+    params
+      .require(:project)
+      .permit(:title, :slug, :tag_list, :description)
   end
 
   def project_overview_path
