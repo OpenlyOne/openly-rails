@@ -362,6 +362,50 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '#private?' do
+    before { project.is_public = state }
+
+    context 'when is_public = true' do
+      let(:state) { true }
+
+      it { is_expected.not_to be_private }
+    end
+
+    context 'when is_public = false' do
+      let(:state) { false }
+
+      it { is_expected.to be_private }
+    end
+
+    context 'when is_public = nil' do
+      let(:state) { nil }
+
+      it { is_expected.not_to be_private }
+    end
+  end
+
+  describe '#public?' do
+    before { project.is_public = state }
+
+    context 'when is_public = true' do
+      let(:state) { true }
+
+      it { is_expected.to be_public }
+    end
+
+    context 'when is_public = false' do
+      let(:state) { false }
+
+      it { is_expected.not_to be_public }
+    end
+
+    context 'when is_public = nil' do
+      let(:state) { nil }
+
+      it { is_expected.not_to be_public }
+    end
+  end
+
   describe '#setup_not_started?' do
     subject(:setup_started) { project.setup_not_started? }
     let(:not_started)       { false }

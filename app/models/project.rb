@@ -157,11 +157,11 @@ class Project < ApplicationRecord
   end
 
   def private?
-    !public?
+    is_public == false
   end
 
   def public?
-    is_public
+    is_public == true
   end
 
   # Return true if the setup process for this project has not started
