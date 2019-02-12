@@ -21,9 +21,6 @@ module Profiles
       banner: PaperclipField,
       about: Field::Text,
       location: Field::String,
-      link_to_website: Field::String,
-      link_to_facebook: Field::String,
-      link_to_twitter: Field::String,
       created_at: Field::DateTime,
       updated_at: Field::DateTime
     }.freeze
@@ -51,9 +48,6 @@ module Profiles
       banner
       about
       location
-      link_to_website
-      link_to_facebook
-      link_to_twitter
     ].freeze
 
     # FORM_ATTRIBUTES
@@ -67,9 +61,6 @@ module Profiles
       banner
       about
       location
-      link_to_website
-      link_to_facebook
-      link_to_twitter
     ].freeze
 
     # Overwrite this method to customize how users are displayed

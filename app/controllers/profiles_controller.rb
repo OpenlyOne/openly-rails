@@ -16,6 +16,10 @@ class ProfilesController < ApplicationController
       .includes(:owner, :master_branch)
       .order(captured_at: :desc)
     @user_can_edit_profile = can?(:edit, @profile)
+    # TODO: Add ability that checks whether the user can create a project
+    #       within the current profile scope, which could be on organization
+    #       that the user has access to.
+    @user_can_create_project = @user_can_edit_profile
   end
 
   def edit; end
