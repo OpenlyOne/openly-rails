@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_10_093056) do
+ActiveRecord::Schema.define(version: 2019_02_12_095542) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2019_02_10_093056) do
     t.datetime "updated_at", null: false
     t.datetime "remember_created_at"
     t.boolean "admin", default: false
+    t.boolean "is_premium", default: false, null: false
     t.index ["email"], name: "index_accounts_on_email", unique: true
   end
 
@@ -219,7 +220,7 @@ ActiveRecord::Schema.define(version: 2019_02_10_093056) do
     t.citext "slug", null: false
     t.text "description"
     t.citext "tags", default: [], array: true
-    t.boolean "is_public", default: false, null: false
+    t.boolean "is_public", null: false
     t.bigint "repository_id"
     t.bigint "master_branch_id"
     t.boolean "are_contributions_enabled", default: false, null: false

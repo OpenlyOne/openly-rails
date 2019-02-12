@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'views/shared_examples/showing_content_changes.rb'
+
 RSpec.describe 'file_infos/index', type: :view do
   let(:project)               { build_stubbed :project }
   let(:master_branch)         { build_stubbed :vcs_branch }
@@ -156,33 +158,12 @@ RSpec.describe 'file_infos/index', type: :view do
           expect(rendered).to have_text 'My Document deleted from Home'
         end
 
-        context 'when diff is modification and has content change' do
-          let(:content_change) do
-            VCS::Operations::ContentDiffer.new(
-              new_content: 'hi',
-              old_content: 'bye'
+        it_should_behave_like 'showing content changes' do
+          let(:diff) { uncaptured_file_diff }
+          let(:link_to_side_by_side) do
+            profile_project_file_change_path(
+              project.owner, project, diff.hashed_file_id
             )
-          end
-
-          before do
-            allow(uncaptured_file_diff)
-              .to receive(:modification?).and_return true
-            allow(uncaptured_file_diff)
-              .to receive(:content_change).and_return content_change
-          end
-
-          it 'shows the diff' do
-            render
-            expect(rendered).to have_css('.fragment.addition', text: 'hi')
-            expect(rendered).to have_css('.fragment.deletion', text: 'bye')
-          end
-
-          it 'has a link to side-by-side diff' do
-            render
-            link = profile_project_file_change_path(
-              project.owner, project, uncaptured_file_diff.hashed_file_id
-            )
-            expect(rendered).to have_link('View side-by-side', href: link)
           end
         end
 
@@ -299,33 +280,12 @@ RSpec.describe 'file_infos/index', type: :view do
       )
     end
 
-    context 'when diff is modification and has content change' do
-      let(:content_change) do
-        VCS::Operations::ContentDiffer.new(
-          new_content: 'hi',
-          old_content: 'bye'
+    it_should_behave_like 'showing content changes' do
+      let(:diff) { committed_file_diffs.first }
+      let(:link_to_side_by_side) do
+        profile_project_revision_file_change_path(
+          project.owner, project, r1, diff.hashed_file_id
         )
-      end
-
-      before do
-        allow(committed_file_diffs.first)
-          .to receive(:modification?).and_return true
-        allow(committed_file_diffs.first)
-          .to receive(:content_change).and_return content_change
-      end
-
-      it 'shows the diff' do
-        render
-        expect(rendered).to have_css('.fragment.addition', text: 'hi')
-        expect(rendered).to have_css('.fragment.deletion', text: 'bye')
-      end
-
-      it 'has a link to side-by-side diff' do
-        render
-        link = profile_project_revision_file_change_path(
-          project.owner, project, r1, committed_file_diffs.first.hashed_file_id
-        )
-        expect(rendered).to have_link(href: link)
       end
     end
 

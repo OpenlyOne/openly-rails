@@ -82,6 +82,10 @@ RSpec.describe Project, type: :model do
     it 'disables contributions by default' do
       expect(described_class.new).not_to be_contributions_enabled
     end
+    it 'is neither private nor public by default' do
+      expect(described_class.new).not_to be_private
+      expect(described_class.new).not_to be_public
+    end
   end
 
   describe 'delegations' do
@@ -223,6 +227,13 @@ RSpec.describe Project, type: :model do
     end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
+    it do
+      project.is_public = nil
+      project.valid?
+      expect(project.errors.full_messages).to include(
+        'Visibility must be public or private'
+      )
+    end
 
     context 'when validating slug' do
       it do
@@ -359,6 +370,50 @@ RSpec.describe Project, type: :model do
       let(:archive) { nil }
 
       it { expect { revoke_acess }.not_to raise_error }
+    end
+  end
+
+  describe '#private?' do
+    before { project.is_public = state }
+
+    context 'when is_public = true' do
+      let(:state) { true }
+
+      it { is_expected.not_to be_private }
+    end
+
+    context 'when is_public = false' do
+      let(:state) { false }
+
+      it { is_expected.to be_private }
+    end
+
+    context 'when is_public = nil' do
+      let(:state) { nil }
+
+      it { is_expected.not_to be_private }
+    end
+  end
+
+  describe '#public?' do
+    before { project.is_public = state }
+
+    context 'when is_public = true' do
+      let(:state) { true }
+
+      it { is_expected.to be_public }
+    end
+
+    context 'when is_public = false' do
+      let(:state) { false }
+
+      it { is_expected.not_to be_public }
+    end
+
+    context 'when is_public = nil' do
+      let(:state) { nil }
+
+      it { is_expected.not_to be_public }
     end
   end
 

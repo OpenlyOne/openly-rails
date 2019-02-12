@@ -5,6 +5,7 @@ class Ability
   include CanCan::Ability
 
   # rubocop: disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def initialize(user)
     # Users can view public projects and private projects they are collaborators
     # of
@@ -21,6 +22,16 @@ class Ability
     # Users can collaborate on projects that they own or are a collaborator of
     can :collaborate, Project do |project|
       can?(:edit, project) || project.collaborators.exists?(user.id)
+    end
+
+    can :create, Project do |project|
+      # Users can only create projects for profiles they can manage
+      can?(:manage, project.owner) &&
+        ( # All users can create non-private projects.
+          !project.private? ||
+          # Premium users can create private projects.
+          (project.private? && user.premium_account?)
+        )
     end
 
     # Users can edit the projects of profiles that they can manage
@@ -91,4 +102,5 @@ class Ability
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
   end
   # rubocop: enable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop: enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

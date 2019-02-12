@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'views/shared_examples/showing_content_changes.rb'
+
 RSpec.describe 'revisions/index', type: :view do
   let(:project)       { build_stubbed :project, :with_repository }
   let(:repository)    { project.repository }
@@ -96,6 +98,15 @@ RSpec.describe 'revisions/index', type: :view do
       allow(revisions.first).to receive(:file_diffs).and_return diffs
     end
 
+    it_should_behave_like 'showing content changes' do
+      let(:diff) { diffs.first }
+      let(:link_to_side_by_side) do
+        profile_project_revision_file_change_path(
+          project.owner, project, revisions.first, diff.hashed_file_id
+        )
+      end
+    end
+
     it 'renders a link to each file backup' do
       render
       diffs.each do |diff|
@@ -139,35 +150,6 @@ RSpec.describe 'revisions/index', type: :view do
           ".revision[id='#{revisions.first.id}'] .file.addition",
           text: "#{diff.name} added"
         )
-      end
-    end
-
-    context 'when diff is modification and has content change' do
-      let(:diff) { diffs.first }
-      let(:content_change) do
-        VCS::Operations::ContentDiffer.new(
-          new_content: 'hi',
-          old_content: 'bye'
-        )
-      end
-
-      before do
-        allow(diff).to receive(:modification?).and_return true
-        allow(diff).to receive(:content_change).and_return content_change
-      end
-
-      it 'shows the diff' do
-        render
-        expect(rendered).to have_css('.fragment.addition', text: 'hi')
-        expect(rendered).to have_css('.fragment.deletion', text: 'bye')
-      end
-
-      it 'does not have a link to side-by-side diff' do
-        render
-        link = profile_project_file_change_path(
-          project.owner, project, diffs.first.hashed_file_id
-        )
-        expect(rendered).not_to have_link(href: link)
       end
     end
   end

@@ -33,6 +33,8 @@ feature 'Account' do
       # and there should be an account in the database
       expect(Account.count).to equal 1
       expect(Account).to exist(email: account.email)
+      # and account should not be premium
+      expect(Account.all).to be_none(&:premium?)
       # and there should be a user in the database
       expect(Profiles::User).to exist(account: Account.first)
     end

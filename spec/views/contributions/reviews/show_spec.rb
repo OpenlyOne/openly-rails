@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'views/shared_examples/showing_content_changes.rb'
+
 RSpec.describe 'contributions/reviews/show', type: :view do
   let(:project)       { build_stubbed :project, :with_repository }
   let(:repository)    { project.repository }
@@ -200,35 +202,15 @@ RSpec.describe 'contributions/reviews/show', type: :view do
       end
     end
 
-    context 'when diff is modification and has content change' do
-      let(:change) { revision.file_changes.first }
-      let(:content_change) do
-        VCS::Operations::ContentDiffer.new(
-          new_content: 'hi',
-          old_content: 'bye'
-        )
-      end
+    it_should_behave_like 'showing content changes',
+                          with_link_to_side_by_side: false do
+      let(:diff) { revision.file_changes.first }
       let(:link_to_side_by_side) do
         profile_project_contribution_file_change_path(
-          project.owner, project, contribution, change.hashed_file_id
+          project.owner, project, contribution, diff.hashed_file_id
         )
       end
-
-      before do
-        allow(change).to receive(:modification?).and_return true
-        allow(change).to receive(:content_change).and_return content_change
-      end
-
-      it 'shows the diff' do
-        render
-        expect(rendered).to have_css('.fragment.addition', text: 'hi')
-        expect(rendered).to have_css('.fragment.deletion', text: 'bye')
-      end
-
-      it 'does not have link to side-by-side diff' do
-        render
-        expect(rendered).not_to have_link(href: link_to_side_by_side)
-      end
+      let(:text_unchanged_message) { 'Text will not change' }
     end
   end
 end

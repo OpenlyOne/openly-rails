@@ -28,7 +28,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Fri, 04 Jan 2019 15:57:45 GMT
+      - Tue, 12 Feb 2019 10:19:49 GMT
       Server:
       - ESF
       Cache-Control:
@@ -40,7 +40,7 @@ http_interactions:
       X-Content-Type-Options:
       - nosniff
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -53,14 +53,14 @@ http_interactions:
           "token_type": "Bearer"
         }
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 15:57:45 GMT
+  recorded_at: Tue, 12 Feb 2019 10:19:49 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
     body:
       encoding: UTF-8
-      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2019-01-04
-        15:57:45 UTC","parents":["root"]}'
+      string: '{"mimeType":"application/vnd.google-apps.folder","name":"Test @ 2019-02-12
+        10:19:49 UTC","parents":["root"]}'
     headers:
       User-Agent:
       - "<USER AGENT>"
@@ -69,7 +69,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 04 Jan 2019 15:57:45 GMT
+      - Tue, 12 Feb 2019 10:19:49 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -86,7 +86,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Fri, 04 Jan 2019 15:57:46 GMT
+      - Tue, 12 Feb 2019 10:19:50 GMT
       Vary:
       - Origin
       - X-Origin
@@ -103,15 +103,15 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1fZwV6GttgPBq-hP8vR7MzUU_VECG4Q5f",
-         "name": "Test @ 2019-01-04 15:57:45 UTC",
+         "id": "1akIHPDQGKvqNS02Da7K5aQk6xZ-Mzdy4",
+         "name": "Test @ 2019-02-12 10:19:49 UTC",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
          "parents": [
@@ -131,7 +131,7 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 15:57:46 GMT
+  recorded_at: Tue, 12 Feb 2019 10:19:50 GMT
 - request:
     method: post
     uri: https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,parents,permissions,trashed,thumbnailLink,thumbnailVersion
@@ -147,7 +147,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 04 Jan 2019 15:57:46 GMT
+      - Tue, 12 Feb 2019 10:19:51 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -164,7 +164,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Fri, 04 Jan 2019 15:57:46 GMT
+      - Tue, 12 Feb 2019 10:19:52 GMT
       Vary:
       - Origin
       - X-Origin
@@ -181,14 +181,14 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |
         {
-         "id": "1TVpawBNkifDBul9GbWeo3II7COH77zUm",
+         "id": "1jEopirW5r1SzXDVsBi_X_fYQcocsjw6V",
          "name": "My Awesome New Project! (Archive)",
          "mimeType": "application/vnd.google-apps.folder",
          "trashed": false,
@@ -209,10 +209,10 @@ http_interactions:
          ]
         }
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 15:57:46 GMT
+  recorded_at: Tue, 12 Feb 2019 10:19:52 GMT
 - request:
     method: post
-    uri: https://www.googleapis.com/drive/v3/files/1TVpawBNkifDBul9GbWeo3II7COH77zUm/permissions?sendNotificationEmail=false
+    uri: https://www.googleapis.com/drive/v3/files/1jEopirW5r1SzXDVsBi_X_fYQcocsjw6V/permissions?sendNotificationEmail=false
     body:
       encoding: UTF-8
       string: '{"emailAddress":"<EMAIL ADDRESS FOR USER ACCOUNT>","role":"reader","type":"user"}'
@@ -224,7 +224,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 04 Jan 2019 15:57:46 GMT
+      - Tue, 12 Feb 2019 10:19:52 GMT
       Content-Type:
       - application/json
       Authorization:
@@ -241,7 +241,7 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Fri, 04 Jan 2019 15:57:47 GMT
+      - Tue, 12 Feb 2019 10:19:53 GMT
       Vary:
       - Origin
       - X-Origin
@@ -258,7 +258,7 @@ http_interactions:
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
       Transfer-Encoding:
       - chunked
     body:
@@ -271,10 +271,10 @@ http_interactions:
          "role": "reader"
         }
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 15:57:47 GMT
+  recorded_at: Tue, 12 Feb 2019 10:19:53 GMT
 - request:
     method: delete
-    uri: https://www.googleapis.com/drive/v3/files/1fZwV6GttgPBq-hP8vR7MzUU_VECG4Q5f
+    uri: https://www.googleapis.com/drive/v3/files/1akIHPDQGKvqNS02Da7K5aQk6xZ-Mzdy4
     body:
       encoding: UTF-8
       string: ''
@@ -286,7 +286,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 04 Jan 2019 15:57:47 GMT
+      - Tue, 12 Feb 2019 10:19:53 GMT
       Authorization:
       - Bearer <ACCESS TOKEN FOR TRACKING ACCOUNT>
       Content-Type:
@@ -303,17 +303,17 @@ http_interactions:
       Expires:
       - Mon, 01 Jan 1990 00:00:00 GMT
       Date:
-      - Fri, 04 Jan 2019 15:57:48 GMT
+      - Tue, 12 Feb 2019 10:19:54 GMT
       Vary:
       - Origin
       - X-Origin
       Server:
       - GSE
       Alt-Svc:
-      - quic=":443"; ma=2592000; v="44,43,39,35"
+      - quic=":443"; ma=2592000; v="44,43,39"
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 15:57:48 GMT
+  recorded_at: Tue, 12 Feb 2019 10:19:54 GMT
 recorded_with: VCR 4.0.0
