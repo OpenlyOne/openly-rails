@@ -20,11 +20,22 @@
             = f.text_field :title, placeholder: 'Title', class: 'inherit'
     .row
       .col.s12
-        p
-          | Projects are private by default. Only you (and any collaborators
-            you add to your projects) will be able to see files, changes, and
-            summaries.
-        .spacing.v16px
+        .section.no-padding-top
+          .section.no-padding-top
+            label
+              = f.radio_button :is_public, true, checked: @project.public?, class: 'with-gap public'
+              span.black-text
+                b Public
+                br
+                | Anyone can see this project. Only you can make changes.
+
+          .section.no-padding-top
+            label
+              = f.radio_button :is_public, false, checked: @project.private?, class: 'with-gap private'
+              span.black-text
+                b Private
+                br
+                | You choose who can see this project and make changes.
 
     .row
       .col.s12
