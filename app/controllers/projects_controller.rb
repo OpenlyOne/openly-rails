@@ -10,6 +10,8 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: %i[show edit update destroy]
   before_action :authorize_action, only: %i[create edit update destroy]
   before_action :authorize_project_access, only: :show
+  before_action :set_user_can_create_private_projects, only: %i[new create]
+
 
   def new; end
 
@@ -105,5 +107,10 @@ class ProjectsController < ApplicationController
 
   def project_overview_path
     profile_project_overview_path(@project.owner, @project)
+  end
+
+  def set_user_can_create_private_projects
+    @user_can_create_private_projects =
+      current_user.can_create_private_projects?
   end
 end

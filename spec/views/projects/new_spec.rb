@@ -4,6 +4,7 @@ RSpec.describe 'projects/new', type: :view do
   let(:project) { build(:project, is_public: nil) }
 
   before { assign(:project, project) }
+  before { assign(:current_account, create(:account)) }
 
   it 'renders a form with projects_path action' do
     render
@@ -31,12 +32,23 @@ RSpec.describe 'projects/new', type: :view do
       class: 'public', type: 'radio', with: true, checked: false
     )
     expect(rendered).to have_field(
-      class: 'private', type: 'radio', with: false, checked: false
+      class: 'private', type: 'radio',
+      with: false, checked: false, disabled: true
     )
   end
 
-  xit 'has the private option disabled' do
-    expect(rendered).to have_field('Private', type: 'select', disabled: true)
+  it 'has the private option disabled' do
+    render
+    expect(rendered).to have_field(
+      class: 'private', type: 'radio', disabled: true
+    )
+  end
+
+  it 'renders an upgrade button' do
+    render
+    expect(rendered).to have_css(
+      "a[href^='mailto:#{Settings.support_email}']", text: 'Upgrade'
+    )
   end
 
   it 'has a button to create the project' do
@@ -45,12 +57,21 @@ RSpec.describe 'projects/new', type: :view do
       .to have_css "button[action='submit']", text: 'Create'
   end
 
-  xcontext 'when user can create private projects' do
+  context 'when user can create private projects' do
     before { assign(:user_can_create_private_projects, true) }
 
     it 'has the private option enabled' do
       render
-      expect(rendered).to have_field('Private', type: 'select', disabled: false)
+      expect(rendered).to have_field(
+        class: 'private', type: 'radio', with: false, disabled: false
+      )
+    end
+
+    it 'does not render an upgrade button' do
+      render
+      expect(rendered).not_to have_css(
+        "a[href^='mailto:#{Settings.support_email}']", text: 'Upgrade'
+      )
     end
   end
 end

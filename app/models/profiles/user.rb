@@ -22,5 +22,11 @@ module Profiles
     def premium_account?
       account.premium?
     end
+
+    def can_create_private_projects?
+      Ability
+        .new(self)
+        .can?(:create, Project.new(is_public: false, owner: self))
+    end
   end
 end

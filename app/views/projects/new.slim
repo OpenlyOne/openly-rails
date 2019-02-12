@@ -31,9 +31,17 @@
 
           .section.no-padding-top
             label
-              = f.radio_button :is_public, false, checked: @project.private?, class: 'with-gap private'
-              span.black-text
+              = f.radio_button :is_public, false, checked: @project.private?, class: 'with-gap private', disabled: !@user_can_create_private_projects
+              span class=[@user_can_create_private_projects ? 'black-text' : 'gray-text']
                 b Private
+                - unless @user_can_create_private_projects
+                  = mail_to Settings.support_email, \
+                            subject: "Upgrade to premium: #{@current_account.user.handle}", \
+                            body: "Hi there,\n\n\nI would like to update my account #{@current_account.email} to a paid plan.\n\n\nCheers,\n#{@current_account.user.name}"
+                    span.chip.slim.primary-color.primary-color-text.inline
+                      svg.icon style="width:24px;height:24px" viewBox="0 0 24 24"
+                        path fill="currentColor" d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"
+                      | Premium | Upgrade
                 br
                 | You choose who can see this project and make changes.
 
