@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.35 (Feb 13, 2019)
+
+**Enhancements:**
+- Add support for premium accounts & make private projects a premium feature.
+  Free users can only create public projects, while premium users can choose
+  between public and private when creating the project.
+- Improve the notification icon by replacing the old world icon with a bell
+  icon. This should help more clearly identify it as a notification icon.
+  ([#318](https://github.com/OpenlyOne/openly/issues/318))
+- Improve placement of profile actions: Demote the edit profile button from
+  floating action button to flat button. Add a button to create a new project
+  as the primary action on the profile page. This should help solve the
+  confusion of users who think they can create a project by clicking the button
+  that actually takes them to the edit profile page
+  ([#292](https://github.com/OpenlyOne/openly/issues/292))
+
+**Fixes:**
+- Do not show file diffs when plain text between two document version is the
+  same
+  ([#240](https://github.com/OpenlyOne/openly/issues/240))
+
+
 ## v0.34 (Feb 10, 2019)
 
 **Enhancements:**
