@@ -33,4 +33,18 @@ RSpec.describe Profiles::User, type: :model do
       is_expected.to validate_presence_of(:account).with_message 'must exist'
     end
   end
+
+  describe '#premium_account?' do
+    context 'when account is premium' do
+      before { user.account = build_stubbed(:account, :premium) }
+
+      it { is_expected.to be_premium_account }
+    end
+
+    context 'when account is not premium' do
+      before { user.account = build_stubbed(:account, :free) }
+
+      it { is_expected.not_to be_premium_account }
+    end
+  end
 end

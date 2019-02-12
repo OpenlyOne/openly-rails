@@ -14,5 +14,13 @@ FactoryBot.define do
     trait :admin do
       admin { true }
     end
+
+    trait :premium do
+      is_premium { true }
+    end
+
+    trait :free do
+      is_premium { false }
+    end
   end
 end

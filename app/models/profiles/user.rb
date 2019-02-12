@@ -18,5 +18,9 @@ module Profiles
 
     # Delegations
     delegate :admin?, to: :account
+
+    def premium_account?
+      account.premium?
+    end
   end
 end
