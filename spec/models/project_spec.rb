@@ -82,6 +82,10 @@ RSpec.describe Project, type: :model do
     it 'disables contributions by default' do
       expect(described_class.new).not_to be_contributions_enabled
     end
+    it 'is neither private nor public by default' do
+      expect(described_class.new).not_to be_private
+      expect(described_class.new).not_to be_public
+    end
   end
 
   describe 'delegations' do
@@ -223,6 +227,13 @@ RSpec.describe Project, type: :model do
     end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(50) }
+    it do
+      project.is_public = nil
+      project.valid?
+      expect(project.errors.full_messages).to include(
+        'Visibility must be public or private'
+      )
+    end
 
     context 'when validating slug' do
       it do
