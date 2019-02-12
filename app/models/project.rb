@@ -91,6 +91,11 @@ class Project < ApplicationRecord
   # Title & slug must be present
   validates :title, presence: true, length: { maximum: 50 }
   validates :slug, presence: true
+  validates :is_public,
+            inclusion: {
+              in: [true, false],
+              message: 'must be public or private'
+            }
   # Conduct validations only if slug is present
   with_options if: :slug? do
     validates :slug, length: { maximum: 50 }
@@ -157,11 +162,11 @@ class Project < ApplicationRecord
   end
 
   def private?
-    !public?
+    is_public == false
   end
 
   def public?
-    is_public
+    is_public == true
   end
 
   # Return true if the setup process for this project has not started

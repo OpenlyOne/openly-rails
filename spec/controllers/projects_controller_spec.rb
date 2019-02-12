@@ -30,11 +30,12 @@ RSpec.describe ProjectsController, type: :controller do
   end
 
   describe 'POST #create' do
-    let(:params)      { { project: { title: 'title' } } }
+    let(:params)      { { project: { title: 'title', is_public: true } } }
     let(:run_request) { post :create, params: params }
+    let(:account)     { create(:account) }
     before do
       allow_any_instance_of(Project).to receive(:setup_archive)
-      sign_in create(:account)
+      sign_in account
     end
 
     it_should_behave_like 'an authenticated action'
@@ -47,6 +48,17 @@ RSpec.describe ProjectsController, type: :controller do
     it 'saves the project' do
       expect_any_instance_of(Project).to receive(:save)
       run_request
+    end
+
+    context 'when account is free' do
+      let(:account) { create(:account, :free) }
+
+      it 'cannot create private project' do
+        Project.delete_all
+        params[:project][:is_public] = false
+        expect { run_request }.to raise_error(StandardError)
+        expect(Project).to be_none
+      end
     end
   end
 
@@ -146,6 +158,26 @@ RSpec.describe ProjectsController, type: :controller do
     it 'updates the project' do
       expect_any_instance_of(Project).to receive(:update)
       run_request
+    end
+
+    context 'when trying to make public project private' do
+      let!(:project)    { create :project, :public, :skip_archive_setup }
+      let(:add_params)  { { project: { is_public: false } } }
+
+      it 'does not make project private' do
+        expect { run_request }
+          .not_to(change { project.reload.public? }.from(true))
+      end
+    end
+
+    context 'when trying to make private project public' do
+      let!(:project)    { create :project, :private, :skip_archive_setup }
+      let(:add_params)  { { project: { is_public: true } } }
+
+      it 'does not make project public' do
+        expect { run_request }
+          .not_to(change { project.reload.private? }.from(true))
+      end
     end
   end
 

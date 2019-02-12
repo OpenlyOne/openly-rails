@@ -27,6 +27,11 @@ class Account < ApplicationRecord
   validates :user, presence: true, on: :create
   devise :validatable
 
+  # Return true if the account has a premium membership
+  def premium?
+    is_premium
+  end
+
   # Monkey patch activity_notification's notify_to, so that it returns an
   # instance of Notification (instead of ActivityNotification::Notification)
   def notify_to(notifying_object, options = {})

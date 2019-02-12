@@ -110,4 +110,18 @@ RSpec.describe Profiles::User, type: :model do
       expect(exif_data).not_to match(/exif:/)
     end
   end
+
+  describe '#can_create_private_projects?' do
+    context 'when user account is free' do
+      subject(:user) { create(:user, :free) }
+
+      it { is_expected.not_to be_can_create_private_projects }
+    end
+
+    context 'when user account is premium' do
+      subject(:user) { create(:user, :premium) }
+
+      it { is_expected.to be_can_create_private_projects }
+    end
+  end
 end

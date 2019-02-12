@@ -67,17 +67,55 @@ RSpec.describe Ability, type: :model do
   end
 
   context 'Projects' do
-    actions = %i[edit update destroy]
-    let(:object) { build_stubbed(:project) }
+    describe 'create' do
+      actions = %i[create]
 
-    context 'when user is owner' do
-      before { object.owner = user }
+      let(:object) { build_stubbed(:project, :public, owner: user) }
+
       it_should_behave_like 'having authorization', actions
+
+      context 'when project is not owned by user' do
+        before { object.owner = build_stubbed(:user) }
+
+        it_should_behave_like 'not having authorization', actions
+      end
+
+      context 'when project visibility has not been chosen' do
+        before { object.is_public = nil }
+
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when project is private' do
+        before { object.is_public = false }
+
+        context 'when user has premium account' do
+          let(:user) { create(:user, :premium) }
+
+          it_should_behave_like 'having authorization', actions
+        end
+
+        context 'when user does not have premium account' do
+          let(:user) { create(:user) }
+
+          it_should_behave_like 'not having authorization', actions
+        end
+      end
     end
 
-    context 'when user is not owner' do
-      before { object.owner = build_stubbed(:user) }
-      it_should_behave_like 'not having authorization', actions
+    describe 'edit, update, destroy' do
+      actions = %i[edit update destroy]
+      let(:object) { build_stubbed(:project) }
+
+      context 'when user is owner' do
+        before { object.owner = user }
+        it_should_behave_like 'having authorization', actions
+      end
+
+      context 'when user is not owner' do
+        before { object.owner = build_stubbed(:user) }
+        it_should_behave_like 'not having authorization', actions
+      end
     end
   end
 

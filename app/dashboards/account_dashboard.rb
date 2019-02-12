@@ -16,6 +16,7 @@ class AccountDashboard < Administrate::BaseDashboard
     email: Field::String,
     password: Field::Password,
     password_confirmation: Field::Password,
+    is_premium: Field::Boolean,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -28,6 +29,7 @@ class AccountDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     id
     email
+    is_premium
     user
   ].freeze
 
@@ -36,6 +38,7 @@ class AccountDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     email
+    is_premium
     user
     created_at
     updated_at
@@ -48,6 +51,7 @@ class AccountDashboard < Administrate::BaseDashboard
     email
     password
     password_confirmation
+    is_premium
     user
   ].freeze
 
@@ -55,6 +59,6 @@ class AccountDashboard < Administrate::BaseDashboard
   # across all pages of the admin dashboard.
   #
   def display_resource(account)
-    account.email
+    account.premium? ? "#{account.email} (Premium)" : account.email
   end
 end

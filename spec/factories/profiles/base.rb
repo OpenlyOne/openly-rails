@@ -15,6 +15,20 @@ FactoryBot.define do
     handle    { Faker::Internet.user_name(name.first(26).strip, %w[_]) }
     location  { "#{city}, #{state}, USA" }
 
+    trait :premium do
+      account do
+        build(:account, :premium, user: Profiles::User.new(name: name),
+                                  force_email: account_email)
+      end
+    end
+
+    trait :free do
+      account do
+        build(:account, :free, user: Profiles::User.new(name: name),
+                               force_email: account_email)
+      end
+    end
+
     trait :with_social_links do
       link_to_website   { Faker::Internet.url }
       link_to_facebook  { Faker::Internet.url('facebook.com') }

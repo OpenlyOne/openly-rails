@@ -11,7 +11,7 @@ feature 'Project' do
   # delete test folder
   after(:each, :vcr) { tear_down_google_drive_test }
 
-  scenario 'User can create project', :vcr do
+  scenario 'User can create public project', :vcr do
     # given I am signed in as its owner
     account = user_account.tap(&:save)
     sign_in_as account
@@ -22,6 +22,8 @@ feature 'Project' do
     end
     # and fill in title and slug
     fill_in 'project_title', with: 'My Awesome New Project!'
+    find('.public').click
+
     # and save
     click_on 'Create'
 
@@ -38,6 +40,8 @@ feature 'Project' do
     # and a repository and master branch
     expect(Project.first.repository).to be_present
     expect(Project.first.master_branch).to be_present
+    # and be public
+    expect(Project.first).to be_public
   end
 
   scenario 'User can view project' do
