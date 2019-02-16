@@ -256,6 +256,59 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
+  describe '#apply_file_diffs_to_committed_files(file_diffs)' do
+    subject(:apply) { commit.apply_file_diffs_to_committed_files(diffs) }
+
+    let(:commit) { create :vcs_commit }
+    let!(:committed_files) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let!(:committed_files_to_delete) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let!(:committed_files_to_change) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let(:diffs) { deletions + [addition] + changes }
+    let(:addition) { create :vcs_file_diff }
+    let(:deletions) do
+      committed_files_to_delete.map(&:version).map do |version|
+        create :vcs_file_diff,
+               new_version: nil,
+               old_version: create(:vcs_version, file: version.file)
+      end
+    end
+    let(:changes) do
+      committed_files_to_change.map(&:version).map do |version|
+        create :vcs_file_diff,
+               new_version: create(:vcs_version, file: version.file)
+      end
+    end
+
+    before { apply && commit.committed_files.reload }
+
+    it 'removes deletions from committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .not_to include(committed_files_to_delete.map(&:version_id))
+      expect(commit.committed_files.map(&:version).map(&:file_id))
+        .not_to include(*deletions.map(&:file_id))
+    end
+
+    it 'adds additions to committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .to include(addition.new_version_id)
+      expect(commit.committed_files.map(&:version).map(&:file_id))
+        .to include(addition.file_id)
+    end
+
+    it 'modifies changes in committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .not_to include(*committed_files_to_change.map(&:version_id))
+      expect(commit.committed_files.map(&:version_id))
+        .to include(*changes.map(&:new_version_id))
+    end
+  end
+
   describe '#commit_all_files_in_branch' do
     subject(:committed_files) { commit.committed_files }
     let(:commit)              { create :vcs_commit }

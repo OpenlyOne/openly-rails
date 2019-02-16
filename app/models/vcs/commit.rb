@@ -91,6 +91,22 @@ module VCS
       }
     end
 
+    # Apply given file diffs to committed files
+    def apply_file_diffs_to_committed_files(file_diffs)
+      committed_files
+        .joins(:version)
+        .where(vcs_versions: { file_id: file_diffs.map(&:file_id) })
+        .delete_all
+
+      file_diffs_without_deletions = file_diffs.reject(&:deletion?)
+
+      VCS::CommittedFile.import(
+        %i[commit_id version_id],
+        file_diffs_without_deletions.map { |diff| [id, diff.new_version_id] },
+        validate: false
+      )
+    end
+
     # Take ID and current version ID of all (non-root) files currently in
     # branch and import them as committed files for this revision.
     def commit_all_files_in_branch
