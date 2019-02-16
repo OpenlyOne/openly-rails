@@ -47,23 +47,66 @@ RSpec.describe Contribution, type: :model do
     end
 
     let(:contribution) do
-      create :contribution, origin_revision: origin_revision, project: project
+      create :contribution, :mock_setup,
+             origin_revision: origin_revision, project: project
     end
     let(:project) { create(:project, :skip_archive_setup, :with_repository) }
-    let(:user)    { create :user }
-    let!(:origin_revision) do
-      create :vcs_commit, :published, branch: project.master_branch
+    let(:master_branch) { project.master_branch }
+    let(:user)          { create :user }
+    let(:origin_revision) do
+      create :vcs_commit, :commit_files, branch: master_branch
+    end
+
+    let!(:root) { create :vcs_file_in_branch, :root, branch: master_branch }
+    let!(:file_to_change_in_contribution_only) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:file_to_change_in_both) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:file_to_change_in_master_only) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:folder) do
+      create :vcs_file_in_branch, :folder, parent_in_branch: root
+    end
+
+    before do
+      origin_revision
+      contribution
+
+      # when changes are made on master
+      file_to_change_in_both.update!(name: 'in both (new)')
+      file_to_change_in_master_only.update!(name: 'master only (new)')
+      # and committed
+      create :vcs_commit, :commit_files, parent: origin_revision,
+                                         branch: master_branch
+
+      # when changes are made in the contribution
+      contribution.files.find_by!(
+        file_id: file_to_change_in_contribution_only.file_id
+      ).update!(name: 'contrib only (new)')
+      contribution.files.find_by!(
+        file_id: file_to_change_in_both.file_id
+      ).update!(parent: folder.file)
+
+      prepare_revision
     end
 
     it 'creates a revision draft' do
-      prepare_revision
       expect(contribution.revision).to have_attributes(
         is_published: false,
-        parent: origin_revision,
+        parent: project.revisions.last,
         title: contribution.title,
         summary: contribution.description,
         author: user
       )
+    end
+
+    it 'calculates diffs relative to origin revision' do
+      expect(contribution.revision.file_diffs.count).to eq 2
+      expect(contribution.revision.file_diffs.count(&:rename?)).to eq 2
+      expect(contribution.revision.file_diffs.count(&:movement?)).to eq 1
     end
   end
 

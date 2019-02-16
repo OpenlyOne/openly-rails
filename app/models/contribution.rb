@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # A contribution to a project (equivalent of pull request/merge request)
-# rubocop:disable Metrics/ClassLength
 class Contribution < ApplicationRecord
   # Associations
   belongs_to :project
@@ -66,6 +65,7 @@ class Contribution < ApplicationRecord
 
   # Build the revision to be accepted
   # TODO: Factor author out of this
+  # rubocop:disable Metrics/AbcSize
   def prepare_revision_for_acceptance(author:)
     # Create commit draft
     self.revision = branch.all_commits.create!(
@@ -75,12 +75,15 @@ class Contribution < ApplicationRecord
       summary: description
     )
 
-    # Generate & load diffs
-    revision
-      .tap(&:commit_all_files_in_branch)
-      .tap(&:generate_diffs)
-      .tap(&:preload_file_diffs_with_versions)
+    # Calculate committed files by applying suggested changes on top of
+    # committed files in last master commit
+    revision.copy_committed_files_from(revision.parent)
+    revision.apply_file_diffs_to_committed_files(suggested_file_diffs)
+
+    # Calculate diffs
+    revision.tap(&:generate_diffs).tap(&:preload_file_diffs_with_versions)
   end
+  # rubocop:enable Metrics/AbcSize
 
   # Setup the contribution.
   # Works just like #save/#update but forks off the master branch.
@@ -142,4 +145,3 @@ class Contribution < ApplicationRecord
                                           author_id: creator_id)
   end
 end
-# rubocop:enable Metrics/ClassLength

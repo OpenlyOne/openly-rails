@@ -79,18 +79,31 @@ feature 'Contributions: Review Changes' do
     expect(page).not_to have_text 'unchanged'
   end
 
-  scenario 'Changes to review are relative to master branch' do
+  scenario 'Changes to review are relative to contribution origin' do
     # given there are files and they are committed in a project
-    file = create :vcs_file_in_branch, name: 'file ABC', parent_in_branch: root
+    file_to_change_in_contribution_only =
+      create :vcs_file_in_branch, name: 'contrib only', parent_in_branch: root
+    file_to_change_in_both =
+      create :vcs_file_in_branch, name: 'in both', parent_in_branch: root
+    file_to_change_in_master_only =
+      create :vcs_file_in_branch, name: 'master only', parent_in_branch: root
+    folder = create :vcs_file_in_branch, :folder, parent_in_branch: root
+
     create_revision('origin')
 
     # and I start a contribution
     contribution
 
     # when changes are made on master
-    file.update(is_deleted: true)
+    file_to_change_in_both.update!(name: 'in both (new)')
+    file_to_change_in_master_only.update!(name: 'master only (new)')
     # and committed
     create_revision('update')
+
+    # when changes are made in the contribution
+    in_contribution(file_to_change_in_contribution_only)
+      .update!(name: 'contrib only (new)')
+    in_contribution(file_to_change_in_both).update!(parent: folder.file)
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -102,7 +115,12 @@ feature 'Contributions: Review Changes' do
     click_on 'Review'
 
     # then I can see that it is suggested to add file
-    expect(page).to have_css '.file.addition', text: 'file ABC'
+    expect(page).to have_css '.file.movement', text: 'in both'
+    expect(page).to have_css '.file.rename', text: 'in both'
+    expect(page).to have_css '.file.rename', text: 'contrib only (new)'
+
+    # and not suggested to undo the change in master
+    expect(page).not_to have_css '.file.rename', text: 'master only (new)'
   end
 end
 
