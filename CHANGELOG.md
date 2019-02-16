@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.35.1 (Feb 16, 2019)
+
+**Fixes:**
+- Relabel CTA on landing page to 'Get Started' because it may invite more
+  responses than 'Join Waitlist'
+
 ## v0.35 (Feb 13, 2019)
 
 **Enhancements:**
