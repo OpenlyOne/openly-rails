@@ -302,4 +302,32 @@ RSpec.describe VCS::Commit, type: :model do
       end
     end
   end
+
+  describe '#copy_committed_files_from(commit)' do
+    subject(:copy) { commit.copy_committed_files_from(commit_to_copy_from) }
+
+    let(:commit)              { create :vcs_commit }
+    let(:commit_to_copy_from) { create :vcs_commit }
+
+    before { create_list :vcs_committed_file, 5, commit: commit_to_copy_from }
+
+    it 'copies all committed files from commit to self' do
+      copy
+      expect(commit.reload.committed_files.map(&:version_id))
+        .to match_array(commit_to_copy_from.committed_files.map(&:version_id))
+    end
+
+    context 'when commit already has committed files' do
+      let!(:existing_committed_files) do
+        create_list :vcs_committed_file, 3, commit: commit
+      end
+
+      it 'removes existing committed files' do
+        expect(commit.committed_files).to match_array(existing_committed_files)
+        copy
+        expect(commit.committed_files)
+          .not_to match_array(existing_committed_files)
+      end
+    end
+  end
 end

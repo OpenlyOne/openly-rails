@@ -102,6 +102,15 @@ module VCS
       )
     end
 
+    # Copy committed files from the given commit over to self
+    def copy_committed_files_from(commit)
+      committed_files.delete_all
+      VCS::CommittedFile.insert_from_select_query(
+        %i[commit_id version_id],
+        commit.committed_files.select(id, :version_id)
+      )
+    end
+
     # Return the array of individual changes of this revision
     def file_changes
       file_diffs.flat_map(&:changes)
