@@ -8,6 +8,7 @@ class Contribution < ApplicationRecord
   belongs_to :branch, class_name: 'VCS::Branch',
                       dependent: :destroy,
                       optional: true
+  belongs_to :origin_revision, class_name: 'VCS::Commit'
 
   # Attributes
   # Transient revision attribute
@@ -27,6 +28,8 @@ class Contribution < ApplicationRecord
   validates :title, presence: true
   validates :description, presence: true
   validate :cannot_have_been_accepted, on: :accept
+  validate :origin_revision_must_be_published
+  validate :origin_revision_must_belong_to_project_master_branch
 
   def accepted?
     is_accepted_in_database
@@ -88,6 +91,8 @@ class Contribution < ApplicationRecord
       (will_save_change_to_is_accepted? || saved_change_to_is_accepted?)
   end
 
+  # TODO: Copy files from the origin revision rather than just forking master
+  # =>    at the latest revision
   def fork_master_branch
     self.branch = project_master_branch.create_fork(
       creator: creator,
@@ -101,6 +106,20 @@ class Contribution < ApplicationRecord
 
   def cannot_have_been_accepted
     errors.add(:base, 'Contribution has already been accepted.') if accepted?
+  end
+
+  def origin_revision_must_be_published
+    return if origin_revision&.published?
+
+    errors.add(:origin_revision, 'must be published')
+  end
+
+  def origin_revision_must_belong_to_project_master_branch
+    return if origin_revision&.branch_id.present? &&
+              project&.master_branch_id.present? &&
+              origin_revision.branch_id == project.master_branch_id
+
+    errors.add(:origin_revision, 'must belong to the same project')
   end
 
   def publish_revision

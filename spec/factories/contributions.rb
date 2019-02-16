@@ -5,6 +5,16 @@ FactoryBot.define do
     association :project, :skip_archive_setup, :with_repository
     association :creator, factory: :user
     branch      { build :vcs_branch, repository: project.repository }
+    origin_revision do
+      # HACK: Use stub strategy for origin revision if contribution is being
+      # =>    stubbed.
+      if @build_strategy.is_a?(FactoryBot::Strategy::Stub)
+        build_stubbed(:vcs_commit, :published, branch: project.master_branch)
+      else
+        project.revisions.last ||
+          create(:vcs_commit, :published, branch: project.master_branch)
+      end
+    end
     title       { Faker::HarryPotter.quote }
     description { Faker::Lorem.paragraph }
 

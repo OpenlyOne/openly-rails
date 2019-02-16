@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Contribution, type: :model do
-  subject(:contribution) { build_stubbed :contribution }
+  subject(:contribution) { build :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
@@ -16,6 +16,12 @@ RSpec.describe Contribution, type: :model do
     it do
       is_expected
         .to belong_to(:branch).class_name('VCS::Branch').dependent(:destroy)
+    end
+    it do
+      is_expected
+        .to belong_to(:origin_revision)
+        .class_name('VCS::Commit')
+        .dependent(false)
     end
   end
 
@@ -38,6 +44,10 @@ RSpec.describe Contribution, type: :model do
     it do
       is_expected.to validate_presence_of(:branch).with_message('must exist')
     end
+    it do
+      is_expected
+        .to validate_presence_of(:origin_revision).with_message('must exist')
+    end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_presence_of(:description) }
 
@@ -45,6 +55,30 @@ RSpec.describe Contribution, type: :model do
       it { is_expected.to validate_absence_of(:branch).on(:setup) }
       it { is_expected.to validate_presence_of(:title).on(:setup) }
       it { is_expected.to validate_presence_of(:description).on(:setup) }
+    end
+
+    context 'when origin revision is not published' do
+      let(:origin_revision) { contribution.origin_revision }
+
+      before { allow(origin_revision).to receive(:published?).and_return false }
+
+      it 'adds an error' do
+        contribution.valid?
+        expect(contribution.errors[:origin_revision])
+          .to include('must be published')
+      end
+    end
+
+    context 'when origin revision does not belong to project' do
+      let(:origin_revision) { contribution.origin_revision }
+
+      before { allow(origin_revision).to receive(:branch_id).and_return 'xx' }
+
+      it 'adds an error' do
+        contribution.valid?
+        expect(contribution.errors[:origin_revision])
+          .to include('must belong to the same project')
+      end
     end
   end
 
@@ -54,7 +88,9 @@ RSpec.describe Contribution, type: :model do
     let(:revision)      { instance_double VCS::Commit }
     let(:master_branch) { instance_double VCS::Branch }
     let(:creator)       { contribution.creator }
-    let(:contribution)  { create :contribution, project: project }
+    let!(:contribution) do
+      create :contribution, project: project
+    end
     let(:project) { create :project, :skip_archive_setup, :with_repository }
     let(:successfully_published) { true }
 
@@ -62,6 +98,8 @@ RSpec.describe Contribution, type: :model do
       allow(revision).to receive(:publish).and_return successfully_published
       allow(project).to receive(:master_branch).and_return master_branch
       allow(project).to receive(:master_branch_id).and_return 'master_branch_id'
+      allow(contribution.origin_revision)
+        .to receive(:branch_id).and_return 'master_branch_id'
       allow(master_branch).to receive(:restore_commit)
     end
 

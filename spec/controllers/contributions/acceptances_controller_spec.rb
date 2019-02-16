@@ -13,7 +13,8 @@ RSpec.describe Contributions::AcceptancesController, type: :controller do
   let(:master_branch) { project.master_branch }
   let!(:contribution) { create :contribution, project: project }
   let!(:revision) do
-    create :vcs_commit, branch: contribution.branch, author: author
+    create :vcs_commit, branch: contribution.branch, author: author,
+                        parent: project.revisions.last
   end
   let(:default_params) do
     {
@@ -36,7 +37,6 @@ RSpec.describe Contributions::AcceptancesController, type: :controller do
     it_should_behave_like 'an authenticated action'
     it_should_behave_like 'raise 404 if non-existent', Project
     it_should_behave_like 'raise 404 if non-existent', Contribution
-    it_should_behave_like 'raise 404 if non-existent', VCS::Commit
     it_should_behave_like 'an authorized action' do
       let(:redirect_location) do
         profile_project_contribution_review_path(

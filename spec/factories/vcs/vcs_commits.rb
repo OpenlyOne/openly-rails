@@ -19,11 +19,5 @@ FactoryBot.define do
     trait :with_parent do
       parent { create(:vcs_commit, branch: branch) }
     end
-
-    after(:build) do |commit|
-      next if commit.parent&.branch.nil?
-
-      commit.branch = commit.parent.branch
-    end
   end
 end

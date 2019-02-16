@@ -46,10 +46,12 @@ RSpec.describe Contribution, type: :model do
       contribution.prepare_revision_for_acceptance(author: user)
     end
 
-    let(:contribution)  { create :contribution }
-    let(:project)       { contribution.project }
-    let(:user)          { create :user }
-    let!(:last_revision) do
+    let(:contribution) do
+      create :contribution, origin_revision: origin_revision, project: project
+    end
+    let(:project) { create(:project, :skip_archive_setup, :with_repository) }
+    let(:user)    { create :user }
+    let!(:origin_revision) do
       create :vcs_commit, :published, branch: project.master_branch
     end
 
@@ -57,7 +59,7 @@ RSpec.describe Contribution, type: :model do
       prepare_revision
       expect(contribution.revision).to have_attributes(
         is_published: false,
-        parent: last_revision,
+        parent: origin_revision,
         title: contribution.title,
         summary: contribution.description,
         author: user
@@ -68,7 +70,10 @@ RSpec.describe Contribution, type: :model do
   describe '#setup', :vcr do
     subject(:setup) { contribution.setup(creator: current_account.user) }
 
-    let(:contribution) { build :contribution, project: project, branch: nil }
+    let(:contribution) do
+      build :contribution, project: project, branch: nil,
+                           origin_revision: origin_revision
+    end
 
     let(:api_connection) do
       Providers::GoogleDrive::ApiConnection.new(user_acct)
@@ -88,7 +93,7 @@ RSpec.describe Contribution, type: :model do
     # delete test folder
     after { tear_down_google_drive_test(api_connection) }
 
-    let(:last_commit)     { project.revisions.last }
+    let(:origin_revision) { project.revisions.last }
     let(:current_account) { create :account, email: user_acct }
     let(:project) do
       create :project, :with_repository, owner: current_account.user
@@ -114,15 +119,15 @@ RSpec.describe Contribution, type: :model do
       setup
     end
 
-    it 'copies files from last commit' do
+    it 'copies files from origin revision' do
       expect(contribution.branch.files.without_root.count)
-        .to eq last_commit.committed_files.count
+        .to eq origin_revision.committed_files.count
       expect(
         contribution.branch
                     .files.without_root
                     .map(&:current_version_id)
       ).to match_array(
-        last_commit.committed_files.map(&:version_id)
+        origin_revision.committed_files.map(&:version_id)
       )
     end
 

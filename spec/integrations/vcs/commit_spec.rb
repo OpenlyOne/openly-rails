@@ -113,7 +113,7 @@ RSpec.describe VCS::Commit, type: :model do
     end
 
     context 'when commit with same parent is not published' do
-      let!(:existing) { create :vcs_commit, parent: parent }
+      let!(:existing) { create :vcs_commit, parent: parent, branch: branch }
       it              { is_expected.to be_valid }
     end
 
