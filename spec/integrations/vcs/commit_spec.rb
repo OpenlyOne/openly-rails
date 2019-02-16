@@ -99,7 +99,7 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
-  describe 'validation: can have only one commit with parent' do
+  describe 'validation: can have only one commit with parent per branch' do
     subject(:commit)    { build(:vcs_commit, parent: parent, branch: branch) }
     let(:parent)        { create(:vcs_commit, branch: branch) }
     let(:branch)        { create(:vcs_branch) }
@@ -109,7 +109,16 @@ RSpec.describe VCS::Commit, type: :model do
         create :vcs_commit, :published, parent: parent, branch: branch
       end
 
-      it                { is_expected.to be_invalid }
+      it { is_expected.to be_invalid }
+    end
+
+    context 'when commit with same parent exists in another branch' do
+      let!(:existing) do
+        create :vcs_commit, :published, parent: parent, branch: other_branch
+      end
+      let(:other_branch) { create :vcs_branch, repository: branch.repository }
+
+      it { is_expected.to be_valid }
     end
 
     context 'when commit with same parent is not published' do

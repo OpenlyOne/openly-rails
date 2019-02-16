@@ -67,7 +67,7 @@ module VCS
     validates :title, presence: true, if: :is_published
 
     validate :parent_must_belong_to_same_repository, if: :parent_id
-    validate :can_only_have_one_revision_with_parent, if: :parent_id
+    validate :can_only_have_one_revision_with_parent_per_branch, if: :parent_id
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
     validate :selected_file_changes_must_be_valid,
              if: :publishing?, unless: :select_all_file_changes
@@ -202,8 +202,8 @@ module VCS
       errors.add(:base, 'An origin revision already exists for this branch')
     end
 
-    def can_only_have_one_revision_with_parent
-      return unless published_revision_with_parent_exists?
+    def can_only_have_one_revision_with_parent_per_branch
+      return unless published_revision_with_parent_exists_for_branch?
 
       errors.add(:base,
                  'Someone has captured changes to this branch since you ' \
@@ -232,8 +232,9 @@ module VCS
       self.class.exists?(branch_id: branch_id, parent: nil, is_published: true)
     end
 
-    def published_revision_with_parent_exists?
-      self.class.exists?(parent_id: parent_id, is_published: true)
+    def published_revision_with_parent_exists_for_branch?
+      self.class.exists?(branch_id: branch_id, parent_id: parent_id,
+                         is_published: true)
     end
 
     # Return true if revision is currently being published

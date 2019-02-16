@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # A contribution to a project (equivalent of pull request/merge request)
+# rubocop:disable Metrics/ClassLength
 class Contribution < ApplicationRecord
   # Associations
   belongs_to :project
@@ -50,6 +51,17 @@ class Contribution < ApplicationRecord
 
     # Return true
     true
+  end
+
+  # Calculate the file changes suggested by this contribution
+  # TODO: Factor author out of this
+  def suggested_file_diffs
+    @suggested_file_diffs ||=
+      branch
+      .all_commits.create!(parent: origin_revision, author: creator)
+      .tap(&:commit_all_files_in_branch)
+      .tap(&:generate_diffs)
+      .file_diffs.includes(:new_version, :old_version)
   end
 
   # Build the revision to be accepted
@@ -130,3 +142,4 @@ class Contribution < ApplicationRecord
                                           author_id: creator_id)
   end
 end
+# rubocop:enable Metrics/ClassLength

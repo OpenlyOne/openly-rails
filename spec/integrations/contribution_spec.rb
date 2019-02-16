@@ -153,6 +153,51 @@ RSpec.describe Contribution, type: :model do
     end
   end
 
+  describe '#suggested_file_diffs' do
+    subject(:file_diffs) { contribution.suggested_file_diffs }
+
+    let(:contribution)  { create :contribution, :mock_setup, project: project }
+    let(:project)     { create :project, :skip_archive_setup, :with_repository }
+    let(:author)      { project.owner }
+    let(:master)      { project.master_branch }
+    let!(:root)       { create :vcs_file_in_branch, :root, branch: master }
+    let!(:prior_files) do
+      create_list :vcs_file_in_branch, 5, parent_in_branch: root
+    end
+    let!(:origin_revision) do
+      master.commits.create_draft_and_commit_files!(author)
+            .tap { |commit| commit.update!(is_published: true, title: 'c') }
+    end
+
+    let!(:deletion) { contribution.branch.files.without_root.second.destroy }
+    let!(:addition) { create :vcs_file_in_branch, branch: contribution.branch }
+    let!(:modification) do
+      contribution.branch.files.without_root.second.tap do |file|
+        file.update(name: 'new file name')
+      end
+    end
+
+    it 'returns diffs of files changed in revision' do
+      expect(file_diffs.map { |d| [d.file_id, d.new_version_id] })
+        .to contain_exactly(
+          [deletion.file_id, nil],
+          [addition.file_id, addition.current_version_id],
+          [modification.file_id, modification.current_version_id]
+        )
+    end
+
+    it 'returns diffs relative to origin revision' do
+      expect(file_diffs.map(&:commit).map(&:parent_id).uniq)
+        .to contain_exactly(origin_revision.id)
+    end
+
+    it 'does not return diffs of files changed in master' do
+      addition_in_master = create :vcs_file_in_branch, parent_in_branch: root
+      expect(file_diffs.map(&:file_id))
+        .not_to include(addition_in_master.file_id)
+    end
+  end
+
   # TODO: Extract into shared context because revision_restore_spec uses these
   # =>    exact methods
   def create_folder(name:, parent_id:)
