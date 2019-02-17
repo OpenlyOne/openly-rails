@@ -92,7 +92,7 @@ RSpec.describe Contribution, type: :model do
   describe '#accept(revision:)' do
     subject(:accept) { contribution.accept(revision: revision) }
 
-    let(:revision)                    { instance_double VCS::Commit }
+    let(:revision)                    { create :vcs_commit }
     let(:master_branch)               { instance_double VCS::Branch }
     let(:file_diffs)                  { class_double VCS::FileDiff }
     let(:file_diffs_with_new_version) { class_double VCS::FileDiff }

@@ -16,7 +16,7 @@ class Contribution < ApplicationRecord
   attr_accessor :revision
 
   # Callbacks
-  before_save :publish_revision, if: :accepting?
+  before_save :publish_accepted_revision, if: :accepting?
 
   # Delegations
   delegate :branches, :master_branch, :revisions, to: :project, prefix: true
@@ -43,12 +43,12 @@ class Contribution < ApplicationRecord
   # Accept the provided revision
   def accept(revision:)
     return false unless update_with_context({ is_accepted: true,
-                                              revision: revision },
+                                              accepted_revision: revision },
                                             :accept)
 
     # Apply suggested changes onto files in master branch
     VCS::Operations::RestoreFilesFromDiffs.restore(
-      file_diffs: revision.file_diffs.includes(:new_version),
+      file_diffs: accepted_revision.file_diffs.includes(:new_version),
       target_branch: project.master_branch
     )
 
@@ -140,11 +140,13 @@ class Contribution < ApplicationRecord
     errors.add(:origin_revision, 'must belong to the same project')
   end
 
-  def publish_revision
-    return unless revision.present?
+  def publish_accepted_revision
+    return unless accepted_revision.present?
 
-    throw(:abort) unless revision.publish(branch_id: project.master_branch_id,
-                                          select_all_file_changes: true,
-                                          author_id: creator_id)
+    throw(:abort) unless accepted_revision.publish(
+      branch_id: project.master_branch_id,
+      select_all_file_changes: true,
+      author_id: creator_id
+    )
   end
 end
