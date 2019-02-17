@@ -1,21 +1,23 @@
 # frozen_string_literal: true
 
 module Notifications
-  module VCS
-    # Helper for commit notifications
-    class Commit
+  module Contributions
+    # Helper for contribution notifications
+    class Accept
       include Rails.application.routes.url_helpers
-      attr_accessor :commit
+      attr_accessor :contribution
       attr_writer :source
 
-      def initialize(commit, source: nil)
-        self.commit = commit
+      delegate :project, to: :contribution
+
+      def initialize(contribution, source: nil)
+        self.contribution = contribution
         self.source = source
       end
 
       # The path to the notifying object
       def path
-        profile_project_revisions_path(project.owner, project)
+        profile_project_contribution_path(project.owner, project, contribution)
       end
 
       # The recipients for this notification
@@ -25,26 +27,24 @@ module Notifications
 
       # The source/originator for this notification
       def source
-        @source ||= commit.author
+        @source ||= contribution.acceptor
       end
 
       # The notification's title
       def title
-        "#{source.name} created a revision in #{project.title}"
+        "#{source.name} accepted a contribution in #{project.title}"
       end
 
       private
-
-      def project
-        Project.find_by_repository_id(commit.repository.id)
-      end
 
       def collaborators_in_project
         [project.owner] + project.collaborators.includes(:account)
       end
 
       def recipient_users
-        (collaborators_in_project - [commit.author]).uniq
+        (collaborators_in_project +
+         [contribution.creator] -
+         [contribution.acceptor]).uniq
       end
     end
   end

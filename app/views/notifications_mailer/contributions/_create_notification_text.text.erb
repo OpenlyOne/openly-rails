@@ -1,0 +1,8 @@
+** <%= notification.title %>
+-------------------------------------------------------------------------------
+<%= notification.notifiable.title %>
+
+(<%= notification.created_at.strftime("%a, %d %b %Y at %l:%M%P %Z") %>)
+
+
+Open Notification: <%= notification_url(notification) %>

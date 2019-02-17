@@ -15,7 +15,7 @@ module Contributions
     # TODO: Refactor
     # rubocop:disable Metrics/MethodLength
     def create
-      if @contribution.accept(revision: @revision)
+      if @contribution.accept(revision: @revision, acceptor: current_user)
         # Successfully accepted
         redirect_with_success_to(
           profile_project_root_folder_path(@project.owner, @project),

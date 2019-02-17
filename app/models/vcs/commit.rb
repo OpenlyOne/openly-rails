@@ -49,7 +49,8 @@ module VCS
     # TODO: Extract into wrapper class because VCS::Commit should have no
     # =>    knowledge of project
     after_save :project_touch_captured_at, if: :publishing?
-    after_save :trigger_notifications, if: %i[publishing? belongs_to_project?]
+    after_save :trigger_create_notifications,
+               if: %i[publishing? belongs_to_project?]
 
     # Delegations
     delegate :update_uncaptured_changes_count, to: :branch, prefix: true
@@ -250,6 +251,10 @@ module VCS
 
         errors[:base].push(*file_change.errors.full_messages)
       end
+    end
+
+    def trigger_create_notifications
+      trigger_notifications('revision.create')
     end
   end
   # rubocop:enable Metrics/ClassLength

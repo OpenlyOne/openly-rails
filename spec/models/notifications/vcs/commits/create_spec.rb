@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Notifications::VCS::Commit, type: :model do
+RSpec.describe Notifications::VCS::Commits::Create, type: :model do
   subject(:notification)  { described_class.new(revision) }
   let(:revision)          { instance_double VCS::Commit }
 

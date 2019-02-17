@@ -4,6 +4,8 @@ AllCops:
   Exclude:
     - "bin/**/*"
     - "db/schema.rb"
+    - "*.inky-slim"
+    - "**/*.erb"
 
 Metrics/BlockLength:
   Enabled: true

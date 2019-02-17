@@ -5,9 +5,115 @@ RSpec.describe Contribution, type: :model do
 
   let(:project) { create :project }
 
-  describe '#accept(revision:)' do
-    subject(:accept) { contribution.accept(revision: revision) }
+  describe 'notifications' do
+    subject(:contribution) do
+      create(:contribution,
+             origin_revision: origin_revision, creator: creator,
+             project: project)
+    end
+    let(:origin_revision) do
+      create(:vcs_commit, :published, branch: project.master_branch)
+    end
 
+    let(:project) { create(:project, :skip_archive_setup, :with_repository) }
+    let(:owner)         { project.owner }
+    let(:collaborator1) { create :user }
+    let(:collaborator2) { create :user }
+    let(:collaborator3) { create :user }
+    let(:creator)       { collaborator1 }
+    let(:publish)       { true }
+
+    before do
+      setup
+      Notification.delete_all
+      ActionMailer::Base.deliveries.clear
+    end
+
+    context 'when creating contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+      end
+
+      before { contribution }
+
+      it 'creates a notification for project team minus the creator' do
+        expect(Notification.count).to eq 3
+        expect(Notification.all.map(&:target))
+          .to match_array [owner, collaborator2, collaborator3].map(&:account)
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly creator
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            [owner, collaborator2, collaborator3].map(&:account).map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
+      end
+    end
+
+    context 'when accepting contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+        contribution
+      end
+      let(:creator)   { create :user }
+      let(:acceptor)  { collaborator2 }
+
+      let(:revision) do
+        create :vcs_commit,
+               branch: project.master_branch, parent: origin_revision
+      end
+
+      before do
+        contribution.accept(revision: revision, acceptor: collaborator2)
+      end
+
+      it 'creates a notification for project team + contribution creator ' \
+         'minus the acceptor' do
+        expect(Notification.count).to eq 4
+        expect(Notification.all.map(&:target))
+          .to match_array(
+            [owner, collaborator1, collaborator3, creator].map(&:account)
+          )
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly acceptor
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            [owner, collaborator1, collaborator3, creator].map(&:account)
+                                                          .map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
+      end
+    end
+  end
+
+  describe '#accept(revision:, acceptor:)' do
+    subject(:accept) do
+      contribution.accept(revision: revision, acceptor: acceptor)
+    end
+
+    let(:acceptor)     { creator }
     let(:contribution) { create :contribution, :mock_setup, project: project }
     let(:creator)      { contribution.creator }
     let(:revision) do

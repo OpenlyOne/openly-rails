@@ -91,6 +91,8 @@ feature 'Contributions: Acceptances', :vcr do
       project.owner, project, contribution
     )
 
+    ActionMailer::Base.deliveries.clear
+
     # and accept them
     click_on 'Accept Changes'
 
@@ -138,7 +140,9 @@ feature 'Contributions: Acceptances', :vcr do
       expect(page).not_to have_text 'File 2'
     end
 
-    # TODO: it emails the contribution creator and my fellow project maintainers
+    # it emails the contribution creator and my fellow project maintainers
+    expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+      .to contain_exactly(contributor_acct, collaborator_acct)
   end
 end
 

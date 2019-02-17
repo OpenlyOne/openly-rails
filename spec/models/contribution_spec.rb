@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_notifying.rb'
+
 RSpec.describe Contribution, type: :model do
   subject(:contribution) { build :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
+  end
+
+  it_should_behave_like 'being notifying' do
+    let(:notifying) { contribution }
   end
 
   describe 'associations' do
@@ -89,10 +95,13 @@ RSpec.describe Contribution, type: :model do
     end
   end
 
-  describe '#accept(revision:)' do
-    subject(:accept) { contribution.accept(revision: revision) }
+  describe '#accept(revision:, acceptor:)' do
+    subject(:accept) do
+      contribution.accept(revision: revision, acceptor: acceptor)
+    end
 
     let(:revision)                    { create :vcs_commit }
+    let(:acceptor)                    { instance_double Profiles::User }
     let(:master_branch)               { instance_double VCS::Branch }
     let(:file_diffs)                  { class_double VCS::FileDiff }
     let(:file_diffs_with_new_version) { class_double VCS::FileDiff }
@@ -115,6 +124,7 @@ RSpec.describe Contribution, type: :model do
         .to receive(:includes)
         .with(:new_version)
         .and_return file_diffs_with_new_version
+      allow(contribution).to receive(:trigger_acceptance_notifications)
     end
 
     it { is_expected.to be true }
@@ -125,7 +135,8 @@ RSpec.describe Contribution, type: :model do
         .to have_received(:publish)
         .with(author_id: creator.id,
               branch_id: 'master_branch_id',
-              select_all_file_changes: true)
+              select_all_file_changes: true,
+              skip_notifications: true)
     end
 
     it 'applies changes to the master branch' do
@@ -138,6 +149,16 @@ RSpec.describe Contribution, type: :model do
 
     it 'updates the contribution to accepted' do
       expect { accept }.to change(contribution, :accepted?).to(true)
+    end
+
+    it 'triggers acceptance notifications' do
+      accept
+      expect(contribution).to have_received(:trigger_acceptance_notifications)
+    end
+
+    it 'sets acceptor on instance' do
+      accept
+      expect(contribution.acceptor).to eq acceptor
     end
 
     context 'when contribution has already been accepted' do
@@ -201,7 +222,10 @@ RSpec.describe Contribution, type: :model do
     end
 
     context 'when is accepted and persisted' do
-      before { contribution.update!(accepted_revision: revision) }
+      before do
+        allow(contribution).to receive(:trigger_acceptance_notifications)
+        contribution.update!(accepted_revision: revision)
+      end
 
       it { is_expected.to be_accepted }
     end

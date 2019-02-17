@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'support/helpers/notifications_helper.rb'
+
 RSpec.describe NotificationsMailer, type: :mailer do
+  include NotificationsHelper
+
   describe '.send_notification_email(notification, options = {})' do
     after { described_class.send_notification_email('notification', x: 'y') }
 
@@ -12,7 +16,7 @@ RSpec.describe NotificationsMailer, type: :mailer do
   end
 
   describe '#notification_email' do
-    let(:notification) { create :notification }
+    let(:notification) { create(random_notification_factory) }
     let(:mail) { described_class.notification_email(notification).deliver_now }
 
     it 'sets the correct subject' do

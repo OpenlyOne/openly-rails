@@ -1,0 +1,15 @@
+= link_to notification_path(notification),
+          class: 'notification collection-item avatar' do
+
+  = image_tag image_url, class: 'circle'
+
+  - if notification.unread?
+    .right.chip.primary-color.primary-color-text.slim-on-mobile new
+
+  .title.black-text = title
+
+  p.gray-text.text-darken-3 = subtitle
+
+  p.gray-text
+    => time_ago_in_words(notification.created_at)
+    | ago
