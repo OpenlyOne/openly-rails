@@ -85,9 +85,11 @@ RSpec.describe Contribution, type: :model do
   describe '#accept(revision:)' do
     subject(:accept) { contribution.accept(revision: revision) }
 
-    let(:revision)      { instance_double VCS::Commit }
-    let(:master_branch) { instance_double VCS::Branch }
-    let(:creator)       { contribution.creator }
+    let(:revision)                    { instance_double VCS::Commit }
+    let(:master_branch)               { instance_double VCS::Branch }
+    let(:file_diffs)                  { class_double VCS::FileDiff }
+    let(:file_diffs_with_new_version) { class_double VCS::FileDiff }
+    let(:creator)                     { contribution.creator }
     let!(:contribution) do
       create :contribution, project: project
     end
@@ -100,7 +102,12 @@ RSpec.describe Contribution, type: :model do
       allow(project).to receive(:master_branch_id).and_return 'master_branch_id'
       allow(contribution.origin_revision)
         .to receive(:branch_id).and_return 'master_branch_id'
-      allow(master_branch).to receive(:restore_commit)
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+      allow(revision).to receive(:file_diffs).and_return file_diffs
+      allow(file_diffs)
+        .to receive(:includes)
+        .with(:new_version)
+        .and_return file_diffs_with_new_version
     end
 
     it { is_expected.to be true }
@@ -116,9 +123,10 @@ RSpec.describe Contribution, type: :model do
 
     it 'applies changes to the master branch' do
       accept
-      expect(master_branch)
-        .to have_received(:restore_commit)
-        .with(revision, author: creator)
+      expect(VCS::Operations::RestoreFilesFromDiffs)
+        .to have_received(:restore)
+        .with(file_diffs: file_diffs_with_new_version,
+              target_branch: master_branch)
     end
 
     it 'updates the contribution to accepted' do
@@ -144,7 +152,8 @@ RSpec.describe Contribution, type: :model do
 
       it 'does not apply changes to the master branch' do
         accept
-        expect(master_branch).not_to have_received(:restore_commit)
+        expect(VCS::Operations::RestoreFilesFromDiffs)
+          .not_to have_received(:restore)
       end
     end
 
@@ -155,7 +164,8 @@ RSpec.describe Contribution, type: :model do
 
       it 'does not apply changes to the master branch' do
         accept
-        expect(master_branch).not_to have_received(:restore_commit)
+        expect(VCS::Operations::RestoreFilesFromDiffs)
+          .not_to have_received(:restore)
       end
 
       it 'does not persist contribution' do

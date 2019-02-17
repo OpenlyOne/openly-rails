@@ -65,7 +65,7 @@ RSpec.describe 'contributions/reviews/show', type: :view do
 
     it 'shows a warning about uncaptured changes being lost' do
       render
-      expect(rendered).to have_text 'lose any uncaptured changes'
+      expect(rendered).to have_text 'overwrite all uncaptured changes'
     end
 
     context 'when contribution has already been accepted' do

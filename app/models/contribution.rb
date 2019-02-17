@@ -45,8 +45,11 @@ class Contribution < ApplicationRecord
                                               revision: revision },
                                             :accept)
 
-    # TODO: Factor author/creator out of this
-    project.master_branch.restore_commit(revision, author: creator)
+    # Apply suggested changes onto files in master branch
+    VCS::Operations::RestoreFilesFromDiffs.restore(
+      file_diffs: revision.file_diffs.includes(:new_version),
+      target_branch: project.master_branch
+    )
 
     # Return true
     true

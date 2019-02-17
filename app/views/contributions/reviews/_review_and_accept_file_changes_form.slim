@@ -27,7 +27,7 @@
         / HACK: Technically not a validation error, but the styling is appropriate
         .validation-errors
           = render partial: 'error',
-                            object: 'Have you captured all changes in this project? When accepting this contribution, you will lose any uncaptured changes.',
+                            object: '<b>When you accept this contribution, you will overwrite all uncaptured changes on files listed above.</b>'.html_safe,
                             as: :error
         button action='submit' class='btn btn-large primary-color primary-color-text'
           | Accept Changes

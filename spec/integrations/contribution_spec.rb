@@ -17,7 +17,9 @@ RSpec.describe Contribution, type: :model do
     let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
     let(:master_branch) { project.master_branch }
 
-    before { allow(master_branch).to receive(:restore_commit) }
+    before do
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+    end
 
     it 'publishes the revision on the master branch' do
       accept
@@ -30,9 +32,10 @@ RSpec.describe Contribution, type: :model do
 
     it 'applies suggested changes to the master branch' do
       accept
-      expect(master_branch)
-        .to have_received(:restore_commit)
-        .with(revision, author: creator)
+      expect(VCS::Operations::RestoreFilesFromDiffs)
+        .to have_received(:restore)
+        .with(file_diffs: revision.file_diffs.includes(:version),
+              target_branch: master_branch)
     end
 
     it 'marks the contribution as accepted' do
