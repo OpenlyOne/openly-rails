@@ -33,7 +33,7 @@ class Contribution < ApplicationRecord
   validate :origin_revision_must_belong_to_project_master_branch
 
   def accepted?
-    is_accepted_in_database
+    accepted_revision_id_in_database.present?
   end
 
   def open?
@@ -42,8 +42,7 @@ class Contribution < ApplicationRecord
 
   # Accept the provided revision
   def accept(revision:)
-    return false unless update_with_context({ is_accepted: true,
-                                              accepted_revision: revision },
+    return false unless update_with_context({ accepted_revision: revision },
                                             :accept)
 
     # Apply suggested changes onto files in master branch
@@ -106,8 +105,9 @@ class Contribution < ApplicationRecord
 
   # Return true if contribution is currently being accepted
   def accepting?
-    is_accepted &&
-      (will_save_change_to_is_accepted? || saved_change_to_is_accepted?)
+    accepted_revision_id.present? &&
+      (will_save_change_to_accepted_revision_id? ||
+       saved_change_to_accepted_revision_id?)
   end
 
   def fork_master_branch

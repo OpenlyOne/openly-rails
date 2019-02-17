@@ -58,7 +58,6 @@ FactoryBot.define do
     end
 
     trait :accepted do
-      is_accepted { true }
       accepted_revision do
         # HACK: Use stub strategy for accepted revision if contribution is being
         # =>    stubbed.

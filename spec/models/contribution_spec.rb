@@ -141,7 +141,9 @@ RSpec.describe Contribution, type: :model do
     end
 
     context 'when contribution has already been accepted' do
-      before { contribution.update_attribute(:is_accepted, true) }
+      before { contribution.update_column(:accepted_revision_id, commit.id) }
+
+      let(:commit) { create :vcs_commit }
 
       it { is_expected.to be false }
 
@@ -183,18 +185,23 @@ RSpec.describe Contribution, type: :model do
   end
 
   describe '#accepted?' do
-    let(:contribution) { create :contribution }
+    let(:contribution)    { create :contribution }
+    let(:origin_revision) { contribution.origin_revision }
+    let(:revision) do
+      create :vcs_commit, parent: origin_revision,
+                          branch: origin_revision.branch
+    end
 
     it { is_expected.not_to be_accepted }
 
-    context 'when is_accepted=true' do
-      before { contribution.is_accepted = true }
+    context 'when accepted_revision is present' do
+      before { contribution.accepted_revision = revision }
 
       it { is_expected.not_to be_accepted }
     end
 
     context 'when is accepted and persisted' do
-      before { contribution.update(is_accepted: true) }
+      before { contribution.update!(accepted_revision: revision) }
 
       it { is_expected.to be_accepted }
     end
