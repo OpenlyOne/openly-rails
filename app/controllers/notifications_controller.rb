@@ -6,11 +6,7 @@ class NotificationsController < ApplicationController
 
   # GET /notifications
   def index
-    # HACK: Preload the repository relationship. Only works because we have
-    # =>    only one type of notification and that notification supports the
-    # =>    repository relationship.
-    @notifications =
-      notifications.includes(:notifier, notifiable: %i[repository])
+    @notifications = notifications.includes(:notifier, :notifiable)
   end
 
   # GET /notifications/:id
