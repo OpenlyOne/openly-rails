@@ -79,6 +79,58 @@ feature 'Contributions: Review Changes' do
     expect(page).not_to have_text 'unchanged'
   end
 
+  context 'when contribution has been accepted' do
+    scenario 'User can review accepted changes' do
+      # given there are files and they are committed in a project
+      _files = [
+        unchanged, folder, modified_file, moved_out_file, moved_in_file,
+        moved_in_and_modified_file, removed_file, moved_folder, in_moved_folder
+      ]
+      create_revision('origin')
+
+      # with a contribution
+      contribution
+
+      # that has file changes
+      added_file
+      in_contribution(modified_file).update(content_version: 'new-version')
+      in_contribution(moved_out_file).update(parent: root.file)
+      in_contribution(moved_in_file).update(parent: folder.file)
+      in_contribution(moved_in_and_modified_file)
+        .update(parent: folder.file, content_version: 'new-v')
+      in_contribution(removed_file).update(is_deleted: true)
+      in_contribution(moved_folder).update(parent: folder.file)
+
+      # and the contribution is accepted
+      visit "#{project.owner.to_param}/#{project.to_param}"
+      click_on 'Contributions'
+      click_on contribution.title
+      click_on 'Review'
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+      click_on 'Accept Changes'
+
+      # and I navigate back to the review page
+      click_on 'Contributions'
+      click_on contribution.title
+      click_on 'Review'
+
+      # then I still should see the accepted changes
+      expect(page).to have_text(
+        "The following changes were suggested by #{contribution.creator.name}"
+      )
+      expect(page).to have_css '.file.addition',      text: added_file.name
+      expect(page).to have_css '.file.modification',  text: modified_file.name
+      expect(page).to have_css '.file.movement',      text: moved_out_file.name
+      expect(page).to have_css '.file.movement',      text: moved_in_file.name
+      expect(page).to have_css '.file.movement',
+                               text: moved_in_and_modified_file.name
+      expect(page).to have_css '.file.modification',
+                               text: moved_in_and_modified_file.name
+      expect(page).to have_css '.file.deletion',      text: removed_file.name
+      expect(page).to have_css '.file.movement',      text: moved_folder.name
+    end
+  end
+
   scenario 'Changes to review are relative to contribution origin' do
     # given there are files and they are committed in a project
     file_to_change_in_contribution_only =

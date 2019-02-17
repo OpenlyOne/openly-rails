@@ -63,6 +63,7 @@ RSpec.describe Contributions::AcceptancesController, type: :controller do
       expect_any_instance_of(Contribution)
         .to receive(:accept)
         .with(hash_including(revision: revision))
+        .and_return true
       run_request
     end
 

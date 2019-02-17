@@ -26,7 +26,8 @@ module Contributions
         # Error occurred while accepting contribution
         @user_can_accept_contribution = true
         @revision.preload_file_diffs_with_versions
-        render 'contributions/reviews/show', layout: 'contributions/reviews'
+        render 'contributions/reviews/show_suggested_changes',
+               layout: 'contributions/reviews'
       end
     end
     # rubocop:enable Metrics/MethodLength
