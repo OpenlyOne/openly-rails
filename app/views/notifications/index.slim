@@ -10,7 +10,7 @@
       - if @notifications.present?
         ul.collection.notifications.white
           - @notifications.each do |notification|
-            = render partial: notification.partial_name,
+            = render partial: "/notifications/#{notification.partial_name}",
                      object: notification,
                      as: :notification
       - else

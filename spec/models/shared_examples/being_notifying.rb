@@ -30,13 +30,16 @@ RSpec.shared_examples 'being notifying' do
   end
 
   describe '#trigger_notifications(key: nil)' do
-    subject(:trigger) { notifying.send :trigger_notifications, key: 'key' }
+    subject(:trigger) do
+      notifying.send :trigger_notifications, 'model.action'
+    end
 
     before { allow(notifying).to receive(:notify) }
 
     it do
       trigger
-      expect(notifying).to have_received(:notify).with(:accounts, key: 'key')
+      expect(notifying)
+        .to have_received(:notify).with(:accounts, key: 'model.action')
     end
 
     context 'when skip_notifications? is true' do

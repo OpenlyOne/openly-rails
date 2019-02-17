@@ -17,8 +17,10 @@ feature 'Notification' do
   scenario 'User can see all notifications' do
     # given I have an account
     account = create(:account)
-    # and I have three notifications
-    create_list(random_notification_factory, 3, target: account)
+    # and I have one notification of each type
+    notification_factories.each do |factory|
+      create(factory, target: account)
+    end
     # and other accouns have 2 notifications
     create_list(random_notification_factory, 2)
     # and I am logged in
@@ -28,7 +30,8 @@ feature 'Notification' do
     visit notifications_path
 
     # then I should see my own notifications
-    expect(page).to have_css '.notification', count: 3
+    expect(page).to have_css '.notification',
+                             count: notification_factories.count
   end
 
   scenario 'User can follow a notification' do
@@ -38,7 +41,8 @@ feature 'Notification' do
     project = create :project, :setup_complete, :skip_archive_setup
     revision = create :vcs_commit, branch: project.master_branch
     # and I have a notification for the revision
-    create(:notification, target: account, notifiable: revision)
+    create(:vcs_commits_create_notification,
+           target: account, notifiable: revision)
     # and I am logged in
     sign_in_as account
 

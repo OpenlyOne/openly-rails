@@ -30,6 +30,8 @@ module Notifying
 
   private
 
+  attr_accessor :notification_helper
+
   def destroy_notifications
     notifications.destroy_all
   end
@@ -46,11 +48,11 @@ module Notifying
     notification_helper.path
   end
 
-  def notification_helper
-    @notification_helper ||= Notification.notification_helper_for(self)
-  end
+  def trigger_notifications(key)
+    return if skip_notifications?
 
-  def trigger_notifications(key: nil)
-    notify :accounts, key: key unless skip_notifications?
+    self.notification_helper =
+      Notification.notification_helper_for(self, key: key)
+    notify :accounts, key: key
   end
 end

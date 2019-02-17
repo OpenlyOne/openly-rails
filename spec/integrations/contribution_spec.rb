@@ -24,33 +24,40 @@ RSpec.describe Contribution, type: :model do
     let(:publish)       { true }
 
     before do
-      origin_revision
+      setup
       Notification.delete_all
       ActionMailer::Base.deliveries.clear
-      project.collaborators << [collaborator1, collaborator2, collaborator3]
-      contribution
     end
 
-    it 'creates a notification for owner + collaborators, except the creator' do
-      expect(Notification.count).to eq 3
-      expect(Notification.all.map(&:target))
-        .to match_array [owner, collaborator2, collaborator3].map(&:account)
-      expect(Notification.all.map(&:notifier).uniq)
-        .to contain_exactly creator
-      expect(Notification.all.map(&:notifiable).uniq)
-        .to contain_exactly contribution
-    end
+    context 'when creating contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+      end
 
-    it 'sends an email to each notification recipient' do
-      expect(ActionMailer::Base.deliveries.map(&:to).flatten)
-        .to match_array(
-          [owner, collaborator2, collaborator3].map(&:account).map(&:email)
-        )
-    end
+      before { contribution }
 
-    context 'when contribution is destroyed' do
-      it 'deletes all notifications' do
-        expect { contribution.destroy }.to change(Notification, :count).to(0)
+      it 'creates a notification for project team minus the creator' do
+        expect(Notification.count).to eq 3
+        expect(Notification.all.map(&:target))
+          .to match_array [owner, collaborator2, collaborator3].map(&:account)
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly creator
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            [owner, collaborator2, collaborator3].map(&:account).map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
       end
     end
   end

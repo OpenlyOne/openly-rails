@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # A contribution to a project (equivalent of pull request/merge request)
+# rubocop:disable Metrics/ClassLength
 class Contribution < ApplicationRecord
   include Notifying
 
@@ -19,7 +20,7 @@ class Contribution < ApplicationRecord
 
   # Callbacks
   before_save :publish_accepted_revision, if: :accepting?
-  after_create :trigger_notifications
+  after_create :trigger_create_notifications
 
   # Delegations
   delegate :branches, :master_branch, :revisions, to: :project, prefix: true
@@ -152,4 +153,9 @@ class Contribution < ApplicationRecord
       author_id: creator_id
     )
   end
+
+  def trigger_create_notifications
+    trigger_notifications('contribution.create')
+  end
 end
+# rubocop:enable Metrics/ClassLength

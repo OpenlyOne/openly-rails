@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe Notifications::VCS::Commit, type: :model do
-  subject(:notification)  { described_class.new(revision) }
-  let(:revision)          { instance_double VCS::Commit }
+RSpec.describe Notifications::Contributions::Create, type: :model do
+  subject(:notification)  { described_class.new(contribution) }
+  let(:contribution)      { instance_double Contribution }
 
   describe '#path' do
     subject(:path)  { notification.path }
@@ -12,8 +12,8 @@ RSpec.describe Notifications::VCS::Commit, type: :model do
       allow(notification).to receive(:project).and_return project
       allow(project).to receive(:owner).and_return 'owner'
       allow(notification)
-        .to receive(:profile_project_revisions_path)
-        .with('owner', project)
+        .to receive(:profile_project_contribution_path)
+        .with('owner', project, contribution)
         .and_return 'path'
     end
 
@@ -22,9 +22,9 @@ RSpec.describe Notifications::VCS::Commit, type: :model do
 
   describe '#source' do
     subject(:source) { notification.source }
-    before { allow(revision).to receive(:author).and_return 'author' }
+    before { allow(contribution).to receive(:creator).and_return 'creator' }
 
-    it { is_expected.to eq 'author' }
+    it { is_expected.to eq 'creator' }
   end
 
   describe '#title' do
@@ -39,6 +39,6 @@ RSpec.describe Notifications::VCS::Commit, type: :model do
       allow(project).to receive(:title).and_return 'Project'
     end
 
-    it { is_expected.to eq 'User created a revision in Project' }
+    it { is_expected.to eq 'User created a contribution in Project' }
   end
 end
