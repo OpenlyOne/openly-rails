@@ -82,33 +82,24 @@ module VCS
     end
     # rubocop:enable Metrics/MethodLength
 
-    # Copy all committed files from branch over to this branch
-    # All new files are marked as deleted
-    def copy_committed_files_from(branch_to_copy_from)
-      branch_to_copy_from.files.committed.find_each do |file_in_branch|
-        files.create!(
-          file_id: file_in_branch.file_id,
-          committed_version_id: file_in_branch.committed_version_id,
-          is_deleted: true
-        )
-      end
-    end
-
+    # Mark files as committed by first copying any untracked files from the
+    # commit into the branch and then updating the committed_version_id of
+    # staged files.
     def mark_files_as_committed(commit)
       copy_untracked_files_from_commit(commit)
       copy_committed_version_id_from_commit(commit)
     end
 
-    # Fork this branch
+    # Fork this branch at the given commit
     # TODO: Author should be extracted out of this operation. It is
     # =>    not needed. But we need to remove the not null constraint from the
     # =>    database (which we need to do anyway to make it possible for
     # =>    users to delete their accounts).
-    def create_fork(creator:, remote_parent_id:)
+    def create_fork(creator:, remote_parent_id:, commit:)
       repository_branches.create!.tap do |fork|
         fork.create_remote_root_folder(remote_parent_id: remote_parent_id)
-        fork.copy_committed_files_from(self)
-        fork.restore_commit(commits.last, author: creator)
+        fork.mark_files_as_committed(commit)
+        fork.restore_commit(commit, author: creator)
       end
     end
 

@@ -23,7 +23,7 @@ FactoryBot.define do
         project.repository.branches.create!.tap do |fork|
           create :vcs_file_in_branch, :root,
                  file: project.master_branch.root.file, branch: fork
-          fork.copy_committed_files_from(project.master_branch)
+          fork.mark_files_as_committed(origin_revision)
 
           fork.files.without_root.each do |file|
             remote_file_id = Faker::Crypto.unique.sha1

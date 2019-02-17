@@ -77,31 +77,6 @@ RSpec.describe VCS::Branch, type: :model do
     end
   end
 
-  describe '#copy_committed_files_from(branch_to_copy_from)' do
-    subject(:copy) { branch.copy_committed_files_from(branch_to_copy_from) }
-
-    let(:branch_to_copy_from) { create :vcs_branch }
-    let!(:committed_files) do
-      create_list :vcs_file_in_branch, 5, :with_versions,
-                  current_version: nil, branch: branch_to_copy_from
-    end
-    let!(:uncommitted_files) do
-      create_list :vcs_file_in_branch, 2, :with_versions,
-                  committed_version: nil, branch: branch_to_copy_from
-    end
-
-    it 'copies only committed files' do
-      copy
-      expect(branch.files.map(&:committed_version_id))
-        .to match_array(committed_files.map(&:committed_version_id))
-    end
-
-    it 'marks all copied files as deleted' do
-      copy
-      expect(branch.files).to all(be_deleted)
-    end
-  end
-
   describe '#mark_files_as_committed(commit)' do
     subject(:mark_files) { branch.mark_files_as_committed(commit) }
 
@@ -125,17 +100,28 @@ RSpec.describe VCS::Branch, type: :model do
     end
 
     context 'when untracked files exist in commit' do
-      before { files_in_branch.last(2).each(&:delete) }
+      let!(:untracked_committed_files) do
+        create_list :vcs_committed_file, 2, commit: commit
+      end
 
       it 'copies files over to branch with correct version id' do
-        expect(branch.files.count).to eq 1
         mark_files
-        expect(branch.files.count).to eq 3
+        expect(branch.files.count).to eq 5
         expect(
           branch.files.reload.map { |f| [f.file_id, f.committed_version_id] }
-        ).to match_array(
-          committed_files.map { |c| [c.version.file_id, c.version_id] }
+        ).to include(
+          *untracked_committed_files
+            .map { |c| [c.version.file_id, c.version_id] }
         )
+      end
+
+      it 'marks all copied files as deleted' do
+        mark_files
+        expect(
+          branch.files.where(
+            committed_version_id: untracked_committed_files.map(&:version_id)
+          )
+        ).to all(be_deleted)
       end
     end
   end

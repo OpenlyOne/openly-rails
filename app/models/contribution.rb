@@ -109,12 +109,11 @@ class Contribution < ApplicationRecord
       (will_save_change_to_is_accepted? || saved_change_to_is_accepted?)
   end
 
-  # TODO: Copy files from the origin revision rather than just forking master
-  # =>    at the latest revision
   def fork_master_branch
     self.branch = project_master_branch.create_fork(
       creator: creator,
-      remote_parent_id: project.archive.remote_file_id
+      remote_parent_id: project.archive.remote_file_id,
+      commit: origin_revision
     )
   end
 
