@@ -15,12 +15,13 @@ class Contribution < ApplicationRecord
   belongs_to :accepted_revision, class_name: 'VCS::Commit', optional: true
 
   # Attributes
-  # Transient revision attribute
-  attr_accessor :revision
+  # Transient revision & acceptor attribute
+  attr_accessor :revision, :acceptor
 
   # Callbacks
   before_save :publish_accepted_revision, if: :accepting?
   after_create :trigger_create_notifications
+  after_update :trigger_acceptance_notifications, if: :accepting?
 
   # Delegations
   delegate :branches, :master_branch, :revisions, to: :project, prefix: true
@@ -45,8 +46,9 @@ class Contribution < ApplicationRecord
   end
 
   # Accept the provided revision
-  def accept(revision:)
-    return false unless update_with_context({ accepted_revision: revision },
+  def accept(revision:, acceptor:)
+    return false unless update_with_context({ acceptor: acceptor,
+                                              accepted_revision: revision },
                                             :accept)
 
     # Apply suggested changes onto files in master branch
@@ -150,8 +152,13 @@ class Contribution < ApplicationRecord
     throw(:abort) unless accepted_revision.publish(
       branch_id: project.master_branch_id,
       select_all_file_changes: true,
-      author_id: creator_id
+      author_id: creator_id,
+      skip_notifications: true
     )
+  end
+
+  def trigger_acceptance_notifications
+    trigger_notifications('contribution.accept')
   end
 
   def trigger_create_notifications

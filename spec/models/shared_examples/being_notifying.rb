@@ -29,14 +29,30 @@ RSpec.shared_examples 'being notifying' do
     end
   end
 
-  describe '#trigger_notifications(key: nil)' do
+  describe '#trigger_notifications(key:)' do
     subject(:trigger) do
       notifying.send :trigger_notifications, 'model.action'
     end
 
-    before { allow(notifying).to receive(:notify) }
+    let(:notification_helper) { instance_double('Notifications::Model') }
 
-    it do
+    before do
+      allow(notifying).to receive(:notification_helper=)
+      allow(notifying).to receive(:notify)
+      allow(Notification)
+        .to receive(:notification_helper_for)
+        .with(notifying, key: 'model.action')
+        .and_return notification_helper
+    end
+
+    it 'sets the notification helper' do
+      trigger
+      expect(notifying)
+        .to have_received(:notification_helper=)
+        .with(notification_helper)
+    end
+
+    it 'notifies accounts' do
       trigger
       expect(notifying)
         .to have_received(:notify).with(:accounts, key: 'model.action')

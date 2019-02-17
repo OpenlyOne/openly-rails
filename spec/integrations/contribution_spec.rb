@@ -60,11 +60,60 @@ RSpec.describe Contribution, type: :model do
         end
       end
     end
+
+    context 'when accepting contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+        contribution
+      end
+      let(:creator)   { create :user }
+      let(:acceptor)  { collaborator2 }
+
+      let(:revision) do
+        create :vcs_commit,
+               branch: project.master_branch, parent: origin_revision
+      end
+
+      before do
+        contribution.accept(revision: revision, acceptor: collaborator2)
+      end
+
+      it 'creates a notification for project team + contribution creator ' \
+         'minus the acceptor' do
+        expect(Notification.count).to eq 4
+        expect(Notification.all.map(&:target))
+          .to match_array(
+            [owner, collaborator1, collaborator3, creator].map(&:account)
+          )
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly acceptor
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            [owner, collaborator1, collaborator3, creator].map(&:account)
+                                                          .map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
+      end
+    end
   end
 
-  describe '#accept(revision:)' do
-    subject(:accept) { contribution.accept(revision: revision) }
+  describe '#accept(revision:, acceptor:)' do
+    subject(:accept) do
+      contribution.accept(revision: revision, acceptor: acceptor)
+    end
 
+    let(:acceptor)     { creator }
     let(:contribution) { create :contribution, :mock_setup, project: project }
     let(:creator)      { contribution.creator }
     let(:revision) do

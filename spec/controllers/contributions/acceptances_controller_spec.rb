@@ -62,8 +62,9 @@ RSpec.describe Contributions::AcceptancesController, type: :controller do
     it 'accepts the contribution' do
       expect_any_instance_of(Contribution)
         .to receive(:accept)
-        .with(hash_including(revision: revision))
-        .and_return true
+        .with(
+          hash_including(revision: revision, acceptor: current_account.user)
+        ).and_return true
       run_request
     end
 
@@ -71,9 +72,11 @@ RSpec.describe Contributions::AcceptancesController, type: :controller do
       before do
         create(:vcs_file_in_branch, :root, branch: master_branch)
         allow_any_instance_of(Contribution)
-          .to receive(:accept).and_wrap_original do |method, revision:|
+          .to receive(:accept)
+          .and_wrap_original do |method, revision:, acceptor:|
           # manually assign revision to contribution
           method.receiver.revision = revision
+          method.receiver.acceptor = acceptor
           false
         end
       end
