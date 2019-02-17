@@ -177,37 +177,10 @@ module VCS
       Project.find_by_repository_id(repository.id).present?
     end
 
-    # Update each file in stage by joining it onto committed versions via
-    # file record id and setting the committed_version_id of files to the id of
-    # committed versions
-    # rubocop:disable Metrics/MethodLength
+    # Update files in branch to reflect the publishing of this commit
     def update_files_in_branch
-      # Left join files on committed versions
-      # TODO: Extract into scope/query
-      files_in_branch_left_joining_committed_versions =
-        branch.files.joins(
-          <<~SQL
-            LEFT JOIN (#{committed_versions.to_sql}) committed_versions
-            ON (committed_versions.file_id =
-            vcs_file_in_branches.file_id)
-          SQL
-        ).select('committed_versions.id, vcs_file_in_branches.file_id')
-
-      # Perform the update
-      branch
-        .files
-        .where(
-          'committed_versions.file_id = ' \
-          'vcs_file_in_branches.file_id'
-        ).update_all(
-          <<~SQL
-            committed_version_id = committed_versions.id
-            FROM (#{files_in_branch_left_joining_committed_versions.to_sql})
-            committed_versions
-          SQL
-        )
+      branch.mark_files_as_committed(self)
     end
-    # rubocop:enable Metrics/MethodLength
 
     # Apply selected changes to each file diff
     def apply_selected_file_changes

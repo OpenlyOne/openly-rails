@@ -42,6 +42,19 @@ RSpec.describe Contribution, type: :model do
       accept
       expect(contribution).to be_accepted
     end
+
+    context 'when new files are added in the contribution' do
+      let!(:new_files) { create_list :vcs_committed_file, 3, commit: revision }
+
+      before { revision.reload && revision.committed_files.reload }
+
+      it 'copies the files over to master branch and marks them committed' do
+        accept
+        expect(master_branch.reload.files.without_root.count).to eq 3
+        expect(master_branch.files.without_root.map(&:committed_version_id))
+          .to match_array(new_files.map(&:version_id))
+      end
+    end
   end
 
   describe '#prepare_revision_for_acceptance(author:)' do

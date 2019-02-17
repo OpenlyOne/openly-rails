@@ -2,6 +2,7 @@
 
 module VCS
   # A branch of the repository
+  # rubocop:disable Metrics/ClassLength
   class Branch < ApplicationRecord
     # Associations
     belongs_to :repository
@@ -93,6 +94,11 @@ module VCS
       end
     end
 
+    def mark_files_as_committed(commit)
+      copy_untracked_files_from_commit(commit)
+      copy_committed_version_id_from_commit(commit)
+    end
+
     # Fork this branch
     # TODO: Author should be extracted out of this operation. It is
     # =>    not needed. But we need to remove the not null constraint from the
@@ -129,6 +135,41 @@ module VCS
 
     private
 
+    # Copy over any files from commit that are not yet tracked in this branch
+    # All new files are marked as deleted
+    def copy_untracked_files_from_commit(commit)
+      # Select all versions that belong to a file not present in this branch
+      file_ids_in_this_branch = files.pluck(:file_id)
+      versions_to_copy = commit.committed_versions
+                               .where.not(file_id: file_ids_in_this_branch)
+
+      # Create a new VCS::FileInBranch record for every file not present in
+      # this branch
+      VCS::FileInBranch.import(
+        %i[branch_id file_id is_deleted],
+        versions_to_copy.map { |version| [id, version.file_id, true] },
+        validate: false
+      )
+    end
+
+    # Update each file in stage by joining it onto the commit's committed
+    # versions via file id and setting the committed_version_id of files to the
+    # id of committed versions
+    def copy_committed_version_id_from_commit(commit)
+      # Left join files on committed versions
+      files_with_new_committed_versions = files.joins(
+        "LEFT JOIN (#{commit.committed_versions.to_sql}) new_versions " \
+        'ON (new_versions.file_id = vcs_file_in_branches.file_id)'
+      ).select('new_versions.id, vcs_file_in_branches.file_id')
+
+      # Perform the update
+      files
+        .where('new_committed_versions.file_id = vcs_file_in_branches.file_id')
+        .update_all('committed_version_id = new_committed_versions.id ' \
+                    "FROM (#{files_with_new_committed_versions.to_sql}) " \
+                    'new_committed_versions')
+    end
+
     def mime_type_class
       "Providers::#{provider}::MimeType".constantize
     end
@@ -141,4 +182,5 @@ module VCS
       "Providers::#{provider}::FileSync".constantize
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

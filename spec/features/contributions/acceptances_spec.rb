@@ -122,6 +122,9 @@ feature 'Contributions: Acceptances', :vcr do
     expect(subfile_in_master.remote.parent_id)
       .to eq folder_in_master.remote_file_id
 
+    # it has one uncaptured change
+    expect(project.reload.uncaptured_changes_count).to eq 1
+
     # and it creates a new commit with contribution title & description
     click_on 'Revisions'
     within ".revision[id='#{project.revisions.reload.last.id}']" do

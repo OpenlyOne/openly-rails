@@ -102,6 +102,44 @@ RSpec.describe VCS::Branch, type: :model do
     end
   end
 
+  describe '#mark_files_as_committed(commit)' do
+    subject(:mark_files) { branch.mark_files_as_committed(commit) }
+
+    let(:commit) { create :vcs_commit }
+    let(:files_in_branch) { create_list :vcs_file_in_branch, 3, branch: branch }
+    let!(:committed_files) do
+      files_in_branch.map do |file_in_branch|
+        create :vcs_committed_file,
+               version: create(:vcs_version, file: file_in_branch.file),
+               commit: commit
+      end
+    end
+
+    it 'sets correct committed_version_id on files' do
+      mark_files
+      expect(
+        branch.files.reload.map { |f| [f.file_id, f.committed_version_id] }
+      ).to match_array(
+        committed_files.map { |c| [c.version.file_id, c.version_id] }
+      )
+    end
+
+    context 'when untracked files exist in commit' do
+      before { files_in_branch.last(2).each(&:delete) }
+
+      it 'copies files over to branch with correct version id' do
+        expect(branch.files.count).to eq 1
+        mark_files
+        expect(branch.files.count).to eq 3
+        expect(
+          branch.files.reload.map { |f| [f.file_id, f.committed_version_id] }
+        ).to match_array(
+          committed_files.map { |c| [c.version.file_id, c.version_id] }
+        )
+      end
+    end
+  end
+
   describe '#update_uncaptured_changes_count' do
     subject(:update_count) { branch.update_uncaptured_changes_count }
 
