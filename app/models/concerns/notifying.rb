@@ -12,12 +12,20 @@ module Notifying
                        notifiable_path: :path_to_notifying_object
 
     before_destroy :destroy_notifications
+
+    def self.notifications
+      Notification.where(notifiable_type: model_name.to_s)
+    end
+  end
+
+  def notifications
+    Notification.where(notifiable: self)
   end
 
   private
 
   def destroy_notifications
-    Notification.where(notifiable: self).destroy_all
+    notifications.destroy_all
   end
 
   def notification_recipients

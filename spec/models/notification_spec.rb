@@ -2,9 +2,12 @@
 
 require 'models/shared_examples/acting_as_hash_id.rb'
 require 'models/shared_examples/having_jobs.rb'
+require 'support/helpers/notifications_helper.rb'
 
 RSpec.describe Notification, type: :model do
-  subject(:notification) { build_stubbed :notification }
+  include NotificationsHelper
+
+  subject(:notification) { build_stubbed random_notification_factory }
 
   it 'has a valid factory' do
     is_expected.to be_valid

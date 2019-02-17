@@ -9,7 +9,10 @@
     .col.s12
       - if @notifications.present?
         ul.collection.notifications.white
-          = render @notifications
+          - @notifications.each do |notification|
+            = render partial: notification.partial_name,
+                     object: notification,
+                     as: :notification
       - else
          p.flow-text You do not have any notifications.
 

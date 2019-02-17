@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'support/helpers/notifications_helper.rb'
+
 feature 'Notification' do
+  include NotificationsHelper
+
   # HACK: Turn off bullet
   # TODO: Figure out a long-term strategy for notifications that need to load
   # =>    associated objects. Could be anything from projects to users to
@@ -14,9 +18,9 @@ feature 'Notification' do
     # given I have an account
     account = create(:account)
     # and I have three notifications
-    create_list(:notification, 3, target: account)
+    create_list(random_notification_factory, 3, target: account)
     # and other accouns have 2 notifications
-    create_list(:notification, 2)
+    create_list(random_notification_factory, 2)
     # and I am logged in
     sign_in_as account
 

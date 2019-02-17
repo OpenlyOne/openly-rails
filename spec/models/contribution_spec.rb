@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_notifying.rb'
+
 RSpec.describe Contribution, type: :model do
   subject(:contribution) { build :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
+  end
+
+  it_should_behave_like 'being notifying' do
+    let(:notifying) { contribution }
   end
 
   describe 'associations' do

@@ -1,1 +1,3 @@
-<%= render @notification %>
+<%= render(partial: @notification.partial_name,
+           object: @notification,
+           as: :notification) %>

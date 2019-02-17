@@ -2,6 +2,8 @@
 
 # A contribution to a project (equivalent of pull request/merge request)
 class Contribution < ApplicationRecord
+  include Notifying
+
   # Associations
   belongs_to :project
   belongs_to :creator, class_name: 'Profiles::User'
@@ -17,6 +19,7 @@ class Contribution < ApplicationRecord
 
   # Callbacks
   before_save :publish_accepted_revision, if: :accepting?
+  after_create :trigger_notifications
 
   # Delegations
   delegate :branches, :master_branch, :revisions, to: :project, prefix: true
