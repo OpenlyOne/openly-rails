@@ -11,6 +11,8 @@ module Notifying
                        dependent_notifications: :do_nothing,
                        notifiable_path: :path_to_notifying_object
 
+    attr_accessor :skip_notifications
+
     before_destroy :destroy_notifications
 
     def self.notifications
@@ -20,6 +22,10 @@ module Notifying
 
   def notifications
     Notification.where(notifiable: self)
+  end
+
+  def skip_notifications?
+    skip_notifications == true
   end
 
   private
@@ -44,7 +50,7 @@ module Notifying
     @notification_helper ||= Notification.notification_helper_for(self)
   end
 
-  def trigger_notifications
-    notify :accounts
+  def trigger_notifications(key: nil)
+    notify :accounts, key: key unless skip_notifications?
   end
 end
