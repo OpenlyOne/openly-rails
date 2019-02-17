@@ -23,6 +23,13 @@ RSpec.describe Contribution, type: :model do
         .class_name('VCS::Commit')
         .dependent(false)
     end
+    it do
+      is_expected
+        .to belong_to(:accepted_revision)
+        .class_name('VCS::Commit')
+        .dependent(false)
+        .optional
+    end
   end
 
   describe 'delegations' do

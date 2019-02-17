@@ -9,6 +9,7 @@ class Contribution < ApplicationRecord
                       dependent: :destroy,
                       optional: true
   belongs_to :origin_revision, class_name: 'VCS::Commit'
+  belongs_to :accepted_revision, class_name: 'VCS::Commit', optional: true
 
   # Attributes
   # Transient revision attribute
