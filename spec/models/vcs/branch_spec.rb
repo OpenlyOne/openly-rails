@@ -121,9 +121,11 @@ RSpec.describe VCS::Branch, type: :model do
     end
   end
 
-  describe '#create_fork(creator:, remote_parent_id:)' do
+  describe '#create_fork(creator:, remote_parent_id:, commit:)' do
     subject(:create_fork) do
-      branch.create_fork(creator: 'creator', remote_parent_id: 'remote-id')
+      branch.create_fork(
+        creator: 'creator', remote_parent_id: 'remote-id', commit: 'commit'
+      )
     end
 
     let(:fork)          { instance_double described_class }
@@ -132,9 +134,8 @@ RSpec.describe VCS::Branch, type: :model do
     before do
       allow(branch).to receive(:repository_branches).and_return repo_branches
       allow(repo_branches).to receive(:create!).and_return fork
-      allow(branch).to receive(:commits).and_return %w[1st 2nd last]
       allow(fork).to receive(:create_remote_root_folder)
-      allow(fork).to receive(:copy_committed_files_from)
+      allow(fork).to receive(:mark_files_as_committed)
       allow(fork).to receive(:restore_commit)
 
       create_fork
@@ -146,11 +147,11 @@ RSpec.describe VCS::Branch, type: :model do
         .with(remote_parent_id: 'remote-id')
     end
     it do
-      expect(fork).to have_received(:copy_committed_files_from).with(branch)
+      expect(fork).to have_received(:mark_files_as_committed).with('commit')
     end
     it do
       expect(fork)
-        .to have_received(:restore_commit).with('last', author: 'creator')
+        .to have_received(:restore_commit).with('commit', author: 'creator')
     end
   end
 

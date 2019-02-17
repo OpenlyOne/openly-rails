@@ -303,4 +303,17 @@ RSpec.describe VCS::Commit, type: :model do
       end
     end
   end
+
+  describe '#update_files_in_branch' do
+    subject(:update_files) { commit.send :update_files_in_branch }
+
+    let(:branch) { commit.branch }
+
+    before { allow(branch).to receive(:mark_files_as_committed) }
+
+    it 'calls #mark_files_as_committed on branch' do
+      update_files
+      expect(branch).to have_received(:mark_files_as_committed).with(commit)
+    end
+  end
 end

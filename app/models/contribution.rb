@@ -8,6 +8,7 @@ class Contribution < ApplicationRecord
   belongs_to :branch, class_name: 'VCS::Branch',
                       dependent: :destroy,
                       optional: true
+  belongs_to :origin_revision, class_name: 'VCS::Commit'
 
   # Attributes
   # Transient revision attribute
@@ -27,6 +28,8 @@ class Contribution < ApplicationRecord
   validates :title, presence: true
   validates :description, presence: true
   validate :cannot_have_been_accepted, on: :accept
+  validate :origin_revision_must_be_published
+  validate :origin_revision_must_belong_to_project_master_branch
 
   def accepted?
     is_accepted_in_database
@@ -42,15 +45,30 @@ class Contribution < ApplicationRecord
                                               revision: revision },
                                             :accept)
 
-    # TODO: Factor author/creator out of this
-    project.master_branch.restore_commit(revision, author: creator)
+    # Apply suggested changes onto files in master branch
+    VCS::Operations::RestoreFilesFromDiffs.restore(
+      file_diffs: revision.file_diffs.includes(:new_version),
+      target_branch: project.master_branch
+    )
 
     # Return true
     true
   end
 
+  # Calculate the file changes suggested by this contribution
+  # TODO: Factor author out of this
+  def suggested_file_diffs
+    @suggested_file_diffs ||=
+      branch
+      .all_commits.create!(parent: origin_revision, author: creator)
+      .tap(&:commit_all_files_in_branch)
+      .tap(&:generate_diffs)
+      .file_diffs.includes(:new_version, :old_version)
+  end
+
   # Build the revision to be accepted
   # TODO: Factor author out of this
+  # rubocop:disable Metrics/AbcSize
   def prepare_revision_for_acceptance(author:)
     # Create commit draft
     self.revision = branch.all_commits.create!(
@@ -60,12 +78,15 @@ class Contribution < ApplicationRecord
       summary: description
     )
 
-    # Generate & load diffs
-    revision
-      .tap(&:commit_all_files_in_branch)
-      .tap(&:generate_diffs)
-      .tap(&:preload_file_diffs_with_versions)
+    # Calculate committed files by applying suggested changes on top of
+    # committed files in last master commit
+    revision.copy_committed_files_from(revision.parent)
+    revision.apply_file_diffs_to_committed_files(suggested_file_diffs)
+
+    # Calculate diffs
+    revision.tap(&:generate_diffs).tap(&:preload_file_diffs_with_versions)
   end
+  # rubocop:enable Metrics/AbcSize
 
   # Setup the contribution.
   # Works just like #save/#update but forks off the master branch.
@@ -91,7 +112,8 @@ class Contribution < ApplicationRecord
   def fork_master_branch
     self.branch = project_master_branch.create_fork(
       creator: creator,
-      remote_parent_id: project.archive.remote_file_id
+      remote_parent_id: project.archive.remote_file_id,
+      commit: origin_revision
     )
   end
 
@@ -101,6 +123,20 @@ class Contribution < ApplicationRecord
 
   def cannot_have_been_accepted
     errors.add(:base, 'Contribution has already been accepted.') if accepted?
+  end
+
+  def origin_revision_must_be_published
+    return if origin_revision&.published?
+
+    errors.add(:origin_revision, 'must be published')
+  end
+
+  def origin_revision_must_belong_to_project_master_branch
+    return if origin_revision&.branch_id.present? &&
+              project&.master_branch_id.present? &&
+              origin_revision.branch_id == project.master_branch_id
+
+    errors.add(:origin_revision, 'must belong to the same project')
   end
 
   def publish_revision

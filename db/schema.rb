@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_12_095542) do
+ActiveRecord::Schema.define(version: 2019_02_15_234419) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -128,7 +128,9 @@ ActiveRecord::Schema.define(version: 2019_02_12_095542) do
     t.datetime "updated_at", null: false
     t.bigint "branch_id", null: false
     t.boolean "is_accepted", default: false, null: false
+    t.bigint "origin_revision_id", null: false
     t.index ["creator_id"], name: "index_contributions_on_creator_id"
+    t.index ["origin_revision_id"], name: "index_contributions_on_origin_revision_id"
     t.index ["project_id"], name: "index_contributions_on_project_id"
   end
 
@@ -388,6 +390,7 @@ ActiveRecord::Schema.define(version: 2019_02_12_095542) do
   add_foreign_key "contributions", "profiles", column: "creator_id"
   add_foreign_key "contributions", "projects"
   add_foreign_key "contributions", "vcs_branches", column: "branch_id"
+  add_foreign_key "contributions", "vcs_commits", column: "origin_revision_id"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"

@@ -43,7 +43,10 @@ class ContributionsController < ApplicationController
   end
 
   def build_contribution
-    @contribution = @project.contributions.build(creator: current_user)
+    @contribution = @project.contributions.build(
+      creator: current_user,
+      origin_revision: @project.revisions.last
+    )
   end
 
   def find_contribution

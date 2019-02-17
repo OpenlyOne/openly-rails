@@ -67,7 +67,7 @@ module VCS
     validates :title, presence: true, if: :is_published
 
     validate :parent_must_belong_to_same_repository, if: :parent_id
-    validate :can_only_have_one_revision_with_parent, if: :parent_id
+    validate :can_only_have_one_revision_with_parent_per_branch, if: :parent_id
     validate :can_only_have_one_origin_revision_per_branch, unless: :parent_id
     validate :selected_file_changes_must_be_valid,
              if: :publishing?, unless: :select_all_file_changes
@@ -91,6 +91,22 @@ module VCS
       }
     end
 
+    # Apply given file diffs to committed files
+    def apply_file_diffs_to_committed_files(file_diffs)
+      committed_files
+        .joins(:version)
+        .where(vcs_versions: { file_id: file_diffs.map(&:file_id) })
+        .delete_all
+
+      file_diffs_without_deletions = file_diffs.reject(&:deletion?)
+
+      VCS::CommittedFile.import(
+        %i[commit_id version_id],
+        file_diffs_without_deletions.map { |diff| [id, diff.new_version_id] },
+        validate: false
+      )
+    end
+
     # Take ID and current version ID of all (non-root) files currently in
     # branch and import them as committed files for this revision.
     def commit_all_files_in_branch
@@ -99,6 +115,15 @@ module VCS
         branch.versions_in_branch
               .without_root # only commit non-root versions
               .select(id, :id)
+      )
+    end
+
+    # Copy committed files from the given commit over to self
+    def copy_committed_files_from(commit)
+      committed_files.delete_all
+      VCS::CommittedFile.insert_from_select_query(
+        %i[commit_id version_id],
+        commit.committed_files.select(id, :version_id)
       )
     end
 
@@ -152,37 +177,10 @@ module VCS
       Project.find_by_repository_id(repository.id).present?
     end
 
-    # Update each file in stage by joining it onto committed versions via
-    # file record id and setting the committed_version_id of files to the id of
-    # committed versions
-    # rubocop:disable Metrics/MethodLength
+    # Update files in branch to reflect the publishing of this commit
     def update_files_in_branch
-      # Left join files on committed versions
-      # TODO: Extract into scope/query
-      files_in_branch_left_joining_committed_versions =
-        branch.files.joins(
-          <<~SQL
-            LEFT JOIN (#{committed_versions.to_sql}) committed_versions
-            ON (committed_versions.file_id =
-            vcs_file_in_branches.file_id)
-          SQL
-        ).select('committed_versions.id, vcs_file_in_branches.file_id')
-
-      # Perform the update
-      branch
-        .files
-        .where(
-          'committed_versions.file_id = ' \
-          'vcs_file_in_branches.file_id'
-        ).update_all(
-          <<~SQL
-            committed_version_id = committed_versions.id
-            FROM (#{files_in_branch_left_joining_committed_versions.to_sql})
-            committed_versions
-          SQL
-        )
+      branch.mark_files_as_committed(self)
     end
-    # rubocop:enable Metrics/MethodLength
 
     # Apply selected changes to each file diff
     def apply_selected_file_changes
@@ -202,8 +200,8 @@ module VCS
       errors.add(:base, 'An origin revision already exists for this branch')
     end
 
-    def can_only_have_one_revision_with_parent
-      return unless published_revision_with_parent_exists?
+    def can_only_have_one_revision_with_parent_per_branch
+      return unless published_revision_with_parent_exists_for_branch?
 
       errors.add(:base,
                  'Someone has captured changes to this branch since you ' \
@@ -232,8 +230,9 @@ module VCS
       self.class.exists?(branch_id: branch_id, parent: nil, is_published: true)
     end
 
-    def published_revision_with_parent_exists?
-      self.class.exists?(parent_id: parent_id, is_published: true)
+    def published_revision_with_parent_exists_for_branch?
+      self.class.exists?(branch_id: branch_id, parent_id: parent_id,
+                         is_published: true)
     end
 
     # Return true if revision is currently being published

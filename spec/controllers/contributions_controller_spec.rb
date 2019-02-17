@@ -72,6 +72,9 @@ RSpec.describe ContributionsController, type: :controller do
       }
     end
     let(:fork) { create :vcs_branch }
+    let!(:origin_revision) do
+      create :vcs_commit, :published, branch: project.master_branch
+    end
 
     before do
       allow_any_instance_of(VCS::Branch)
