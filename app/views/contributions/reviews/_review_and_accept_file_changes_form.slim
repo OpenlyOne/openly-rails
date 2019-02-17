@@ -13,12 +13,14 @@
                                contribution.revision.errors.full_messages,
                    as: :error
 
-  = render partial: 'contributions/reviews/review_file_changes',
+  = render partial: 'contributions/reviews/review_suggested_file_changes',
           locals: { contribution: contribution,
                     project: project,
                     all_links_in_new_tab: true }
 
   / show button for accepting contribution, if not yet accepted
+  / TODO: Remove if statement. User can only navigate to this page if
+  /       contribution has not yet been accepted.
   - if contribution.open?
     .spacing.v32px
 

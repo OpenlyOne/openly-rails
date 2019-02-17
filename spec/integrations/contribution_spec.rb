@@ -43,6 +43,11 @@ RSpec.describe Contribution, type: :model do
       expect(contribution).to be_accepted
     end
 
+    it 'sets accepted_revision to the created revision' do
+      accept
+      expect(contribution.reload.accepted_revision).to eq revision
+    end
+
     context 'when new files are added in the contribution' do
       let!(:new_files) { create_list :vcs_committed_file, 3, commit: revision }
 

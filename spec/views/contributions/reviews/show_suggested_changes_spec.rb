@@ -2,7 +2,7 @@
 
 require 'views/shared_examples/showing_content_changes.rb'
 
-RSpec.describe 'contributions/reviews/show', type: :view do
+RSpec.describe 'contributions/reviews/show_suggested_changes', type: :view do
   let(:project)       { build_stubbed :project, :with_repository }
   let(:repository)    { project.repository }
   let(:master_branch) { build_stubbed :vcs_branch, repository: repository }

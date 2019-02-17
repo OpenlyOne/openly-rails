@@ -1,0 +1,9 @@
+.spacing.v32px
+
+.container
+  = render partial: 'contributions/reviews/review_accepted_file_changes',
+           locals: { contribution: @contribution,
+                     project: @project,
+                     revision: @revision }
+
+.spacing.v48px

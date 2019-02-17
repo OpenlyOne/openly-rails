@@ -82,4 +82,9 @@ if defined? Bullet
   Bullet.add_whitelist type: :unused_eager_loading,
                        class_name: 'Project',
                        association: :master_branch
+
+  # Bullet complains when accepting a contribution
+  Bullet.add_whitelist type: :unused_eager_loading,
+                       class_name: 'Contribution',
+                       association: :accepted_revision
 end

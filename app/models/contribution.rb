@@ -9,13 +9,14 @@ class Contribution < ApplicationRecord
                       dependent: :destroy,
                       optional: true
   belongs_to :origin_revision, class_name: 'VCS::Commit'
+  belongs_to :accepted_revision, class_name: 'VCS::Commit', optional: true
 
   # Attributes
   # Transient revision attribute
   attr_accessor :revision
 
   # Callbacks
-  before_save :publish_revision, if: :accepting?
+  before_save :publish_accepted_revision, if: :accepting?
 
   # Delegations
   delegate :branches, :master_branch, :revisions, to: :project, prefix: true
@@ -32,7 +33,7 @@ class Contribution < ApplicationRecord
   validate :origin_revision_must_belong_to_project_master_branch
 
   def accepted?
-    is_accepted_in_database
+    accepted_revision_id_in_database.present?
   end
 
   def open?
@@ -41,13 +42,12 @@ class Contribution < ApplicationRecord
 
   # Accept the provided revision
   def accept(revision:)
-    return false unless update_with_context({ is_accepted: true,
-                                              revision: revision },
+    return false unless update_with_context({ accepted_revision: revision },
                                             :accept)
 
     # Apply suggested changes onto files in master branch
     VCS::Operations::RestoreFilesFromDiffs.restore(
-      file_diffs: revision.file_diffs.includes(:new_version),
+      file_diffs: accepted_revision.file_diffs.includes(:new_version),
       target_branch: project.master_branch
     )
 
@@ -105,8 +105,9 @@ class Contribution < ApplicationRecord
 
   # Return true if contribution is currently being accepted
   def accepting?
-    is_accepted &&
-      (will_save_change_to_is_accepted? || saved_change_to_is_accepted?)
+    accepted_revision_id.present? &&
+      (will_save_change_to_accepted_revision_id? ||
+       saved_change_to_accepted_revision_id?)
   end
 
   def fork_master_branch
@@ -139,11 +140,13 @@ class Contribution < ApplicationRecord
     errors.add(:origin_revision, 'must belong to the same project')
   end
 
-  def publish_revision
-    return unless revision.present?
+  def publish_accepted_revision
+    return unless accepted_revision.present?
 
-    throw(:abort) unless revision.publish(branch_id: project.master_branch_id,
-                                          select_all_file_changes: true,
-                                          author_id: creator_id)
+    throw(:abort) unless accepted_revision.publish(
+      branch_id: project.master_branch_id,
+      select_all_file_changes: true,
+      author_id: creator_id
+    )
   end
 end

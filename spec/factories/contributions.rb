@@ -56,5 +56,17 @@ FactoryBot.define do
 
       to_create(&:setup)
     end
+
+    trait :accepted do
+      accepted_revision do
+        # HACK: Use stub strategy for accepted revision if contribution is being
+        # =>    stubbed.
+        if @build_strategy.is_a?(FactoryBot::Strategy::Stub)
+          build_stubbed(:vcs_commit, :published, branch: project.master_branch)
+        else
+          create(:vcs_commit, :published, branch: project.master_branch)
+        end
+      end
+    end
   end
 end
