@@ -14,6 +14,10 @@ class NotificationsPreview < ActionMailer::Preview
     )
   end
 
+  def reply_create_notification
+    show_notification(Reply.notifications.first)
+  end
+
   def vcs_commit_notification
     show_notification(VCS::Commit.notifications.first)
   end

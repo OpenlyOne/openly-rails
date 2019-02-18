@@ -37,6 +37,14 @@ RSpec.describe Contribution, type: :model do
         .optional
     end
     it { is_expected.to have_many(:replies).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:repliers)
+        .class_name('Profiles::User')
+        .through(:replies)
+        .source(:author)
+        .dependent(false)
+    end
   end
 
   describe 'delegations' do

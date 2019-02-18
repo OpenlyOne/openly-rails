@@ -14,6 +14,9 @@ class Contribution < ApplicationRecord
   belongs_to :origin_revision, class_name: 'VCS::Commit'
   belongs_to :accepted_revision, class_name: 'VCS::Commit', optional: true
   has_many :replies, dependent: :destroy
+  has_many :repliers, class_name: 'Profiles::User',
+                      through: :replies,
+                      source: :author
 
   # Attributes
   # Transient revision & acceptor attribute

@@ -1,0 +1,6 @@
+= render partial: '/notifications/default_notification',
+         object: notification,
+         as: :notification,
+         locals: { image_url: notification.notifier.picture.url,
+                   title: notification.title,
+                   subtitle: truncate(notification.notifiable.content, length: 250) }
