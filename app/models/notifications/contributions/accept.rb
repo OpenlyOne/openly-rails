@@ -43,6 +43,7 @@ module Notifications
 
       def recipient_users
         (collaborators_in_project +
+         contribution.repliers.includes(:account) +
          [contribution.creator] -
          [contribution.acceptor]).uniq
       end
