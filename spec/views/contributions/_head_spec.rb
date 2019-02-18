@@ -34,7 +34,7 @@ RSpec.describe 'contributions/_head', type: :view do
   it 'renders a link to the description' do
     render
     expect(rendered).to have_link(
-      'Description',
+      'Discussion',
       href: profile_project_contribution_path(
         project.owner, project, contribution
       )
