@@ -29,6 +29,13 @@ RSpec.describe 'contributions/replies/index', type: :view do
   context 'when contribution has replies' do
     let(:replies) { build_stubbed_list :reply, 3, contribution: contribution }
 
+    it 'renders an anchor for each reply' do
+      render
+      replies.each do |reply|
+        expect(rendered).to have_css "#reply-#{reply.id}"
+      end
+    end
+
     it 'renders each reply author' do
       render
       replies.map(&:author).each do |author|

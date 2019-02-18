@@ -13,9 +13,10 @@ RSpec.describe Notifications::Replies::Create, type: :model do
       allow(notification).to receive(:project).and_return project
       allow(notification).to receive(:contribution).and_return contribution
       allow(project).to receive(:owner).and_return 'owner'
+      allow(reply).to receive(:id).and_return '44'
       allow(notification)
         .to receive(:profile_project_contribution_replies_path)
-        .with('owner', project, contribution)
+        .with('owner', project, contribution, anchor: 'reply-44')
         .and_return 'path'
     end
 

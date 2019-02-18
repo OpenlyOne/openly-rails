@@ -1,4 +1,6 @@
-.row
+- id ||= nil
+
+.row id=("reply-#{id}" if id.present?)
 
   .col.l2.m3.s2.center-align
     = render partial: 'profiles/profile', object: author

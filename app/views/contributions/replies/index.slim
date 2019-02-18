@@ -12,7 +12,8 @@
   - @replies.each do |reply|
     = render partial: 'reply',
              locals: { author: reply.author,
-                       content: reply.content }
+                       content: reply.content,
+                       id: reply.id }
 
   - if @user_can_reply_to_contribution
     = render partial: 'reply_form',

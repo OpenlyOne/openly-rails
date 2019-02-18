@@ -20,7 +20,7 @@ module Notifications
       # The path to the notifying object
       def path
         profile_project_contribution_replies_path(
-          project.owner, project, contribution
+          project.owner, project, contribution, anchor: "reply-#{reply.id}"
         )
       end
 
