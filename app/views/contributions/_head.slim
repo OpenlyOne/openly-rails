@@ -17,8 +17,8 @@
 
        div.tabs.static.no-margin-top
          div.tab
-           = link_to 'Description', profile_project_contribution_path(project.owner, project, contribution),
-                      class: ('active' if active_tab == :description)
+           = link_to 'Discussion', profile_project_contribution_path(project.owner, project, contribution),
+                      class: ('active' if active_tab == :discussion)
          div.tab
            = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
                       class: ('active' if active_tab == :files)

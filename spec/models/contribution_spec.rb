@@ -3,7 +3,7 @@
 require 'models/shared_examples/being_notifying.rb'
 
 RSpec.describe Contribution, type: :model do
-  subject(:contribution) { build :contribution }
+  subject(:contribution) { build_stubbed :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
@@ -35,6 +35,15 @@ RSpec.describe Contribution, type: :model do
         .class_name('VCS::Commit')
         .dependent(false)
         .optional
+    end
+    it { is_expected.to have_many(:replies).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:repliers)
+        .class_name('Profiles::User')
+        .through(:replies)
+        .source(:author)
+        .dependent(false)
     end
   end
 

@@ -1,0 +1,12 @@
+row
+  columns large="3"
+    center
+      = image_tag notification.notifier.picture.url,
+                  size: '100', alt: "Picture of #{notification.notifier.name}"
+  columns large="9"
+    h5 = notification.title
+    p = notification.notifiable.content
+    p.dark-gray-text
+      = notification.created_at.strftime("%a, %d %b %Y at %l:%M%P %Z")
+    button.large href=notification_url(notification)
+      | Open Notification

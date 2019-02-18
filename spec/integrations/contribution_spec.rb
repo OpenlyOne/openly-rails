@@ -66,9 +66,12 @@ RSpec.describe Contribution, type: :model do
         origin_revision
         project.collaborators << [collaborator1, collaborator2, collaborator3]
         contribution
+        replies
+        contribution.repliers.reload
       end
       let(:creator)   { create :user }
       let(:acceptor)  { collaborator2 }
+      let(:replies)   { create_list :reply, 2, contribution: contribution }
 
       let(:revision) do
         create :vcs_commit,
@@ -81,10 +84,11 @@ RSpec.describe Contribution, type: :model do
 
       it 'creates a notification for project team + contribution creator ' \
          'minus the acceptor' do
-        expect(Notification.count).to eq 4
+        expect(Notification.count).to eq 6
         expect(Notification.all.map(&:target))
           .to match_array(
-            [owner, collaborator1, collaborator3, creator].map(&:account)
+            ([owner, collaborator1, collaborator3, creator] +
+             replies.map(&:author)).map(&:account)
           )
         expect(Notification.all.map(&:notifier).uniq)
           .to contain_exactly acceptor
@@ -95,8 +99,8 @@ RSpec.describe Contribution, type: :model do
       it 'sends an email to each notification recipient' do
         expect(ActionMailer::Base.deliveries.map(&:to).flatten)
           .to match_array(
-            [owner, collaborator1, collaborator3, creator].map(&:account)
-                                                          .map(&:email)
+            ([owner, collaborator1, collaborator3, creator] +
+             replies.map(&:author)).map(&:account).map(&:email)
           )
       end
 

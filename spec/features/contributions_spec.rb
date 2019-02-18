@@ -84,10 +84,10 @@ feature 'Contributions', :vcr do
 
     contribution = project.contributions.first
 
-    # then I should be on the contribution page
+    # then I should be on the contribution's discussion page
     expect(page).to have_current_path(
       "/#{project.owner.to_param}/#{project.to_param}" \
-      "/contributions/#{contribution.to_param}"
+      "/contributions/#{contribution.to_param}/replies"
     )
     # and see a success message
     expect(page).to have_text 'Contribution successfully created.'

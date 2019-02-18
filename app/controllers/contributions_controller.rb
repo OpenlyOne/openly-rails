@@ -30,7 +30,11 @@ class ContributionsController < ApplicationController
     end
   end
 
-  def show; end
+  def show
+    redirect_to profile_project_contribution_replies_path(
+      @project.owner, @project, @contribution
+    )
+  end
 
   private
 

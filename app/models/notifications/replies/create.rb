@@ -1,23 +1,27 @@
 # frozen_string_literal: true
 
 module Notifications
-  module Contributions
-    # Helper for contribution notifications
-    class Accept
+  module Replies
+    # Helper for replies notifications
+    class Create
       include Rails.application.routes.url_helpers
-      attr_accessor :contribution
+      attr_accessor :reply
       attr_writer :source
 
+      delegate :contribution, to: :reply
       delegate :project, to: :contribution
+      delegate :repliers, to: :contribution, prefix: true
 
-      def initialize(contribution, source: nil)
-        self.contribution = contribution
+      def initialize(reply, source: nil)
+        self.reply = reply
         self.source = source
       end
 
       # The path to the notifying object
       def path
-        profile_project_contribution_path(project.owner, project, contribution)
+        profile_project_contribution_replies_path(
+          project.owner, project, contribution, anchor: "reply-#{reply.id}"
+        )
       end
 
       # The recipients for this notification
@@ -27,12 +31,12 @@ module Notifications
 
       # The source/originator for this notification
       def source
-        @source ||= contribution.acceptor
+        @source ||= reply.author
       end
 
       # The notification's title
       def title
-        "#{source.name} accepted a contribution in #{project.title}"
+        "#{source.name} replied to #{contribution.title}"
       end
 
       private
@@ -43,9 +47,9 @@ module Notifications
 
       def recipient_users
         (collaborators_in_project +
-         contribution.repliers.includes(:account) +
+         contribution_repliers.includes(:account) +
          [contribution.creator] -
-         [contribution.acceptor]).uniq
+         [reply.author]).uniq
       end
     end
   end

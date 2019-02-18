@@ -1,0 +1,23 @@
+= form_for(reply, method: :post, url: profile_project_contribution_replies_path(project.owner, project, contribution, anchor: 'new-reply')) do |f|
+  .row id='new-reply'
+
+    .col.l2.m3.s2.center-align
+      = render partial: 'profiles/profile', object: reply.author
+
+    .col.l10.m9.s10
+      .with-triangle
+        .white.reply.form.z-depth-1
+          - if reply.errors.any?
+            .validation-errors
+              = render partial: "error",
+                       collection: reply.errors.full_messages,
+                       as: :error
+
+          .input-field
+            = f.text_area :content,
+                          rows: 3,
+                          class: 'materialize-textarea noscript'
+            = f.label :content, 'Your Reply'
+
+          button action='submit' class="btn primary-color primary-color-text"
+            | Reply
