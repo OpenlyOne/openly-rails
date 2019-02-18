@@ -1,5 +1,5 @@
 class AddAcceptedRevisionToContributions < ActiveRecord::Migration[5.2]
-  def change
+  def up
     add_reference :contributions, :accepted_revision,
                   foreign_key: { to_table: :vcs_commits }
 
@@ -11,7 +11,12 @@ class AddAcceptedRevisionToContributions < ActiveRecord::Migration[5.2]
           summary: contribution.description,
           author_id: contribution.creator_id
         )
-      contribution.update(accepted_revision: accepted_revision)
+      contribution.update_column(:accepted_revision_id,
+                                 accepted_revision&.id)
     end
+  end
+
+  def down
+    remove_reference :contributions, :accepted_revision
   end
 end
