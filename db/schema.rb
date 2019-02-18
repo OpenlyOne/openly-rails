@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_17_052507) do
+ActiveRecord::Schema.define(version: 2019_02_18_081043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -226,7 +226,6 @@ ActiveRecord::Schema.define(version: 2019_02_17_052507) do
     t.boolean "is_public", null: false
     t.bigint "repository_id"
     t.bigint "master_branch_id"
-    t.boolean "are_contributions_enabled", default: false, null: false
     t.datetime "captured_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["master_branch_id"], name: "index_projects_on_master_branch_id"
     t.index ["owner_id", "slug"], name: "index_projects_on_owner_id_and_slug", unique: true
