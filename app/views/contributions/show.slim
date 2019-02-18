@@ -5,8 +5,15 @@
 
 .container
 
-  .description
-    h5.title Description
-    = simple_format html_escape(@contribution.description)
+  = render partial: 'reply',
+           locals: { author: @contribution.creator,
+                     content: @contribution.description }
+
+  - @replies.each do |reply|
+    = render partial: 'reply',
+             locals: { author: reply.author,
+                       content: reply.content }
+
+
 
 .spacing.v32px

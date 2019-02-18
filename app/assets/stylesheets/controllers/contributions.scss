@@ -8,4 +8,48 @@
       margin-top: 0;
     }
   }
+
+  .with-triangle {
+    position: relative;
+
+
+    // need z-index, so that triangle shadow is below element and
+    > * {
+      position: relative;
+      z-index: 10;
+    }
+
+    // styling for the triangle
+    &::before,
+    &::after {
+      color: color('shades', 'white');
+      content: '◀';
+      margin-top: 10px;
+      position: absolute;
+      right: calc(100% - 1px);
+      top: 0;
+    }
+
+    // shadow is below element
+    &::before {
+      @extend %text-z-depth-1;
+      z-index: 5;
+    }
+
+    &::after {
+      z-index: 15;
+    }
+  }
+
+  .reply {
+    padding: 20px;
+
+    p:first-of-type {
+      margin-top: 0;
+    }
+
+    p:last-of-type {
+      margin-bottom: 0;
+    }
+  }
 }

@@ -30,7 +30,9 @@ class ContributionsController < ApplicationController
     end
   end
 
-  def show; end
+  def show
+    @replies = @contribution.replies.includes(:author)
+  end
 
   private
 

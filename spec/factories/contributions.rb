@@ -19,7 +19,14 @@ FactoryBot.define do
     description { Faker::Lorem.paragraph }
 
     trait :mock_setup do
+      association :project, :skip_archive_setup,
+                  :setup_complete, :with_repository
+
       branch do
+        if project.master_branch.root.nil?
+          create(:vcs_file_in_branch, :root, branch: project.master_branch)
+        end
+
         project.repository.branches.create!.tap do |fork|
           create :vcs_file_in_branch, :root,
                  file: project.master_branch.root.file, branch: fork

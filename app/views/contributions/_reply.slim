@@ -1,0 +1,9 @@
+.row
+
+  .col.l2.m3.s2.center-align
+    = render partial: 'profiles/profile', object: author
+
+  .col.l10.m9.s10
+    .with-triangle
+      .white.reply.z-depth-1
+        = simple_format html_escape(content)
