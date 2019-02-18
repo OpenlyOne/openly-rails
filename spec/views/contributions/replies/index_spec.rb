@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe 'contributions/show', type: :view do
+RSpec.describe 'contributions/replies/index', type: :view do
   let(:project)       { build_stubbed :project }
   let(:contribution)  { build_stubbed :contribution }
   let(:replies)       { [] }

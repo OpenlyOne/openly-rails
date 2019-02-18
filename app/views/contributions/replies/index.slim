@@ -1,4 +1,4 @@
-= render partial: 'contributions/head', object: @contribution, as: :contribution,
+= render partial: '/contributions/head', object: @contribution, as: :contribution,
          locals: { project: @project, active_tab: :discussion }
 
 .spacing.v32px
@@ -13,7 +13,5 @@
     = render partial: 'reply',
              locals: { author: reply.author,
                        content: reply.content }
-
-
 
 .spacing.v32px

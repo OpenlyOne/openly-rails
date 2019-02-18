@@ -120,9 +120,13 @@ RSpec.describe ContributionsController, type: :controller do
     it_should_behave_like 'raise 404 if contributions disabled'
     it_should_behave_like 'authorizing project access'
 
-    it 'returns http success' do
+    it 'redirects to replies page' do
       run_request
-      expect(response).to have_http_status :success
+      expect(response).to redirect_to(
+        profile_project_contribution_replies_path(
+          project.owner, project, contribution
+        )
+      )
     end
   end
 end

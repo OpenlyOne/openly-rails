@@ -31,7 +31,9 @@ class ContributionsController < ApplicationController
   end
 
   def show
-    @replies = @contribution.replies.includes(:author)
+    redirect_to profile_project_contribution_replies_path(
+      @project.owner, @project, @contribution
+    )
   end
 
   private

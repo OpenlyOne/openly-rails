@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :contribution do
-    association :project, :skip_archive_setup, :with_repository
+    association :project, :skip_archive_setup, :setup_complete, :with_repository
     association :creator, factory: :user
     branch      { build :vcs_branch, repository: project.repository }
     origin_revision do
