@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.36.1 (Feb 18, 2019)
+
+**Fixes:**
+- Add page layout for contribution discussion page to have the project
+  and contribution navigation rendered
+
 ## v0.36 (Feb 18, 2019)
 
 **Features:**
