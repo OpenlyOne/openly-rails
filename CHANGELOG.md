@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.36.2 (Feb 18, 2019)
+
+**Fixes:**
+- Use `#update` to `#update_column` in new migrations to avoid validations.
+  Otherwise, the validations will fail because some of the columns that are
+  are referenced by the validations will only be added in later migrations.
+
 ## v0.36.1 (Feb 18, 2019)
 
 **Fixes:**
