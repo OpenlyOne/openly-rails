@@ -1,34 +1,33 @@
 .page-subheading.gray.lighten-3.no-padding-bottom.no-margin-bottom
- .container
-   .row.no-margin-bottom
-     .col.s12
-       p.flow-text.no-margin
-         b = contribution.title
-       p.no-margin
-         ' proposed by
-         => link_to profile_path(contribution.creator)
-           = contribution.creator.name
-         | &middot;
-         =<> time_ago_in_words(contribution.created_at)
-         | ago
-         - if contribution.accepted?
-           = ' '
-           | &middot; accepted
+  .container
+    .row.no-margin-bottom
+      .col.s12
+        p.flow-text.no-margin
+          b = contribution.title
+        p.no-margin
+          ' proposed by
+          => link_to profile_path(contribution.creator)
+            = contribution.creator.name
+          | &middot;
+          =<> time_ago_in_words(contribution.created_at)
+          | ago
+          - if contribution.accepted?
+            = ' '
+            | &middot; accepted
 
-       div.tabs.static.no-margin-top
-         div.tab
-           = link_to 'Discussion', profile_project_contribution_path(project.owner, project, contribution),
-                      class: ('active' if active_tab == :discussion)
-         div.tab
-           = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
-                      class: ('active' if active_tab == :files)
-         div.tab
-           = link_to 'Review', profile_project_contribution_review_path(project.owner, project, contribution),
-                      class: ('active' if active_tab == :review)
-         - if contribution.files.root&.link_to_remote.present?
+        div.tabs.static.no-margin-top
           div.tab
-            = link_to contribution.files.root.link_to_remote, target: '_blank' do
-              svg style="width:24px;height:24px" viewBox="0 0 24 24" class="left"
-                path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
-              | Open in Drive
-            end
+            = link_to 'Discussion', profile_project_contribution_path(project.owner, project, contribution),
+                       class: ('active' if active_tab == :discussion)
+          div.tab
+            = link_to 'Files', profile_project_contribution_root_folder_path(project.owner, project, contribution),
+                       class: ('active' if active_tab == :files)
+          div.tab
+            = link_to 'Review', profile_project_contribution_review_path(project.owner, project, contribution),
+                       class: ('active' if active_tab == :review)
+          - if contribution.files.root&.link_to_remote.present?
+            div.tab
+              = link_to contribution.files.root.link_to_remote, target: '_blank' do
+                svg style="width:24px;height:24px" viewBox="0 0 24 24" class="left"
+                  path fill="currentColor" d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+                | Open in Drive
