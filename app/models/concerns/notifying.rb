@@ -44,10 +44,6 @@ module Notifying
     notification_helper.source
   end
 
-  def path_to_notifying_object
-    notification_helper.path
-  end
-
   def trigger_notifications(key)
     return if skip_notifications?
 
