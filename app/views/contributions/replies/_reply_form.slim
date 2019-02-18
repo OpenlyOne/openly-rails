@@ -1,5 +1,5 @@
-= form_for(reply, method: :post, url: profile_project_contribution_replies_path(project.owner, project, contribution)) do |f|
-  .row
+= form_for(reply, method: :post, url: profile_project_contribution_replies_path(project.owner, project, contribution, anchor: 'new-reply')) do |f|
+  .row id='new-reply'
 
     .col.l2.m3.s2.center-align
       = render partial: 'profiles/profile', object: reply.author

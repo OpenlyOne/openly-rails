@@ -47,10 +47,10 @@ RSpec.describe 'contributions/replies/index', type: :view do
   context 'when user can reply to contribution' do
     before { assign(:user_can_reply_to_contribution, true) }
 
-    it 'renders a form to create a new reply' do
+    it 'renders a form to create a new reply with hash: new-reply' do
       render
       path = profile_project_contribution_replies_path(
-        project.owner, project, contribution
+        project.owner, project, contribution, anchor: 'new-reply'
       )
       expect(rendered).to have_css("form[action='#{path}'][method='post']")
     end
@@ -69,6 +69,11 @@ RSpec.describe 'contributions/replies/index', type: :view do
     it 'has a button to submit the reply' do
       render
       expect(rendered).to have_css "button[action='submit']", text: 'Reply'
+    end
+
+    it 'has a #new-reply anchor within the form' do
+      render
+      expect(rendered).to have_css 'form #new-reply'
     end
   end
 end
