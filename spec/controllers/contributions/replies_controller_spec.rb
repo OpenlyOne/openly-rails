@@ -11,6 +11,10 @@ require 'controllers/shared_examples/successfully_rendering_view.rb'
 RSpec.describe Contributions::RepliesController, type: :controller do
   let!(:contribution) { create :contribution }
   let(:project)       { contribution.project }
+  let(:master)        { project.master_branch }
+  # TODO: Needed for successfully rendering view spec. Otherwise will fail
+  #       because calling #link_to_remote on root (which is nil).
+  let!(:root)         { create :vcs_file_in_branch, :root, branch: master }
   let(:default_params) do
     {
       profile_handle:   project.owner.to_param,
