@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_17_052507) do
+ActiveRecord::Schema.define(version: 2019_02_18_012226) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -234,6 +234,16 @@ ActiveRecord::Schema.define(version: 2019_02_17_052507) do
     t.index ["repository_id"], name: "index_projects_on_repository_id"
   end
 
+  create_table "replies", force: :cascade do |t|
+    t.bigint "author_id", null: false
+    t.bigint "contribution_id"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_replies_on_author_id"
+    t.index ["contribution_id"], name: "index_replies_on_contribution_id"
+  end
+
   create_table "signups", force: :cascade do |t|
     t.text "email"
     t.datetime "created_at", null: false
@@ -397,6 +407,8 @@ ActiveRecord::Schema.define(version: 2019_02_17_052507) do
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"
   add_foreign_key "projects", "vcs_repositories", column: "repository_id"
+  add_foreign_key "replies", "contributions"
+  add_foreign_key "replies", "profiles", column: "author_id"
   add_foreign_key "vcs_archives", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_branches", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_commits", "profiles", column: "author_id"

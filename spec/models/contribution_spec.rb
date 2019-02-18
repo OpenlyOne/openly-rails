@@ -3,7 +3,7 @@
 require 'models/shared_examples/being_notifying.rb'
 
 RSpec.describe Contribution, type: :model do
-  subject(:contribution) { build :contribution }
+  subject(:contribution) { build_stubbed :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
@@ -36,6 +36,7 @@ RSpec.describe Contribution, type: :model do
         .dependent(false)
         .optional
     end
+    it { is_expected.to have_many(:replies).dependent(:destroy) }
   end
 
   describe 'delegations' do
