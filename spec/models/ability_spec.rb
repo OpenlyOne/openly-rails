@@ -189,8 +189,8 @@ RSpec.describe Ability, type: :model do
   context 'Contributions' do
     let(:object) { contribution }
 
-    describe 'CRUD' do
-      actions = %i[new create]
+    describe 'CRUD + reply' do
+      actions = %i[new create reply]
       let(:project)       { create :project, :skip_archive_setup }
       let(:contribution)  { project.contributions.build }
       let(:user)          { build_stubbed :user }

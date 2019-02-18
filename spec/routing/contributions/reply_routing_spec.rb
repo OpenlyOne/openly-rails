@@ -14,4 +14,14 @@ RSpec.describe 'routes for contributions: replies', type: :routing do
                contribution_id: '1234')
     )
   end
+
+  it 'has a create route' do
+    expect(index_path).to eq '/handle/slug/contributions/27/replies'
+    expect(post: '/handle/slug/contributions/1234/replies').to(
+      route_to('contributions/replies#create',
+               profile_handle: 'handle',
+               project_slug: 'slug',
+               contribution_id: '1234')
+    )
+  end
 end

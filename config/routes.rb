@@ -106,7 +106,7 @@ Rails.application.routes.draw do
           resources :folders, only: :show
 
           # Replies
-          resources :replies, only: :index
+          resources :replies, only: %i[index create]
 
           # Review
           resource :review, only: :show

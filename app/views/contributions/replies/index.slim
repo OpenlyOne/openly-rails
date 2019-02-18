@@ -14,4 +14,10 @@
              locals: { author: reply.author,
                        content: reply.content }
 
+  - if @user_can_reply_to_contribution
+    = render partial: 'reply_form',
+             locals: { reply: @reply,
+                       project: @project,
+                       contribution: @contribution }
+
 .spacing.v32px

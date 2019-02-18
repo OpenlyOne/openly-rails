@@ -58,7 +58,7 @@ class Ability
 
     # Users can create contributions for projects that they can access
     # Users can reply to contributions of projects that they can access
-    can %i[new create], Contribution do |contribution|
+    can %i[new create reply], Contribution do |contribution|
       can?(:access, contribution.project)
     end
 
