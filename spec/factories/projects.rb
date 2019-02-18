@@ -14,7 +14,6 @@ FactoryBot.define do
     sequence(:slug) { |n| "project-slug-#{n}" }
     owner           { build(:user, account_email: owner_account_email) }
     is_public       { false }
-    are_contributions_enabled { true }
     captured_at { Faker::Time.between(Time.zone.now - 7, Time.zone.now) }
 
     trait :public do
