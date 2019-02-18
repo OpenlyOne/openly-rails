@@ -8,18 +8,18 @@ end
 RSpec.describe 'routes for accounts', type: :routing do
   it 'has an edit route' do
     expect(edit_account_path).to eq '/account'
-    expect(get: '/account').to route_to 'devise/registrations#edit'
+    expect(get: '/account').to route_to 'accounts#edit'
   end
 
   it 'has an update route' do
     expect(account_path).to eq '/account'
-    expect(patch: '/account').to route_to 'devise/registrations#update'
-    expect(put:   '/account').to route_to 'devise/registrations#update'
+    expect(patch: '/account').to route_to 'accounts#update'
+    expect(put:   '/account').to route_to 'accounts#update'
   end
 
   it 'has a delete route' do
     expect(account_path).to eq '/account'
-    expect(delete: '/account').to route_to 'devise/registrations#destroy'
+    expect(delete: '/account').to route_to 'accounts#destroy'
   end
 
   it 'has a root route' do
