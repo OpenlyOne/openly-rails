@@ -13,12 +13,14 @@
                                contribution.revision.errors.full_messages,
                    as: :error
 
-  = render partial: 'contributions/reviews/review_file_changes',
+  = render partial: 'contributions/reviews/review_suggested_file_changes',
           locals: { contribution: contribution,
                     project: project,
                     all_links_in_new_tab: true }
 
   / show button for accepting contribution, if not yet accepted
+  / TODO: Remove if statement. User can only navigate to this page if
+  /       contribution has not yet been accepted.
   - if contribution.open?
     .spacing.v32px
 
@@ -27,7 +29,7 @@
         / HACK: Technically not a validation error, but the styling is appropriate
         .validation-errors
           = render partial: 'error',
-                            object: 'Have you captured all changes in this project? When accepting this contribution, you will lose any uncaptured changes.',
+                            object: '<b>When you accept this contribution, you will overwrite all uncaptured changes on files listed above.</b>'.html_safe,
                             as: :error
         button action='submit' class='btn btn-large primary-color primary-color-text'
           | Accept Changes

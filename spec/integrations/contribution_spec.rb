@@ -5,9 +5,119 @@ RSpec.describe Contribution, type: :model do
 
   let(:project) { create :project }
 
-  describe '#accept(revision:)' do
-    subject(:accept) { contribution.accept(revision: revision) }
+  describe 'notifications' do
+    subject(:contribution) do
+      create(:contribution,
+             origin_revision: origin_revision, creator: creator,
+             project: project)
+    end
+    let(:origin_revision) do
+      create(:vcs_commit, :published, branch: project.master_branch)
+    end
 
+    let(:project) { create(:project, :skip_archive_setup, :with_repository) }
+    let(:owner)         { project.owner }
+    let(:collaborator1) { create :user }
+    let(:collaborator2) { create :user }
+    let(:collaborator3) { create :user }
+    let(:creator)       { collaborator1 }
+    let(:publish)       { true }
+
+    before do
+      setup
+      Notification.delete_all
+      ActionMailer::Base.deliveries.clear
+    end
+
+    context 'when creating contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+      end
+
+      before { contribution }
+
+      it 'creates a notification for project team minus the creator' do
+        expect(Notification.count).to eq 3
+        expect(Notification.all.map(&:target))
+          .to match_array [owner, collaborator2, collaborator3].map(&:account)
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly creator
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            [owner, collaborator2, collaborator3].map(&:account).map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
+      end
+    end
+
+    context 'when accepting contribution' do
+      let(:setup) do
+        origin_revision
+        project.collaborators << [collaborator1, collaborator2, collaborator3]
+        contribution
+        replies
+        contribution.repliers.reload
+      end
+      let(:creator)   { create :user }
+      let(:acceptor)  { collaborator2 }
+      let(:replies)   { create_list :reply, 2, contribution: contribution }
+
+      let(:revision) do
+        create :vcs_commit,
+               branch: project.master_branch, parent: origin_revision
+      end
+
+      before do
+        contribution.accept(revision: revision, acceptor: collaborator2)
+      end
+
+      it 'creates a notification for project team + contribution creator ' \
+         'minus the acceptor' do
+        expect(Notification.count).to eq 6
+        expect(Notification.all.map(&:target))
+          .to match_array(
+            ([owner, collaborator1, collaborator3, creator] +
+             replies.map(&:author)).map(&:account)
+          )
+        expect(Notification.all.map(&:notifier).uniq)
+          .to contain_exactly acceptor
+        expect(Notification.all.map(&:notifiable).uniq)
+          .to contain_exactly contribution
+      end
+
+      it 'sends an email to each notification recipient' do
+        expect(ActionMailer::Base.deliveries.map(&:to).flatten)
+          .to match_array(
+            ([owner, collaborator1, collaborator3, creator] +
+             replies.map(&:author)).map(&:account).map(&:email)
+          )
+      end
+
+      context 'when contribution is destroyed' do
+        it 'deletes all notifications' do
+          expect { contribution.destroy }.to change(Notification, :count).to(0)
+        end
+      end
+    end
+  end
+
+  describe '#accept(revision:, acceptor:)' do
+    subject(:accept) do
+      contribution.accept(revision: revision, acceptor: acceptor)
+    end
+
+    let(:acceptor)     { creator }
     let(:contribution) { create :contribution, :mock_setup, project: project }
     let(:creator)      { contribution.creator }
     let(:revision) do
@@ -17,7 +127,9 @@ RSpec.describe Contribution, type: :model do
     let!(:root)   { create :vcs_file_in_branch, :root, branch: master_branch }
     let(:master_branch) { project.master_branch }
 
-    before { allow(master_branch).to receive(:restore_commit) }
+    before do
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+    end
 
     it 'publishes the revision on the master branch' do
       accept
@@ -30,14 +142,33 @@ RSpec.describe Contribution, type: :model do
 
     it 'applies suggested changes to the master branch' do
       accept
-      expect(master_branch)
-        .to have_received(:restore_commit)
-        .with(revision, author: creator)
+      expect(VCS::Operations::RestoreFilesFromDiffs)
+        .to have_received(:restore)
+        .with(file_diffs: revision.file_diffs.includes(:version),
+              target_branch: master_branch)
     end
 
     it 'marks the contribution as accepted' do
       accept
       expect(contribution).to be_accepted
+    end
+
+    it 'sets accepted_revision to the created revision' do
+      accept
+      expect(contribution.reload.accepted_revision).to eq revision
+    end
+
+    context 'when new files are added in the contribution' do
+      let!(:new_files) { create_list :vcs_committed_file, 3, commit: revision }
+
+      before { revision.reload && revision.committed_files.reload }
+
+      it 'copies the files over to master branch and marks them committed' do
+        accept
+        expect(master_branch.reload.files.without_root.count).to eq 3
+        expect(master_branch.files.without_root.map(&:committed_version_id))
+          .to match_array(new_files.map(&:version_id))
+      end
     end
   end
 
@@ -46,29 +177,77 @@ RSpec.describe Contribution, type: :model do
       contribution.prepare_revision_for_acceptance(author: user)
     end
 
-    let(:contribution)  { create :contribution }
-    let(:project)       { contribution.project }
+    let(:contribution) do
+      create :contribution, :mock_setup,
+             origin_revision: origin_revision, project: project
+    end
+    let(:project) { create(:project, :skip_archive_setup, :with_repository) }
+    let(:master_branch) { project.master_branch }
     let(:user)          { create :user }
-    let!(:last_revision) do
-      create :vcs_commit, :published, branch: project.master_branch
+    let(:origin_revision) do
+      create :vcs_commit, :commit_files, branch: master_branch
+    end
+
+    let!(:root) { create :vcs_file_in_branch, :root, branch: master_branch }
+    let!(:file_to_change_in_contribution_only) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:file_to_change_in_both) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:file_to_change_in_master_only) do
+      create :vcs_file_in_branch, parent_in_branch: root
+    end
+    let!(:folder) do
+      create :vcs_file_in_branch, :folder, parent_in_branch: root
+    end
+
+    before do
+      origin_revision
+      contribution
+
+      # when changes are made on master
+      file_to_change_in_both.update!(name: 'in both (new)')
+      file_to_change_in_master_only.update!(name: 'master only (new)')
+      # and committed
+      create :vcs_commit, :commit_files, parent: origin_revision,
+                                         branch: master_branch
+
+      # when changes are made in the contribution
+      contribution.files.find_by!(
+        file_id: file_to_change_in_contribution_only.file_id
+      ).update!(name: 'contrib only (new)')
+      contribution.files.find_by!(
+        file_id: file_to_change_in_both.file_id
+      ).update!(parent: folder.file)
+
+      prepare_revision
     end
 
     it 'creates a revision draft' do
-      prepare_revision
       expect(contribution.revision).to have_attributes(
         is_published: false,
-        parent: last_revision,
+        parent: project.revisions.last,
         title: contribution.title,
         summary: contribution.description,
         author: user
       )
+    end
+
+    it 'calculates diffs relative to origin revision' do
+      expect(contribution.revision.file_diffs.count).to eq 2
+      expect(contribution.revision.file_diffs.count(&:rename?)).to eq 2
+      expect(contribution.revision.file_diffs.count(&:movement?)).to eq 1
     end
   end
 
   describe '#setup', :vcr do
     subject(:setup) { contribution.setup(creator: current_account.user) }
 
-    let(:contribution) { build :contribution, project: project, branch: nil }
+    let(:contribution) do
+      build :contribution, project: project, branch: nil,
+                           origin_revision: origin_revision
+    end
 
     let(:api_connection) do
       Providers::GoogleDrive::ApiConnection.new(user_acct)
@@ -88,7 +267,7 @@ RSpec.describe Contribution, type: :model do
     # delete test folder
     after { tear_down_google_drive_test(api_connection) }
 
-    let(:last_commit)     { project.revisions.last }
+    let(:origin_revision) { project.revisions.last }
     let(:current_account) { create :account, email: user_acct }
     let(:project) do
       create :project, :with_repository, owner: current_account.user
@@ -114,15 +293,15 @@ RSpec.describe Contribution, type: :model do
       setup
     end
 
-    it 'copies files from last commit' do
+    it 'copies files from origin revision' do
       expect(contribution.branch.files.without_root.count)
-        .to eq last_commit.committed_files.count
+        .to eq origin_revision.committed_files.count
       expect(
         contribution.branch
                     .files.without_root
                     .map(&:current_version_id)
       ).to match_array(
-        last_commit.committed_files.map(&:version_id)
+        origin_revision.committed_files.map(&:version_id)
       )
     end
 
@@ -145,6 +324,51 @@ RSpec.describe Contribution, type: :model do
     it 'creates contribution in project archive' do
       expect(contribution.branch.root.remote.parent_id)
         .to eq project.repository.archive.remote_file_id
+    end
+  end
+
+  describe '#suggested_file_diffs' do
+    subject(:file_diffs) { contribution.suggested_file_diffs }
+
+    let(:contribution)  { create :contribution, :mock_setup, project: project }
+    let(:project)     { create :project, :skip_archive_setup, :with_repository }
+    let(:author)      { project.owner }
+    let(:master)      { project.master_branch }
+    let!(:root)       { create :vcs_file_in_branch, :root, branch: master }
+    let!(:prior_files) do
+      create_list :vcs_file_in_branch, 5, parent_in_branch: root
+    end
+    let!(:origin_revision) do
+      master.commits.create_draft_and_commit_files!(author)
+            .tap { |commit| commit.update!(is_published: true, title: 'c') }
+    end
+
+    let!(:deletion) { contribution.branch.files.without_root.second.destroy }
+    let!(:addition) { create :vcs_file_in_branch, branch: contribution.branch }
+    let!(:modification) do
+      contribution.branch.files.without_root.second.tap do |file|
+        file.update(name: 'new file name')
+      end
+    end
+
+    it 'returns diffs of files changed in revision' do
+      expect(file_diffs.map { |d| [d.file_id, d.new_version_id] })
+        .to contain_exactly(
+          [deletion.file_id, nil],
+          [addition.file_id, addition.current_version_id],
+          [modification.file_id, modification.current_version_id]
+        )
+    end
+
+    it 'returns diffs relative to origin revision' do
+      expect(file_diffs.map(&:commit).map(&:parent_id).uniq)
+        .to contain_exactly(origin_revision.id)
+    end
+
+    it 'does not return diffs of files changed in master' do
+      addition_in_master = create :vcs_file_in_branch, parent_in_branch: root
+      expect(file_diffs.map(&:file_id))
+        .not_to include(addition_in_master.file_id)
     end
   end
 

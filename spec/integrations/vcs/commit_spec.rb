@@ -99,7 +99,7 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
-  describe 'validation: can have only one commit with parent' do
+  describe 'validation: can have only one commit with parent per branch' do
     subject(:commit)    { build(:vcs_commit, parent: parent, branch: branch) }
     let(:parent)        { create(:vcs_commit, branch: branch) }
     let(:branch)        { create(:vcs_branch) }
@@ -109,11 +109,20 @@ RSpec.describe VCS::Commit, type: :model do
         create :vcs_commit, :published, parent: parent, branch: branch
       end
 
-      it                { is_expected.to be_invalid }
+      it { is_expected.to be_invalid }
+    end
+
+    context 'when commit with same parent exists in another branch' do
+      let!(:existing) do
+        create :vcs_commit, :published, parent: parent, branch: other_branch
+      end
+      let(:other_branch) { create :vcs_branch, repository: branch.repository }
+
+      it { is_expected.to be_valid }
     end
 
     context 'when commit with same parent is not published' do
-      let!(:existing) { create :vcs_commit, parent: parent }
+      let!(:existing) { create :vcs_commit, parent: parent, branch: branch }
       it              { is_expected.to be_valid }
     end
 
@@ -247,6 +256,59 @@ RSpec.describe VCS::Commit, type: :model do
     end
   end
 
+  describe '#apply_file_diffs_to_committed_files(file_diffs)' do
+    subject(:apply) { commit.apply_file_diffs_to_committed_files(diffs) }
+
+    let(:commit) { create :vcs_commit }
+    let!(:committed_files) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let!(:committed_files_to_delete) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let!(:committed_files_to_change) do
+      create_list :vcs_committed_file, 2, commit: commit
+    end
+    let(:diffs) { deletions + [addition] + changes }
+    let(:addition) { create :vcs_file_diff }
+    let(:deletions) do
+      committed_files_to_delete.map(&:version).map do |version|
+        create :vcs_file_diff,
+               new_version: nil,
+               old_version: create(:vcs_version, file: version.file)
+      end
+    end
+    let(:changes) do
+      committed_files_to_change.map(&:version).map do |version|
+        create :vcs_file_diff,
+               new_version: create(:vcs_version, file: version.file)
+      end
+    end
+
+    before { apply && commit.committed_files.reload }
+
+    it 'removes deletions from committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .not_to include(committed_files_to_delete.map(&:version_id))
+      expect(commit.committed_files.map(&:version).map(&:file_id))
+        .not_to include(*deletions.map(&:file_id))
+    end
+
+    it 'adds additions to committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .to include(addition.new_version_id)
+      expect(commit.committed_files.map(&:version).map(&:file_id))
+        .to include(addition.file_id)
+    end
+
+    it 'modifies changes in committed files' do
+      expect(commit.committed_files.map(&:version_id))
+        .not_to include(*committed_files_to_change.map(&:version_id))
+      expect(commit.committed_files.map(&:version_id))
+        .to include(*changes.map(&:new_version_id))
+    end
+  end
+
   describe '#commit_all_files_in_branch' do
     subject(:committed_files) { commit.committed_files }
     let(:commit)              { create :vcs_commit }
@@ -290,6 +352,34 @@ RSpec.describe VCS::Commit, type: :model do
 
       it 'does not commit that file' do
         is_expected.to be_none
+      end
+    end
+  end
+
+  describe '#copy_committed_files_from(commit)' do
+    subject(:copy) { commit.copy_committed_files_from(commit_to_copy_from) }
+
+    let(:commit)              { create :vcs_commit }
+    let(:commit_to_copy_from) { create :vcs_commit }
+
+    before { create_list :vcs_committed_file, 5, commit: commit_to_copy_from }
+
+    it 'copies all committed files from commit to self' do
+      copy
+      expect(commit.reload.committed_files.map(&:version_id))
+        .to match_array(commit_to_copy_from.committed_files.map(&:version_id))
+    end
+
+    context 'when commit already has committed files' do
+      let!(:existing_committed_files) do
+        create_list :vcs_committed_file, 3, commit: commit
+      end
+
+      it 'removes existing committed files' do
+        expect(commit.committed_files).to match_array(existing_committed_files)
+        copy
+        expect(commit.committed_files)
+          .not_to match_array(existing_committed_files)
       end
     end
   end

@@ -12,7 +12,6 @@ class ProjectsController < ApplicationController
   before_action :authorize_project_access, only: :show
   before_action :set_user_can_create_private_projects, only: %i[new create]
 
-
   def new; end
 
   def create

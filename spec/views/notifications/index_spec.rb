@@ -1,8 +1,16 @@
 # frozen_string_literal: true
 
+require 'support/helpers/notifications_helper.rb'
+
 RSpec.describe 'notifications/index', type: :view do
-  let(:notifications) { create_list :notification, 3 }
-  let(:unopened)      { false }
+  include NotificationsHelper
+
+  let(:notifications) do
+    notification_factories.map do |factory|
+      create(factory)
+    end
+  end
+  let(:unopened) { false }
 
   before do
     assign(:notifications, notifications)
@@ -21,22 +29,10 @@ RSpec.describe 'notifications/index', type: :view do
     end
   end
 
-  it 'renders the notification message' do
+  it 'renders the notification title' do
     render
     notifications.each do |notification|
-      notifier = notification.notifier
-      project =
-        Project.find_by_repository_id(notification.notifiable.repository.id)
-      expect(rendered).to have_text(
-        "#{notifier.name} created a revision in #{project.title}"
-      )
-    end
-  end
-
-  it 'renders the title of the revision' do
-    render
-    notifications.each do |notification|
-      expect(rendered).to have_text notification.notifiable.title
+      expect(rendered).to have_text notification.title
     end
   end
 

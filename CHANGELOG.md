@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## v0.36 (Feb 18, 2019)
+
+**Features:**
+- Changes suggested in contributions are now relative to point in time when the
+  contribution was created. In addition, only files with suggested changes will
+  be overwritten in the project. Any other files in the project, whether changed
+  or not, will remain untouched when accepting the contribution.
+  ([#325](https://github.com/OpenlyOne/openly/issues/325))
+- Contributions now have a discussion tab where users can create replies to
+  the contribution and discuss it. When a reply is created, it notifies the
+  project team, contribution creator, and other discussion participants.
+  ([#280](https://github.com/OpenlyOne/openly/issues/280))
+
+**Enhancements:**
+- The contributions feature is now enabled for all projects. The feature toggle
+  has been removed.
+- Creating and accepting a contribution now triggers notifications to the
+  project team, contribution creator, and contribution discussion participants
+  ([#285](https://github.com/OpenlyOne/openly/issues/285))
+- Add a link to the contribution navigation to allow users to open the
+  contribution's root folder in Google Drive
+  ([#273](https://github.com/OpenlyOne/openly/issues/273))
+- Display an accurate list of changes in the contribution review tab after the
+  contribution has been accepted by tracking the accepted revision
+  ([#284](https://github.com/OpenlyOne/openly/issues/284))
+- Admins can edit email addresses of accounts via the admin panel. Users
+  continue to be prevented from editing their own email addresses.
+  ([#266](https://github.com/OpenlyOne/openly/issues/266))
+
 ## v0.35.1 (Feb 16, 2019)
 
 **Fixes:**

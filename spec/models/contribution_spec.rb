@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'models/shared_examples/being_notifying.rb'
+
 RSpec.describe Contribution, type: :model do
   subject(:contribution) { build_stubbed :contribution }
 
   it 'has a valid factory' do
     is_expected.to be_valid
+  end
+
+  it_should_behave_like 'being notifying' do
+    let(:notifying) { contribution }
   end
 
   describe 'associations' do
@@ -16,6 +22,28 @@ RSpec.describe Contribution, type: :model do
     it do
       is_expected
         .to belong_to(:branch).class_name('VCS::Branch').dependent(:destroy)
+    end
+    it do
+      is_expected
+        .to belong_to(:origin_revision)
+        .class_name('VCS::Commit')
+        .dependent(false)
+    end
+    it do
+      is_expected
+        .to belong_to(:accepted_revision)
+        .class_name('VCS::Commit')
+        .dependent(false)
+        .optional
+    end
+    it { is_expected.to have_many(:replies).dependent(:destroy) }
+    it do
+      is_expected
+        .to have_many(:repliers)
+        .class_name('Profiles::User')
+        .through(:replies)
+        .source(:author)
+        .dependent(false)
     end
   end
 
@@ -38,6 +66,10 @@ RSpec.describe Contribution, type: :model do
     it do
       is_expected.to validate_presence_of(:branch).with_message('must exist')
     end
+    it do
+      is_expected
+        .to validate_presence_of(:origin_revision).with_message('must exist')
+    end
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_presence_of(:description) }
 
@@ -46,15 +78,46 @@ RSpec.describe Contribution, type: :model do
       it { is_expected.to validate_presence_of(:title).on(:setup) }
       it { is_expected.to validate_presence_of(:description).on(:setup) }
     end
+
+    context 'when origin revision is not published' do
+      let(:origin_revision) { contribution.origin_revision }
+
+      before { allow(origin_revision).to receive(:published?).and_return false }
+
+      it 'adds an error' do
+        contribution.valid?
+        expect(contribution.errors[:origin_revision])
+          .to include('must be published')
+      end
+    end
+
+    context 'when origin revision does not belong to project' do
+      let(:origin_revision) { contribution.origin_revision }
+
+      before { allow(origin_revision).to receive(:branch_id).and_return 'xx' }
+
+      it 'adds an error' do
+        contribution.valid?
+        expect(contribution.errors[:origin_revision])
+          .to include('must belong to the same project')
+      end
+    end
   end
 
-  describe '#accept(revision:)' do
-    subject(:accept) { contribution.accept(revision: revision) }
+  describe '#accept(revision:, acceptor:)' do
+    subject(:accept) do
+      contribution.accept(revision: revision, acceptor: acceptor)
+    end
 
-    let(:revision)      { instance_double VCS::Commit }
-    let(:master_branch) { instance_double VCS::Branch }
-    let(:creator)       { contribution.creator }
-    let(:contribution)  { create :contribution, project: project }
+    let(:revision)                    { create :vcs_commit }
+    let(:acceptor)                    { instance_double Profiles::User }
+    let(:master_branch)               { instance_double VCS::Branch }
+    let(:file_diffs)                  { class_double VCS::FileDiff }
+    let(:file_diffs_with_new_version) { class_double VCS::FileDiff }
+    let(:creator)                     { contribution.creator }
+    let!(:contribution) do
+      create :contribution, project: project
+    end
     let(:project) { create :project, :skip_archive_setup, :with_repository }
     let(:successfully_published) { true }
 
@@ -62,7 +125,15 @@ RSpec.describe Contribution, type: :model do
       allow(revision).to receive(:publish).and_return successfully_published
       allow(project).to receive(:master_branch).and_return master_branch
       allow(project).to receive(:master_branch_id).and_return 'master_branch_id'
-      allow(master_branch).to receive(:restore_commit)
+      allow(contribution.origin_revision)
+        .to receive(:branch_id).and_return 'master_branch_id'
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+      allow(revision).to receive(:file_diffs).and_return file_diffs
+      allow(file_diffs)
+        .to receive(:includes)
+        .with(:new_version)
+        .and_return file_diffs_with_new_version
+      allow(contribution).to receive(:trigger_acceptance_notifications)
     end
 
     it { is_expected.to be true }
@@ -73,22 +144,36 @@ RSpec.describe Contribution, type: :model do
         .to have_received(:publish)
         .with(author_id: creator.id,
               branch_id: 'master_branch_id',
-              select_all_file_changes: true)
+              select_all_file_changes: true,
+              skip_notifications: true)
     end
 
     it 'applies changes to the master branch' do
       accept
-      expect(master_branch)
-        .to have_received(:restore_commit)
-        .with(revision, author: creator)
+      expect(VCS::Operations::RestoreFilesFromDiffs)
+        .to have_received(:restore)
+        .with(file_diffs: file_diffs_with_new_version,
+              target_branch: master_branch)
     end
 
     it 'updates the contribution to accepted' do
       expect { accept }.to change(contribution, :accepted?).to(true)
     end
 
+    it 'triggers acceptance notifications' do
+      accept
+      expect(contribution).to have_received(:trigger_acceptance_notifications)
+    end
+
+    it 'sets acceptor on instance' do
+      accept
+      expect(contribution.acceptor).to eq acceptor
+    end
+
     context 'when contribution has already been accepted' do
-      before { contribution.update_attribute(:is_accepted, true) }
+      before { contribution.update_column(:accepted_revision_id, commit.id) }
+
+      let(:commit) { create :vcs_commit }
 
       it { is_expected.to be false }
 
@@ -106,7 +191,8 @@ RSpec.describe Contribution, type: :model do
 
       it 'does not apply changes to the master branch' do
         accept
-        expect(master_branch).not_to have_received(:restore_commit)
+        expect(VCS::Operations::RestoreFilesFromDiffs)
+          .not_to have_received(:restore)
       end
     end
 
@@ -117,7 +203,8 @@ RSpec.describe Contribution, type: :model do
 
       it 'does not apply changes to the master branch' do
         accept
-        expect(master_branch).not_to have_received(:restore_commit)
+        expect(VCS::Operations::RestoreFilesFromDiffs)
+          .not_to have_received(:restore)
       end
 
       it 'does not persist contribution' do
@@ -128,18 +215,26 @@ RSpec.describe Contribution, type: :model do
   end
 
   describe '#accepted?' do
-    let(:contribution) { create :contribution }
+    let(:contribution)    { create :contribution }
+    let(:origin_revision) { contribution.origin_revision }
+    let(:revision) do
+      create :vcs_commit, parent: origin_revision,
+                          branch: origin_revision.branch
+    end
 
     it { is_expected.not_to be_accepted }
 
-    context 'when is_accepted=true' do
-      before { contribution.is_accepted = true }
+    context 'when accepted_revision is present' do
+      before { contribution.accepted_revision = revision }
 
       it { is_expected.not_to be_accepted }
     end
 
     context 'when is accepted and persisted' do
-      before { contribution.update(is_accepted: true) }
+      before do
+        allow(contribution).to receive(:trigger_acceptance_notifications)
+        contribution.update!(accepted_revision: revision)
+      end
 
       it { is_expected.to be_accepted }
     end

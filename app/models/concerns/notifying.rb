@@ -11,13 +11,29 @@ module Notifying
                        dependent_notifications: :do_nothing,
                        notifiable_path: :path_to_notifying_object
 
+    attr_accessor :skip_notifications
+
     before_destroy :destroy_notifications
+
+    def self.notifications
+      Notification.where(notifiable_type: model_name.to_s)
+    end
+  end
+
+  def notifications
+    Notification.where(notifiable: self)
+  end
+
+  def skip_notifications?
+    skip_notifications == true
   end
 
   private
 
+  attr_accessor :notification_helper
+
   def destroy_notifications
-    Notification.where(notifiable: self).destroy_all
+    notifications.destroy_all
   end
 
   def notification_recipients
@@ -28,15 +44,11 @@ module Notifying
     notification_helper.source
   end
 
-  def path_to_notifying_object
-    notification_helper.path
-  end
+  def trigger_notifications(key)
+    return if skip_notifications?
 
-  def notification_helper
-    @notification_helper ||= Notification.notification_helper_for(self)
-  end
-
-  def trigger_notifications
-    notify :accounts
+    self.notification_helper =
+      Notification.notification_helper_for(self, key: key)
+    notify :accounts, key: key
   end
 end

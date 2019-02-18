@@ -118,18 +118,6 @@ RSpec.describe 'projects/_head', type: :view do
       )
     end
 
-    context 'when the contributions feature is disabled' do
-      before { project.are_contributions_enabled = false }
-
-      it 'does not render a link to the project contributions' do
-        render
-        expect(rendered).not_to have_link(
-          'Contributions',
-          href: profile_project_contributions_path(project.owner, project.slug)
-        )
-      end
-    end
-
     it 'does not render a link to open that folder in Google Drive' do
       render
       expect(rendered).not_to have_link('Open in Drive')

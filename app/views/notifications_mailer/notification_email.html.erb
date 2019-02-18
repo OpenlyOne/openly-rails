@@ -1,1 +1,3 @@
-<%= render @notification %>
+<%= render(partial: "/notifications_mailer/#{@notification.partial_name}",
+           object: @notification,
+           as: :notification) %>

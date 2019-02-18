@@ -1,0 +1,24 @@
+= render partial: '/contributions/head', object: @contribution, as: :contribution,
+         locals: { project: @project, active_tab: :discussion }
+
+.spacing.v32px
+
+.container
+
+  = render partial: 'reply',
+           locals: { author: @contribution.creator,
+                     content: @contribution.description }
+
+  - @replies.each do |reply|
+    = render partial: 'reply',
+             locals: { author: reply.author,
+                       content: reply.content,
+                       id: reply.id }
+
+  - if @user_can_reply_to_contribution
+    = render partial: 'reply_form',
+             locals: { reply: @reply,
+                       project: @project,
+                       contribution: @contribution }
+
+.spacing.v32px

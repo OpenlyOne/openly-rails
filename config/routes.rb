@@ -41,9 +41,9 @@ Rails.application.routes.draw do
     resource :account,
              only: %i[edit update destroy],
              path_names: { edit: '' },
-             controller: 'devise/registrations'
+             controller: 'accounts'
     # Stay on /account page after user updates their account
-    get '/account', to: 'devise/registrations#edit', as: :account_root
+    get '/account', to: 'accounts#edit', as: :account_root
   end
 
   # Routes for sessions
@@ -104,6 +104,9 @@ Rails.application.routes.draw do
           # File browsing
           get 'files' => 'folders#root', as: :root_folder
           resources :folders, only: :show
+
+          # Replies
+          resources :replies, only: %i[index create]
 
           # Review
           resource :review, only: :show

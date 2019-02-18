@@ -79,18 +79,83 @@ feature 'Contributions: Review Changes' do
     expect(page).not_to have_text 'unchanged'
   end
 
-  scenario 'Changes to review are relative to master branch' do
+  context 'when contribution has been accepted' do
+    scenario 'User can review accepted changes' do
+      # given there are files and they are committed in a project
+      _files = [
+        unchanged, folder, modified_file, moved_out_file, moved_in_file,
+        moved_in_and_modified_file, removed_file, moved_folder, in_moved_folder
+      ]
+      create_revision('origin')
+
+      # with a contribution
+      contribution
+
+      # that has file changes
+      added_file
+      in_contribution(modified_file).update(content_version: 'new-version')
+      in_contribution(moved_out_file).update(parent: root.file)
+      in_contribution(moved_in_file).update(parent: folder.file)
+      in_contribution(moved_in_and_modified_file)
+        .update(parent: folder.file, content_version: 'new-v')
+      in_contribution(removed_file).update(is_deleted: true)
+      in_contribution(moved_folder).update(parent: folder.file)
+
+      # and the contribution is accepted
+      visit "#{project.owner.to_param}/#{project.to_param}"
+      click_on 'Contributions'
+      click_on contribution.title
+      click_on 'Review'
+      allow(VCS::Operations::RestoreFilesFromDiffs).to receive(:restore)
+      click_on 'Accept Changes'
+
+      # and I navigate back to the review page
+      click_on 'Contributions'
+      click_on contribution.title
+      click_on 'Review'
+
+      # then I still should see the accepted changes
+      expect(page).to have_text(
+        "The following changes were suggested by #{contribution.creator.name}"
+      )
+      expect(page).to have_css '.file.addition',      text: added_file.name
+      expect(page).to have_css '.file.modification',  text: modified_file.name
+      expect(page).to have_css '.file.movement',      text: moved_out_file.name
+      expect(page).to have_css '.file.movement',      text: moved_in_file.name
+      expect(page).to have_css '.file.movement',
+                               text: moved_in_and_modified_file.name
+      expect(page).to have_css '.file.modification',
+                               text: moved_in_and_modified_file.name
+      expect(page).to have_css '.file.deletion',      text: removed_file.name
+      expect(page).to have_css '.file.movement',      text: moved_folder.name
+    end
+  end
+
+  scenario 'Changes to review are relative to contribution origin' do
     # given there are files and they are committed in a project
-    file = create :vcs_file_in_branch, name: 'file ABC', parent_in_branch: root
+    file_to_change_in_contribution_only =
+      create :vcs_file_in_branch, name: 'contrib only', parent_in_branch: root
+    file_to_change_in_both =
+      create :vcs_file_in_branch, name: 'in both', parent_in_branch: root
+    file_to_change_in_master_only =
+      create :vcs_file_in_branch, name: 'master only', parent_in_branch: root
+    folder = create :vcs_file_in_branch, :folder, parent_in_branch: root
+
     create_revision('origin')
 
     # and I start a contribution
     contribution
 
     # when changes are made on master
-    file.update(is_deleted: true)
+    file_to_change_in_both.update!(name: 'in both (new)')
+    file_to_change_in_master_only.update!(name: 'master only (new)')
     # and committed
     create_revision('update')
+
+    # when changes are made in the contribution
+    in_contribution(file_to_change_in_contribution_only)
+      .update!(name: 'contrib only (new)')
+    in_contribution(file_to_change_in_both).update!(parent: folder.file)
 
     # when I visit the project page
     visit "#{project.owner.to_param}/#{project.to_param}"
@@ -102,7 +167,12 @@ feature 'Contributions: Review Changes' do
     click_on 'Review'
 
     # then I can see that it is suggested to add file
-    expect(page).to have_css '.file.addition', text: 'file ABC'
+    expect(page).to have_css '.file.movement', text: 'in both'
+    expect(page).to have_css '.file.rename', text: 'in both'
+    expect(page).to have_css '.file.rename', text: 'contrib only (new)'
+
+    # and not suggested to undo the change in master
+    expect(page).not_to have_css '.file.rename', text: 'master only (new)'
   end
 end
 

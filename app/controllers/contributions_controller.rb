@@ -7,7 +7,6 @@ class ContributionsController < ApplicationController
   before_action :authenticate_account!, except: %i[index show]
   before_action :set_project_where_setup_is_complete
   before_action :authorize_project_access
-  before_action :require_contribution_feature_enabled
   before_action :build_contribution, only: %i[new create]
   before_action :authorize_action, only: %i[new create]
   before_action :find_contribution, only: :show
@@ -30,7 +29,11 @@ class ContributionsController < ApplicationController
     end
   end
 
-  def show; end
+  def show
+    redirect_to profile_project_contribution_replies_path(
+      @project.owner, @project, @contribution
+    )
+  end
 
   private
 
@@ -43,7 +46,10 @@ class ContributionsController < ApplicationController
   end
 
   def build_contribution
-    @contribution = @project.contributions.build(creator: current_user)
+    @contribution = @project.contributions.build(
+      creator: current_user,
+      origin_revision: @project.revisions.last
+    )
   end
 
   def find_contribution
@@ -59,9 +65,5 @@ class ContributionsController < ApplicationController
 
   def contribution_params
     params.require(:contribution).permit(:title, :description)
-  end
-
-  def require_contribution_feature_enabled
-    raise ActiveRecord::RecordNotFound unless @project.contributions_enabled?
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_12_095542) do
+ActiveRecord::Schema.define(version: 2019_02_18_081043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -127,8 +127,11 @@ ActiveRecord::Schema.define(version: 2019_02_12_095542) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "branch_id", null: false
-    t.boolean "is_accepted", default: false, null: false
+    t.bigint "origin_revision_id", null: false
+    t.bigint "accepted_revision_id"
+    t.index ["accepted_revision_id"], name: "index_contributions_on_accepted_revision_id"
     t.index ["creator_id"], name: "index_contributions_on_creator_id"
+    t.index ["origin_revision_id"], name: "index_contributions_on_origin_revision_id"
     t.index ["project_id"], name: "index_contributions_on_project_id"
   end
 
@@ -223,12 +226,21 @@ ActiveRecord::Schema.define(version: 2019_02_12_095542) do
     t.boolean "is_public", null: false
     t.bigint "repository_id"
     t.bigint "master_branch_id"
-    t.boolean "are_contributions_enabled", default: false, null: false
     t.datetime "captured_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["master_branch_id"], name: "index_projects_on_master_branch_id"
     t.index ["owner_id", "slug"], name: "index_projects_on_owner_id_and_slug", unique: true
     t.index ["owner_id"], name: "index_projects_on_owner_id"
     t.index ["repository_id"], name: "index_projects_on_repository_id"
+  end
+
+  create_table "replies", force: :cascade do |t|
+    t.bigint "author_id", null: false
+    t.bigint "contribution_id"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_replies_on_author_id"
+    t.index ["contribution_id"], name: "index_replies_on_contribution_id"
   end
 
   create_table "signups", force: :cascade do |t|
@@ -388,10 +400,14 @@ ActiveRecord::Schema.define(version: 2019_02_12_095542) do
   add_foreign_key "contributions", "profiles", column: "creator_id"
   add_foreign_key "contributions", "projects"
   add_foreign_key "contributions", "vcs_branches", column: "branch_id"
+  add_foreign_key "contributions", "vcs_commits", column: "accepted_revision_id"
+  add_foreign_key "contributions", "vcs_commits", column: "origin_revision_id"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "project_setups", "projects"
   add_foreign_key "projects", "vcs_branches", column: "master_branch_id"
   add_foreign_key "projects", "vcs_repositories", column: "repository_id"
+  add_foreign_key "replies", "contributions"
+  add_foreign_key "replies", "profiles", column: "author_id"
   add_foreign_key "vcs_archives", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_branches", "vcs_repositories", column: "repository_id"
   add_foreign_key "vcs_commits", "profiles", column: "author_id"

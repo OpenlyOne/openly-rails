@@ -2,18 +2,35 @@
 
 FactoryBot.define do
   factory :contribution do
-    association :project, :skip_archive_setup, :with_repository
+    association :project, :skip_archive_setup, :setup_complete, :with_repository
     association :creator, factory: :user
     branch      { build :vcs_branch, repository: project.repository }
+    origin_revision do
+      # HACK: Use stub strategy for origin revision if contribution is being
+      # =>    stubbed.
+      if @build_strategy.is_a?(FactoryBot::Strategy::Stub)
+        build_stubbed(:vcs_commit, :published, branch: project.master_branch)
+      else
+        project.revisions.last ||
+          create(:vcs_commit, :published, branch: project.master_branch)
+      end
+    end
     title       { Faker::HarryPotter.quote }
     description { Faker::Lorem.paragraph }
 
     trait :mock_setup do
+      association :project, :skip_archive_setup,
+                  :setup_complete, :with_repository
+
       branch do
+        if project.master_branch.root.nil?
+          create(:vcs_file_in_branch, :root, branch: project.master_branch)
+        end
+
         project.repository.branches.create!.tap do |fork|
           create :vcs_file_in_branch, :root,
                  file: project.master_branch.root.file, branch: fork
-          fork.copy_committed_files_from(project.master_branch)
+          fork.mark_files_as_committed(origin_revision)
 
           fork.files.without_root.each do |file|
             remote_file_id = Faker::Crypto.unique.sha1
@@ -45,6 +62,18 @@ FactoryBot.define do
       branch { nil }
 
       to_create(&:setup)
+    end
+
+    trait :accepted do
+      accepted_revision do
+        # HACK: Use stub strategy for accepted revision if contribution is being
+        # =>    stubbed.
+        if @build_strategy.is_a?(FactoryBot::Strategy::Stub)
+          build_stubbed(:vcs_commit, :published, branch: project.master_branch)
+        else
+          create(:vcs_commit, :published, branch: project.master_branch)
+        end
+      end
     end
   end
 end

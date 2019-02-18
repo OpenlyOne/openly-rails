@@ -19,7 +19,6 @@ RSpec.describe Account, type: :model do
 
   describe 'attributes' do
     it { is_expected.to accept_nested_attributes_for(:user) }
-    it { is_expected.to have_readonly_attribute(:email) }
 
     it 'sets is_premium to false by default' do
       expect(account).not_to be_premium

@@ -156,11 +156,6 @@ class Project < ApplicationRecord
     can_collaborate? || self[:permission_level] == 'view'
   end
 
-  # Return true if the contributions feature is enabled for this project
-  def contributions_enabled?
-    are_contributions_enabled
-  end
-
   def private?
     is_public == false
   end

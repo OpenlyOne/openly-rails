@@ -17,8 +17,6 @@ class Account < ApplicationRecord
 
   # Attributes
   accepts_nested_attributes_for :user
-  # Do not allow email change
-  attr_readonly :email
 
   # Delegations
   delegate :handle, to: :user, prefix: true
