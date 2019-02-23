@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.36.3 (Mar 4, 2019)
+
+**Fixes:**
+- Improve plain text extraction, so that we no longer have unexpected line
+  breaks in our diffs.
+  ([#342](https://github.com/OpenlyOne/openly/issues/342))
+
 ## v0.36.2 (Feb 18, 2019)
 
 **Fixes:**
