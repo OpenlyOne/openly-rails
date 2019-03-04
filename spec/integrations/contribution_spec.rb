@@ -306,16 +306,12 @@ RSpec.describe Contribution, type: :model do
     end
 
     it 'gives creator of contribution edit access to files' do
-      expect(
-        api_connection.find_file!(
-          contribution.branch.root.remote_file_id,
-          fields: 'capabilities'
-        ).capabilities.can_edit
-      ).to be true
+      # Allow edit access to propagate
+      sleep 3 if VCR.current_cassette.recording?
 
       expect(
         api_connection.find_file!(
-          contribution.branch.files.without_root.first.remote_file_id,
+          contribution.branch.root.remote_file_id,
           fields: 'capabilities'
         ).capabilities.can_edit
       ).to be true
