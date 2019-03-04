@@ -26,14 +26,14 @@ class Henkei
     # Extract plain text from the provided file
     def self.extract_text(file)
       # HACK: extracting text via Apache Tika includes unwanted artefacts, such
-      # =>    as bookmarks and images. Use Nokogiri to get text from HTML
-      # =>    instead.
-      # put_file(
-      #   file: file,
-      #   path: CONTENT_PATH,
-      #   options: { 'Accept': 'text/plain' }
-      # )
-      Nokogiri::HTML(extract_html(file)).text.gsub(/\n\n\n+/, "\n\n")
+      # =>    as bookmarks and images. Use the /rmeta/text endpoint instead.
+      # =>    See TIKA-2755: https://jira.apache.org/jira/browse/TIKA-2755
+      response = put_file(
+        file: file,
+        path: '/rmeta/text'
+      )
+
+      JSON.parse(response).first['X-TIKA:content']&.strip.to_s
     end
 
     # Extract html from the provided file
