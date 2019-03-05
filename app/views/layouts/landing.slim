@@ -11,7 +11,8 @@ html
       gtag('config', 'UA-133689601-1');
 
     title
-      ' Manage Documents just like Code -
+      => @title || 'Home'
+      ' -
       = Settings.app_name
     = csrf_meta_tags
 
@@ -34,7 +35,7 @@ html
 
   / body class=[controller_action_identifier, color_scheme(@color_scheme)]
   / TODO: Set correct color once identified by design team
-  body class=[controller_action_identifier, color_scheme('blue darken-2')]
+  body.landing-page class=[controller_action_identifier, color_scheme('blue darken-2')]
     main
       = render 'landing_navbar'
       = yield

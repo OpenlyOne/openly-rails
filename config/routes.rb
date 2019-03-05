@@ -21,6 +21,9 @@ Rails.application.routes.draw do
   match '/422', to: 'errors#unacceptable', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
 
+  # Static pages
+  get '/platform', to: 'static#github_for_documents'
+
   devise_for :accounts, skip: %i[registrations sessions]
 
   # Routes for signups
@@ -131,5 +134,5 @@ Rails.application.routes.draw do
     end
   end
 
-  root 'static#index'
+  root 'static#open_collaboration'
 end
