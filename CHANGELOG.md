@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.36.4 (Mar 5, 2019)
+
+**Fixes:**
+- Replace landing page with new page targeted at open initiatives
+- Move previous landing page to '/platform'
+
 ## v0.36.3 (Mar 4, 2019)
 
 **Fixes:**

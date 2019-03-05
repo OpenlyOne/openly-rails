@@ -1,0 +1,88 @@
+.hero.full-height.valign-wrapper
+  .container.left-align.hero-content
+    .row
+      .col.s12.m6.l6
+        h1 It's time to tackle the world's biggest challenges.
+        h3.light
+          ' Join a network of the world's leading
+          b
+            ' open initiatives
+          | collaborating for systemic change.
+        = render 'static/open_collaboration/call_to_action'
+
+      .col.s12.m6.l6
+        = image_tag 'static/open_collaboration/celebrate.svg', class: 'responsive-img'
+
+
+    .spacing.v48px
+
+.container.highlights
+  .row.no-margin-top.no-margin-bottom
+    .col.s12
+      h3 What is an open initiative?
+      h3.light
+        ' Any organization, initiative, or startup that follows these core
+        | principles:
+  .row.no-margin-top
+    .col.s12.m4.l4
+      .card
+        h3 Open
+        p.flow-text
+          ' We do our work in the open. Learning, reusing, and building upon our
+          | work is encouraged.
+
+    .col.s12.m4.l4
+      .card
+        h3 Collaborative
+        p.flow-text
+          ' We work together with the communities we serve. Everyone is invited
+          | to get involved.
+
+    .col.s12.m4.l4
+      .card
+        h3 Impact-Driven
+        p.flow-text
+          ' We focus on creating lasting positive impact for people and planet.
+
+
+.spacing.v48px
+
+
+.black.white-text
+
+  .container
+
+    .spacing.v8px
+
+    .row
+      .col.s12.l4
+        .hide-on-med-and-down
+          = image_tag 'logo-text.svg', class: 'responsive-img'
+        .hide-on-large-only.center-align
+          = image_tag 'logo.png', class: 'responsive-img', width: 100
+
+      .col.s6.l4
+        p
+          b Openly One Inc.
+          br
+          | Suite 631
+          br
+          | 1312 17th Street
+          br
+          | Denver, CO 80202
+          br
+          | USA
+
+      .col.s6.l4
+        p
+          = mail_to 'hello@openly.one', nil, class: 'white-text'
+          br
+          br
+          | We are a public benefit corporation &hearts;
+
+    .spacing.v8px
+
+
+/ add non-sticky footer here manually as a replacement for overriding the
+/ default footer
+= render 'footer'

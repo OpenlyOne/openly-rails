@@ -4,7 +4,13 @@
 class StaticController < ApplicationController
   layout 'landing'
 
-  def index
-    @color_scheme = 'blue darken-3'
+  def github_for_documents
+    @title = 'Manage Documents Just Like Code'
+    render 'static/github_for_documents/index'
+  end
+
+  def open_collaboration
+    @title = 'Network of Open Initiatives'
+    render 'static/open_collaboration/index'
   end
 end
