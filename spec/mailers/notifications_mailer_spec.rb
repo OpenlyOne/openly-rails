@@ -30,7 +30,7 @@ RSpec.describe NotificationsMailer, type: :mailer do
     end
 
     it 'sets the correct sender' do
-      expect(mail.from).to contain_exactly 'notification@openly.one'
+      expect(mail.from).to contain_exactly 'notification@open.ly'
       expect(mail[:from].display_names).to contain_exactly 'Openly'
     end
 

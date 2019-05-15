@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.37 (May 15, 2019)
+
+**Enhancements:**
+- Change domain name from openly.one to open.ly
+
 ## v0.36.4 (Mar 5, 2019)
 
 **Fixes:**
