@@ -41,7 +41,7 @@ gem 'devise', '~> 4.4'
 # Use CanCanCan for authorization (permission management)
 gem 'cancancan', '~> 2.1'
 # Nokogiri for parsing fields with errors
-gem 'nokogiri', '~> 1.8.1'
+gem 'nokogiri', '~> 1.10'
 # For simplified Rails configuration
 gem 'config', '~> 1.7'
 # Sequenced for scoped IDs
