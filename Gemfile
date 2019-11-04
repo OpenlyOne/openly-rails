@@ -37,7 +37,7 @@ gem 'jquery-rails', '~> 4.3'
 # Use figaro for managing ENV variables
 gem 'figaro', '~> 1.1'
 # Use Devise for authentication
-gem 'devise', '~> 4.4'
+gem 'devise', '~> 4.7'
 # Use CanCanCan for authorization (permission management)
 gem 'cancancan', '~> 2.1'
 # Nokogiri for parsing fields with errors
