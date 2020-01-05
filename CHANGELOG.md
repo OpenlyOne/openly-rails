@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.38 (Oct 28, 2019)
+
+**Enhancements:**
+- Openly One Inc is now Team Openly.
+  We are dissolving the legal entity and will now operate as a passion project :)
+
+**Fixes:**
+- Update gems to patch security issues
+
 ## v0.37 (May 15, 2019)
 
 **Enhancements:**
