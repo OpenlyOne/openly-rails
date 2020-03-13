@@ -75,7 +75,7 @@ gem 'lograge', '~> 0.10'
 
 # INTERNAL
 # Administration Panel
-gem 'administrate', '0.10'
+gem 'administrate', '0.13.0'
 # Analytics Dashboard
 gem 'blazer', '~> 1.9'
 
